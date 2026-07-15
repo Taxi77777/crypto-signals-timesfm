@@ -38,6 +38,7 @@ from src.mexc_trader       import (
 
 def format_order_telegram(order_result: dict, signal) -> str:
     emoji = "🟢" if order_result["side"] == "LONG" else "🔴"
+    tp_sl_status = "✅ Actifs" if order_result.get("tp_sl_set") else "⚠️ ÉCHEC DE POSE (à surveiller !)"
     return (
         f"🚀 *ORDRE MEXC FUTURES PLACÉ !*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -47,10 +48,10 @@ def format_order_telegram(order_result: dict, signal) -> str:
         f"📦 Contrats : `{order_result['vol']}`\n"
         f"🎯 Take Profit : `{signal.take_profit}`\n"
         f"🛑 Stop Loss   : `{signal.stop_loss}`\n"
-        f"🔄 Trailing Stop : *{order_result['trailing']}* natif MEXC\n"
+        f"⚙️ Pose TP/SL : *{tp_sl_status}*\n"
         f"📈 Confiance IA  : *{signal.confidence}%*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"✅ _Position ouverte — TP/SL/Trailing actifs_\n"
+        f"✅ _Position ouverte sur ton compte MEXC_\n"
         f"🤖 _Google TimesFM 2.5_"
     )
 

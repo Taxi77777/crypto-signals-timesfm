@@ -267,6 +267,43 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
                     }
     return None
 
+def place_position_tp_sl(
+    api_key:     str,
+    secret_key:  str,
+    symbol_mexc: str,
+    vol:         int,
+    tp_price:    float,
+    sl_price:    float,
+) -> bool:
+    """Pose un TP/SL sur une position active via /api/v1/private/stoporder/place."""
+    try:
+        body = json.dumps({
+            "symbol":      symbol_mexc,
+            "quantity":    vol,
+            "vol":         vol,
+            "profitTrend": 1,
+            "lossTrend":   1,
+            "takeProfitPrice": tp_price,
+            "stopLossPrice":   sl_price,
+        }, separators=(",", ":"))
+        headers = _get_headers(api_key, secret_key, body)
+        r = requests.post(
+            f"{MEXC_BASE}/api/v1/private/stoporder/place",
+            headers=headers,
+            data=body,
+            timeout=15,
+        )
+        data = r.json()
+        if data.get("success"):
+            logger.info(f"✅ TP/SL posés : TP={tp_price} | SL={sl_price}")
+            return True
+        logger.error(f"❌ Échec TP/SL position : {data.get('message', data)}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Exception pose TP/SL : {e}")
+        return False
+
+
 def place_order(
     api_key:    str,
     secret_key: str,
@@ -276,7 +313,7 @@ def place_order(
     tp_price:   float,
     sl_price:   float,
 ) -> dict | None:
-    """Place un ordre futures MEXC avec TP/SL + Trailing Stop."""
+    """Place un ordre futures MEXC (Market) puis pose le TP/SL séparément."""
 
     symbol_mexc = SYMBOL_MAP.get(symbol_yf)
     if not symbol_mexc:
@@ -295,6 +332,7 @@ def place_order(
     tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
     sl_rounded = round(round(sl_price / price_unit) * price_unit, price_scale)
 
+    # 1. Placer l'ordre Market principal sans TP/SL pour éviter l'erreur 5003
     order = {
         "symbol":          symbol_mexc,
         "price":           0,
@@ -303,15 +341,12 @@ def place_order(
         "side":            side,
         "type":            5,       # Market order
         "openType":        1,       # Isolated margin
-        "takeProfitPrice": tp_rounded,
-        "stopLossPrice":   sl_rounded,
     }
 
     body_str = json.dumps(order)
     headers  = _get_headers(api_key, secret_key, body_str)
 
-    logger.info(f"Ordre MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
-    logger.info(f"TP: {tp_rounded} | SL: {sl_rounded}")
+    logger.info(f"Ordre Market MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
 
     try:
         r = requests.post(
@@ -324,21 +359,39 @@ def place_order(
         logger.info(f"Réponse brute : {r.text[:500]}")
 
         if not r.text.strip():
-            logger.error("❌ Réponse vide de MEXC — Vérifier API key et permissions")
-            return {"success": False, "error": "Réponse vide MEXC (vérifier permissions API Futures)"}
+            logger.error("❌ Réponse vide de MEXC")
+            return {"success": False, "error": "Réponse vide MEXC"}
 
         data = r.json()
         if data.get("success"):
-            logger.info(f"✅ Ordre placé ! ID : {data.get('data')}")
+            order_id = data.get("data")
+            logger.info(f"✅ Ordre Market placé ! ID : {order_id}")
+
+            # Attendre 1.5 seconde que l'ordre soit exécuté et que la position s'ouvre
+            time.sleep(1.5)
+
+            # 2. Poser le TP/SL sur la position ouverte
+            tp_sl_ok = place_position_tp_sl(
+                api_key     = api_key,
+                secret_key  = secret_key,
+                symbol_mexc = symbol_mexc,
+                vol         = vol,
+                tp_price    = tp_rounded,
+                sl_price    = sl_rounded,
+            )
+
             return {
                 "success":      True,
-                "order_id":     data.get("data"),
+                "order_id":     order_id,
                 "symbol":       symbol_mexc,
                 "side":         "LONG" if side == 1 else "SHORT",
                 "vol":          vol,
                 "balance_used": round(balance * MARGIN_PCT, 2),
                 "leverage":     LEVERAGE,
                 "trailing":     f"{TRAILING_CALLBACK}%",
+                "tp_sl_set":    tp_sl_ok,
+                "tp":           tp_rounded,
+                "sl":           sl_rounded,
             }
         else:
             err = data.get("message") or data.get("msg") or str(data)
