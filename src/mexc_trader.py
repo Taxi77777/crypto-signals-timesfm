@@ -150,6 +150,50 @@ def calculate_contracts(balance_usdt: float, price: float, contract_size: float)
     return max(1, contracts)
 
 
+def _place_stop_order(
+    api_key:      str,
+    secret_key:   str,
+    symbol_mexc:  str,
+    position_id:  str,
+    vol:          int,
+    tp_price:     float,
+    sl_price:     float,
+) -> bool:
+    """Envoie la requête stoporder/place avec les paramètres dynamiques TP/SL."""
+    try:
+        payload = {
+            "symbol":      symbol_mexc,
+            "positionId":  position_id,
+            "quantity":    vol,
+            "vol":         vol,
+            "profitTrend": 1,
+            "lossTrend":   1,
+        }
+        # N'inclure que les prix valides (> 0)
+        if tp_price and tp_price > 0:
+            payload["takeProfitPrice"] = tp_price
+        if sl_price and sl_price > 0:
+            payload["stopLossPrice"] = sl_price
+
+        body = json.dumps(payload, separators=(",", ":"))
+        headers = _get_headers(api_key, secret_key, body)
+        r = requests.post(
+            f"{MEXC_BASE}/api/v1/private/stoporder/place",
+            headers=headers,
+            data=body,
+            timeout=15,
+        )
+        data = r.json()
+        if data.get("success"):
+            logger.info(f"✅ Stop order posé sur position {position_id} : TP={tp_price} | SL={sl_price}")
+            return True
+        logger.error(f"❌ Échec stop order position : {data.get('message', data)}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Exception stop order : {e}")
+        return False
+
+
 def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
                      position_type: int, new_sl_price: float) -> bool:
     """
@@ -175,30 +219,7 @@ def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
         sl_rounded = round(round(new_sl_price / price_unit) * price_unit, price_scale)
 
         logger.info(f"Mise à jour SL position {symbol_mexc} → {sl_rounded} | Maintien TP → {cur_tp}")
-
-        body = json.dumps({
-            "symbol":      symbol_mexc,
-            "positionId":  position_id,
-            "quantity":    vol,
-            "vol":         vol,
-            "profitTrend": 1,
-            "lossTrend":   1,
-            "takeProfitPrice": cur_tp,
-            "stopLossPrice":   sl_rounded,
-        }, separators=(",", ":"))
-        headers = _get_headers(api_key, secret_key, body)
-        r = requests.post(
-            f"{MEXC_BASE}/api/v1/private/stoporder/place",
-            headers=headers,
-            data=body,
-            timeout=15,
-        )
-        data = r.json()
-        if data.get("success"):
-            logger.info(f"✅ SL mis à jour avec succès : {sl_rounded}")
-            return True
-        logger.error(f"❌ Échec mise à jour SL : {data.get('message', data)}")
-        return False
+        return _place_stop_order(api_key, secret_key, symbol_mexc, position_id, vol, cur_tp, sl_rounded)
     except Exception as e:
         logger.error(f"❌ Erreur mise à jour SL : {e}")
         return False
