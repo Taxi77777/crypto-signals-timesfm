@@ -1,93 +1,38 @@
 {
-  "last_update": "2026-07-15T16:51:09.760904+00:00",
+  "last_update": "2026-07-15T18:02:41.899224+00:00",
   "signals": [
-    {
-      "pair_name": "ApeCoin (APE)",
-      "signal": "SELL",
-      "current_price": "$0.157266",
-      "take_profit": "$0.152910",
-      "stop_loss": "$0.160532",
-      "confidence": 95,
-      "rsi": 71.9,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📉 Baisse"
-    },
-    {
-      "pair_name": "Axie Infinity (AXS)",
-      "signal": "BUY",
-      "current_price": "$0.985000",
-      "take_profit": "$0.998094",
-      "stop_loss": "$0.975179",
-      "confidence": 95,
-      "rsi": 41.7,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "📈 Hausse"
-    },
-    {
-      "pair_name": "Ripple (XRP)",
-      "signal": "BUY",
-      "current_price": "$1.1123",
-      "take_profit": "$1.1288",
-      "stop_loss": "$1.1000",
-      "confidence": 85,
-      "rsi": 56.1,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📈 Hausse"
-    },
-    {
-      "pair_name": "Cosmos (ATOM)",
-      "signal": "BUY",
-      "current_price": "$1.5640",
-      "take_profit": "$1.5875",
-      "stop_loss": "$1.5464",
-      "confidence": 85,
-      "rsi": 51.2,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📈 Hausse"
-    },
     {
       "pair_name": "Bitcoin Cash (BCH)",
       "signal": "BUY",
-      "current_price": "$230.6800",
-      "take_profit": "$235.1158",
-      "stop_loss": "$227.3531",
-      "confidence": 85,
-      "rsi": 36.2,
+      "current_price": "$227.9700",
+      "take_profit": "$232.5286",
+      "stop_loss": "$224.5511",
+      "confidence": 95,
+      "rsi": 31.0,
       "macd_trend": "Baissier 🔴",
       "forecast_dir": "📈 Hausse"
     },
     {
-      "pair_name": "Algorand (ALGO)",
-      "signal": "BUY",
-      "current_price": "$0.084900",
-      "take_profit": "$0.085953",
-      "stop_loss": "$0.084110",
-      "confidence": 85,
-      "rsi": 51.1,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📈 Hausse"
-    },
-    {
-      "pair_name": "Ethereum Classic (ETC)",
-      "signal": "BUY",
-      "current_price": "$7.0800",
-      "take_profit": "$7.1792",
-      "stop_loss": "$7.0056",
-      "confidence": 85,
-      "rsi": 53.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📈 Hausse"
-    },
-    {
-      "pair_name": "Ethereum (ETH)",
+      "pair_name": "ApeCoin (APE)",
       "signal": "SELL",
-      "current_price": "$1,913.51",
-      "take_profit": "$1,880.65",
-      "stop_loss": "$1,938.15",
+      "current_price": "$0.155174",
+      "take_profit": "$0.151008",
+      "stop_loss": "$0.158298",
       "confidence": 75,
-      "rsi": 65.3,
+      "rsi": 65.5,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📉 Baisse"
+    },
+    {
+      "pair_name": "Avalanche (AVAX)",
+      "signal": "BUY",
+      "current_price": "$6.7200",
+      "take_profit": "$6.8266",
+      "stop_loss": "$6.6400",
+      "confidence": 72,
+      "rsi": 59.1,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "📈 Hausse"
     }
   ]
 }
