@@ -128,16 +128,19 @@ def has_open_position(api_key: str, secret_key: str) -> bool:
     return False
 
 
-def get_contract_size(symbol_mexc: str) -> float:
-    """Retourne la taille du contrat pour un symbole MEXC."""
+def get_contract_info(symbol_mexc: str) -> tuple[float, float, int]:
+    """Retourne (contractSize, priceUnit, priceScale) pour un symbole MEXC."""
     try:
-        r    = requests.get(f"{MEXC_BASE}/api/v1/contract/detail?symbol={symbol_mexc}", timeout=10)
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/detail?symbol={symbol_mexc}", timeout=10)
         data = r.json()
         if data.get("success"):
-            return float(data["data"].get("contractSize", 0.001))
-    except Exception:
-        pass
-    return 0.001
+            c_size = float(data["data"].get("contractSize", 0.001))
+            p_unit = float(data["data"].get("priceUnit", 0.01))
+            p_scale = int(data["data"].get("priceScale", 2))
+            return c_size, p_unit, p_scale
+    except Exception as e:
+        logger.error(f"Erreur get_contract_info {symbol_mexc}: {e}")
+    return 0.001, 0.01, 2
 
 
 def calculate_contracts(balance_usdt: float, price: float, contract_size: float) -> int:
@@ -154,10 +157,13 @@ def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
     position_type: 1 = Long, 2 = Short
     """
     try:
+        _, price_unit, price_scale = get_contract_info(symbol_mexc)
+        sl_rounded = round(round(new_sl_price / price_unit) * price_unit, price_scale)
+
         body = json.dumps({
             "symbol":       symbol_mexc,
             "positionType": position_type,
-            "stopLossPrice": round(new_sl_price, 4),
+            "stopLossPrice": sl_rounded,
         }, separators=(",", ":"))
         headers = _get_headers(api_key, secret_key, body)
         r = requests.post(
@@ -168,7 +174,7 @@ def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
         )
         data = r.json()
         if data.get("success"):
-            logger.info(f"✅ SL mis à jour → {new_sl_price:.4f}")
+            logger.info(f"✅ SL mis à jour → {sl_rounded}")
             return True
         logger.warning(f"Mise à jour SL : {data}")
         return False
@@ -209,29 +215,30 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
 
     if pos_type == 1:  # LONG
         if profit_pct >= TRAIL_75PCT:
-            # Capture 75% des gains
             new_sl      = entry_price + (current_price - entry_price) * 0.75
             trail_label = f"🔒 Trailing +{TRAIL_75PCT}% → capture 75% gains"
         elif profit_pct >= TRAIL_50PCT:
-            # Capture 50% des gains
             new_sl      = entry_price + (current_price - entry_price) * 0.50
             trail_label = f"🔒 Trailing +{TRAIL_50PCT}% → capture 50% gains"
         elif profit_pct >= TRAIL_BREAKEVEN_PCT:
-            # Breakeven (pas de perte possible)
-            new_sl      = entry_price * 1.001  # légèrement au-dessus de l'entrée
+            new_sl      = entry_price * 1.001
             trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
 
-        # N'update que si le nouveau SL est meilleur que l'actuel
-        if new_sl and new_sl > cur_sl:
-            success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl)
-            if success:
-                return {
-                    "symbol":      symbol,
-                    "profit_pct":  round(profit_pct, 2),
-                    "old_sl":      cur_sl,
-                    "new_sl":      round(new_sl, 4),
-                    "label":       trail_label,
-                }
+        if new_sl:
+            _, price_unit, price_scale = get_contract_info(symbol)
+            new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
+
+            # N'update que si le nouveau SL est meilleur que l'actuel
+            if cur_sl == 0 or new_sl_rounded > cur_sl:
+                success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
+                if success:
+                    return {
+                        "symbol":      symbol,
+                        "profit_pct":  round(profit_pct, 2),
+                        "old_sl":      cur_sl,
+                        "new_sl":      new_sl_rounded,
+                        "label":       trail_label,
+                    }
 
     else:  # SHORT
         if profit_pct >= TRAIL_75PCT:
@@ -244,19 +251,21 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
             new_sl      = entry_price * 0.999
             trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
 
-        if new_sl and new_sl < cur_sl:
-            success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl)
-            if success:
-                return {
-                    "symbol":      symbol,
-                    "profit_pct":  round(profit_pct, 2),
-                    "old_sl":      cur_sl,
-                    "new_sl":      round(new_sl, 4),
-                    "label":       trail_label,
-                }
+        if new_sl:
+            _, price_unit, price_scale = get_contract_info(symbol)
+            new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
 
+            if cur_sl == 0 or new_sl_rounded < cur_sl:
+                success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
+                if success:
+                    return {
+                        "symbol":      symbol,
+                        "profit_pct":  round(profit_pct, 2),
+                        "old_sl":      cur_sl,
+                        "new_sl":      new_sl_rounded,
+                        "label":       trail_label,
+                    }
     return None
-
 
 def place_order(
     api_key:    str,
@@ -279,9 +288,12 @@ def place_order(
         logger.error(f"Solde insuffisant ({balance:.2f} USDT)")
         return None
 
-    contract_size = get_contract_size(symbol_mexc)
-    vol           = calculate_contracts(balance, price, contract_size)
-    side          = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
+    contract_size, price_unit, price_scale = get_contract_info(symbol_mexc)
+    vol = calculate_contracts(balance, price, contract_size)
+    side = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
+
+    tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
+    sl_rounded = round(round(sl_price / price_unit) * price_unit, price_scale)
 
     order = {
         "symbol":          symbol_mexc,
@@ -291,15 +303,15 @@ def place_order(
         "side":            side,
         "type":            5,       # Market order
         "openType":        1,       # Isolated margin
-        "takeProfitPrice": round(tp_price, 4),
-        "stopLossPrice":   round(sl_price, 4),
+        "takeProfitPrice": tp_rounded,
+        "stopLossPrice":   sl_rounded,
     }
 
     body_str = json.dumps(order)
     headers  = _get_headers(api_key, secret_key, body_str)
 
     logger.info(f"Ordre MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
-    logger.info(f"TP: {round(tp_price,4)} | SL: {round(sl_price,4)}")
+    logger.info(f"TP: {tp_rounded} | SL: {sl_rounded}")
 
     try:
         r = requests.post(
