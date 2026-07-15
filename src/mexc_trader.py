@@ -153,33 +153,54 @@ def calculate_contracts(balance_usdt: float, price: float, contract_size: float)
 def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
                      position_type: int, new_sl_price: float) -> bool:
     """
-    Met à jour le Stop Loss d'une position ouverte (trailing stop software).
-    position_type: 1 = Long, 2 = Short
+    Met à jour le Stop Loss d'une position ouverte en préservant le Take Profit existant.
     """
     try:
+        positions = get_open_positions(api_key, secret_key)
+        position_id = None
+        vol = 0
+        cur_tp = 0.0
+        for pos in positions:
+            if pos.get("symbol") == symbol_mexc:
+                position_id = pos.get("positionId")
+                vol = int(pos.get("holdVol", 0))
+                cur_tp = float(pos.get("takeProfitPrice", 0.0))
+                break
+
+        if not position_id or vol == 0:
+            logger.error(f"❌ Impossible de mettre à jour le SL : aucune position active pour {symbol_mexc}")
+            return False
+
         _, price_unit, price_scale = get_contract_info(symbol_mexc)
         sl_rounded = round(round(new_sl_price / price_unit) * price_unit, price_scale)
 
+        logger.info(f"Mise à jour SL position {symbol_mexc} → {sl_rounded} | Maintien TP → {cur_tp}")
+
         body = json.dumps({
-            "symbol":       symbol_mexc,
-            "positionType": position_type,
-            "stopLossPrice": sl_rounded,
+            "symbol":      symbol_mexc,
+            "positionId":  position_id,
+            "quantity":    vol,
+            "vol":         vol,
+            "profitTrend": 1,
+            "lossTrend":   1,
+            "takeProfitPrice": cur_tp,
+            "stopLossPrice":   sl_rounded,
         }, separators=(",", ":"))
         headers = _get_headers(api_key, secret_key, body)
         r = requests.post(
-            f"{MEXC_BASE}/api/v1/private/position/stopLoss/change",
+            f"{MEXC_BASE}/api/v1/private/stoporder/place",
             headers=headers,
             data=body,
-            timeout=10
+            timeout=15,
         )
         data = r.json()
         if data.get("success"):
-            logger.info(f"✅ SL mis à jour → {sl_rounded}")
+            logger.info(f"✅ SL mis à jour avec succès : {sl_rounded}")
             return True
-        logger.warning(f"Mise à jour SL : {data}")
+        logger.error(f"❌ Échec mise à jour SL : {data.get('message', data)}")
         return False
     except Exception as e:
-        logger.error(f"Erreur mise à jour SL : {e}")
+        logger.error(f"❌ Erreur mise à jour SL : {e}")
         return False
 
 
