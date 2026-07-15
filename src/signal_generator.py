@@ -43,8 +43,8 @@ def _format_crypto_price(price: float) -> str:
         return f"${price:.6f}"
 
 
-def generate_signal(symbol: str, df: pd.DataFrame, predictions: np.ndarray) -> TradingSignal | None:
-    """Génère un signal de trading pour une crypto."""
+def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarray, chronos_predictions: np.ndarray | None) -> TradingSignal | None:
+    """Génère un signal de trading pour une crypto en combinant TimesFM + Chronos."""
     try:
         last = df.iloc[-1]
         current_price = float(last["close"])
@@ -87,10 +87,14 @@ def generate_signal(symbol: str, df: pd.DataFrame, predictions: np.ndarray) -> T
         )
 
         # ── Prédiction TimesFM ───────────────────────────────────────────────
-        forecast = get_forecast_direction(current_price, predictions)
-        direction = forecast["direction"]
+        forecast = get_forecast_direction(current_price, timesfm_predictions)
+        timesfm_dir = forecast["direction"]
         confidence_tf = forecast["confidence"]
         target_4h = forecast["target_4h"]
+
+        # ── Prédiction Amazon Chronos ────────────────────────────────────────
+        from src.chronos_predictor import get_chronos_direction
+        chronos_dir = get_chronos_direction(current_price, chronos_predictions)
 
         # ── Score composite ──────────────────────────────────────────────────
         buy_score  = 0
@@ -115,23 +119,36 @@ def generate_signal(symbol: str, df: pd.DataFrame, predictions: np.ndarray) -> T
         if current_price > bb_upper: sell_score += 2
 
         # TimesFM
-        if direction == "BUY":  buy_score  += 3
-        if direction == "SELL": sell_score += 3
+        if timesfm_dir == "BUY":  buy_score  += 3
+        if timesfm_dir == "SELL": sell_score += 3
+
+        # Chronos
+        if chronos_dir == "BUY":  buy_score  += 3
+        if chronos_dir == "SELL": sell_score += 3
 
         # ── Décision finale ──────────────────────────────────────────────────
-        max_score = 10
-        if buy_score > sell_score and buy_score >= 5:
+        max_score = 13
+        if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
             tp_mult    = 1 + (atr * 2 / current_price)
             sl_mult    = 1 - (atr * 1.5 / current_price)
-        elif sell_score > buy_score and sell_score >= 5:
+        elif sell_score > buy_score and sell_score >= 6:
             signal     = "SELL"
             confidence = min(95, int((sell_score / max_score) * 100) + confidence_tf // 4)
             tp_mult    = 1 - (atr * 2 / current_price)
             sl_mult    = 1 + (atr * 1.5 / current_price)
         else:
             return None  # Pas de signal clair
+
+        # ── Filtre de Double Consensus Strict ──
+        if signal in ["BUY", "SELL"]:
+            if timesfm_dir != chronos_dir:
+                logger.info(
+                    f"⚖️ Désaccord IA sur {symbol} (TimesFM: {timesfm_dir} vs Chronos: {chronos_dir}) "
+                    f"→ Signal filtré à HOLD pour sécurité"
+                )
+                return None  # Pas de trade si désaccord
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
@@ -154,7 +171,7 @@ def generate_signal(symbol: str, df: pd.DataFrame, predictions: np.ndarray) -> T
             macd_trend    = macd_trend,
             ema_trend     = ema_trend,
             bb_position   = bb_position,
-            forecast_dir  = "📈 Hausse" if direction == "BUY" else "📉 Baisse" if direction == "SELL" else "↔️ Neutre",
+            forecast_dir  = f"TFM:{timesfm_dir}/CHO:{chronos_dir}",
             forecast_4h   = _format_crypto_price(target_4h),
             tp_pct        = str(tp_pct),
             sl_pct        = str(sl_pct),
