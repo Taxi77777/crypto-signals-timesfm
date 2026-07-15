@@ -1,49 +1,16 @@
 {
-  "last_update": "2026-07-15T23:09:45.760493+00:00",
+  "last_update": "2026-07-15T23:46:27.387106+00:00",
   "signals": [
     {
-      "pair_name": "Cardano (ADA)",
-      "signal": "SELL",
-      "current_price": "$0.165700",
-      "take_profit": "$0.164395",
-      "stop_loss": "$0.166678",
-      "confidence": 94,
-      "rsi": 60.0,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
-    {
-      "pair_name": "The Sandbox (SAND)",
-      "signal": "SELL",
-      "current_price": "$0.048400",
-      "take_profit": "$0.048233",
-      "stop_loss": "$0.048525",
-      "confidence": 78,
-      "rsi": 43.9,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
-    {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "SELL",
-      "current_price": "$0.069900",
-      "take_profit": "$0.069655",
-      "stop_loss": "$0.070084",
-      "confidence": 78,
-      "rsi": 52.6,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
-    {
-      "pair_name": "Axie Infinity (AXS)",
-      "signal": "SELL",
-      "current_price": "$0.992000",
-      "take_profit": "$0.987866",
-      "stop_loss": "$0.995100",
-      "confidence": 78,
-      "rsi": 52.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
+      "pair_name": "Bitcoin Cash (BCH)",
+      "signal": "BUY",
+      "current_price": "$223.1600",
+      "take_profit": "$225.5113",
+      "stop_loss": "$221.3966",
+      "confidence": 95,
+      "rsi": 23.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY"
     }
   ]
 }
