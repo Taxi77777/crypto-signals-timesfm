@@ -407,6 +407,14 @@ def place_order(
         logger.error(f"Solde insuffisant ({balance:.2f} USDT)")
         return None
 
+    # Prix temps réel MEXC (le prix yfinance peut avoir 15 min de retard)
+    live_price = get_current_price(symbol_mexc)
+    if live_price > 0:
+        logger.info(f"Prix live MEXC {symbol_mexc}: {live_price} (yfinance: {price})")
+        price = live_price
+    else:
+        logger.warning(f"Prix live indisponible — utilisation du prix yfinance: {price}")
+
     contract_size, price_unit, price_scale = get_contract_info(symbol_mexc)
     vol = calculate_contracts(balance, price, contract_size)
     side = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
@@ -414,15 +422,19 @@ def place_order(
     tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
     sl_rounded = round(round(sl_price / price_unit) * price_unit, price_scale)
 
-    # 1. Placer l'ordre Market principal sans TP/SL pour éviter l'erreur 5003
+    # Ordre Market avec TP/SL atomiques (supportés par /order/create)
     order = {
         "symbol":          symbol_mexc,
-        "price":           0,
+        "price":           price,
         "vol":             vol,
         "leverage":        LEVERAGE,
         "side":            side,
         "type":            5,       # Market order
         "openType":        1,       # Isolated margin
+        "takeProfitPrice": tp_rounded,
+        "stopLossPrice":   sl_rounded,
+        "profitTrend":     1,       # déclenchement sur dernier prix
+        "lossTrend":       1,
     }
 
     body_str = json.dumps(order)
@@ -432,7 +444,7 @@ def place_order(
 
     try:
         r = requests.post(
-            f"{MEXC_BASE}/api/v1/private/order/submit",
+            f"{MEXC_BASE}/api/v1/private/order/create",
             headers=headers,
             data=body_str,
             timeout=15,
@@ -446,21 +458,10 @@ def place_order(
 
         data = r.json()
         if data.get("success"):
-            order_id = data.get("data")
-            logger.info(f"✅ Ordre Market placé ! ID : {order_id}")
-
-            # Attendre 1.5 seconde que l'ordre soit exécuté et que la position s'ouvre
-            time.sleep(1.5)
-
-            # 2. Poser le TP/SL sur la position ouverte
-            tp_sl_ok = place_position_tp_sl(
-                api_key     = api_key,
-                secret_key  = secret_key,
-                symbol_mexc = symbol_mexc,
-                vol         = vol,
-                tp_price    = tp_rounded,
-                sl_price    = sl_rounded,
-            )
+            order_data = data.get("data")
+            order_id = order_data.get("orderId") if isinstance(order_data, dict) else order_data
+            logger.info(f"✅ Ordre Market placé avec TP/SL atomiques ! ID : {order_id}")
+            tp_sl_ok = True  # TP/SL inclus dans l'ordre lui-même
 
             return {
                 "success":      True,

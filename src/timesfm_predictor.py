@@ -44,7 +44,8 @@ def predict_timesfm(price_series: np.ndarray) -> Optional[np.ndarray]:
     """Génère une prédiction via TimesFM 2.5."""
     model = _load_model()
     if model is None:
-        return _fallback_predict(price_series)
+        logger.warning("TimesFM indisponible — aucune prédiction (pas de vote IA, sécurité)")
+        return None
     try:
         inputs = [price_series.astype(np.float32)]
         point_forecast, _ = model.forecast(
@@ -54,23 +55,8 @@ def predict_timesfm(price_series: np.ndarray) -> Optional[np.ndarray]:
         predictions = point_forecast[0]
         return predictions.astype(np.float64)
     except Exception as e:
-        logger.error(f"Erreur prédiction TimesFM: {e}")
-        return _fallback_predict(price_series)
-
-
-def _fallback_predict(price_series: np.ndarray) -> np.ndarray:
-    """Régression linéaire de repli si TimesFM indisponible."""
-    horizon = config.FORECAST_HORIZON
-    window  = min(100, len(price_series))
-    x = np.arange(window)
-    y = price_series[-window:]
-    coeffs = np.polyfit(x, y, deg=1)
-    slope, intercept = coeffs
-    future_x    = np.arange(window, window + horizon)
-    predictions = slope * future_x + intercept
-    np.random.seed(int(price_series[-1] * 1000) % 9999)
-    noise_scale = np.std(np.diff(price_series[-20:])) * 0.3
-    return predictions + np.random.normal(0, noise_scale, size=horizon)
+        logger.error(f"Erreur prédiction TimesFM: {e} — aucune prédiction (pas de vote IA)")
+        return None
 
 
 def get_forecast_direction(current_price: float, predictions: np.ndarray) -> dict:
