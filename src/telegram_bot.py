@@ -40,11 +40,11 @@ def format_signal_message(signal: TradingSignal) -> str:
         f"MACD       : {signal.macd_trend}\n"
         f"EMA 20/50  : {signal.ema_trend}\n"
         f"Bollinger  : {signal.bb_position}\n"
-        f"Tendance IA: {signal.forecast_dir} (4h)\n"
-        f"Cible IA 4h: `{signal.forecast_4h}`\n"
+        f"Tendance IA: {signal.forecast_dir} ({'1h' if config.DATA_INTERVAL == '15m' else '4h'})\n"
+        f"Cible IA ({'1h' if config.DATA_INTERVAL == '15m' else '4h'}): `{signal.forecast_4h}`\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ {time_str} (Paris)\n"
-        f"🤖 _Google TimesFM 2.5 — Usage éducatif_"
+        f"🤖 _Google TimesFM & Chronos — Usage éducatif_"
     )
 
 
