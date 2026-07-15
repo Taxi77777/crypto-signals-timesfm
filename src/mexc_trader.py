@@ -277,8 +277,23 @@ def place_position_tp_sl(
 ) -> bool:
     """Pose un TP/SL sur une position active via /api/v1/private/stoporder/place."""
     try:
+        # 1. Récupérer les positions ouvertes pour trouver le positionId
+        positions = get_open_positions(api_key, secret_key)
+        position_id = None
+        for pos in positions:
+            if pos.get("symbol") == symbol_mexc:
+                position_id = pos.get("positionId")
+                break
+
+        if not position_id:
+            logger.error(f"❌ Impossible de poser le TP/SL : aucune position active trouvée pour {symbol_mexc}")
+            return False
+
+        logger.info(f"Position active trouvée pour {symbol_mexc} | ID: {position_id}")
+
         body = json.dumps({
             "symbol":      symbol_mexc,
+            "positionId":  position_id,
             "quantity":    vol,
             "vol":         vol,
             "profitTrend": 1,
