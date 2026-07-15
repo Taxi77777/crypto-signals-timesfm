@@ -242,6 +242,9 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
         elif profit_pct >= TRAIL_BREAKEVEN_PCT:
             new_sl      = entry_price * 1.001
             trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
+        elif cur_sl == 0:
+            new_sl      = entry_price * 0.98  # Stop Loss initial 2%
+            trail_label = "🛡️ Initialisation Stop Loss initial (2%)"
 
         if new_sl:
             _, price_unit, price_scale = get_contract_info(symbol)
@@ -269,6 +272,9 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
         elif profit_pct >= TRAIL_BREAKEVEN_PCT:
             new_sl      = entry_price * 0.999
             trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
+        elif cur_sl == 0:
+            new_sl      = entry_price * 1.02  # Stop Loss initial 2%
+            trail_label = "🛡️ Initialisation Stop Loss initial (2%)"
 
         if new_sl:
             _, price_unit, price_scale = get_contract_info(symbol)
