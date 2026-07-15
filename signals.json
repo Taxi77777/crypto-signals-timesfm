@@ -1,25 +1,25 @@
 {
-  "last_update": "2026-07-15T14:40:34.076060+00:00",
+  "last_update": "2026-07-15T14:43:45.053512+00:00",
   "signals": [
     {
       "pair_name": "Bitcoin (BTC)",
       "signal": "SELL",
-      "current_price": "$65,281.93",
-      "take_profit": "$64,549.46",
-      "stop_loss": "$65,831.28",
+      "current_price": "$65,318.48",
+      "take_profit": "$64,586.01",
+      "stop_loss": "$65,867.83",
       "confidence": 95,
-      "rsi": 68.4,
+      "rsi": 68.9,
       "macd_trend": "Neutre ⚪",
       "forecast_dir": "📉 Baisse"
     },
     {
       "pair_name": "Ethereum (ETH)",
       "signal": "SELL",
-      "current_price": "$1,926.52",
-      "take_profit": "$1,894.92",
-      "stop_loss": "$1,950.22",
+      "current_price": "$1,924.49",
+      "take_profit": "$1,892.89",
+      "stop_loss": "$1,948.19",
       "confidence": 95,
-      "rsi": 76.1,
+      "rsi": 75.6,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📉 Baisse"
     },
@@ -31,6 +31,17 @@
       "stop_loss": "$0.846798",
       "confidence": 85,
       "rsi": 56.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "📈 Hausse"
+    },
+    {
+      "pair_name": "Algorand (ALGO)",
+      "signal": "BUY",
+      "current_price": "$0.085300",
+      "take_profit": "$0.086262",
+      "stop_loss": "$0.084578",
+      "confidence": 85,
+      "rsi": 59.0,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📈 Hausse"
     },
@@ -59,22 +70,22 @@
     {
       "pair_name": "Cardano (ADA)",
       "signal": "BUY",
-      "current_price": "$0.166000",
-      "take_profit": "$0.169284",
-      "stop_loss": "$0.163537",
+      "current_price": "$0.165800",
+      "take_profit": "$0.169084",
+      "stop_loss": "$0.163337",
       "confidence": 72,
-      "rsi": 61.6,
+      "rsi": 60.4,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📈 Hausse"
     },
     {
       "pair_name": "Theta Network (THETA)",
       "signal": "BUY",
-      "current_price": "$0.146866",
-      "take_profit": "$0.149166",
-      "stop_loss": "$0.145140",
+      "current_price": "$0.146987",
+      "take_profit": "$0.149288",
+      "stop_loss": "$0.145262",
       "confidence": 70,
-      "rsi": 56.0,
+      "rsi": 56.7,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📈 Hausse"
     }
