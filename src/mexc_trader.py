@@ -183,6 +183,22 @@ def update_stop_loss(api_key: str, secret_key: str, symbol_mexc: str,
         return False
 
 
+def get_current_price(symbol_mexc: str) -> float:
+    """Retourne le dernier prix de marché pour un symbole MEXC Futures."""
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/ticker?symbol={symbol_mexc}", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            res = data.get("data")
+            if isinstance(res, list) and len(res) > 0:
+                return float(res[0].get("lastPrice", 0))
+            elif isinstance(res, dict):
+                return float(res.get("lastPrice", 0))
+    except Exception as e:
+        logger.error(f"Erreur get_current_price {symbol_mexc}: {e}")
+    return 0.0
+
+
 def check_and_trail(api_key: str, secret_key: str) -> dict | None:
     """
     Vérifie les positions ouvertes et applique le trailing stop software.
@@ -195,11 +211,14 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
     pos          = positions[0]
     symbol       = pos.get("symbol", "")
     pos_type     = pos.get("positionType", 1)   # 1=Long, 2=Short
-    entry_price  = float(pos.get("openAvgPrice", 0))
-    current_price= float(pos.get("closeAvgPrice", 0)) or float(pos.get("markPrice", 0))
+    entry_price  = float(pos.get("openAvgPrice", 0)) or float(pos.get("holdAvgPrice", 0))
     cur_sl       = float(pos.get("stopLossPrice", 0))
 
+    # Obtenir le prix actuel en temps réel
+    current_price = get_current_price(symbol)
+
     if entry_price == 0 or current_price == 0:
+        logger.warning(f"check_and_trail: prix invalide pour {symbol} (Entrée: {entry_price}, Actuel: {current_price})")
         return None
 
     # Calcul du profit en %
@@ -208,7 +227,7 @@ def check_and_trail(api_key: str, secret_key: str) -> dict | None:
     else:              # Short
         profit_pct = (entry_price - current_price) / entry_price * 100
 
-    logger.info(f"Position {symbol} | Profit: {profit_pct:.2f}% | SL actuel: {cur_sl}")
+    logger.info(f"Position {symbol} | Profit: {profit_pct:.2f}% | SL actuel: {cur_sl} | Prix actuel: {current_price}")
 
     new_sl       = None
     trail_label  = ""
