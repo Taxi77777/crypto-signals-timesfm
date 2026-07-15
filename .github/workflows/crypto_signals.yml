@@ -1,8 +1,8 @@
-name: Crypto Signals Bot — Toutes les 30 minutes
+name: Crypto Signals Bot — Bougies 15m, Scan 10min
 
 on:
   schedule:
-    - cron: '0,30 * * * *'   # Toutes les 30 minutes
+    - cron: '*/10 * * * *'   # Toutes les 10 minutes
   workflow_dispatch:            # Bouton manuel depuis GitHub
 
 jobs:
