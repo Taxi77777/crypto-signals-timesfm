@@ -16,10 +16,12 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-MEXC_BASE          = "https://contract.mexc.com"
+MEXC_BASE          = "https://futures.mexc.com"  # URL alternative
 LEVERAGE           = 10
-MARGIN_PCT         = 0.95   # 95% du solde (5% pour les frais)
-TRAILING_CALLBACK  = 2.0    # Trailing stop 2% (natif MEXC)
+MARGIN_PCT         = 0.95
+TRAILING_CALLBACK  = 2.0
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 # Seuils protection software (en % de profit)
 TRAIL_BREAKEVEN_PCT = 1.5   # À +1.5% → SL déplacé au prix d'entrée (0 perte)
@@ -71,18 +73,17 @@ def _get_headers(api_key: str, secret_key: str, body: str = "") -> dict:
         "Request-Time":  str(timestamp),
         "Signature":     _sign(api_key, secret_key, timestamp, body),
         "Content-Type":  "application/json",
+        "User-Agent":    USER_AGENT,
     }
 
 
 def get_usdt_balance(api_key: str, secret_key: str) -> float:
     """Retourne le solde USDT disponible sur le compte futures MEXC."""
     try:
-        ts  = int(time.time() * 1000)
-        sig = _sign(api_key, secret_key, ts)
+        headers = _get_headers(api_key, secret_key)
         r   = requests.get(
             f"{MEXC_BASE}/api/v1/private/account/assets",
-            headers={"ApiKey": api_key, "Request-Time": str(ts),
-                     "Signature": sig, "Content-Type": "application/json"},
+            headers=headers,
             timeout=10
         )
         data = r.json()
@@ -102,12 +103,10 @@ def get_usdt_balance(api_key: str, secret_key: str) -> float:
 def get_open_positions(api_key: str, secret_key: str) -> list:
     """Retourne la liste des positions ouvertes."""
     try:
-        ts  = int(time.time() * 1000)
-        sig = _sign(api_key, secret_key, ts)
+        headers = _get_headers(api_key, secret_key)
         r   = requests.get(
             f"{MEXC_BASE}/api/v1/private/position/open_positions",
-            headers={"ApiKey": api_key, "Request-Time": str(ts),
-                     "Signature": sig, "Content-Type": "application/json"},
+            headers=headers,
             timeout=10
         )
         data = r.json()
@@ -297,14 +296,7 @@ def place_order(
     }
 
     body_str = json.dumps(order)
-    ts        = int(time.time() * 1000)
-    sig       = _sign(api_key, secret_key, ts, body_str)
-    headers = {
-        "ApiKey":        api_key,
-        "Request-Time":  str(ts),
-        "Signature":     sig,
-        "Content-Type":  "application/json",
-    }
+    headers  = _get_headers(api_key, secret_key, body_str)
 
     logger.info(f"Ordre MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
     logger.info(f"TP: {round(tp_price,4)} | SL: {round(sl_price,4)}")
