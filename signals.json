@@ -1,38 +1,38 @@
 {
-  "last_update": "2026-07-15T18:02:41.899224+00:00",
+  "last_update": "2026-07-15T18:27:46.532066+00:00",
   "signals": [
     {
-      "pair_name": "Bitcoin Cash (BCH)",
-      "signal": "BUY",
-      "current_price": "$227.9700",
-      "take_profit": "$232.5286",
-      "stop_loss": "$224.5511",
-      "confidence": 95,
-      "rsi": 31.0,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "📈 Hausse"
-    },
-    {
-      "pair_name": "ApeCoin (APE)",
+      "pair_name": "Ethereum Classic (ETC)",
       "signal": "SELL",
-      "current_price": "$0.155174",
-      "take_profit": "$0.151008",
-      "stop_loss": "$0.158298",
-      "confidence": 75,
-      "rsi": 65.5,
+      "current_price": "$7.1200",
+      "take_profit": "$7.0290",
+      "stop_loss": "$7.1883",
+      "confidence": 78,
+      "rsi": 58.1,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📉 Baisse"
+      "forecast_dir": "TFM:SELL/CHO:SELL"
     },
     {
-      "pair_name": "Avalanche (AVAX)",
-      "signal": "BUY",
-      "current_price": "$6.7200",
-      "take_profit": "$6.8266",
-      "stop_loss": "$6.6400",
-      "confidence": 72,
-      "rsi": 59.1,
+      "pair_name": "NEAR Protocol (NEAR)",
+      "signal": "SELL",
+      "current_price": "$2.0640",
+      "take_profit": "$2.0184",
+      "stop_loss": "$2.0982",
+      "confidence": 75,
+      "rsi": 60.4,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📈 Hausse"
+      "forecast_dir": "TFM:SELL/CHO:SELL"
+    },
+    {
+      "pair_name": "Theta Network (THETA)",
+      "signal": "SELL",
+      "current_price": "$0.146599",
+      "take_profit": "$0.144496",
+      "stop_loss": "$0.148177",
+      "confidence": 71,
+      "rsi": 54.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL"
     }
   ]
 }
