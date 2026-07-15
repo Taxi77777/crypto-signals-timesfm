@@ -268,7 +268,7 @@ def place_order(
     tp_price:   float,
     sl_price:   float,
 ) -> dict | None:
-    """Place un ordre futures MEXC avec TP/SL + Trailing Stop natif."""
+    """Place un ordre futures MEXC avec TP/SL + Trailing Stop."""
 
     symbol_mexc = SYMBOL_MAP.get(symbol_yf)
     if not symbol_mexc:
@@ -285,26 +285,44 @@ def place_order(
     side          = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
 
     order = {
-        "symbol":               symbol_mexc,
-        "price":                0,              # Market order
-        "vol":                  vol,
-        "leverage":             LEVERAGE,
-        "side":                 side,
-        "type":                 5,              # Market
-        "openType":             1,              # Isolated margin
-        "takeProfitPrice":      round(tp_price, 4),
-        "stopLossPrice":        round(sl_price, 4),
-        "trailingStopCallback": TRAILING_CALLBACK,   # Trailing stop natif 2%
+        "symbol":          symbol_mexc,
+        "price":           0,
+        "vol":             vol,
+        "leverage":        LEVERAGE,
+        "side":            side,
+        "type":            5,       # Market order
+        "openType":        1,       # Isolated margin
+        "takeProfitPrice": round(tp_price, 4),
+        "stopLossPrice":   round(sl_price, 4),
     }
 
-    body_str = json.dumps(order, separators=(",", ":"))
-    headers  = _get_headers(api_key, secret_key, body_str)
+    body_str = json.dumps(order)
+    ts        = int(time.time() * 1000)
+    sig       = _sign(api_key, secret_key, ts, body_str)
+    headers = {
+        "ApiKey":        api_key,
+        "Request-Time":  str(ts),
+        "Signature":     sig,
+        "Content-Type":  "application/json",
+    }
 
-    logger.info(f"Ordre MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats — Trailing 2%")
+    logger.info(f"Ordre MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
+    logger.info(f"TP: {round(tp_price,4)} | SL: {round(sl_price,4)}")
 
     try:
-        r    = requests.post(f"{MEXC_BASE}/api/v1/private/order/submit",
-                             headers=headers, data=body_str, timeout=15)
+        r = requests.post(
+            f"{MEXC_BASE}/api/v1/private/order/submit",
+            headers=headers,
+            data=body_str,
+            timeout=15,
+        )
+        logger.info(f"Status HTTP : {r.status_code}")
+        logger.info(f"Réponse brute : {r.text[:500]}")
+
+        if not r.text.strip():
+            logger.error("❌ Réponse vide de MEXC — Vérifier API key et permissions")
+            return {"success": False, "error": "Réponse vide MEXC (vérifier permissions API Futures)"}
+
         data = r.json()
         if data.get("success"):
             logger.info(f"✅ Ordre placé ! ID : {data.get('data')}")
@@ -319,8 +337,10 @@ def place_order(
                 "trailing":     f"{TRAILING_CALLBACK}%",
             }
         else:
-            logger.error(f"❌ Erreur MEXC : {data.get('message', data)}")
-            return {"success": False, "error": data.get("message", str(data))}
+            err = data.get("message") or data.get("msg") or str(data)
+            logger.error(f"❌ Erreur MEXC : {err}")
+            return {"success": False, "error": err}
     except Exception as e:
         logger.error(f"❌ Exception : {e}")
         return {"success": False, "error": str(e)}
+
