@@ -1,25 +1,47 @@
 {
-  "last_update": "2026-07-15T15:03:05.591214+00:00",
+  "last_update": "2026-07-15T15:07:35.716504+00:00",
   "signals": [
+    {
+      "pair_name": "Bitcoin (BTC)",
+      "signal": "SELL",
+      "current_price": "$65,327.48",
+      "take_profit": "$64,627.02",
+      "stop_loss": "$65,852.82",
+      "confidence": 92,
+      "rsi": 68.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "📉 Baisse"
+    },
     {
       "pair_name": "Ethereum (ETH)",
       "signal": "SELL",
-      "current_price": "$1,929.60",
-      "take_profit": "$1,899.67",
-      "stop_loss": "$1,952.04",
+      "current_price": "$1,931.70",
+      "take_profit": "$1,901.68",
+      "stop_loss": "$1,954.22",
       "confidence": 92,
-      "rsi": 75.6,
+      "rsi": 77.1,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "📉 Baisse"
+    },
+    {
+      "pair_name": "Chainlink (LINK)",
+      "signal": "SELL",
+      "current_price": "$8.5890",
+      "take_profit": "$8.4379",
+      "stop_loss": "$8.7023",
+      "confidence": 92,
+      "rsi": 71.5,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📉 Baisse"
     },
     {
       "pair_name": "Ripple (XRP)",
       "signal": "BUY",
-      "current_price": "$1.1234",
-      "take_profit": "$1.1375",
-      "stop_loss": "$1.1128",
+      "current_price": "$1.1248",
+      "take_profit": "$1.1389",
+      "stop_loss": "$1.1142",
       "confidence": 85,
-      "rsi": 71.6,
+      "rsi": 74.0,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📈 Hausse"
     },
@@ -27,8 +49,8 @@
       "pair_name": "Dogecoin (DOGE)",
       "signal": "BUY",
       "current_price": "$0.074750",
-      "take_profit": "$0.075838",
-      "stop_loss": "$0.073934",
+      "take_profit": "$0.075845",
+      "stop_loss": "$0.073929",
       "confidence": 85,
       "rsi": 61.7,
       "macd_trend": "Haussier 🟢",
@@ -37,11 +59,11 @@
     {
       "pair_name": "Polkadot (DOT)",
       "signal": "BUY",
-      "current_price": "$0.857000",
-      "take_profit": "$0.870059",
-      "stop_loss": "$0.847206",
+      "current_price": "$0.858000",
+      "take_profit": "$0.871202",
+      "stop_loss": "$0.848098",
       "confidence": 85,
-      "rsi": 56.6,
+      "rsi": 58.0,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📈 Hausse"
     },
@@ -57,35 +79,13 @@
       "forecast_dir": "📈 Hausse"
     },
     {
-      "pair_name": "Bitcoin (BTC)",
-      "signal": "SELL",
-      "current_price": "$65,262.20",
-      "take_profit": "$64,565.53",
-      "stop_loss": "$65,784.70",
-      "confidence": 72,
-      "rsi": 66.9,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "📉 Baisse"
-    },
-    {
-      "pair_name": "Chainlink (LINK)",
-      "signal": "SELL",
-      "current_price": "$8.5470",
-      "take_profit": "$8.4011",
-      "stop_loss": "$8.6564",
-      "confidence": 72,
-      "rsi": 69.0,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "📉 Baisse"
-    },
-    {
       "pair_name": "NEAR Protocol (NEAR)",
       "signal": "SELL",
-      "current_price": "$2.0750",
-      "take_profit": "$2.0286",
-      "stop_loss": "$2.1098",
+      "current_price": "$2.0730",
+      "take_profit": "$2.0265",
+      "stop_loss": "$2.1079",
       "confidence": 72,
-      "rsi": 67.7,
+      "rsi": 66.7,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "📉 Baisse"
     }
