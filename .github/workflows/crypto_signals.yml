@@ -1,0 +1,54 @@
+name: Crypto Signals Bot — Toutes les 30 minutes
+
+on:
+  schedule:
+    - cron: '0,30 * * * *'   # Toutes les 30 minutes
+  workflow_dispatch:            # Bouton manuel depuis GitHub
+
+jobs:
+  send-signals:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Installation Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancement de l'analyse Crypto
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          USE_TIMESFM: 'true'
+          DATA_INTERVAL: '1h'
+          SIGNAL_FREQUENCY_HOURS: '1'
+          LOG_LEVEL: 'INFO'
+        run: python run_once.py
+
+      - name: Commit et Push de signals.json
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add signals.json
+          git commit -m "chore: update crypto signals.json [skip ci]" || echo "Aucune modification"
+          git push
+
+      - name: Sauvegarde des logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-logs-${{ github.run_number }}
+          path: logs/signals.log
+          retention-days: 7
