@@ -176,6 +176,13 @@ def main():
             time.sleep(0.5)
     else:
         logger.info("Aucun signal fort ce scan.")
+        # Heartbeat : confirme que le bot tourne même sans signal
+        send_message(
+            f"🔍 *Scan Crypto terminé*\n"
+            f"📊 {len(signals)} cryptos analysées\n"
+            f"🤖 0 signal fort (filtre double consensus IA actif)\n"
+            f"_Prochain scan dans 30 min_"
+        )
 
     # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
     if use_mexc and trade_allowed and strong_signals:
