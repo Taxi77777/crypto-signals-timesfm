@@ -2,7 +2,7 @@
 src/mexc_trader.py — Intégration MEXC Futures avec TimesFM
 - 1 seule position ouverte à la fois
 - Mise totale du solde USDT disponible
-- Levier x10, market order isolé
+- Levier x20, market order isolé
 - TP/SL automatiques
 - Trailing Stop : 2% callback natif MEXC + protection software
 """
@@ -17,7 +17,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 MEXC_BASE          = "https://api.mexc.com"
-LEVERAGE           = 10
+LEVERAGE           = 20
 MARGIN_PCT         = 0.95
 TRAILING_CALLBACK  = 2.0
 
