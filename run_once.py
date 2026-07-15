@@ -1,6 +1,8 @@
 """
-run_once.py — Analyse crypto unique pour GitHub Actions
-Lance une analyse complète, envoie les signaux forts sur Telegram, puis quitte.
+run_once.py — Analyse crypto + Auto-trading MEXC Futures
+Logique :
+  1. Si position ouverte → Applique trailing stop software + surveillance
+  2. Si aucune position → Prend le meilleur signal fort et ouvre la position
 """
 
 import logging
@@ -23,34 +25,99 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 import config
-from src.data_fetcher       import fetch_all_pairs, prepare_timesfm_input
-from src.indicators         import compute_all_indicators
-from src.timesfm_predictor  import predict_timesfm
-from src.signal_generator   import generate_signal
-from src.telegram_bot       import send_signal
+from src.data_fetcher      import fetch_all_pairs, prepare_timesfm_input
+from src.indicators        import compute_all_indicators
+from src.timesfm_predictor import predict_timesfm
+from src.signal_generator  import generate_signal
+from src.telegram_bot      import send_signal, send_message
+from src.mexc_trader       import (
+    has_open_position, place_order,
+    get_usdt_balance, check_and_trail
+)
+
+
+def format_order_telegram(order_result: dict, signal) -> str:
+    emoji = "🟢" if order_result["side"] == "LONG" else "🔴"
+    return (
+        f"🚀 *ORDRE MEXC FUTURES PLACÉ !*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🪙 {signal.pair_name}\n"
+        f"📊 {emoji} *{order_result['side']} x{order_result['leverage']}*\n"
+        f"💰 Mise : *{order_result['balance_used']} USDT*\n"
+        f"📦 Contrats : `{order_result['vol']}`\n"
+        f"🎯 Take Profit : `{signal.take_profit}`\n"
+        f"🛑 Stop Loss   : `{signal.stop_loss}`\n"
+        f"🔄 Trailing Stop : *{order_result['trailing']}* natif MEXC\n"
+        f"📈 Confiance IA  : *{signal.confidence}%*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"✅ _Position ouverte — TP/SL/Trailing actifs_\n"
+        f"🤖 _Google TimesFM 2.5_"
+    )
+
+
+def format_trail_telegram(trail: dict) -> str:
+    return (
+        f"🔒 *TRAILING STOP MIS À JOUR*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🪙 `{trail['symbol']}`\n"
+        f"📈 Profit actuel : *+{trail['profit_pct']}%*\n"
+        f"🛑 Ancien SL : `{trail['old_sl']}`\n"
+        f"✅ Nouveau SL : `{trail['new_sl']}`\n"
+        f"{trail['label']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"_Tes gains sont maintenant protégés !_ 🛡️"
+    )
 
 
 def main():
-    logger.info("=== GitHub Actions — Analyse Crypto démarrée ===")
+    logger.info("=== Analyse Crypto Futures + Auto-Trading MEXC ===")
+
+    mexc_key    = os.getenv("MEXC_API_KEY", "")
+    mexc_secret = os.getenv("MEXC_SECRET_KEY", "")
+    use_mexc    = bool(mexc_key and mexc_secret)
 
     if not config.TELEGRAM_BOT_TOKEN or not config.TELEGRAM_CHAT_ID:
         logger.error("TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID manquant !")
         sys.exit(1)
 
-    logger.info(f"Analyse de {len(config.CRYPTO_PAIRS)} cryptos...")
+    # ── 1. Vérification position + Trailing Stop ──────────────────────────────
+    trade_allowed = False
+    if use_mexc:
+        balance = get_usdt_balance(mexc_key, mexc_secret)
+        logger.info(f"Solde MEXC Futures : {balance:.2f} USDT")
+
+        if has_open_position(mexc_key, mexc_secret):
+            # Position ouverte → appliquer trailing stop software
+            logger.info("Position active → Vérification trailing stop...")
+            trail_result = check_and_trail(mexc_key, mexc_secret)
+            if trail_result:
+                msg = format_trail_telegram(trail_result)
+                send_message(msg)
+                logger.info(f"Trailing stop appliqué : {trail_result}")
+            trade_allowed = False  # Pas de nouveau trade
+        else:
+            logger.info("Aucune position → Recherche du meilleur signal...")
+            trade_allowed = True
+    else:
+        logger.warning("Clés MEXC absentes — Mode analyse seule.")
+
+    # ── 2. Analyse TimesFM des 25 cryptos ────────────────────────────────────
+    logger.info(f"Analyse de {len(config.CRYPTO_PAIRS)} cryptos avec TimesFM 2.5...")
     all_data = fetch_all_pairs()
 
     if not all_data:
         logger.error("Aucune donnée récupérée")
         sys.exit(1)
 
-    signals = []
+    signals    = []
+    raw_prices = {}
     for symbol, df in all_data.items():
         pair_name = config.PAIR_NAMES.get(symbol, symbol)
         try:
-            df_ind      = compute_all_indicators(df)
+            df_ind = compute_all_indicators(df)
             if df_ind.empty:
                 continue
+            raw_prices[symbol] = float(df_ind.iloc[-1]["close"])
             price_series = prepare_timesfm_input(df)
             predictions  = predict_timesfm(price_series)
             signal       = generate_signal(symbol, df_ind, predictions)
@@ -60,10 +127,11 @@ def main():
             logger.error(f"Erreur {pair_name}: {e}")
             continue
 
-    # Signaux forts uniquement
+    # Trier par confiance décroissante
     strong_signals = [s for s in signals if s.is_strong and s.signal != "HOLD"]
+    strong_signals.sort(key=lambda s: s.confidence, reverse=True)
 
-    # Export JSON pour le site web
+    # ── 3. Export JSON ────────────────────────────────────────────────────────
     web_data = {
         "last_update": datetime.now(timezone.utc).isoformat(),
         "signals": [
@@ -81,19 +149,51 @@ def main():
             for s in strong_signals
         ]
     }
-
     with open("signals.json", "w", encoding="utf-8") as f:
         json.dump(web_data, f, indent=2, ensure_ascii=False)
     logger.info("signals.json mis à jour.")
 
+    # ── 4. Envoi Telegram des signaux forts ───────────────────────────────────
     if strong_signals:
         logger.info(f"Envoi de {len(strong_signals)} signaux forts sur Telegram...")
         for s in strong_signals:
             send_signal(s)
             time.sleep(0.5)
-        logger.info(f"OK — {len(strong_signals)} signaux envoyés !")
     else:
-        logger.info("Aucun signal fort détecté ce scan.")
+        logger.info("Aucun signal fort ce scan.")
+
+    # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
+    if use_mexc and trade_allowed and strong_signals:
+        best = strong_signals[0]
+        logger.info(f"→ Meilleur signal : {best.pair_name} {best.signal} {best.confidence}%")
+
+        raw_price = raw_prices.get(best.symbol, 0)
+
+        def parse_price(s: str) -> float:
+            return float(s.replace("$", "").replace(",", ""))
+
+        tp_num = parse_price(best.take_profit)
+        sl_num = parse_price(best.stop_loss)
+
+        result = place_order(
+            api_key    = mexc_key,
+            secret_key = mexc_secret,
+            symbol_yf  = best.symbol,
+            signal     = best.signal,
+            price      = raw_price,
+            tp_price   = tp_num,
+            sl_price   = sl_num,
+        )
+
+        if result and result.get("success"):
+            send_message(format_order_telegram(result, best))
+            logger.info("✅ Ordre MEXC Futures ouvert et notifié sur Telegram !")
+        else:
+            err = result.get("error", "Inconnue") if result else "Connexion échouée"
+            logger.error(f"❌ Échec ordre : {err}")
+            send_message(f"❌ *Erreur MEXC Futures*\n`{err}`\n_Position non ouverte._")
+    elif use_mexc and trade_allowed and not strong_signals:
+        logger.info("Aucun signal fort → Pas de trade ce scan.")
 
     logger.info("=== Analyse terminée ===")
 

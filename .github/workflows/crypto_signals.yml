@@ -31,6 +31,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
+          MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
           USE_TIMESFM: 'true'
           DATA_INTERVAL: '1h'
           SIGNAL_FREQUENCY_HOURS: '1'
