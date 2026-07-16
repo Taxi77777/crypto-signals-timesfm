@@ -1,27 +1,4 @@
 {
-  "last_update": "2026-07-16T16:50:58.294119+00:00",
-  "signals": [
-    {
-      "pair_name": "Maker (MKR)",
-      "signal": "BUY",
-      "current_price": "$1,395.59",
-      "take_profit": "$1,476.78",
-      "stop_loss": "Aucun",
-      "confidence": 95,
-      "rsi": 39.0,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
-    },
-    {
-      "pair_name": "Jupiter (JUP)",
-      "signal": "SELL",
-      "current_price": "$0.000259",
-      "take_profit": "$0.000235",
-      "stop_loss": "Aucun",
-      "confidence": 88,
-      "rsi": 96.8,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
-    }
-  ]
+  "last_update": "2026-07-16T18:53:21.270257+00:00",
+  "signals": []
 }
