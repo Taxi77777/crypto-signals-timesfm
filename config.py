@@ -24,7 +24,16 @@ MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 
 # ── Cryptos surveillées (Top 50 par capitalisation) ───────────────────────────
 CRYPTO_PAIRS = [
-    "BTC-USD",   # SPECIALISTE BITCOIN — focus total
+    "BTC-USD",  "ETH-USD",  "BNB-USD",  "SOL-USD",  "XRP-USD",
+    "ADA-USD",  "AVAX-USD", "DOGE-USD", "DOT-USD",  "POL-USD",
+    "LINK-USD", "TRX-USD",  "LTC-USD",  "ATOM-USD", "BCH-USD",
+    "ALGO-USD", "NEAR-USD", "FIL-USD",  "SAND-USD", "MANA-USD",
+    "APE-USD",  "AXS-USD",  "THETA-USD","ICP-USD",  "ETC-USD",
+    "SHIB-USD", "TON-USD",  "SUI-USD",  "PEPE-USD", "WIF-USD",
+    "RENDER-USD","APT-USD", "FTM-USD",  "GRT-USD",  "OP-USD",
+    "ARB-USD",  "STX-USD",  "VET-USD",  "LDO-USD",  "JUP-USD",
+    "SEI-USD",  "FLOKI-USD","FET-USD",  "AAVE-USD", "MKR-USD",
+    "RUNE-USD", "GALA-USD", "FLOW-USD", "WLD-USD",  "IMX-USD",
 ]
 
 PAIR_NAMES = {
