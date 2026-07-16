@@ -149,6 +149,11 @@ def generate_signal(
         elif fisher <= -1.5:
             fisher_status = "📉 Zone basse (pression acheteuse)"
 
+        # Filtre de securite : On ne veut QUE des signaux en zone d'exces Fisher (pas de neutre)
+        if fisher_status == "Neutre":
+            logger.info(f"⏳ Filtre Fisher actif sur {symbol} (Fisher: {fisher:+.2f} est Neutre) -> Signal annule")
+            return None
+
         macd_bullish = macd_hist > 0 and macd_val > 0
         macd_bearish = macd_hist < 0 and macd_val < 0
         macd_trend   = (
