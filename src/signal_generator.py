@@ -94,7 +94,6 @@ def generate_signal(
     lagllama_predictions: np.ndarray | None = None,
     granite_predictions: np.ndarray | None = None,
     df_4h: pd.DataFrame | None = None,
-    df_1d: pd.DataFrame | None = None,
 ) -> TradingSignal | None:
     """Génère un signal de trading pour une crypto en combinant TimesFM + Chronos."""
     try:
@@ -269,34 +268,22 @@ def generate_signal(
             return None
         logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
 
-        # FILTRE MULTI-TIMEFRAME (4H & 1D TREND)
-        if df_4h is not None and not df_4h.empty and df_1d is not None and not df_1d.empty:
+        # FILTRE MULTI-TIMEFRAME (4H TREND)
+        if df_4h is not None and not df_4h.empty:
             from src.indicators import compute_all_indicators
             df_4h_ind = compute_all_indicators(df_4h)
-            df_1d_ind = compute_all_indicators(df_1d)
-            if not df_4h_ind.empty and not df_1d_ind.empty:
+            if not df_4h_ind.empty:
                 last_4h = df_4h_ind.iloc[-1]
-                last_1d = df_1d_ind.iloc[-1]
                 ema20_4h = float(last_4h["ema20"])
                 ema50_4h = float(last_4h["ema50"])
-                ema20_1d = float(last_1d["ema20"])
-                ema50_1d = float(last_1d["ema50"])
                 
-                if signal == "BUY":
-                    if ema20_4h < ema50_4h:
-                        logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 < EMA50) -> Signal BUY annulé")
-                        return None
-                    if ema20_1d < ema50_1d:
-                        logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (1d EMA20 < EMA50) -> Signal BUY annulé")
-                        return None
-                elif signal == "SELL":
-                    if ema20_4h > ema50_4h:
-                        logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 > EMA50) -> Signal SELL annulé")
-                        return None
-                    if ema20_1d > ema50_1d:
-                        logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (1d EMA20 > EMA50) -> Signal SELL annulé")
-                        return None
-                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (4h & 1d EMA alignees)")
+                if signal == "BUY" and ema20_4h < ema50_4h:
+                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 < EMA50) -> Signal BUY annulé")
+                    return None
+                if signal == "SELL" and ema20_4h > ema50_4h:
+                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 > EMA50) -> Signal SELL annulé")
+                    return None
+                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (4h EMA alignee)")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
