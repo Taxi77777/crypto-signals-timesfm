@@ -67,3 +67,11 @@ def get_chronos_direction(current_price: float, predictions: np.ndarray | None) 
     elif variation_4h < -0.05:
         return "SELL"
     return "HOLD"
+
+
+def unload_chronos():
+    """Libère le modèle de la RAM (passes séquentielles multi-modèles)."""
+    global _pipeline
+    _pipeline = None
+    import gc
+    gc.collect()

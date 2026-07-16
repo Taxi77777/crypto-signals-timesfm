@@ -93,3 +93,11 @@ def get_forecast_direction(current_price: float, predictions: np.ndarray) -> dic
         "target_24h":    round(target_24h, 4),
         "confidence":    confidence,
     }
+
+
+def unload_timesfm():
+    """Libère le modèle de la RAM (passes séquentielles multi-modèles)."""
+    global _model
+    _model = None
+    import gc
+    gc.collect()

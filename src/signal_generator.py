@@ -43,7 +43,51 @@ def _format_crypto_price(price: float) -> str:
         return f"${price:.6f}"
 
 
-def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarray, chronos_predictions: np.ndarray | None) -> TradingSignal | None:
+def _ai_direction(current_price: float, predictions, threshold_pct: float = 0.05) -> str:
+    """Direction prédite par un modèle IA. 'N/A' = modèle indisponible."""
+    if predictions is None or len(predictions) == 0:
+        return "N/A"
+    idx = min(config.FORECAST_HORIZON - 1, len(predictions) - 1)
+    target = float(predictions[idx])
+    var = (target - current_price) / current_price * 100
+    if var > threshold_pct:
+        return "BUY"
+    if var < -threshold_pct:
+        return "SELL"
+    return "HOLD"
+
+
+def _strict_consensus(dirs: dict) -> tuple:
+    """
+    Consensus STRICT 5 IA : toutes les IA disponibles doivent être d'accord.
+    Minimum 4 modèles disponibles requis.
+    Retourne (direction, nb_disponibles, unanime: bool).
+    """
+    avail = {k: v for k, v in dirs.items() if v != "N/A"}
+    n = len(avail)
+    if n < 4:
+        return ("HOLD", n, False)
+    vals = set(avail.values())
+    if vals == {"BUY"}:
+        return ("BUY", n, True)
+    if vals == {"SELL"}:
+        return ("SELL", n, True)
+    return ("HOLD", n, False)
+
+
+def _fmt_dirs(dirs: dict) -> str:
+    return "/".join(f"{k}:{v}" for k, v in dirs.items())
+
+
+def generate_signal(
+    symbol: str,
+    df: pd.DataFrame,
+    timesfm_predictions: np.ndarray | None,
+    chronos_predictions: np.ndarray | None,
+    moirai_predictions: np.ndarray | None = None,
+    lagllama_predictions: np.ndarray | None = None,
+    granite_predictions: np.ndarray | None = None,
+) -> TradingSignal | None:
     """Génère un signal de trading pour une crypto en combinant TimesFM + Chronos."""
     try:
         last = df.iloc[-1]
@@ -100,13 +144,15 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
 
         # ── Prédiction TimesFM ───────────────────────────────────────────────
         forecast = get_forecast_direction(current_price, timesfm_predictions)
-        timesfm_dir = forecast["direction"]
         confidence_tf = forecast["confidence"]
         target_4h = forecast["target_4h"]
 
-        # ── Prédiction Amazon Chronos ────────────────────────────────────────
-        from src.chronos_predictor import get_chronos_direction
-        chronos_dir = get_chronos_direction(current_price, chronos_predictions)
+        # ── Directions des 5 IA (consensus strict) ──────────────────────────
+        timesfm_dir  = _ai_direction(current_price, timesfm_predictions)
+        chronos_dir  = _ai_direction(current_price, chronos_predictions)
+        moirai_dir   = _ai_direction(current_price, moirai_predictions)
+        lagllama_dir = _ai_direction(current_price, lagllama_predictions)
+        granite_dir  = _ai_direction(current_price, granite_predictions)
 
         # ── Score composite ──────────────────────────────────────────────────
         buy_score  = 0
@@ -138,8 +184,20 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
         if chronos_dir == "BUY":  buy_score  += 3
         if chronos_dir == "SELL": sell_score += 3
 
+        # Moirai 2.0
+        if moirai_dir == "BUY":  buy_score  += 3
+        if moirai_dir == "SELL": sell_score += 3
+
+        # Lag-Llama
+        if lagllama_dir == "BUY":  buy_score  += 3
+        if lagllama_dir == "SELL": sell_score += 3
+
+        # Granite TTM
+        if granite_dir == "BUY":  buy_score  += 3
+        if granite_dir == "SELL": sell_score += 3
+
         # ── Décision finale ──────────────────────────────────────────────────
-        max_score = 13
+        max_score = 22
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
@@ -153,14 +211,20 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
         else:
             return None  # Pas de signal clair
 
-        # ── Filtre de Double Consensus Strict ──
-        if signal in ["BUY", "SELL"]:
-            if timesfm_dir != chronos_dir:
-                logger.info(
-                    f"⚖️ Désaccord IA sur {symbol} (TimesFM: {timesfm_dir} vs Chronos: {chronos_dir}) "
-                    f"→ Signal filtré à HOLD pour sécurité"
-                )
-                return None  # Pas de trade si désaccord
+        # ── FILTRE DE CONSENSUS STRICT 5 IA ──
+        # Toutes les IA disponibles (min 4) doivent dire la même chose.
+        dirs = {
+            "TFM": timesfm_dir, "CHO": chronos_dir, "MOI": moirai_dir,
+            "LLA": lagllama_dir, "GRA": granite_dir,
+        }
+        consensus, n_avail, unanime = _strict_consensus(dirs)
+        if not unanime or consensus != signal:
+            logger.info(
+                f"⚖️ Pas de consensus 5 IA sur {symbol} ({_fmt_dirs(dirs)}, "
+                f"{n_avail}/5 modèles actifs) → Signal rejeté"
+            )
+            return None
+        logger.info(f"🤝 CONSENSUS {n_avail}/5 IA UNANIME sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
@@ -183,7 +247,7 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
             macd_trend    = macd_trend,
             ema_trend     = ema_trend,
             bb_position   = bb_position,
-            forecast_dir  = f"TFM:{timesfm_dir}/CHO:{chronos_dir}",
+            forecast_dir  = _fmt_dirs(dirs),
             forecast_4h   = _format_crypto_price(target_4h),
             tp_pct        = str(tp_pct),
             sl_pct        = "0.0",
