@@ -224,25 +224,20 @@ def generate_signal(
             elif depth >= 2.0:  sell_score += 3
             elif depth >= 1.5:  sell_score += 1
 
-        # TimesFM
-        if timesfm_dir == "BUY":  buy_score  += 3
-        if timesfm_dir == "SELL": sell_score += 3
-
-        # Chronos
-        if chronos_dir == "BUY":  buy_score  += 3
-        if chronos_dir == "SELL": sell_score += 3
-
-        # Moirai 2.0
-        if moirai_dir == "BUY":  buy_score  += 3
-        if moirai_dir == "SELL": sell_score += 3
-
-        # Lag-Llama
-        if lagllama_dir == "BUY":  buy_score  += 3
-        if lagllama_dir == "SELL": sell_score += 3
-
-        # Granite TTM
-        if granite_dir == "BUY":  buy_score  += 3
-        if granite_dir == "SELL": sell_score += 3
+        # ── PONDERATION DYNAMIQUE : chaque IA vote selon son taux de reussite reel ──
+        from src.track_record import load_track, get_weight
+        _track = load_track()
+        _dirs_tmp = {
+            "TFM": timesfm_dir, "CHO": chronos_dir, "MOI": moirai_dir,
+            "LLA": lagllama_dir, "GRA": granite_dir,
+        }
+        ai_weights = {k: get_weight(_track, k, symbol) for k in _dirs_tmp}
+        for k, d in _dirs_tmp.items():
+            w = ai_weights[k]
+            if w == 0:
+                continue  # IA statistiquement mauvaise (<45%) -> ignoree
+            if d == "BUY":  buy_score  += w
+            if d == "SELL": sell_score += w
 
         # ── Décision finale ──────────────────────────────────────────────────
         max_score = 27  # 5 IA x3 + RSI2 + MACD2 + EMA1 + BB2 + Fisher5
@@ -260,10 +255,7 @@ def generate_signal(
             return None  # Pas de signal clair
 
         # FILTRE DE CONSENSUS MAJORITAIRE IA
-        dirs = {
-            "TFM": timesfm_dir, "CHO": chronos_dir, "MOI": moirai_dir,
-            "LLA": lagllama_dir, "GRA": granite_dir,
-        }
+        dirs = {k: (v if ai_weights.get(k, 3) > 0 else "N/A") for k, v in _dirs_tmp.items()}
         consensus, n_avail, has_consensus = _majority_consensus(dirs)
         if not has_consensus or consensus != signal:
             logger.info(
@@ -271,7 +263,7 @@ def generate_signal(
                 f"{n_avail}/5 modeles actifs) -> Signal rejete"
             )
             return None
-        logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
+        logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)}) | poids: {ai_weights}")
 
         # FILTRE MULTI-TIMEFRAME (4H TREND)
         if df_4h is not None and not df_4h.empty:
