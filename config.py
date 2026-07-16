@@ -22,13 +22,18 @@ DATA_PERIOD              = "30d"   # 30 jours d'historique (max pour 15m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 
-# ── Cryptos surveillées (Top 25 par capitalisation) ───────────────────────────
+# ── Cryptos surveillées (Top 50 par capitalisation) ───────────────────────────
 CRYPTO_PAIRS = [
     "BTC-USD",  "ETH-USD",  "BNB-USD",  "SOL-USD",  "XRP-USD",
     "ADA-USD",  "AVAX-USD", "DOGE-USD", "DOT-USD",  "POL-USD",
     "LINK-USD", "TRX-USD",  "LTC-USD",  "ATOM-USD", "BCH-USD",
     "ALGO-USD", "NEAR-USD", "FIL-USD",  "SAND-USD", "MANA-USD",
     "APE-USD",  "AXS-USD",  "THETA-USD","ICP-USD",  "ETC-USD",
+    "SHIB-USD", "TON-USD",  "SUI-USD",  "PEPE-USD", "WIF-USD",
+    "RENDER-USD","APT-USD", "FTM-USD",  "GRT-USD",  "OP-USD",
+    "ARB-USD",  "STX-USD",  "VET-USD",  "LDO-USD",  "JUP-USD",
+    "SEI-USD",  "FLOKI-USD","FET-USD",  "AAVE-USD", "MKR-USD",
+    "RUNE-USD", "GALA-USD", "FLOW-USD", "WLD-USD",  "IMX-USD",
 ]
 
 PAIR_NAMES = {
@@ -57,4 +62,29 @@ PAIR_NAMES = {
     "THETA-USD": "Theta Network (THETA)",
     "ICP-USD":   "Internet Computer (ICP)",
     "ETC-USD":   "Ethereum Classic (ETC)",
+    "SHIB-USD":  "Shiba Inu (SHIB)",
+    "TON-USD":   "Toncoin (TON)",
+    "SUI-USD":   "Sui (SUI)",
+    "PEPE-USD":  "Pepe (PEPE)",
+    "WIF-USD":   "Dogwifhat (WIF)",
+    "RENDER-USD":"Render (RENDER)",
+    "APT-USD":   "Aptos (APT)",
+    "FTM-USD":   "Fantom (FTM)",
+    "GRT-USD":   "The Graph (GRT)",
+    "OP-USD":    "Optimism (OP)",
+    "ARB-USD":   "Arbitrum (ARB)",
+    "STX-USD":   "Stacks (STX)",
+    "VET-USD":   "VeChain (VET)",
+    "LDO-USD":   "Lido DAO (LDO)",
+    "JUP-USD":   "Jupiter (JUP)",
+    "SEI-USD":   "Sei (SEI)",
+    "FLOKI-USD": "Floki (FLOKI)",
+    "FET-USD":   "Artificial Superintelligence (FET)",
+    "AAVE-USD":  "Aave (AAVE)",
+    "MKR-USD":   "Maker (MKR)",
+    "RUNE-USD":  "THORChain (RUNE)",
+    "GALA-USD":  "Gala (GALA)",
+    "FLOW-USD":  "Flow (FLOW)",
+    "WLD-USD":   "Worldcoin (WLD)",
+    "IMX-USD":   "Immutable (IMX)",
 }
