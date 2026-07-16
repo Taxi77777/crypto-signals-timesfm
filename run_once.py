@@ -120,6 +120,30 @@ def main():
         logger.error("Aucune donnée récupérée")
         sys.exit(1)
 
+    # ── APPRENTISSAGE CONTINU : vérifier les prédictions d'il y a 1h ──────────
+    import time as _time
+    from src.track_record import (load_track, save_track, record_result,
+                                  load_pending, save_pending, accuracy_summary)
+    track   = load_track(force=True)
+    pending = load_pending()
+    now_ts  = _time.time()
+    matured = [pr for pr in pending if now_ts - pr["ts"] >= 3600]
+    waiting = [pr for pr in pending if now_ts - pr["ts"] < 3600]
+    verified = 0
+    for pr in matured:
+        df_p = all_data.get(pr["symbol"])
+        if df_p is None or df_p.empty:
+            continue
+        cur = float(df_p["close"].iloc[-1])
+        var = (cur - pr["price"]) / pr["price"] * 100
+        actual = "BUY" if var > 0.05 else "SELL" if var < -0.05 else "HOLD"
+        if pr["dir"] in ("BUY", "SELL"):
+            record_result(track, pr["model"], pr["symbol"], pr["dir"] == actual)
+            verified += 1
+    if verified:
+        save_track(track)
+        logger.info(f"📚 Apprentissage continu : {verified} prédictions vérifiées | {accuracy_summary(track)}")
+
     # ── Phase A : indicateurs + séries de prix ────────────────────────────────
     import gc
     series_map, ind_map, raw_prices = {}, {}, {}
@@ -173,6 +197,17 @@ def main():
         ai_preds["gra"][sym] = predict_granite(series)
     unload_granite()
     gc.collect()
+
+    # ── Enregistrer les prédictions du scan pour vérification future ─────────
+    from src.signal_generator import _ai_direction
+    for sym, series in series_map.items():
+        cur_price = float(series[-1])
+        for key, mp in (("TFM", "tfm"), ("CHO", "cho"), ("MOI", "moi"), ("LLA", "lla"), ("GRA", "gra")):
+            d = _ai_direction(cur_price, ai_preds[mp].get(sym))
+            if d in ("BUY", "SELL"):
+                waiting.append({"ts": now_ts, "model": key, "symbol": sym, "dir": d, "price": cur_price})
+    save_pending(waiting)
+    save_track(track)   # garantit l'existence du fichier pour le commit
 
     # ── Phase C : génération des signaux (consensus strict 5 IA) ─────────────
     signals = []
@@ -231,7 +266,7 @@ def main():
         # Heartbeat : confirme que le bot tourne même sans signal
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
-            f"📊 {len(signals)} cryptos analysées\n"
+            f"📊 {len(signals)} crypto(s) analysée(s)\n"
             f"Consensus majoritaire (>=3/5) IA actif)\n"
             f"_Prochain scan dans 15 min_"
         )
