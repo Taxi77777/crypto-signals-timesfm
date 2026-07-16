@@ -1,8 +1,8 @@
-name: Crypto Signals Bot — Bougies 15m, Scan 5min
+name: Crypto Signals Bot — Consensus 5 IA, Scan 15min
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # Toutes les 5 minutes
+    - cron: '*/15 * * * *'  # Toutes les 15 minutes (5 modeles IA)
   workflow_dispatch:            # Bouton manuel depuis GitHub
 
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout du code
@@ -21,11 +21,16 @@ jobs:
       - name: Installation Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
           cache: 'pip'
 
       - name: Installation des dépendances
         run: pip install -r requirements.txt
+
+      - name: Installation des modeles IA additionnels
+        run: |
+          pip install uni2ts granite-tsfm
+          pip install git+https://github.com/time-series-foundation-models/lag-llama.git
 
       - name: Lancement de l'analyse Crypto
         env:
