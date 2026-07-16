@@ -50,7 +50,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git pull --rebase origin main || true
           git add track_record.json
           git commit -m "feat: track record Bitcoin (Time Machine 2 ans) [skip ci]" || echo "Rien a committer"
+          git pull --rebase origin main
           git push
