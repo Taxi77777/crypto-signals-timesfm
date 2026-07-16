@@ -1,0 +1,56 @@
+name: TIME MACHINE BITCOIN — Entrainement accelere (2 ans)
+
+on:
+  workflow_dispatch:
+    inputs:
+      step:
+        description: 'Pas entre fenetres (bougies 1h, defaut 6)'
+        default: '6'
+      period:
+        description: 'Periode historique'
+        default: '730d'
+
+jobs:
+  warmup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 350
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Installation Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Installation des modeles IA additionnels
+        run: |
+          pip install uni2ts
+          pip install scikit-learn deprecated
+          pip install granite-tsfm --no-deps
+          pip install git+https://github.com/time-series-foundation-models/lag-llama.git
+          pip install "transformers<4.50"  # compat torch 2.4 (uni2ts) - evite l'erreur DTensor
+
+      - name: TIME MACHINE — rejouer le passe
+        env:
+          WARMUP_STEP: ${{ github.event.inputs.step }}
+          WARMUP_PERIOD: ${{ github.event.inputs.period }}
+        run: python backtest_warmup.py
+
+      - name: Commit du carnet de notes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git pull --rebase origin main || true
+          git add track_record.json
+          git commit -m "feat: track record Bitcoin (Time Machine 2 ans) [skip ci]" || echo "Rien a committer"
+          git push

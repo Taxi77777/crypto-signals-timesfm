@@ -1,8 +1,8 @@
-name: Crypto Signals Bot — Consensus 5 IA, Scan 10min
+name: Bitcoin Bot — Consensus 5 IA, Scan 5min
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Toutes les 10 minutes (5 modeles IA)
+    - cron: '*/5 * * * *'   # Toutes les 5 minutes (Bitcoin uniquement)
   workflow_dispatch:            # Bouton manuel depuis GitHub
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add signals.json
+          git add signals.json track_record.json pending_predictions.json
           git commit -m "chore: update crypto signals.json [skip ci]" || echo "Aucune modification"
           git push
 
