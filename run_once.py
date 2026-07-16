@@ -192,6 +192,8 @@ def main():
         raw_price = raw_prices.get(best.symbol, 0)
 
         def parse_price(s: str) -> float:
+            if s == "Aucun":
+                return 0.0
             return float(s.replace("$", "").replace(",", ""))
 
         tp_num = parse_price(best.take_profit)

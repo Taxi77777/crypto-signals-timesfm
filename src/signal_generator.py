@@ -176,7 +176,7 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
             signal        = signal,
             current_price = _format_crypto_price(current_price),
             take_profit   = _format_crypto_price(tp_price),
-            stop_loss     = _format_crypto_price(sl_price),
+            stop_loss     = "Aucun",
             confidence    = confidence,
             rsi           = rsi,
             rsi_status    = rsi_status,
@@ -186,7 +186,7 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
             forecast_dir  = f"TFM:{timesfm_dir}/CHO:{chronos_dir}",
             forecast_4h   = _format_crypto_price(target_4h),
             tp_pct        = str(tp_pct),
-            sl_pct        = str(sl_pct),
+            sl_pct        = "0.0",
             is_strong     = is_strong,
         )
 

@@ -244,11 +244,9 @@ def get_current_price(symbol_mexc: str) -> float:
 def check_and_trail(api_key: str, secret_key: str) -> dict | None:
     """
     Vérifie les positions ouvertes et applique le trailing stop software.
-    Retourne un dict décrivant l'action effectuée, ou None.
+    [DESACTIVÉ] Retourne None pour ne pas modifier ni poser de Stop Loss.
     """
-    positions = get_open_positions(api_key, secret_key)
-    if not positions:
-        return None
+    return None
 
     pos          = positions[0]
     symbol       = pos.get("symbol", "")
@@ -431,11 +429,13 @@ def place_order(
         "side":            side,
         "type":            5,       # Market order
         "openType":        1,       # Isolated margin
-        "takeProfitPrice": tp_rounded,
-        "stopLossPrice":   sl_rounded,
         "profitTrend":     1,       # déclenchement sur dernier prix
         "lossTrend":       1,
     }
+    if tp_rounded > 0:
+        order["takeProfitPrice"] = tp_rounded
+    if sl_rounded > 0:
+        order["stopLossPrice"] = sl_rounded
 
     body_str = json.dumps(order)
     headers  = _get_headers(api_key, secret_key, body_str)
@@ -460,7 +460,7 @@ def place_order(
         if data.get("success"):
             order_data = data.get("data")
             order_id = order_data.get("orderId") if isinstance(order_data, dict) else order_data
-            logger.info(f"✅ Ordre Market placé avec TP/SL atomiques ! ID : {order_id}")
+            logger.info(f"✅ Ordre Market placé ! ID : {order_id}")
             tp_sl_ok = True  # TP/SL inclus dans l'ordre lui-même
 
             return {
@@ -474,7 +474,7 @@ def place_order(
                 "trailing":     f"{TRAILING_CALLBACK}%",
                 "tp_sl_set":    tp_sl_ok,
                 "tp":           tp_rounded,
-                "sl":           sl_rounded,
+                "sl":           sl_rounded if sl_rounded > 0 else "Aucun",
             }
         else:
             err = data.get("message") or data.get("msg") or str(data)
