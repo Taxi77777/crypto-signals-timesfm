@@ -229,7 +229,7 @@ def main():
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
             f"📊 {len(signals)} cryptos analysées\n"
-            f"🤖 0 signal fort (consensus strict 5 IA actif)\n"
+            f"Consensus majoritaire (>=3/5) IA actif)\n"
             f"_Prochain scan dans 15 min_"
         )
 
