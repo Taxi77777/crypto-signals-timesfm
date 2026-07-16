@@ -13,6 +13,9 @@ try:
         mapping = {
             "min": "T",
             "h": "H",
+            "s": "S",
+            "d": "D",
+            "w": "W",
             "QE": "Q",
             "YE": "A",
             "ME": "M"
