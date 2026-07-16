@@ -390,7 +390,7 @@ def get_order_book_imbalance(symbol_mexc: str) -> float | None:
     Retourne une valeur entre -1.0 (très baissier) et +1.0 (très haussier), ou None si erreur.
     """
     try:
-        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth?symbol={symbol_mexc}", timeout=10)
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=5", timeout=10)
         data = r.json()
         if data.get("success"):
             depth = data.get("data", {})
