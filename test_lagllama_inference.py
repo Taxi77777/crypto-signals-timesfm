@@ -52,7 +52,7 @@ def test_inference():
             n_head=estimator_args["n_head"],
             scaling=estimator_args.get("scaling", "robust"),
             time_feat=estimator_args.get("time_feat", True),
-            lags_seq=["D", "H", "T"],
+            lags_seq=["T"],
             trainer_kwargs={"accelerator": "cpu", "max_epochs": 0}
         )
         predictor = estimator.create_predictor(ckpt_path=ckpt_path)
