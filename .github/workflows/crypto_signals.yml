@@ -31,6 +31,7 @@ jobs:
         run: |
           pip install uni2ts granite-tsfm
           pip install git+https://github.com/time-series-foundation-models/lag-llama.git
+          pip install "transformers<4.50"  # compat torch 2.4 (uni2ts) - evite l'erreur DTensor
 
       - name: Lancement de l'analyse Crypto
         env:
