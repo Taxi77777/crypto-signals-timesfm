@@ -1,8 +1,8 @@
-name: Crypto Signals Bot — Consensus 5 IA, Scan 15min
+name: Crypto Signals Bot — Consensus 5 IA, Scan 10min
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Toutes les 15 minutes (5 modeles IA)
+    - cron: '*/10 * * * *'  # Toutes les 10 minutes (5 modeles IA)
   workflow_dispatch:            # Bouton manuel depuis GitHub
 
 jobs:
