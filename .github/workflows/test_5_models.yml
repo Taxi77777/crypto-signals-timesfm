@@ -40,3 +40,7 @@ jobs:
       - name: Test Imports and OBI/Moirai Inference
         run: |
           python test_moirai_inference.py
+
+      - name: Test Lag-Llama Inference
+        run: |
+          python test_lagllama_inference.py
