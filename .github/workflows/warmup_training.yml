@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       step:
-        description: 'Pas entre fenetres (bougies 15m, defaut 2)'
-        default: '2'
+        description: 'Pas entre fenetres (bougies 30m, defaut 1)'
+        default: '1'
       period:
-        description: 'Periode historique (max 60d pour 15m)'
+        description: 'Periode historique (max 60d pour 30m)'
         default: '60d'
 
 jobs:
