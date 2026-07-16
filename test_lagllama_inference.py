@@ -50,11 +50,13 @@ def test_inference():
 
     # 2. Créer de fausses données (100 points de prix)
     np.random.seed(42)
-    prices = np.sin(np.linspace(0, 20, 100)) + 10.0
-    
+    # IMPORTANT : float32 obligatoire (le modèle est en Float, pandas crée du Double par défaut)
+    prices = (np.sin(np.linspace(0, 20, 100)) + 10.0).astype(np.float32)
+
     df = pd.DataFrame({
         "target": prices
     }, index=pd.date_range(start="2026-01-01", periods=100, freq="15min"))
+    df["target"] = df["target"].astype("float32")
     
     dataset = PandasDataset(df, target="target")
     
@@ -99,6 +101,7 @@ def test_inference():
     except Exception as e:
         import traceback
         traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     test_inference()
