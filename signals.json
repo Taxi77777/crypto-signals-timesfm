@@ -1,4 +1,115 @@
 {
-  "last_update": "2026-07-16T14:07:15.006621+00:00",
-  "signals": []
+  "last_update": "2026-07-16T14:30:23.545019+00:00",
+  "signals": [
+    {
+      "pair_name": "Dogecoin (DOGE)",
+      "signal": "SELL",
+      "current_price": "$0.073820",
+      "take_profit": "$0.072964",
+      "stop_loss": "Aucun",
+      "confidence": 95,
+      "rsi": 61.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Filecoin (FIL)",
+      "signal": "SELL",
+      "current_price": "$0.782000",
+      "take_profit": "$0.773515",
+      "stop_loss": "Aucun",
+      "confidence": 95,
+      "rsi": 64.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Decentraland (MANA)",
+      "signal": "SELL",
+      "current_price": "$0.071300",
+      "take_profit": "$0.070310",
+      "stop_loss": "Aucun",
+      "confidence": 88,
+      "rsi": 67.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Cardano (ADA)",
+      "signal": "SELL",
+      "current_price": "$0.164500",
+      "take_profit": "$0.162055",
+      "stop_loss": "Aucun",
+      "confidence": 84,
+      "rsi": 63.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Polkadot (DOT)",
+      "signal": "SELL",
+      "current_price": "$0.849000",
+      "take_profit": "$0.838318",
+      "stop_loss": "Aucun",
+      "confidence": 84,
+      "rsi": 65.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "The Sandbox (SAND)",
+      "signal": "SELL",
+      "current_price": "$0.048800",
+      "take_profit": "$0.048360",
+      "stop_loss": "Aucun",
+      "confidence": 84,
+      "rsi": 65.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "ApeCoin (APE)",
+      "signal": "BUY",
+      "current_price": "$0.152271",
+      "take_profit": "$0.154121",
+      "stop_loss": "Aucun",
+      "confidence": 79,
+      "rsi": 53.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Bitcoin (BTC)",
+      "signal": "SELL",
+      "current_price": "$64,728.40",
+      "take_profit": "$64,060.52",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 66.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "BNB Chain (BNB)",
+      "signal": "SELL",
+      "current_price": "$580.1300",
+      "take_profit": "$575.5651",
+      "stop_loss": "Aucun",
+      "confidence": 71,
+      "rsi": 60.5,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Ethereum (ETH)",
+      "signal": "SELL",
+      "current_price": "$1,885.92",
+      "take_profit": "$1,860.08",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 49.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:HOLD"
+    }
+  ]
 }
