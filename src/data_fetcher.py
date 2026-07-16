@@ -11,15 +11,17 @@ import config
 logger = logging.getLogger(__name__)
 
 
-def fetch_all_pairs() -> dict:
+def fetch_all_pairs(period: str = None, interval: str = None) -> dict:
     """Télécharge les données OHLCV pour toutes les cryptos."""
     all_data = {}
+    period = period or config.DATA_PERIOD
+    interval = interval or config.DATA_INTERVAL
     for symbol in config.CRYPTO_PAIRS:
         try:
             df = yf.download(
                 symbol,
-                period=config.DATA_PERIOD,
-                interval=config.DATA_INTERVAL,
+                period=period,
+                interval=interval,
                 progress=False,
                 auto_adjust=True,
             )
@@ -37,7 +39,7 @@ def fetch_all_pairs() -> dict:
             })
             df = df[["open", "high", "low", "close", "volume"]].dropna()
             all_data[symbol] = df
-            logger.info(f"{symbol}: {len(df)} bougies chargées")
+            logger.info(f"{symbol}: {len(df)} bougies chargées ({interval})")
         except Exception as e:
             logger.error(f"Erreur fetch {symbol}: {e}")
     return all_data

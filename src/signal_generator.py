@@ -93,6 +93,7 @@ def generate_signal(
     moirai_predictions: np.ndarray | None = None,
     lagllama_predictions: np.ndarray | None = None,
     granite_predictions: np.ndarray | None = None,
+    df_4h: pd.DataFrame | None = None,
 ) -> TradingSignal | None:
     """Génère un signal de trading pour une crypto en combinant TimesFM + Chronos."""
     try:
@@ -261,6 +262,23 @@ def generate_signal(
             )
             return None
         logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
+
+        # FILTRE MULTI-TIMEFRAME (4H TREND)
+        if df_4h is not None and not df_4h.empty:
+            from src.indicators import compute_all_indicators
+            df_4h_ind = compute_all_indicators(df_4h)
+            if not df_4h_ind.empty:
+                last_4h = df_4h_ind.iloc[-1]
+                ema20_4h = float(last_4h["ema20"])
+                ema50_4h = float(last_4h["ema50"])
+                
+                if signal == "BUY" and ema20_4h < ema50_4h:
+                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 < EMA50) -> Signal BUY annulé")
+                    return None
+                if signal == "SELL" and ema20_4h > ema50_4h:
+                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 > EMA50) -> Signal SELL annulé")
+                    return None
+                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (4h EMA alignee)")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
