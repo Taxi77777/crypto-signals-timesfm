@@ -43,7 +43,8 @@ def test_inference():
         ckpt = torch.load(ckpt_path, map_location=torch.device('cpu'))
         estimator_args = ckpt["hyper_parameters"]["model_kwargs"]
         import inspect
-        print("LagLlamaEstimator __init__ signature:", inspect.signature(LagLlamaEstimator.__init__))
+        print("LagLlamaEstimator __init__ source code:")
+        print(inspect.getsource(LagLlamaEstimator.__init__))
         sys.exit(0)
         predictor = estimator.create_predictor(ckpt_path=ckpt_path)
         print("Modèle chargé !")
