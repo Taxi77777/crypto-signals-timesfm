@@ -76,7 +76,7 @@ def test_inference():
             time_feat=estimator_args.get("time_feat", True),
             trainer_kwargs={"accelerator": "cpu", "max_epochs": 0}
         )
-        predictor = estimator.create_predictor(ckpt_path=ckpt_path)
+        predictor = estimator.create_predictor()
         print("Modèle chargé !")
         
         # 4. Inférence
