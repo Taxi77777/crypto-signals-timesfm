@@ -182,7 +182,7 @@ def main():
             f"🔍 *Scan Crypto terminé*\n"
             f"📊 {len(signals)} cryptos analysées\n"
             f"🤖 0 signal fort (filtre double consensus IA actif)\n"
-            f"_Prochain scan dans 10 min_"
+            f"_Prochain scan dans 5 min_"
         )
 
     # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
