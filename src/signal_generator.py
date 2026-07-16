@@ -131,13 +131,13 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
-            tp_mult    = 1 + (atr * 2 / current_price)
-            sl_mult    = 1 - (atr * 1.5 / current_price)
+            tp_mult    = 1 + (atr * 3.5 / current_price)
+            sl_mult    = 1 - (atr * 3.0 / current_price)
         elif sell_score > buy_score and sell_score >= 6:
             signal     = "SELL"
             confidence = min(95, int((sell_score / max_score) * 100) + confidence_tf // 4)
-            tp_mult    = 1 - (atr * 2 / current_price)
-            sl_mult    = 1 + (atr * 1.5 / current_price)
+            tp_mult    = 1 - (atr * 3.5 / current_price)
+            sl_mult    = 1 + (atr * 3.0 / current_price)
         else:
             return None  # Pas de signal clair
 
