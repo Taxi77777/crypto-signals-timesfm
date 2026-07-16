@@ -20,7 +20,10 @@ def _load():
     if _model is not None:
         return _model
     try:
-        from tsfm_public import TinyTimeMixerForPrediction
+        try:
+            from tsfm_public.models.tinytimemixer import TinyTimeMixerForPrediction
+        except ImportError:
+            from tsfm_public import TinyTimeMixerForPrediction  # fallback anciennes versions
         logger.info("Chargement d'IBM Granite TTM (granite-timeseries-ttm-r2)...")
         _model = TinyTimeMixerForPrediction.from_pretrained(
             "ibm-granite/granite-timeseries-ttm-r2"
