@@ -46,16 +46,24 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         # SMA Volume (20)
         df["volume_sma"] = df["volume"].rolling(window=20).mean()
 
-        # Fisher Transform (10) — detection des extremes
-        period = 10
+        # Fisher Transform (10) — vraie recursion d'Ehlers (lissage progressif)
+        # value = 0.33*brut + 0.67*prec ; fisher = 0.5*ln((1+v)/(1-v)) + 0.5*fisher_prec
+        # -> montee progressive, asymptote ±7.6 : les paliers ±1.5/2/3/4 deviennent significatifs
+        period = 9
         highest_high = df["high"].rolling(window=period).max()
         lowest_low   = df["low"].rolling(window=period).min()
-        range_hl     = highest_high - lowest_low
-        range_hl     = range_hl.replace(0, 1e-10)  # evite division par zero
-        value        = 2 * ((df["close"] - lowest_low) / range_hl) - 1
-        value        = value.clip(-0.999, 0.999)  # borne pour log
-        raw_fisher   = 0.5 * np.log((1 + value) / (1 - value))
-        df["fisher"] = raw_fisher.rolling(window=2).mean()  # lissage 2 periodes
+        range_hl     = (highest_high - lowest_low).replace(0, 1e-10)
+        raw          = (2 * ((df["close"] - lowest_low) / range_hl) - 1).fillna(0.0)
+        fishers      = []
+        v_prev, f_prev = 0.0, 0.0
+        for x in raw:
+            v = 0.33 * float(x) + 0.67 * v_prev
+            v = max(min(v, 0.999), -0.999)
+            f = 0.5 * np.log((1 + v) / (1 - v)) + 0.5 * f_prev
+            fishers.append(f)
+            v_prev, f_prev = v, f
+        df["fisher"] = fishers
+        df["fisher_trigger"] = pd.Series(fishers, index=df.index).shift(1)  # ligne signal (Fisher decale de 1)
 
         df = df.dropna()
         return df

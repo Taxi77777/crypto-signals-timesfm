@@ -111,6 +111,12 @@ def generate_signal(
         volume        = float(last["volume"])
         volume_sma    = float(last["volume_sma"])
         fisher        = round(float(last["fisher"]), 2) if "fisher" in last else 0.0
+        # Croisement Fisher / ligne signal (trigger = Fisher decale de 1, style TradingView)
+        f1 = float(df.iloc[-1]["fisher"]) if "fisher" in last else 0.0
+        f2 = float(df.iloc[-2]["fisher"]) if len(df) > 1 and "fisher" in last else f1
+        f3 = float(df.iloc[-3]["fisher"]) if len(df) > 2 and "fisher" in last else f2
+        fisher_cross_up   = f1 > f2 and f2 <= f3   # retournement haussier (creux)
+        fisher_cross_down = f1 < f2 and f2 >= f3   # retournement baissier (sommet)
 
         # Filtres de Tendance Forte & Volume (Assouplis)
         if adx < 15:
@@ -129,28 +135,25 @@ def generate_signal(
             else "Neutre"
         )
 
-        # Fisher Transform — detection des zones extremes (echelle graduee jusqu'a +-4)
+        # Fisher Transform — CROISEMENT en zone extreme (style TradingView)
+        # BUY  = le Fisher croise sa ligne signal a la hausse depuis un creux extreme (<= -1.5)
+        # SELL = le Fisher croise sa ligne signal a la baisse depuis un sommet extreme (>= +1.5)
         fisher_status = "Neutre"
-        if fisher >= 4.0:
-            fisher_status = "🔥🔥 EXTREME MAX ACHAT — Retournement SELL imminent"
-        elif fisher >= 3.0:
-            fisher_status = "🔥 Tres extreme (zone SELL forte)"
-        elif fisher >= 2.0:
-            fisher_status = "⚠️ Zone extreme haute (SELL probable)"
-        elif fisher >= 1.5:
-            fisher_status = "📈 Zone haute (pression vendeuse)"
-        elif fisher <= -4.0:
-            fisher_status = "💎💎 EXTREME MAX VENTE — Retournement BUY imminent"
-        elif fisher <= -3.0:
-            fisher_status = "💎 Tres extreme (zone BUY forte)"
-        elif fisher <= -2.0:
-            fisher_status = "⚠️ Zone extreme basse (BUY probable)"
-        elif fisher <= -1.5:
-            fisher_status = "📉 Zone basse (pression acheteuse)"
+        depth = f2  # profondeur du creux/sommet au moment du croisement
+        if fisher_cross_up and depth <= -1.5:
+            if depth <= -4.0:   fisher_status = "💎💎 CROISEMENT EXTREME MAX — Retournement BUY tres fort"
+            elif depth <= -3.0: fisher_status = "💎 Croisement tres extreme (BUY fort)"
+            elif depth <= -2.0: fisher_status = "⚠️ Croisement extreme bas (BUY)"
+            else:               fisher_status = "📉 Croisement zone basse (BUY leger)"
+        elif fisher_cross_down and depth >= 1.5:
+            if depth >= 4.0:    fisher_status = "🔥🔥 CROISEMENT EXTREME MAX — Retournement SELL tres fort"
+            elif depth >= 3.0:  fisher_status = "🔥 Croisement tres extreme (SELL fort)"
+            elif depth >= 2.0:  fisher_status = "⚠️ Croisement extreme haut (SELL)"
+            else:               fisher_status = "📈 Croisement zone haute (SELL leger)"
 
-        # Filtre de securite : On ne veut QUE des signaux en zone d'exces Fisher (pas de neutre)
+        # Filtre de securite : signal uniquement au moment d'un croisement en zone extreme
         if fisher_status == "Neutre":
-            logger.info(f"⏳ Filtre Fisher actif sur {symbol} (Fisher: {fisher:+.2f} est Neutre) -> Signal annule")
+            logger.info(f"⏳ Filtre Fisher actif sur {symbol} (Fisher {fisher:+.2f} : pas de croisement extreme) -> Signal annule")
             return None
 
         macd_bullish = macd_hist > 0 and macd_val > 0
@@ -209,15 +212,17 @@ def generate_signal(
         if current_price < bb_lower: buy_score  += 2
         if current_price > bb_upper: sell_score += 2
 
-        # Fisher Transform (extremes = signaux forts de retournement, echelle jusqu'a +-4)
-        if fisher <= -4.0:   buy_score  += 5  # ultra extreme vente = tres fort retournement haussier
-        elif fisher <= -3.0: buy_score  += 4
-        elif fisher <= -2.0: buy_score  += 3
-        elif fisher <= -1.5: buy_score  += 1
-        if fisher >= 4.0:    sell_score += 5  # ultra extreme achat = tres fort retournement baissier
-        elif fisher >= 3.0:  sell_score += 4
-        elif fisher >= 2.0:  sell_score += 3
-        elif fisher >= 1.5:  sell_score += 1
+        # Fisher : croisement en zone extreme (poids gradue selon la profondeur du creux/sommet)
+        if fisher_cross_up:
+            if depth <= -4.0:   buy_score  += 5  # croisement depuis un creux ultra extreme
+            elif depth <= -3.0: buy_score  += 4
+            elif depth <= -2.0: buy_score  += 3
+            elif depth <= -1.5: buy_score  += 1
+        if fisher_cross_down:
+            if depth >= 4.0:    sell_score += 5  # croisement depuis un sommet ultra extreme
+            elif depth >= 3.0:  sell_score += 4
+            elif depth >= 2.0:  sell_score += 3
+            elif depth >= 1.5:  sell_score += 1
 
         # TimesFM
         if timesfm_dir == "BUY":  buy_score  += 3
@@ -240,7 +245,7 @@ def generate_signal(
         if granite_dir == "SELL": sell_score += 3
 
         # ── Décision finale ──────────────────────────────────────────────────
-        max_score = 22
+        max_score = 27  # 5 IA x3 + RSI2 + MACD2 + EMA1 + BB2 + Fisher5
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
