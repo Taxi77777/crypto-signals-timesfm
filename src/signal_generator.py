@@ -56,6 +56,18 @@ def generate_signal(symbol: str, df: pd.DataFrame, timesfm_predictions: np.ndarr
         bb_upper      = float(last["bb_upper"])
         bb_lower      = float(last["bb_lower"])
         atr           = float(last["atr"])
+        adx           = float(last["adx"])
+        volume        = float(last["volume"])
+        volume_sma    = float(last["volume_sma"])
+
+        # ── Filtres de Tendance Forte & Volume (Anti-Range / Volume mort) ──
+        if adx < 20:
+            logger.info(f"⏳ Filtre Range actif sur {symbol} (ADX: {adx:.1f} < 20) → Signal annulé")
+            return None
+
+        if volume < volume_sma * 0.6:
+            logger.info(f"⏳ Filtre Volume actif sur {symbol} (Volume: {volume:.0f} < 60% de SMA: {volume_sma:.0f}) → Signal annulé")
+            return None
 
         # ── Analyse des indicateurs ─────────────────────────────────────────
         rsi_status = (

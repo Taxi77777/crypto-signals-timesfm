@@ -38,6 +38,13 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
             df["high"], df["low"], df["close"], window=14
         ).average_true_range()
 
+        # ADX (14) — force de la tendance
+        adx_ind = ta.trend.ADXIndicator(df["high"], df["low"], df["close"], window=14)
+        df["adx"] = adx_ind.adx()
+
+        # SMA Volume (20)
+        df["volume_sma"] = df["volume"].rolling(window=20).mean()
+
         df = df.dropna()
         return df
     except Exception as e:
