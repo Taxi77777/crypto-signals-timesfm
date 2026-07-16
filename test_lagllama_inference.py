@@ -76,7 +76,9 @@ def test_inference():
             time_feat=estimator_args.get("time_feat", True),
             trainer_kwargs={"accelerator": "cpu", "max_epochs": 0}
         )
-        predictor = estimator.create_predictor()
+        transformation = estimator.create_transformation()
+        lightning_module = estimator.create_lightning_module()
+        predictor = estimator.create_predictor(transformation, lightning_module)
         print("Modèle chargé !")
         
         # 4. Inférence

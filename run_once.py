@@ -60,7 +60,7 @@ def format_order_telegram(order_result: dict, signal) -> str:
         f"📈 Confiance IA  : *{signal.confidence}%*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"✅ _Position ouverte sur ton compte MEXC_\n"
-        f"🤖 _Google TimesFM 2.5_"
+        f"🤖 _Consensus 5 IA : TimesFM · Chronos · Moirai · Lag-Llama · Granite_"
     )
 
 
@@ -118,25 +118,73 @@ def main():
         logger.error("Aucune donnée récupérée")
         sys.exit(1)
 
-    signals    = []
-    raw_prices = {}
+    # ── Phase A : indicateurs + séries de prix ────────────────────────────────
+    import gc
+    series_map, ind_map, raw_prices = {}, {}, {}
     for symbol, df in all_data.items():
         pair_name = config.PAIR_NAMES.get(symbol, symbol)
         try:
             df_ind = compute_all_indicators(df)
             if df_ind.empty:
                 continue
+            ind_map[symbol]    = df_ind
             raw_prices[symbol] = float(df_ind.iloc[-1]["close"])
-            price_series = prepare_timesfm_input(df)
-            
-            # Prédictions Google TimesFM
-            tfm_predictions = predict_timesfm(price_series)
-            
-            # Prédictions Amazon Chronos
-            from src.chronos_predictor import predict_chronos
-            chronos_predictions = predict_chronos(price_series)
-            
-            signal = generate_signal(symbol, df_ind, tfm_predictions, chronos_predictions)
+            series_map[symbol] = prepare_timesfm_input(df)
+        except Exception as e:
+            logger.error(f"Erreur indicateurs {pair_name}: {e}")
+            continue
+
+    # ── Phase B : 5 passes IA séquentielles (chargement → prédictions → libération RAM) ──
+    ai_preds = {"tfm": {}, "cho": {}, "moi": {}, "lla": {}, "gra": {}}
+
+    logger.info("── Passe 1/5 : Google TimesFM 2.5 ──")
+    from src.timesfm_predictor import unload_timesfm
+    for sym, series in series_map.items():
+        ai_preds["tfm"][sym] = predict_timesfm(series)
+    unload_timesfm()
+    gc.collect()
+
+    logger.info("── Passe 2/5 : Amazon Chronos ──")
+    from src.chronos_predictor import predict_chronos, unload_chronos
+    for sym, series in series_map.items():
+        ai_preds["cho"][sym] = predict_chronos(series)
+    unload_chronos()
+    gc.collect()
+
+    logger.info("── Passe 3/5 : Salesforce Moirai 2.0 ──")
+    from src.moirai_predictor import predict_moirai, unload_moirai
+    for sym, series in series_map.items():
+        ai_preds["moi"][sym] = predict_moirai(series)
+    unload_moirai()
+    gc.collect()
+
+    logger.info("── Passe 4/5 : Lag-Llama ──")
+    from src.lagllama_predictor import predict_lagllama, unload_lagllama
+    for sym, series in series_map.items():
+        ai_preds["lla"][sym] = predict_lagllama(series)
+    unload_lagllama()
+    gc.collect()
+
+    logger.info("── Passe 5/5 : IBM Granite TTM ──")
+    from src.granite_predictor import predict_granite, unload_granite
+    for sym, series in series_map.items():
+        ai_preds["gra"][sym] = predict_granite(series)
+    unload_granite()
+    gc.collect()
+
+    # ── Phase C : génération des signaux (consensus strict 5 IA) ─────────────
+    signals = []
+    for symbol, df_ind in ind_map.items():
+        pair_name = config.PAIR_NAMES.get(symbol, symbol)
+        try:
+            signal = generate_signal(
+                symbol, df_ind,
+                ai_preds["tfm"].get(symbol),
+                ai_preds["cho"].get(symbol),
+                ai_preds["moi"].get(symbol),
+                ai_preds["lla"].get(symbol),
+                ai_preds["gra"].get(symbol),
+            )
             if signal:
                 signals.append(signal)
         except Exception as e:
@@ -181,8 +229,8 @@ def main():
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
             f"📊 {len(signals)} cryptos analysées\n"
-            f"🤖 0 signal fort (filtre double consensus IA actif)\n"
-            f"_Prochain scan dans 5 min_"
+            f"🤖 0 signal fort (consensus strict 5 IA actif)\n"
+            f"_Prochain scan dans 15 min_"
         )
 
     # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
