@@ -24,13 +24,13 @@ from src.track_record import load_track, save_track, record_result, accuracy_sum
 
 # ── Parametres (surchargables par variables d'environnement) ──────────────────
 PAIRS = os.getenv("WARMUP_PAIRS", "BTC-USD").split(",")   # SPECIALISTE BITCOIN
-PERIOD   = os.getenv("WARMUP_PERIOD", "730d")   # 2 ans
-INTERVAL = os.getenv("WARMUP_INTERVAL", "1h")
-STEP     = int(os.getenv("WARMUP_STEP", "6"))   # 1 fenetre toutes les 6h (BTC seul -> on peut etre dense)
+PERIOD   = os.getenv("WARMUP_PERIOD", "180d")   # 6 mois
+INTERVAL = os.getenv("WARMUP_INTERVAL", "15m")
+STEP     = int(os.getenv("WARMUP_STEP", "6"))   # 1 fenetre toutes les 1.5h (90 min)
 LLA_MULT = int(os.getenv("WARMUP_LLA_MULT", "3"))  # Lag-Llama plus lent -> 1 fenetre sur 3
 CONTEXT  = 512
 HORIZON  = config.FORECAST_HORIZON              # 4 bougies
-THRESHOLD = 0.05                                 # seuil directionnel crypto (%)
+THRESHOLD = 0.25                                 # seuil directionnel crypto (%)
 BATCH    = 32
 
 
