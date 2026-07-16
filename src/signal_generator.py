@@ -57,21 +57,25 @@ def _ai_direction(current_price: float, predictions, threshold_pct: float = 0.05
     return "HOLD"
 
 
-def _strict_consensus(dirs: dict) -> tuple:
+def _majority_consensus(dirs: dict) -> tuple:
     """
-    Consensus STRICT 5 IA : toutes les IA disponibles doivent être d'accord.
-    Minimum 4 modèles disponibles requis.
-    Retourne (direction, nb_disponibles, unanime: bool).
+    Consensus MAJORITE IA : au moins 3 IA disponibles doivent etre d'accord.
+    Minimum 3 modeles disponibles requis.
+    Retourne (direction, nb_disponibles, consensus_atteint: bool).
     """
     avail = {k: v for k, v in dirs.items() if v != "N/A"}
     n = len(avail)
-    if n < 4:
+    if n < 3:
         return ("HOLD", n, False)
-    vals = set(avail.values())
-    if vals == {"BUY"}:
+    
+    buys = list(avail.values()).count("BUY")
+    sells = list(avail.values()).count("SELL")
+    
+    if buys >= 3:
         return ("BUY", n, True)
-    if vals == {"SELL"}:
+    if sells >= 3:
         return ("SELL", n, True)
+        
     return ("HOLD", n, False)
 
 
@@ -104,14 +108,14 @@ def generate_signal(
         volume        = float(last["volume"])
         volume_sma    = float(last["volume_sma"])
 
-        # ── Filtres de Tendance Forte & Volume (Anti-Range / Volume mort) ──
-        if adx < 20:
-            logger.info(f"⏳ Filtre Range actif sur {symbol} (ADX: {adx:.1f} < 20) → Signal annulé")
+        # Filtres de Tendance Forte & Volume (Assouplis)
+        if adx < 15:
+            logger.info(f"Filtre Range actif sur {symbol} (ADX: {adx:.1f} < 15) -> Signal annule")
             return None
 
-        # Volume=0 = bougie en cours non clôturée (Yahoo Finance) → on ignore ce filtre
-        if volume > 0 and volume < volume_sma * 0.5:
-            logger.info(f"⏳ Filtre Volume actif sur {symbol} (Volume: {volume:.0f} < 50% de SMA: {volume_sma:.0f}) → Signal annulé")
+        # Volume=0 = bougie en cours non cloturee (Yahoo Finance) -> on ignore ce filtre
+        if volume > 0 and volume < volume_sma * 0.2:
+            logger.info(f"Filtre Volume actif sur {symbol} (Volume: {volume:.0f} < 20% de SMA: {volume_sma:.0f}) -> Signal annule")
             return None
 
         # ── Analyse des indicateurs ─────────────────────────────────────────
@@ -212,20 +216,19 @@ def generate_signal(
         else:
             return None  # Pas de signal clair
 
-        # ── FILTRE DE CONSENSUS STRICT 5 IA ──
-        # Toutes les IA disponibles (min 4) doivent dire la même chose.
+        # FILTRE DE CONSENSUS MAJORITAIRE IA
         dirs = {
             "TFM": timesfm_dir, "CHO": chronos_dir, "MOI": moirai_dir,
             "LLA": lagllama_dir, "GRA": granite_dir,
         }
-        consensus, n_avail, unanime = _strict_consensus(dirs)
-        if not unanime or consensus != signal:
+        consensus, n_avail, has_consensus = _majority_consensus(dirs)
+        if not has_consensus or consensus != signal:
             logger.info(
-                f"⚖️ Pas de consensus 5 IA sur {symbol} ({_fmt_dirs(dirs)}, "
-                f"{n_avail}/5 modèles actifs) → Signal rejeté"
+                f"Pas de consensus majoritaire (>=3) sur {symbol} ({_fmt_dirs(dirs)}, "
+                f"{n_avail}/5 modeles actifs) -> Signal rejete"
             )
             return None
-        logger.info(f"🤝 CONSENSUS {n_avail}/5 IA UNANIME sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
+        logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)})")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
