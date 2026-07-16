@@ -42,10 +42,19 @@ def test_inference():
         # Lire les hyperparamètres depuis le checkpoint
         ckpt = torch.load(ckpt_path, map_location=torch.device('cpu'))
         estimator_args = ckpt["hyper_parameters"]["model_kwargs"]
-        import inspect
-        print("LagLlamaEstimator __init__ source code:")
-        print(inspect.getsource(LagLlamaEstimator.__init__))
-        sys.exit(0)
+        estimator = LagLlamaEstimator(
+            ckpt_path=ckpt_path,
+            prediction_length=4,
+            context_length=32,
+            input_size=estimator_args["input_size"],
+            n_layer=estimator_args["n_layer"],
+            n_embd_per_head=estimator_args["n_embd_per_head"],
+            n_head=estimator_args["n_head"],
+            scaling=estimator_args.get("scaling", "robust"),
+            time_feat=estimator_args.get("time_feat", True),
+            lags_seq=["D", "H", "T"],
+            trainer_kwargs={"accelerator": "cpu", "max_epochs": 0}
+        )
         predictor = estimator.create_predictor(ckpt_path=ckpt_path)
         print("Modèle chargé !")
         
