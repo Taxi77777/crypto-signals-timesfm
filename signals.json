@@ -1,93 +1,71 @@
 {
-  "last_update": "2026-07-16T15:13:10.404276+00:00",
+  "last_update": "2026-07-16T15:22:46.225813+00:00",
   "signals": [
-    {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "SELL",
-      "current_price": "$0.071500",
-      "take_profit": "$0.070539",
-      "stop_loss": "Aucun",
-      "confidence": 88,
-      "rsi": 68.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "Ethereum (ETH)",
-      "signal": "SELL",
-      "current_price": "$1,874.92",
-      "take_profit": "$1,847.73",
-      "stop_loss": "Aucun",
-      "confidence": 84,
-      "rsi": 40.1,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:SELL"
-    },
     {
       "pair_name": "Polkadot (DOT)",
       "signal": "SELL",
-      "current_price": "$0.847000",
-      "take_profit": "$0.836320",
+      "current_price": "$0.848000",
+      "take_profit": "$0.836869",
       "stop_loss": "Aucun",
-      "confidence": 84,
-      "rsi": 59.3,
+      "confidence": 95,
+      "rsi": 59.7,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
     },
     {
-      "pair_name": "NEAR Protocol (NEAR)",
+      "pair_name": "Filecoin (FIL)",
       "signal": "SELL",
-      "current_price": "$2.0600",
-      "take_profit": "$2.0144",
+      "current_price": "$0.780000",
+      "take_profit": "$0.770516",
       "stop_loss": "Aucun",
-      "confidence": 84,
-      "rsi": 56.7,
+      "confidence": 75,
+      "rsi": 55.8,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Bitcoin (BTC)",
-      "signal": "SELL",
-      "current_price": "$64,378.58",
-      "take_profit": "$63,676.47",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 52.6,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
     },
     {
       "pair_name": "Solana (SOL)",
       "signal": "SELL",
-      "current_price": "$76.1700",
-      "take_profit": "$75.1451",
+      "current_price": "$76.2100",
+      "take_profit": "$75.1585",
       "stop_loss": "Aucun",
       "confidence": 70,
-      "rsi": 46.3,
+      "rsi": 48.0,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:HOLD"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:BUY/GRA:SELL"
     },
     {
-      "pair_name": "Dogecoin (DOGE)",
+      "pair_name": "NEAR Protocol (NEAR)",
       "signal": "SELL",
-      "current_price": "$0.073260",
-      "take_profit": "$0.072347",
+      "current_price": "$2.0680",
+      "take_profit": "$2.0214",
       "stop_loss": "Aucun",
       "confidence": 70,
-      "rsi": 46.9,
+      "rsi": 59.6,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Decentraland (MANA)",
+      "signal": "SELL",
+      "current_price": "$0.071100",
+      "take_profit": "$0.070108",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 59.3,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:HOLD"
     },
     {
       "pair_name": "ApeCoin (APE)",
       "signal": "BUY",
-      "current_price": "$0.151787",
-      "take_profit": "$0.153590",
+      "current_price": "$0.152265",
+      "take_profit": "$0.154119",
       "stop_loss": "Aucun",
       "confidence": 70,
-      "rsi": 48.2,
+      "rsi": 52.4,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
     }
   ]
 }
