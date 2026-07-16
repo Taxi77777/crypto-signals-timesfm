@@ -386,30 +386,49 @@ def place_position_tp_sl(
 
 def get_order_book_imbalance(symbol_mexc: str) -> float | None:
     """
-    Récupère le carnet d'ordres (top 5) et calcule l'imbalance (OBI).
-    Retourne une valeur entre -1.0 (très baissier) et +1.0 (très haussier), ou None si erreur.
+    Récupère le carnet d'ordres (top 20) et calcule l'imbalance (OBI) PONDÉRÉ :
+    les niveaux proches du prix comptent plus que les niveaux éloignés
+    (poids 1/rang : 1er niveau = 1.0, 2e = 0.5, 3e = 0.33...).
+    Retourne une valeur entre -1.0 (mur de vente) et +1.0 (mur d'achat), ou None si erreur.
     """
     try:
-        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=5", timeout=10)
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=20", timeout=10)
         data = r.json()
         if data.get("success"):
             depth = data.get("data", {})
-            bids = depth.get("bids", [])[:5]
-            asks = depth.get("asks", [])[:5]
-            
+            bids = depth.get("bids", [])[:20]
+            asks = depth.get("asks", [])[:20]
+
             if not bids or not asks:
                 return None
-                
-            sum_bids = sum(float(b[1]) for b in bids)
-            sum_asks = sum(float(a[1]) for a in asks)
-            
+
+            sum_bids = sum(float(b[1]) / (i + 1) for i, b in enumerate(bids))
+            sum_asks = sum(float(a[1]) / (i + 1) for i, a in enumerate(asks))
+
             if sum_bids + sum_asks == 0:
                 return 0.0
-                
+
             imbalance = (sum_bids - sum_asks) / (sum_bids + sum_asks)
             return round(imbalance, 3)
     except Exception as e:
         logger.error(f"Erreur calcul OBI pour {symbol_mexc}: {e}")
+    return None
+
+
+def get_funding_rate(symbol_mexc: str) -> float | None:
+    """
+    Récupère le funding rate actuel du contrat (en %).
+    Funding très positif = longs surchargés (danger pour un BUY).
+    Funding très négatif = shorts surchargés (danger pour un SELL).
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/funding_rate/{symbol_mexc}", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            rate = float(data.get("data", {}).get("fundingRate", 0))
+            return round(rate * 100, 4)   # en pourcentage
+    except Exception as e:
+        logger.error(f"Erreur funding rate pour {symbol_mexc}: {e}")
     return None
 
 
