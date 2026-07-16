@@ -1,38 +1,4 @@
 {
-  "last_update": "2026-07-16T15:59:50.759281+00:00",
-  "signals": [
-    {
-      "pair_name": "Polkadot (DOT)",
-      "signal": "SELL",
-      "current_price": "$0.853000",
-      "take_profit": "$0.839717",
-      "stop_loss": "Aucun",
-      "confidence": 95,
-      "rsi": 64.8,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "SELL",
-      "current_price": "$0.072000",
-      "take_profit": "$0.070897",
-      "stop_loss": "Aucun",
-      "confidence": 88,
-      "rsi": 70.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "The Sandbox (SAND)",
-      "signal": "SELL",
-      "current_price": "$0.048600",
-      "take_profit": "$0.048126",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 57.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:HOLD"
-    }
-  ]
+  "last_update": "2026-07-16T16:09:02.235684+00:00",
+  "signals": []
 }
