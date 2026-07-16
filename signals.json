@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-16T09:33:59.424262+00:00",
-  "signals": []
+  "last_update": "2026-07-16T09:38:12.461618+00:00",
+  "signals": [
+    {
+      "pair_name": "Avalanche (AVAX)",
+      "signal": "BUY",
+      "current_price": "$6.5900",
+      "take_profit": "$6.6631",
+      "stop_loss": "Aucun",
+      "confidence": 86,
+      "rsi": 32.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY"
+    }
+  ]
 }
