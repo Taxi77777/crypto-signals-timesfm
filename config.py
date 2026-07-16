@@ -25,9 +25,9 @@ MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 # ── Cryptos surveillées (Top 25 par capitalisation) ───────────────────────────
 CRYPTO_PAIRS = [
     "BTC-USD",  "ETH-USD",  "BNB-USD",  "SOL-USD",  "XRP-USD",
-    "ADA-USD",  "AVAX-USD", "DOGE-USD", "DOT-USD",  "MATIC-USD",
-    "LINK-USD", "UNI-USD",  "LTC-USD",  "ATOM-USD", "BCH-USD",
-    "ALGO-USD", "NEAR-USD", "FTM-USD",  "SAND-USD", "MANA-USD",
+    "ADA-USD",  "AVAX-USD", "DOGE-USD", "DOT-USD",  "POL-USD",
+    "LINK-USD", "TRX-USD",  "LTC-USD",  "ATOM-USD", "BCH-USD",
+    "ALGO-USD", "NEAR-USD", "FIL-USD",  "SAND-USD", "MANA-USD",
     "APE-USD",  "AXS-USD",  "THETA-USD","ICP-USD",  "ETC-USD",
 ]
 
@@ -41,15 +41,15 @@ PAIR_NAMES = {
     "AVAX-USD":  "Avalanche (AVAX)",
     "DOGE-USD":  "Dogecoin (DOGE)",
     "DOT-USD":   "Polkadot (DOT)",
-    "MATIC-USD": "Polygon (MATIC)",
+    "POL-USD":   "Polygon (POL)",
     "LINK-USD":  "Chainlink (LINK)",
-    "UNI-USD":   "Uniswap (UNI)",
+    "TRX-USD":   "Tron (TRX)",
     "LTC-USD":   "Litecoin (LTC)",
     "ATOM-USD":  "Cosmos (ATOM)",
     "BCH-USD":   "Bitcoin Cash (BCH)",
     "ALGO-USD":  "Algorand (ALGO)",
     "NEAR-USD":  "NEAR Protocol (NEAR)",
-    "FTM-USD":   "Fantom (FTM)",
+    "FIL-USD":   "Filecoin (FIL)",
     "SAND-USD":  "The Sandbox (SAND)",
     "MANA-USD":  "Decentraland (MANA)",
     "APE-USD":   "ApeCoin (APE)",
