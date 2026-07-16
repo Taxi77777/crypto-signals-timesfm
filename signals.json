@@ -1,58 +1,25 @@
 {
-  "last_update": "2026-07-16T06:59:03.819378+00:00",
+  "last_update": "2026-07-16T07:06:54.992475+00:00",
   "signals": [
-    {
-      "pair_name": "Solana (SOL)",
-      "signal": "SELL",
-      "current_price": "$77.3000",
-      "take_profit": "$76.8570",
-      "stop_loss": "$77.6323",
-      "confidence": 86,
-      "rsi": 55.7,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
     {
       "pair_name": "Polkadot (DOT)",
       "signal": "BUY",
-      "current_price": "$0.841000",
-      "take_profit": "$0.846222",
-      "stop_loss": "$0.837084",
-      "confidence": 78,
-      "rsi": 42.9,
+      "current_price": "$0.839000",
+      "take_profit": "$0.844410",
+      "stop_loss": "$0.834943",
+      "confidence": 71,
+      "rsi": 39.8,
       "macd_trend": "Baissier 🔴",
       "forecast_dir": "TFM:BUY/CHO:BUY"
-    },
-    {
-      "pair_name": "Bitcoin Cash (BCH)",
-      "signal": "SELL",
-      "current_price": "$224.3000",
-      "take_profit": "$221.7344",
-      "stop_loss": "$226.2242",
-      "confidence": 78,
-      "rsi": 55.0,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
     },
     {
       "pair_name": "The Sandbox (SAND)",
       "signal": "SELL",
       "current_price": "$0.048500",
-      "take_profit": "$0.048412",
-      "stop_loss": "$0.048566",
+      "take_profit": "$0.048418",
+      "stop_loss": "$0.048562",
       "confidence": 71,
       "rsi": 49.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
-    {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "SELL",
-      "current_price": "$0.070500",
-      "take_profit": "$0.070121",
-      "stop_loss": "$0.070784",
-      "confidence": 71,
-      "rsi": 54.1,
       "macd_trend": "Neutre ⚪",
       "forecast_dir": "TFM:SELL/CHO:SELL"
     }
