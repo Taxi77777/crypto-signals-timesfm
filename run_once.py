@@ -256,6 +256,22 @@ def main():
             else:
                 logger.warning("Impossible de récupérer l'OBI (Ignoré, trading autorisé)")
 
+            # ── Filtre Funding Rate (sentiment de levier) ──
+            from src.mexc_trader import get_funding_rate
+            funding = get_funding_rate(symbol_mexc)
+            if funding is not None:
+                logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
+                if best.signal == "BUY" and funding > 0.10:
+                    logger.info(f"❌ Funding trop positif ({funding:+.4f}% > +0.10%) -> Longs surchargés, achat bloqué.")
+                    send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : trop de longs à levier.")
+                    trade_allowed = False
+                elif best.signal == "SELL" and funding < -0.10:
+                    logger.info(f"❌ Funding trop négatif ({funding:+.4f}% < -0.10%) -> Shorts surchargés, vente bloquée.")
+                    send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : trop de shorts à levier.")
+                    trade_allowed = False
+            else:
+                logger.warning("Funding rate indisponible (Ignoré, trading autorisé)")
+
         raw_price = raw_prices.get(best.symbol, 0)
 
         def parse_price(s: str) -> float:
