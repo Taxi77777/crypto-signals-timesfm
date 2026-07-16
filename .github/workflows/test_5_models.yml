@@ -37,19 +37,6 @@ jobs:
         run: |
           pip install granite-tsfm
 
-      - name: Test Imports
+      - name: Test Imports and OBI/Moirai Inference
         run: |
-          python -c "
-          import timesfm
-          print('TimesFM: OK')
-          from chronos import ChronosPipeline
-          print('Chronos: OK')
-          from uni2ts.model.moirai2 import Moirai2Forecast, Moirai2Module
-          print('Moirai-2.0: OK')
-          # Lag-Llama import test
-          from lag_llama.model.module import LagLlamaModel
-          print('Lag-Llama: OK')
-          # IBM TTM import test
-          from tsfm_public import TinyTimeMixerForPrediction
-          print('IBM Granite TTM: OK')
-          "
+          python test_moirai_inference.py
