@@ -3,6 +3,7 @@ src/indicators.py — Indicateurs techniques pour les cryptos
 """
 
 import logging
+import numpy as np
 import pandas as pd
 import ta
 
@@ -44,6 +45,17 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
 
         # SMA Volume (20)
         df["volume_sma"] = df["volume"].rolling(window=20).mean()
+
+        # Fisher Transform (10) — detection des extremes
+        period = 10
+        highest_high = df["high"].rolling(window=period).max()
+        lowest_low   = df["low"].rolling(window=period).min()
+        range_hl     = highest_high - lowest_low
+        range_hl     = range_hl.replace(0, 1e-10)  # evite division par zero
+        value        = 2 * ((df["close"] - lowest_low) / range_hl) - 1
+        value        = value.clip(-0.999, 0.999)  # borne pour log
+        raw_fisher   = 0.5 * np.log((1 + value) / (1 - value))
+        df["fisher"] = raw_fisher.rolling(window=2).mean()  # lissage 2 periodes
 
         df = df.dropna()
         return df

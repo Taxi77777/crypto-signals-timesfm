@@ -14,23 +14,25 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TradingSignal:
-    symbol:        str
-    pair_name:     str
-    signal:        str   # BUY / SELL / HOLD
-    current_price: str
-    take_profit:   str
-    stop_loss:     str
-    confidence:    int
-    rsi:           float
-    rsi_status:    str
-    macd_trend:    str
-    ema_trend:     str
-    bb_position:   str
-    forecast_dir:  str
-    forecast_4h:   str
-    tp_pct:        str
-    sl_pct:        str
-    is_strong:     bool
+    symbol:          str
+    pair_name:       str
+    signal:          str   # BUY / SELL / HOLD
+    current_price:   str
+    take_profit:     str
+    stop_loss:       str
+    confidence:      int
+    rsi:             float
+    rsi_status:      str
+    macd_trend:      str
+    ema_trend:       str
+    bb_position:     str
+    forecast_dir:    str
+    forecast_4h:     str
+    tp_pct:          str
+    sl_pct:          str
+    is_strong:       bool
+    fisher:          float   # Fisher Transform value
+    fisher_status:   str     # Extreme BUY / Extreme SELL / Neutre
 
 
 def _format_crypto_price(price: float) -> str:
@@ -107,6 +109,7 @@ def generate_signal(
         adx           = float(last["adx"])
         volume        = float(last["volume"])
         volume_sma    = float(last["volume_sma"])
+        fisher        = round(float(last["fisher"]), 2) if "fisher" in last else 0.0
 
         # Filtres de Tendance Forte & Volume (Assouplis)
         if adx < 15:
@@ -120,10 +123,29 @@ def generate_signal(
 
         # ── Analyse des indicateurs ─────────────────────────────────────────
         rsi_status = (
-            "Suracheté 🔴" if rsi > 70
-            else "Survendu 🟢"  if rsi < 30
-            else "Neutre ⚪"
+            "Surachete" if rsi > 70
+            else "Survendu"  if rsi < 30
+            else "Neutre"
         )
+
+        # Fisher Transform — detection des zones extremes (echelle graduee jusqu'a +-4)
+        fisher_status = "Neutre"
+        if fisher >= 4.0:
+            fisher_status = "🔥🔥 EXTREME MAX ACHAT — Retournement SELL imminent"
+        elif fisher >= 3.0:
+            fisher_status = "🔥 Tres extreme (zone SELL forte)"
+        elif fisher >= 2.0:
+            fisher_status = "⚠️ Zone extreme haute (SELL probable)"
+        elif fisher >= 1.5:
+            fisher_status = "📈 Zone haute (pression vendeuse)"
+        elif fisher <= -4.0:
+            fisher_status = "💎💎 EXTREME MAX VENTE — Retournement BUY imminent"
+        elif fisher <= -3.0:
+            fisher_status = "💎 Tres extreme (zone BUY forte)"
+        elif fisher <= -2.0:
+            fisher_status = "⚠️ Zone extreme basse (BUY probable)"
+        elif fisher <= -1.5:
+            fisher_status = "📉 Zone basse (pression acheteuse)"
 
         macd_bullish = macd_hist > 0 and macd_val > 0
         macd_bearish = macd_hist < 0 and macd_val < 0
@@ -180,6 +202,16 @@ def generate_signal(
         # Bollinger
         if current_price < bb_lower: buy_score  += 2
         if current_price > bb_upper: sell_score += 2
+
+        # Fisher Transform (extremes = signaux forts de retournement, echelle jusqu'a +-4)
+        if fisher <= -4.0:   buy_score  += 5  # ultra extreme vente = tres fort retournement haussier
+        elif fisher <= -3.0: buy_score  += 4
+        elif fisher <= -2.0: buy_score  += 3
+        elif fisher <= -1.5: buy_score  += 1
+        if fisher >= 4.0:    sell_score += 5  # ultra extreme achat = tres fort retournement baissier
+        elif fisher >= 3.0:  sell_score += 4
+        elif fisher >= 2.0:  sell_score += 3
+        elif fisher >= 1.5:  sell_score += 1
 
         # TimesFM
         if timesfm_dir == "BUY":  buy_score  += 3
@@ -256,6 +288,8 @@ def generate_signal(
             tp_pct        = str(tp_pct),
             sl_pct        = "0.0",
             is_strong     = is_strong,
+            fisher        = fisher,
+            fisher_status = fisher_status,
         )
 
     except Exception as e:

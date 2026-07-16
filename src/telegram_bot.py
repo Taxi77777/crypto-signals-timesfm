@@ -28,23 +28,24 @@ def format_signal_message(signal: TradingSignal) -> str:
     sl_sign   = "-" if signal.signal == "BUY" else "+"
 
     return (
-        f"🪙 *CRYPTO SIGNAL — {signal.pair_name}* 🔥 *SIGNAL FORT*\n"
+        f"🤖 *CRYPTO SIGNAL — {signal.pair_name}* 🚨 *SIGNAL FORT*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📊 Signal      : {emoji} *{signal.signal}*\n"
         f"💰 Prix actuel : `{signal.current_price}`\n"
         f"🎯 Take Profit : `{signal.take_profit}` ({tp_sign}{signal.tp_pct}%)\n"
         f"🛑 Stop Loss   : `{signal.stop_loss}` ({sl_sign}{signal.sl_pct}%)\n"
-        f"📈 Confiance   : `{conf_bar}` {signal.confidence}%\n"
+        f"🔮 Confiance   : `{conf_bar}` {signal.confidence}%\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"RSI        : `{signal.rsi}` {signal.rsi_status}\n"
+        f"Fisher     : `{signal.fisher:+.2f}` {signal.fisher_status}\n"
         f"MACD       : {signal.macd_trend}\n"
         f"EMA 20/50  : {signal.ema_trend}\n"
         f"Bollinger  : {signal.bb_position}\n"
         f"Tendance IA: {signal.forecast_dir} ({'1h' if config.DATA_INTERVAL == '15m' else '4h'})\n"
         f"Cible IA ({'1h' if config.DATA_INTERVAL == '15m' else '4h'}): `{signal.forecast_4h}`\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"⏰ {time_str} (Paris)\n"
-        f"🤖 _Google TimesFM & Chronos — Usage éducatif_"
+        f"🕐 {time_str} (Paris)\n"
+        f"📈 _Google TimesFM & Chronos — Usage éducatif_"
     )
 
 
