@@ -40,8 +40,10 @@ def test_inference():
         
         forecast = forecasts[0]
         print("Forecast type:", type(forecast))
-        print("Samples shape:", forecast.samples.shape)
-        median_prediction = np.median(forecast.samples, axis=0)
+        try:
+            median_prediction = forecast.quantile(0.5)
+        except Exception:
+            median_prediction = forecast.quantile("0.5")
         print("Median prediction:", median_prediction)
         
     except Exception as e:
