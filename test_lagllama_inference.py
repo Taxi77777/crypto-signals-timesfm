@@ -73,7 +73,8 @@ def test_inference():
         print("Median prediction:", median_prediction)
         
     except Exception as e:
-        print("Erreur lors de l'exécution de Lag-Llama:", e)
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     test_inference()

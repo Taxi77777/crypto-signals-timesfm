@@ -16,26 +16,10 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - name: Install Base Requirements
+      - name: Install All Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance pandas numpy ta python-telegram-bot python-dotenv huggingface-hub pytz requests
-
-      - name: Install TimesFM and Chronos
-        run: |
-          pip install timesfm>=2.0.0 chronos-forecasting>=1.0.0
-
-      - name: Install Moirai-2.0 (uni2ts)
-        run: |
-          pip install uni2ts
-
-      - name: Install Lag-Llama
-        run: |
-          pip install git+https://github.com/time-series-foundation-models/lag-llama.git
-
-      - name: Install IBM Granite TTM (granite-tsfm)
-        run: |
-          pip install granite-tsfm
+          pip install yfinance pandas numpy ta python-telegram-bot python-dotenv huggingface-hub pytz requests matplotlib timesfm>=2.0.0 chronos-forecasting>=1.0.0 uni2ts git+https://github.com/time-series-foundation-models/lag-llama.git granite-tsfm
 
       - name: Test Imports and OBI/Moirai Inference
         run: |
