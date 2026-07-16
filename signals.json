@@ -1,27 +1,4 @@
 {
-  "last_update": "2026-07-16T09:28:01.913458+00:00",
-  "signals": [
-    {
-      "pair_name": "Ethereum (ETH)",
-      "signal": "SELL",
-      "current_price": "$1,884.53",
-      "take_profit": "$1,860.09",
-      "stop_loss": "Aucun",
-      "confidence": 94,
-      "rsi": 27.7,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    },
-    {
-      "pair_name": "ApeCoin (APE)",
-      "signal": "SELL",
-      "current_price": "$0.150474",
-      "take_profit": "$0.148683",
-      "stop_loss": "Aucun",
-      "confidence": 78,
-      "rsi": 43.7,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL"
-    }
-  ]
+  "last_update": "2026-07-16T09:33:59.424262+00:00",
+  "signals": []
 }
