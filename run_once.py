@@ -39,7 +39,8 @@ from src.signal_generator  import generate_signal
 from src.telegram_bot      import send_signal, send_message
 from src.mexc_trader       import (
     has_open_position, place_order,
-    get_usdt_balance, check_and_trail
+    get_usdt_balance, check_and_trail,
+    get_order_book_imbalance
 )
 
 
@@ -188,6 +189,24 @@ def main():
     if use_mexc and trade_allowed and strong_signals:
         best = strong_signals[0]
         logger.info(f"→ Meilleur signal : {best.pair_name} {best.signal} {best.confidence}%")
+
+        # ── Filtre Microstructure Order Book Imbalance (OBI) ──
+        from src.mexc_trader import SYMBOL_MAP
+        symbol_mexc = SYMBOL_MAP.get(best.symbol)
+        if symbol_mexc:
+            imbalance = get_order_book_imbalance(symbol_mexc)
+            if imbalance is not None:
+                logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
+                if best.signal == "BUY" and imbalance < -0.2:
+                    logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat contre mur de vente.")
+                    send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})")
+                    trade_allowed = False
+                elif best.signal == "SELL" and imbalance > 0.2:
+                    logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente contre mur d'achat.")
+                    send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})")
+                    trade_allowed = False
+            else:
+                logger.warning("Impossible de récupérer l'OBI (Ignoré, trading autorisé)")
 
         raw_price = raw_prices.get(best.symbol, 0)
 

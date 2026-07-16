@@ -384,6 +384,35 @@ def place_position_tp_sl(
         return False
 
 
+def get_order_book_imbalance(symbol_mexc: str) -> float | None:
+    """
+    Récupère le carnet d'ordres (top 5) et calcule l'imbalance (OBI).
+    Retourne une valeur entre -1.0 (très baissier) et +1.0 (très haussier), ou None si erreur.
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth?symbol={symbol_mexc}", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            depth = data.get("data", {})
+            bids = depth.get("bids", [])[:5]
+            asks = depth.get("asks", [])[:5]
+            
+            if not bids or not asks:
+                return None
+                
+            sum_bids = sum(float(b[1]) for b in bids)
+            sum_asks = sum(float(a[1]) for a in asks)
+            
+            if sum_bids + sum_asks == 0:
+                return 0.0
+                
+            imbalance = (sum_bids - sum_asks) / (sum_bids + sum_asks)
+            return round(imbalance, 3)
+    except Exception as e:
+        logger.error(f"Erreur calcul OBI pour {symbol_mexc}: {e}")
+    return None
+
+
 def place_order(
     api_key:    str,
     secret_key: str,
