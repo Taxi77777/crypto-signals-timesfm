@@ -1,27 +1,38 @@
 {
-  "last_update": "2026-07-17T15:16:03.176867+00:00",
+  "last_update": "2026-07-17T15:42:01.498031+00:00",
   "signals": [
-    {
-      "pair_name": "Polkadot (DOT)",
-      "signal": "BUY",
-      "current_price": "$0.839000",
-      "take_profit": "$0.847481",
-      "stop_loss": "Aucun",
-      "confidence": 59,
-      "rsi": 38.6,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
-    },
     {
       "pair_name": "Optimism (OP)",
       "signal": "SELL",
       "current_price": "$0.096000",
-      "take_profit": "$0.094630",
+      "take_profit": "$0.094348",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 50.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Aave (AAVE)",
+      "signal": "SELL",
+      "current_price": "$91.2800",
+      "take_profit": "$90.3293",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 62.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Ethereum Classic (ETC)",
+      "signal": "SELL",
+      "current_price": "$6.9900",
+      "take_profit": "$6.9421",
       "stop_loss": "Aucun",
       "confidence": 59,
-      "rsi": 49.3,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "rsi": 61.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
     }
   ]
 }
