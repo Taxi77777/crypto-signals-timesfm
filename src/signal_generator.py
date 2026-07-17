@@ -128,10 +128,10 @@ def generate_signal(
             logger.info(f"Filtre Range actif sur {symbol} (ADX: {adx:.1f} < 15) -> Signal annule")
             return None
 
-        # Volume=0 = bougie en cours non cloturee (Yahoo Finance) -> on ignore ce filtre
-        if volume > 0 and volume < volume_sma * 0.2:
-            logger.info(f"Filtre Volume actif sur {symbol} (Volume: {volume:.0f} < 20% de SMA: {volume_sma:.0f}) -> Signal annule")
-            return None
+        # Filtre Volume désactivé en temps réel car la bougie en cours a toujours un volume faible avant clôture
+        # if volume > 0 and volume < volume_sma * 0.2:
+        #     logger.info(f"Filtre Volume actif sur {symbol} (Volume: {volume:.0f} < 20% de SMA: {volume_sma:.0f}) -> Signal annule")
+        #     return None
 
         # ── Analyse des indicateurs ─────────────────────────────────────────
         rsi_status = (

@@ -20,7 +20,7 @@ CONTEXT_LENGTH    = 512  # Nombre de bougies historiques utilisées
 DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "5m")
 DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
-MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
+MIN_CONFIDENCE           = 55      # Seuil signal fort (%)
 
 # ── Cryptos surveillées (Top 50 par capitalisation) ───────────────────────────
 CRYPTO_PAIRS = [
