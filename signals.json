@@ -1,38 +1,27 @@
 {
-  "last_update": "2026-07-17T22:15:36.542109+00:00",
+  "last_update": "2026-07-17T22:53:11.986129+00:00",
   "signals": [
     {
-      "pair_name": "Jupiter (JUP)",
+      "pair_name": "Maker (MKR)",
       "signal": "BUY",
-      "current_price": "$0.000250",
-      "take_profit": "$0.000250",
+      "current_price": "$1,488.32",
+      "take_profit": "$1,490.58",
       "stop_loss": "Aucun",
-      "confidence": 75,
-      "rsi": 94.0,
+      "confidence": 77,
+      "rsi": 68.7,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY"
-    },
-    {
-      "pair_name": "Dogwifhat (WIF)",
-      "signal": "BUY",
-      "current_price": "$0.154000",
-      "take_profit": "$0.154720",
-      "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 38.4,
-      "macd_trend": "Baissier 🔴",
       "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
     },
     {
       "pair_name": "ApeCoin (APE)",
       "signal": "SELL",
-      "current_price": "$0.145904",
-      "take_profit": "$0.145547",
+      "current_price": "$0.146588",
+      "take_profit": "$0.146200",
       "stop_loss": "Aucun",
-      "confidence": 57,
-      "rsi": 57.7,
+      "confidence": 62,
+      "rsi": 71.1,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
     }
   ]
 }
