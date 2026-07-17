@@ -1,16 +1,16 @@
 {
-  "last_update": "2026-07-17T12:08:56.561915+00:00",
+  "last_update": "2026-07-17T12:52:39.031074+00:00",
   "signals": [
     {
-      "pair_name": "Optimism (OP)",
+      "pair_name": "Jupiter (JUP)",
       "signal": "SELL",
-      "current_price": "$0.097000",
-      "take_profit": "$0.096542",
+      "current_price": "$0.000012",
+      "take_profit": "$0.000012",
       "stop_loss": "Aucun",
-      "confidence": 62,
-      "rsi": 37.8,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+      "confidence": 70,
+      "rsi": 0.0,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:SELL/GRA:BUY"
     }
   ]
 }
