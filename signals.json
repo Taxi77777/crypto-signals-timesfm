@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-17T11:54:11.221708+00:00",
-  "signals": []
+  "last_update": "2026-07-17T12:08:56.561915+00:00",
+  "signals": [
+    {
+      "pair_name": "Optimism (OP)",
+      "signal": "SELL",
+      "current_price": "$0.097000",
+      "take_profit": "$0.096542",
+      "stop_loss": "Aucun",
+      "confidence": 62,
+      "rsi": 37.8,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    }
+  ]
 }
