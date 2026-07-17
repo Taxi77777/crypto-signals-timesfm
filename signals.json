@@ -1,16 +1,49 @@
 {
-  "last_update": "2026-07-17T18:34:33.058312+00:00",
+  "last_update": "2026-07-17T18:47:41.296949+00:00",
   "signals": [
+    {
+      "pair_name": "Theta Network (THETA)",
+      "signal": "SELL",
+      "current_price": "$0.141569",
+      "take_profit": "$0.140932",
+      "stop_loss": "Aucun",
+      "confidence": 90,
+      "rsi": 23.1,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Shiba Inu (SHIB)",
+      "signal": "SELL",
+      "current_price": "$0.000004",
+      "take_profit": "$0.000004",
+      "stop_loss": "Aucun",
+      "confidence": 67,
+      "rsi": 53.8,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
     {
       "pair_name": "Sei (SEI)",
       "signal": "SELL",
-      "current_price": "$0.047160",
-      "take_profit": "$0.046869",
+      "current_price": "$0.047170",
+      "take_profit": "$0.046918",
       "stop_loss": "Aucun",
-      "confidence": 85,
-      "rsi": 34.2,
+      "confidence": 67,
+      "rsi": 36.5,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Axie Infinity (AXS)",
+      "signal": "SELL",
+      "current_price": "$0.940000",
+      "take_profit": "$0.935646",
+      "stop_loss": "Aucun",
+      "confidence": 59,
+      "rsi": 57.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]
 }
