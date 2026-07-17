@@ -42,7 +42,7 @@ jobs:
           MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
           MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
           USE_TIMESFM: 'true'
-          DATA_INTERVAL: '15m'
+          DATA_INTERVAL: '5m'
           SIGNAL_FREQUENCY_HOURS: '1'
           LOG_LEVEL: 'INFO'
         run: python run_once.py
