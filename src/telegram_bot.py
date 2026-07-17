@@ -47,11 +47,12 @@ def format_signal_message(signal: TradingSignal) -> str:
     )
 
 
-async def _send_async(text: str) -> bool:
+async def _send_async(text: str, chat_id: str = None) -> bool:
     try:
         bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
+        target = chat_id if chat_id else config.TELEGRAM_CHAT_ID
         await bot.send_message(
-            chat_id=config.TELEGRAM_CHAT_ID,
+            chat_id=target,
             text=text,
             parse_mode=ParseMode.MARKDOWN,
         )
@@ -62,9 +63,9 @@ async def _send_async(text: str) -> bool:
         return False
 
 
-def send_message(text: str) -> bool:
+def send_message(text: str, chat_id: str = None) -> bool:
     try:
-        return asyncio.run(_send_async(text))
+        return asyncio.run(_send_async(text, chat_id))
     except Exception:
         return False
 
