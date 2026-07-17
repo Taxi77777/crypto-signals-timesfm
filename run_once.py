@@ -322,33 +322,34 @@ def main():
             else:
                 logger.warning("Funding rate indisponible (Ignoré, trading autorisé)")
 
-        raw_price = raw_prices.get(best.symbol, 0) if best else 0
+        if best:
+            raw_price = raw_prices.get(best.symbol, 0)
 
-        def parse_price(s: str) -> float:
-            if s == "Aucun":
-                return 0.0
-            return float(s.replace("$", "").replace(",", ""))
+            def parse_price(s: str) -> float:
+                if s == "Aucun":
+                    return 0.0
+                return float(s.replace("$", "").replace(",", ""))
 
-        tp_num = parse_price(best.take_profit)
-        sl_num = parse_price(best.stop_loss)
+            tp_num = parse_price(best.take_profit)
+            sl_num = parse_price(best.stop_loss)
 
-        result = place_order(
-            api_key    = mexc_key,
-            secret_key = mexc_secret,
-            symbol_yf  = best.symbol,
-            signal     = best.signal,
-            price      = raw_price,
-            tp_price   = tp_num,
-            sl_price   = sl_num,
-        ) if (best and trade_allowed) else None
+            result = place_order(
+                api_key    = mexc_key,
+                secret_key = mexc_secret,
+                symbol_yf  = best.symbol,
+                signal     = best.signal,
+                price      = raw_price,
+                tp_price   = tp_num,
+                sl_price   = sl_num,
+            ) if trade_allowed else None
 
-        if result and result.get("success"):
-            send_message(format_order_telegram(result, best))
-            logger.info("✅ Ordre MEXC Futures ouvert et notifié sur Telegram !")
-        elif best and trade_allowed:
-            err = result.get("error", "Inconnue") if result else "Réponse MEXC vide (vérifie clés API / solde ≥ 1 USDT / KYC)"
-            logger.error(f"❌ Échec ordre : {err}")
-            send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._")
+            if result and result.get("success"):
+                send_message(format_order_telegram(result, best))
+                logger.info("✅ Ordre MEXC Futures ouvert et notifié sur Telegram !")
+            elif trade_allowed:
+                err = result.get("error", "Inconnue") if result else "Réponse MEXC vide (vérifie clés API / solde ≥ 1 USDT / KYC)"
+                logger.error(f"❌ Échec ordre : {err}")
+                send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._")
     elif use_mexc and trade_allowed and not strong_signals:
         logger.info("Aucun signal fort → Pas de trade ce scan.")
 
