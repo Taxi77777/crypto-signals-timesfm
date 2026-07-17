@@ -1,38 +1,93 @@
 {
-  "last_update": "2026-07-17T13:17:24.267418+00:00",
+  "last_update": "2026-07-17T14:19:28.450722+00:00",
   "signals": [
     {
-      "pair_name": "Polkadot (DOT)",
+      "pair_name": "NEAR Protocol (NEAR)",
+      "signal": "SELL",
+      "current_price": "$1.9350",
+      "take_profit": "$1.9100",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 67.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Sei (SEI)",
+      "signal": "SELL",
+      "current_price": "$0.047370",
+      "take_profit": "$0.046888",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 68.3,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Cardano (ADA)",
+      "signal": "SELL",
+      "current_price": "$0.161400",
+      "take_profit": "$0.159440",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 71.5,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Internet Computer (ICP)",
+      "signal": "SELL",
+      "current_price": "$2.1380",
+      "take_profit": "$2.1173",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 65.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Decentraland (MANA)",
       "signal": "BUY",
-      "current_price": "$0.836000",
-      "take_profit": "$0.841991",
+      "current_price": "$0.070900",
+      "take_profit": "$0.071346",
       "stop_loss": "Aucun",
-      "confidence": 90,
-      "rsi": 12.8,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+      "confidence": 62,
+      "rsi": 67.3,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY"
     },
     {
-      "pair_name": "Shiba Inu (SHIB)",
+      "pair_name": "Optimism (OP)",
       "signal": "SELL",
-      "current_price": "$0.000004",
-      "take_profit": "$0.000004",
+      "current_price": "$0.096000",
+      "take_profit": "$0.094596",
       "stop_loss": "Aucun",
-      "confidence": 82,
-      "rsi": 18.5,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+      "confidence": 61,
+      "rsi": 45.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     },
     {
-      "pair_name": "Dogecoin (DOGE)",
+      "pair_name": "Ethereum Classic (ETC)",
       "signal": "SELL",
-      "current_price": "$0.071330",
-      "take_profit": "$0.070955",
+      "current_price": "$6.9800",
+      "take_profit": "$6.9255",
       "stop_loss": "Aucun",
-      "confidence": 80,
-      "rsi": 23.9,
-      "macd_trend": "Baissier 🔴",
+      "confidence": 59,
+      "rsi": 62.1,
+      "macd_trend": "Haussier 🟢",
       "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Artificial Superintelligence (FET)",
+      "signal": "SELL",
+      "current_price": "$0.159500",
+      "take_profit": "$0.158065",
+      "stop_loss": "Aucun",
+      "confidence": 59,
+      "rsi": 65.1,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
     }
   ]
 }
