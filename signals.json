@@ -1,27 +1,27 @@
 {
-  "last_update": "2026-07-17T18:07:47.489022+00:00",
+  "last_update": "2026-07-17T18:17:04.775229+00:00",
   "signals": [
-    {
-      "pair_name": "Sei (SEI)",
-      "signal": "SELL",
-      "current_price": "$0.047300",
-      "take_profit": "$0.046970",
-      "stop_loss": "Aucun",
-      "confidence": 75,
-      "rsi": 38.4,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
     {
       "pair_name": "Theta Network (THETA)",
       "signal": "SELL",
-      "current_price": "$0.142630",
-      "take_profit": "$0.142028",
+      "current_price": "$0.142413",
+      "take_profit": "$0.141798",
       "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 31.4,
+      "confidence": 85,
+      "rsi": 29.4,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Sei (SEI)",
+      "signal": "SELL",
+      "current_price": "$0.047270",
+      "take_profit": "$0.046956",
+      "stop_loss": "Aucun",
+      "confidence": 85,
+      "rsi": 38.2,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     },
     {
       "pair_name": "Shiba Inu (SHIB)",
@@ -29,32 +29,10 @@
       "current_price": "$0.000004",
       "take_profit": "$0.000004",
       "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 60.4,
+      "confidence": 67,
+      "rsi": 53.1,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "ApeCoin (APE)",
-      "signal": "SELL",
-      "current_price": "$0.146608",
-      "take_profit": "$0.145928",
-      "stop_loss": "Aucun",
-      "confidence": 69,
-      "rsi": 30.8,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Chainlink (LINK)",
-      "signal": "SELL",
-      "current_price": "$8.2270",
-      "take_profit": "$8.1641",
-      "stop_loss": "Aucun",
-      "confidence": 61,
-      "rsi": 56.0,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:HOLD"
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
     }
   ]
 }
