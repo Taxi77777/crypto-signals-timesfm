@@ -274,13 +274,24 @@ def main():
 
     # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
     if use_mexc and trade_allowed and strong_signals:
-        best = strong_signals[0]
-        logger.info(f"→ Meilleur signal : {best.pair_name} {best.signal} {best.confidence}%")
-
-        # ── Filtre Microstructure Order Book Imbalance (OBI) ──
         from src.mexc_trader import SYMBOL_MAP
-        symbol_mexc = SYMBOL_MAP.get(best.symbol)
-        if symbol_mexc:
+        # Ne trader QUE les cryptos réellement disponibles sur MEXC Futures.
+        # Les autres restent des signaux Telegram (pas d'ordre, pas d'erreur).
+        tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP]
+        if not tradables:
+            names = ", ".join(s.pair_name for s in strong_signals[:5])
+            logger.info(f"Aucun signal fort n'est tradable sur MEXC (non mappés: {names}) → pas de trade")
+            send_message(
+                f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
+                f"{names}\n_Signal envoyé, aucun ordre passé (crypto absente de MEXC Futures)._"
+            )
+            best = None
+        else:
+            best = tradables[0]
+            logger.info(f"→ Meilleur signal tradable : {best.pair_name} {best.signal} {best.confidence}%")
+
+        symbol_mexc = SYMBOL_MAP.get(best.symbol) if best else None
+        if best and symbol_mexc:
             imbalance = get_order_book_imbalance(symbol_mexc)
             if imbalance is not None:
                 logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
@@ -311,7 +322,7 @@ def main():
             else:
                 logger.warning("Funding rate indisponible (Ignoré, trading autorisé)")
 
-        raw_price = raw_prices.get(best.symbol, 0)
+        raw_price = raw_prices.get(best.symbol, 0) if best else 0
 
         def parse_price(s: str) -> float:
             if s == "Aucun":
@@ -329,15 +340,15 @@ def main():
             price      = raw_price,
             tp_price   = tp_num,
             sl_price   = sl_num,
-        )
+        ) if (best and trade_allowed) else None
 
         if result and result.get("success"):
             send_message(format_order_telegram(result, best))
             logger.info("✅ Ordre MEXC Futures ouvert et notifié sur Telegram !")
-        else:
-            err = result.get("error", "Inconnue") if result else "Connexion échouée"
+        elif best and trade_allowed:
+            err = result.get("error", "Inconnue") if result else "Réponse MEXC vide (vérifie clés API / solde ≥ 1 USDT / KYC)"
             logger.error(f"❌ Échec ordre : {err}")
-            send_message(f"❌ *Erreur MEXC Futures*\n`{err}`\n_Position non ouverte._")
+            send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._")
     elif use_mexc and trade_allowed and not strong_signals:
         logger.info("Aucun signal fort → Pas de trade ce scan.")
 
