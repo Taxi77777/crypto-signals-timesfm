@@ -1,58 +1,14 @@
 {
-  "last_update": "2026-07-17T14:36:19.579005+00:00",
+  "last_update": "2026-07-17T14:58:15.166449+00:00",
   "signals": [
-    {
-      "pair_name": "Artificial Superintelligence (FET)",
-      "signal": "SELL",
-      "current_price": "$0.160300",
-      "take_profit": "$0.158897",
-      "stop_loss": "Aucun",
-      "confidence": 90,
-      "rsi": 71.1,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "ApeCoin (APE)",
-      "signal": "SELL",
-      "current_price": "$0.148257",
-      "take_profit": "$0.147237",
-      "stop_loss": "Aucun",
-      "confidence": 82,
-      "rsi": 55.4,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Theta Network (THETA)",
-      "signal": "SELL",
-      "current_price": "$0.141987",
-      "take_profit": "$0.140966",
-      "stop_loss": "Aucun",
-      "confidence": 80,
-      "rsi": 58.4,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Render (RENDER)",
-      "signal": "SELL",
-      "current_price": "$1.4700",
-      "take_profit": "$1.4581",
-      "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 58.1,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
     {
       "pair_name": "Internet Computer (ICP)",
       "signal": "SELL",
-      "current_price": "$2.1320",
-      "take_profit": "$2.1122",
+      "current_price": "$2.1300",
+      "take_profit": "$2.1109",
       "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 59.4,
+      "confidence": 67,
+      "rsi": 53.4,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     },
@@ -60,34 +16,12 @@
       "pair_name": "Optimism (OP)",
       "signal": "SELL",
       "current_price": "$0.096000",
-      "take_profit": "$0.094509",
+      "take_profit": "$0.094891",
       "stop_loss": "Aucun",
-      "confidence": 72,
+      "confidence": 59,
       "rsi": 47.6,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Solana (SOL)",
-      "signal": "SELL",
-      "current_price": "$74.2400",
-      "take_profit": "$73.4382",
-      "stop_loss": "Aucun",
-      "confidence": 61,
-      "rsi": 50.2,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:HOLD"
-    },
-    {
-      "pair_name": "Avalanche (AVAX)",
-      "signal": "SELL",
-      "current_price": "$6.4700",
-      "take_profit": "$6.4068",
-      "stop_loss": "Aucun",
-      "confidence": 61,
-      "rsi": 54.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]
 }
