@@ -93,7 +93,7 @@ def generate_signal(
     moirai_predictions: np.ndarray | None = None,
     lagllama_predictions: np.ndarray | None = None,
     granite_predictions: np.ndarray | None = None,
-    df_4h: pd.DataFrame | None = None,
+    df_1h: pd.DataFrame | None = None,
 ) -> TradingSignal | None:
     """Génère un signal de trading pour une crypto en combinant TimesFM + Chronos."""
     try:
@@ -283,33 +283,33 @@ def generate_signal(
             return None
         logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)}) | poids: {ai_weights}")
 
-        # FILTRE MULTI-TIMEFRAME (TENDANCE EMA 4H + SUPERTREND 4H)
-        if df_4h is not None and not df_4h.empty:
+        # FILTRE MULTI-TIMEFRAME (TENDANCE EMA 1H + SUPERTREND 1H)
+        if df_1h is not None and not df_1h.empty:
             from src.indicators import compute_all_indicators
-            df_4h_ind = compute_all_indicators(df_4h)
-            if not df_4h_ind.empty:
-                last_4h = df_4h_ind.iloc[-1]
-                ema20_4h = float(last_4h["ema20"])
-                ema50_4h = float(last_4h["ema50"])
-                st_dir_4h = int(last_4h["supertrend_dir"])  # 1=haussier, -1=baissier
+            df_1h_ind = compute_all_indicators(df_1h)
+            if not df_1h_ind.empty:
+                last_1h = df_1h_ind.iloc[-1]
+                ema20_1h = float(last_1h["ema20"])
+                ema50_1h = float(last_1h["ema50"])
+                st_dir_1h = int(last_1h["supertrend_dir"])  # 1=haussier, -1=baissier
 
-                # 1. Validation EMA Tendance 4h
-                if signal == "BUY" and ema20_4h < ema50_4h:
-                    logger.info(f"⏳ Filtre Tendance 4H actif sur {symbol} (4h EMA20 < EMA50) -> Signal BUY annulé")
+                # 1. Validation EMA Tendance 1h
+                if signal == "BUY" and ema20_1h < ema50_1h:
+                    logger.info(f"⏳ Filtre Tendance 1H actif sur {symbol} (1h EMA20 < EMA50) -> Signal BUY annulé")
                     return None
-                if signal == "SELL" and ema20_4h > ema50_4h:
-                    logger.info(f"⏳ Filtre Tendance 4H actif sur {symbol} (4h EMA20 > EMA50) -> Signal SELL annulé")
-                    return None
-
-                # 2. Validation Supertrend 4h
-                if signal == "BUY" and st_dir_4h == -1:
-                    logger.info(f"⏳ Filtre Supertrend 4H actif sur {symbol} (tendance 4h baissiere) -> Signal BUY annulé")
-                    return None
-                if signal == "SELL" and st_dir_4h == 1:
-                    logger.info(f"⏳ Filtre Supertrend 4H actif sur {symbol} (tendance 4h haussiere) -> Signal SELL annulé")
+                if signal == "SELL" and ema20_1h > ema50_1h:
+                    logger.info(f"⏳ Filtre Tendance 1H actif sur {symbol} (1h EMA20 > EMA50) -> Signal SELL annulé")
                     return None
 
-                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (4h EMA alignee & 4h Supertrend en phase)")
+                # 2. Validation Supertrend 1h
+                if signal == "BUY" and st_dir_1h == -1:
+                    logger.info(f"⏳ Filtre Supertrend 1H actif sur {symbol} (tendance 1h baissiere) -> Signal BUY annulé")
+                    return None
+                if signal == "SELL" and st_dir_1h == 1:
+                    logger.info(f"⏳ Filtre Supertrend 1H actif sur {symbol} (tendance 1h haussiere) -> Signal SELL annulé")
+                    return None
+
+                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (1h EMA alignee & 1h Supertrend en phase)")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult

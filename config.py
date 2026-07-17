@@ -13,12 +13,12 @@ TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # ── TimesFM ───────────────────────────────────────────────────────────────────
 USE_TIMESFM       = os.getenv("USE_TIMESFM", "true").lower() == "true"
-FORECAST_HORIZON  = 4    # Prédire 4 périodes en avance (1h pour bougies 15m)
+FORECAST_HORIZON  = 4    # Prédire 4 périodes en avance (20 min pour bougies 5m)
 CONTEXT_LENGTH    = 512  # Nombre de bougies historiques utilisées
 
 # ── Données ───────────────────────────────────────────────────────────────────
-DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "15m")
-DATA_PERIOD              = "30d"   # 30 jours d'historique (max pour 15m)
+DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "5m")
+DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 
