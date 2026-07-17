@@ -266,9 +266,10 @@ def main():
         # Heartbeat : confirme que le bot tourne même sans signal
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
-            f"📊 {len(signals)} crypto(s) analysée(s)\n"
-            f"Consensus majoritaire (>=3/5) IA actif)\n"
-            f"_Prochain scan dans 15 min_"
+            f"📊 {len(all_data)} cryptos scannées | {len(ind_map)} analysées\n"
+            f"🤖 {len(signals)} pré-signaux, 0 signal fort\n"
+            f"⚖️ Consensus majoritaire (>=3/5) IA + pondération dynamique\n"
+            f"_Prochain scan dans 5 min_"
         )
 
     # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
