@@ -283,22 +283,20 @@ def generate_signal(
             return None
         logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)}) | poids: {ai_weights}")
 
-        # FILTRE MULTI-TIMEFRAME (4H TREND)
+        # FILTRE MULTI-TIMEFRAME (SUPERTREND 4H) — cohérent avec le moteur 15m
         if df_4h is not None and not df_4h.empty:
             from src.indicators import compute_all_indicators
             df_4h_ind = compute_all_indicators(df_4h)
             if not df_4h_ind.empty:
-                last_4h = df_4h_ind.iloc[-1]
-                ema20_4h = float(last_4h["ema20"])
-                ema50_4h = float(last_4h["ema50"])
-                
-                if signal == "BUY" and ema20_4h < ema50_4h:
-                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 < EMA50) -> Signal BUY annulé")
+                st_dir_4h = int(df_4h_ind.iloc[-1]["supertrend_dir"])  # 1=haussier, -1=baissier
+
+                if signal == "BUY" and st_dir_4h == -1:
+                    logger.info(f"⏳ Filtre Supertrend 4H actif sur {symbol} (tendance 4h baissiere) -> Signal BUY annulé")
                     return None
-                if signal == "SELL" and ema20_4h > ema50_4h:
-                    logger.info(f"⏳ Filtre Multi-Timeframe actif sur {symbol} (4h EMA20 > EMA50) -> Signal SELL annulé")
+                if signal == "SELL" and st_dir_4h == 1:
+                    logger.info(f"⏳ Filtre Supertrend 4H actif sur {symbol} (tendance 4h haussiere) -> Signal SELL annulé")
                     return None
-                logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (4h EMA alignee)")
+                logger.info(f"✅ Filtre Supertrend 4H valide sur {symbol} (tendance 4h alignee: {'haussiere' if st_dir_4h==1 else 'baissiere'})")
 
         tp_price = current_price * tp_mult
         sl_price = current_price * sl_mult
