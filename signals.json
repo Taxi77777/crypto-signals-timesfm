@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-17T23:27:17.418948+00:00",
-  "signals": []
+  "last_update": "2026-07-17T23:35:56.545820+00:00",
+  "signals": [
+    {
+      "pair_name": "Decentraland (MANA)",
+      "signal": "BUY",
+      "current_price": "$0.073500",
+      "take_profit": "$0.074524",
+      "stop_loss": "Aucun",
+      "confidence": 65,
+      "rsi": 48.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+    }
+  ]
 }
