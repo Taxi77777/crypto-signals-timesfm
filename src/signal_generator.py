@@ -258,7 +258,9 @@ def generate_signal(
         # (un BUY exige que le Supertrend ne soit pas baissier, et inversement)
 
         # ── Décision finale ──────────────────────────────────────────────────
-        max_score = 27  # 5 IA x3 + RSI2 + MACD2 + EMA1 + BB2 + ST5 + Fisher1
+        st_max = 5 if (st_flip_up or st_flip_dn) else 2
+        fish_max = 1 if (fisher <= -2.0 or fisher >= 2.0) else 0
+        max_score = 2 + 2 + 1 + 2 + st_max + fish_max + sum(ai_weights.values())
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
