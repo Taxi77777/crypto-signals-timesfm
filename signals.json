@@ -1,38 +1,16 @@
 {
-  "last_update": "2026-07-17T18:17:04.775229+00:00",
+  "last_update": "2026-07-17T18:34:33.058312+00:00",
   "signals": [
-    {
-      "pair_name": "Theta Network (THETA)",
-      "signal": "SELL",
-      "current_price": "$0.142413",
-      "take_profit": "$0.141798",
-      "stop_loss": "Aucun",
-      "confidence": 85,
-      "rsi": 29.4,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
     {
       "pair_name": "Sei (SEI)",
       "signal": "SELL",
-      "current_price": "$0.047270",
-      "take_profit": "$0.046956",
+      "current_price": "$0.047160",
+      "take_profit": "$0.046869",
       "stop_loss": "Aucun",
       "confidence": 85,
-      "rsi": 38.2,
+      "rsi": 34.2,
       "macd_trend": "Baissier 🔴",
       "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Shiba Inu (SHIB)",
-      "signal": "SELL",
-      "current_price": "$0.000004",
-      "take_profit": "$0.000004",
-      "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 53.1,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
     }
   ]
 }
