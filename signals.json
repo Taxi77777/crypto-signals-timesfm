@@ -1,48 +1,26 @@
 {
-  "last_update": "2026-07-17T18:47:41.296949+00:00",
+  "last_update": "2026-07-17T19:50:56.184715+00:00",
   "signals": [
     {
-      "pair_name": "Theta Network (THETA)",
+      "pair_name": "Litecoin (LTC)",
       "signal": "SELL",
-      "current_price": "$0.141569",
-      "take_profit": "$0.140932",
+      "current_price": "$45.0800",
+      "take_profit": "$44.7981",
       "stop_loss": "Aucun",
-      "confidence": 90,
-      "rsi": 23.1,
+      "confidence": 70,
+      "rsi": 60.4,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "ApeCoin (APE)",
+      "signal": "SELL",
+      "current_price": "$0.145304",
+      "take_profit": "$0.144414",
+      "stop_loss": "Aucun",
+      "confidence": 69,
+      "rsi": 34.1,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Shiba Inu (SHIB)",
-      "signal": "SELL",
-      "current_price": "$0.000004",
-      "take_profit": "$0.000004",
-      "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 53.8,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "Sei (SEI)",
-      "signal": "SELL",
-      "current_price": "$0.047170",
-      "take_profit": "$0.046918",
-      "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 36.5,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Axie Infinity (AXS)",
-      "signal": "SELL",
-      "current_price": "$0.940000",
-      "take_profit": "$0.935646",
-      "stop_loss": "Aucun",
-      "confidence": 59,
-      "rsi": 57.1,
-      "macd_trend": "Neutre ⚪",
       "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]

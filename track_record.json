@@ -2,8 +2,8 @@
   "models": {
     "TFM": {
       "global": {
-        "wins": 1082,
-        "total": 2348
+        "wins": 1099,
+        "total": 2397
       },
       "per_pair": {
         "BTC-USD": {
@@ -12,7 +12,7 @@
         },
         "ETH-USD": {
           "wins": 4,
-          "total": 8
+          "total": 9
         },
         "DOGE-USD": {
           "wins": 5,
@@ -20,43 +20,43 @@
         },
         "DOT-USD": {
           "wins": 13,
-          "total": 15
+          "total": 16
         },
         "LINK-USD": {
           "wins": 4,
-          "total": 7
+          "total": 8
         },
         "NEAR-USD": {
           "wins": 13,
-          "total": 18
+          "total": 20
         },
         "FIL-USD": {
           "wins": 9,
           "total": 11
         },
         "MANA-USD": {
-          "wins": 7,
-          "total": 11
+          "wins": 8,
+          "total": 12
         },
         "SHIB-USD": {
-          "wins": 11,
-          "total": 26
+          "wins": 12,
+          "total": 31
         },
         "WIF-USD": {
           "wins": 10,
-          "total": 19
+          "total": 20
         },
         "OP-USD": {
-          "wins": 4,
-          "total": 22
+          "wins": 6,
+          "total": 24
         },
         "JUP-USD": {
           "wins": 3,
-          "total": 26
+          "total": 30
         },
         "FLOKI-USD": {
           "wins": 9,
-          "total": 26
+          "total": 31
         },
         "FET-USD": {
           "wins": 8,
@@ -64,19 +64,19 @@
         },
         "MKR-USD": {
           "wins": 13,
-          "total": 21
+          "total": 22
         },
         "RUNE-USD": {
           "wins": 6,
-          "total": 12
+          "total": 13
         },
         "GALA-USD": {
-          "wins": 5,
-          "total": 10
+          "wins": 6,
+          "total": 15
         },
         "WLD-USD": {
           "wins": 6,
-          "total": 15
+          "total": 18
         },
         "ADA-USD": {
           "wins": 4,
@@ -91,20 +91,20 @@
           "total": 12
         },
         "APE-USD": {
-          "wins": 6,
-          "total": 10
+          "wins": 7,
+          "total": 12
         },
         "AXS-USD": {
-          "wins": 5,
-          "total": 11
+          "wins": 6,
+          "total": 13
         },
         "THETA-USD": {
-          "wins": 4,
-          "total": 7
+          "wins": 6,
+          "total": 9
         },
         "AAVE-USD": {
           "wins": 5,
-          "total": 11
+          "total": 12
         },
         "FLOW-USD": {
           "wins": 5,
@@ -119,16 +119,16 @@
           "total": 14
         },
         "LTC-USD": {
-          "wins": 5,
-          "total": 10
+          "wins": 6,
+          "total": 11
         },
         "VET-USD": {
           "wins": 4,
           "total": 10
         },
         "ATOM-USD": {
-          "wins": 4,
-          "total": 6
+          "wins": 5,
+          "total": 7
         },
         "ETC-USD": {
           "wins": 4,
@@ -136,27 +136,27 @@
         },
         "LDO-USD": {
           "wins": 10,
-          "total": 21
+          "total": 22
         },
         "RENDER-USD": {
           "wins": 5,
           "total": 9
         },
         "SEI-USD": {
-          "wins": 2,
-          "total": 4
+          "wins": 5,
+          "total": 7
         },
         "XRP-USD": {
-          "wins": 0,
-          "total": 2
+          "wins": 1,
+          "total": 3
         },
         "ICP-USD": {
-          "wins": 7,
-          "total": 14
+          "wins": 8,
+          "total": 15
         },
         "BCH-USD": {
-          "wins": 4,
-          "total": 9
+          "wins": 5,
+          "total": 10
         },
         "TON-USD": {
           "wins": 0,
@@ -166,197 +166,197 @@
     },
     "CHO": {
       "global": {
-        "wins": 1792,
-        "total": 4410
+        "wins": 1872,
+        "total": 4588
       },
       "per_pair": {
         "BTC-USD": {
-          "wins": 1381,
-          "total": 3496
+          "wins": 1385,
+          "total": 3500
         },
         "ETH-USD": {
           "wins": 13,
-          "total": 20
+          "total": 25
         },
         "BNB-USD": {
-          "wins": 8,
-          "total": 21
+          "wins": 12,
+          "total": 25
         },
         "SOL-USD": {
           "wins": 10,
-          "total": 22
+          "total": 27
         },
         "XRP-USD": {
           "wins": 15,
-          "total": 24
+          "total": 29
         },
         "ADA-USD": {
-          "wins": 9,
-          "total": 22
+          "wins": 11,
+          "total": 27
         },
         "AVAX-USD": {
-          "wins": 11,
-          "total": 15
-        },
-        "DOGE-USD": {
-          "wins": 13,
-          "total": 23
-        },
-        "DOT-USD": {
-          "wins": 15,
-          "total": 24
-        },
-        "TRX-USD": {
-          "wins": 5,
-          "total": 24
-        },
-        "LTC-USD": {
-          "wins": 13,
+          "wins": 12,
           "total": 20
         },
-        "ATOM-USD": {
-          "wins": 12,
+        "DOGE-USD": {
+          "wins": 16,
+          "total": 26
+        },
+        "DOT-USD": {
+          "wins": 20,
+          "total": 29
+        },
+        "TRX-USD": {
+          "wins": 7,
+          "total": 29
+        },
+        "LTC-USD": {
+          "wins": 14,
           "total": 25
         },
+        "ATOM-USD": {
+          "wins": 13,
+          "total": 28
+        },
         "ALGO-USD": {
-          "wins": 11,
-          "total": 22
+          "wins": 13,
+          "total": 26
         },
         "NEAR-USD": {
           "wins": 13,
-          "total": 23
+          "total": 26
         },
         "FIL-USD": {
-          "wins": 8,
-          "total": 25
+          "wins": 10,
+          "total": 28
         },
         "SAND-USD": {
-          "wins": 9,
-          "total": 23
+          "wins": 10,
+          "total": 27
         },
         "MANA-USD": {
-          "wins": 12,
-          "total": 20
+          "wins": 13,
+          "total": 23
         },
         "APE-USD": {
-          "wins": 13,
-          "total": 22
+          "wins": 15,
+          "total": 25
         },
         "THETA-USD": {
-          "wins": 10,
-          "total": 21
+          "wins": 13,
+          "total": 26
         },
         "ICP-USD": {
-          "wins": 12,
-          "total": 24
+          "wins": 15,
+          "total": 29
         },
         "SHIB-USD": {
-          "wins": 14,
-          "total": 21
+          "wins": 18,
+          "total": 26
         },
         "TON-USD": {
           "wins": 3,
-          "total": 26
+          "total": 28
         },
         "WIF-USD": {
-          "wins": 12,
-          "total": 22
+          "wins": 13,
+          "total": 27
         },
         "RENDER-USD": {
-          "wins": 13,
-          "total": 23
+          "wins": 17,
+          "total": 28
         },
         "OP-USD": {
           "wins": 9,
-          "total": 24
+          "total": 27
         },
         "ARB-USD": {
           "wins": 0,
-          "total": 26
+          "total": 31
         },
         "VET-USD": {
-          "wins": 7,
-          "total": 19
+          "wins": 9,
+          "total": 22
         },
         "LDO-USD": {
-          "wins": 11,
-          "total": 23
+          "wins": 14,
+          "total": 27
         },
         "JUP-USD": {
           "wins": 2,
-          "total": 23
+          "total": 26
         },
         "SEI-USD": {
-          "wins": 12,
-          "total": 24
+          "wins": 16,
+          "total": 29
         },
         "FLOKI-USD": {
-          "wins": 8,
-          "total": 25
+          "wins": 12,
+          "total": 30
         },
         "FET-USD": {
-          "wins": 17,
-          "total": 23
+          "wins": 21,
+          "total": 28
         },
         "MKR-USD": {
-          "wins": 12,
-          "total": 24
+          "wins": 14,
+          "total": 29
         },
         "RUNE-USD": {
-          "wins": 6,
-          "total": 22
+          "wins": 9,
+          "total": 27
         },
         "FLOW-USD": {
           "wins": 5,
-          "total": 21
+          "total": 26
         },
         "WLD-USD": {
-          "wins": 8,
-          "total": 20
+          "wins": 11,
+          "total": 24
         },
         "LINK-USD": {
-          "wins": 12,
-          "total": 22
+          "wins": 13,
+          "total": 27
         },
         "BCH-USD": {
-          "wins": 8,
-          "total": 22
+          "wins": 10,
+          "total": 25
         },
         "AXS-USD": {
-          "wins": 5,
-          "total": 22
+          "wins": 7,
+          "total": 26
         },
         "ETC-USD": {
-          "wins": 10,
-          "total": 22
+          "wins": 14,
+          "total": 27
         },
         "AAVE-USD": {
           "wins": 14,
-          "total": 18
+          "total": 23
         },
         "GALA-USD": {
           "wins": 11,
-          "total": 22
+          "total": 25
         }
       }
     },
     "MOI": {
       "global": {
-        "wins": 1219,
-        "total": 2670
+        "wins": 1258,
+        "total": 2766
       },
       "per_pair": {
         "BTC-USD": {
-          "wins": 947,
-          "total": 2086
+          "wins": 948,
+          "total": 2087
         },
         "XRP-USD": {
-          "wins": 5,
-          "total": 10
+          "wins": 7,
+          "total": 13
         },
         "ADA-USD": {
-          "wins": 9,
-          "total": 22
+          "wins": 11,
+          "total": 24
         },
         "DOT-USD": {
           "wins": 8,
@@ -364,43 +364,43 @@
         },
         "LTC-USD": {
           "wins": 8,
-          "total": 16
+          "total": 17
         },
         "BCH-USD": {
           "wins": 4,
-          "total": 8
+          "total": 12
         },
         "NEAR-USD": {
           "wins": 6,
           "total": 13
         },
         "SAND-USD": {
-          "wins": 7,
-          "total": 15
+          "wins": 8,
+          "total": 17
         },
         "MANA-USD": {
           "wins": 10,
           "total": 18
         },
         "AXS-USD": {
-          "wins": 11,
-          "total": 22
+          "wins": 14,
+          "total": 26
         },
         "THETA-USD": {
-          "wins": 3,
-          "total": 13
+          "wins": 8,
+          "total": 18
         },
         "ICP-USD": {
           "wins": 7,
           "total": 20
         },
         "SHIB-USD": {
-          "wins": 12,
-          "total": 26
+          "wins": 17,
+          "total": 31
         },
         "TON-USD": {
           "wins": 1,
-          "total": 13
+          "total": 18
         },
         "RENDER-USD": {
           "wins": 7,
@@ -408,95 +408,95 @@
         },
         "VET-USD": {
           "wins": 17,
-          "total": 26
+          "total": 31
         },
         "JUP-USD": {
           "wins": 5,
-          "total": 26
+          "total": 31
         },
         "SEI-USD": {
-          "wins": 3,
-          "total": 16
+          "wins": 8,
+          "total": 21
         },
         "FLOKI-USD": {
           "wins": 9,
-          "total": 26
+          "total": 31
         },
         "FET-USD": {
-          "wins": 12,
-          "total": 15
+          "wins": 14,
+          "total": 17
         },
         "AAVE-USD": {
           "wins": 7,
-          "total": 12
+          "total": 15
         },
         "MKR-USD": {
           "wins": 12,
-          "total": 19
+          "total": 24
         },
         "GALA-USD": {
-          "wins": 14,
-          "total": 26
+          "wins": 16,
+          "total": 31
         },
         "WLD-USD": {
-          "wins": 10,
-          "total": 21
+          "wins": 12,
+          "total": 23
         },
         "ETH-USD": {
-          "wins": 7,
-          "total": 10
+          "wins": 8,
+          "total": 11
         },
         "BNB-USD": {
           "wins": 2,
-          "total": 4
+          "total": 6
         },
         "AVAX-USD": {
-          "wins": 7,
-          "total": 14
+          "wins": 8,
+          "total": 16
         },
         "DOGE-USD": {
           "wins": 2,
-          "total": 12
+          "total": 13
         },
         "LINK-USD": {
           "wins": 2,
-          "total": 4
+          "total": 5
         },
         "WIF-USD": {
           "wins": 12,
-          "total": 19
+          "total": 23
         },
         "OP-USD": {
-          "wins": 4,
-          "total": 21
+          "wins": 6,
+          "total": 24
         },
         "LDO-USD": {
           "wins": 13,
-          "total": 21
+          "total": 25
         },
         "FLOW-USD": {
           "wins": 2,
           "total": 7
         },
         "FIL-USD": {
-          "wins": 5,
-          "total": 11
+          "wins": 7,
+          "total": 13
         },
         "APE-USD": {
-          "wins": 7,
-          "total": 9
+          "wins": 9,
+          "total": 12
         },
         "RUNE-USD": {
           "wins": 4,
-          "total": 7
+          "total": 8
         },
         "ALGO-USD": {
           "wins": 8,
           "total": 13
         },
         "SOL-USD": {
-          "wins": 3,
-          "total": 10
+          "wins": 4,
+          "total": 13
         },
         "ETC-USD": {
           "wins": 4,
@@ -510,249 +510,249 @@
     },
     "LLA": {
       "global": {
-        "wins": 1115,
-        "total": 2802
+        "wins": 1198,
+        "total": 3002
       },
       "per_pair": {
         "BTC-USD": {
-          "wins": 627,
-          "total": 1777
+          "wins": 630,
+          "total": 1781
         },
         "ETH-USD": {
-          "wins": 14,
-          "total": 26
+          "wins": 17,
+          "total": 31
         },
         "BNB-USD": {
-          "wins": 14,
-          "total": 26
+          "wins": 18,
+          "total": 31
         },
         "SOL-USD": {
-          "wins": 17,
-          "total": 26
+          "wins": 19,
+          "total": 30
         },
         "XRP-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 15,
+          "total": 31
         },
         "ADA-USD": {
           "wins": 16,
-          "total": 26
+          "total": 31
         },
         "AVAX-USD": {
-          "wins": 15,
-          "total": 26
+          "wins": 17,
+          "total": 31
         },
         "DOGE-USD": {
-          "wins": 16,
-          "total": 25
+          "wins": 18,
+          "total": 30
         },
         "DOT-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 16,
+          "total": 31
         },
         "LINK-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 16,
+          "total": 31
         },
         "TRX-USD": {
-          "wins": 9,
-          "total": 23
+          "wins": 11,
+          "total": 27
         },
         "LTC-USD": {
-          "wins": 15,
-          "total": 26
+          "wins": 20,
+          "total": 31
         },
         "ATOM-USD": {
-          "wins": 9,
-          "total": 24
+          "wins": 11,
+          "total": 29
         },
         "BCH-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 16,
+          "total": 31
         },
         "ALGO-USD": {
-          "wins": 15,
-          "total": 25
+          "wins": 18,
+          "total": 30
         },
         "NEAR-USD": {
-          "wins": 16,
-          "total": 26
+          "wins": 21,
+          "total": 31
         },
         "FIL-USD": {
-          "wins": 14,
-          "total": 25
+          "wins": 15,
+          "total": 30
         },
         "SAND-USD": {
-          "wins": 12,
-          "total": 26
+          "wins": 14,
+          "total": 31
         },
         "MANA-USD": {
           "wins": 12,
-          "total": 25
+          "total": 30
         },
         "APE-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 15,
+          "total": 31
         },
         "AXS-USD": {
           "wins": 12,
-          "total": 26
+          "total": 31
         },
         "THETA-USD": {
-          "wins": 9,
-          "total": 26
+          "wins": 10,
+          "total": 31
         },
         "ICP-USD": {
-          "wins": 15,
-          "total": 26
+          "wins": 17,
+          "total": 31
         },
         "ETC-USD": {
-          "wins": 12,
-          "total": 25
+          "wins": 13,
+          "total": 30
         },
         "SHIB-USD": {
-          "wins": 10,
-          "total": 25
+          "wins": 13,
+          "total": 30
         },
         "TON-USD": {
           "wins": 3,
-          "total": 26
+          "total": 31
         },
         "WIF-USD": {
           "wins": 10,
-          "total": 24
+          "total": 29
         },
         "RENDER-USD": {
-          "wins": 12,
-          "total": 26
+          "wins": 15,
+          "total": 30
         },
         "OP-USD": {
-          "wins": 4,
-          "total": 26
+          "wins": 6,
+          "total": 31
         },
         "VET-USD": {
           "wins": 14,
-          "total": 26
+          "total": 31
         },
         "LDO-USD": {
-          "wins": 8,
-          "total": 26
+          "wins": 13,
+          "total": 31
         },
         "JUP-USD": {
           "wins": 3,
-          "total": 26
+          "total": 31
         },
         "SEI-USD": {
           "wins": 11,
-          "total": 26
+          "total": 31
         },
         "FLOKI-USD": {
-          "wins": 9,
-          "total": 26
+          "wins": 10,
+          "total": 31
         },
         "FET-USD": {
-          "wins": 17,
-          "total": 26
+          "wins": 20,
+          "total": 31
         },
         "AAVE-USD": {
-          "wins": 13,
-          "total": 26
+          "wins": 14,
+          "total": 31
         },
         "MKR-USD": {
-          "wins": 14,
-          "total": 26
+          "wins": 16,
+          "total": 31
         },
         "RUNE-USD": {
-          "wins": 10,
-          "total": 26
+          "wins": 11,
+          "total": 30
         },
         "GALA-USD": {
-          "wins": 17,
-          "total": 26
+          "wins": 19,
+          "total": 31
         },
         "FLOW-USD": {
-          "wins": 11,
-          "total": 25
+          "wins": 14,
+          "total": 30
         },
         "WLD-USD": {
-          "wins": 15,
-          "total": 25
+          "wins": 19,
+          "total": 30
         }
       }
     },
     "GRA": {
       "global": {
-        "wins": 1680,
-        "total": 3658
+        "wins": 1738,
+        "total": 3785
       },
       "per_pair": {
         "BTC-USD": {
           "wins": 1276,
-          "total": 2799
+          "total": 2801
         },
         "ETH-USD": {
-          "wins": 7,
-          "total": 18
-        },
-        "SOL-USD": {
-          "wins": 11,
-          "total": 15
-        },
-        "ADA-USD": {
-          "wins": 9,
-          "total": 22
-        },
-        "AVAX-USD": {
-          "wins": 12,
-          "total": 21
-        },
-        "DOGE-USD": {
-          "wins": 13,
-          "total": 20
-        },
-        "DOT-USD": {
-          "wins": 13,
-          "total": 21
-        },
-        "LTC-USD": {
-          "wins": 16,
-          "total": 22
-        },
-        "ATOM-USD": {
-          "wins": 10,
-          "total": 21
-        },
-        "BCH-USD": {
-          "wins": 9,
-          "total": 22
-        },
-        "ALGO-USD": {
           "wins": 8,
           "total": 19
         },
-        "NEAR-USD": {
+        "SOL-USD": {
+          "wins": 12,
+          "total": 17
+        },
+        "ADA-USD": {
+          "wins": 14,
+          "total": 27
+        },
+        "AVAX-USD": {
+          "wins": 15,
+          "total": 25
+        },
+        "DOGE-USD": {
+          "wins": 13,
+          "total": 23
+        },
+        "DOT-USD": {
+          "wins": 14,
+          "total": 24
+        },
+        "LTC-USD": {
+          "wins": 21,
+          "total": 27
+        },
+        "ATOM-USD": {
           "wins": 11,
-          "total": 20
+          "total": 22
+        },
+        "BCH-USD": {
+          "wins": 9,
+          "total": 25
+        },
+        "ALGO-USD": {
+          "wins": 8,
+          "total": 21
+        },
+        "NEAR-USD": {
+          "wins": 12,
+          "total": 21
         },
         "SAND-USD": {
           "wins": 13,
-          "total": 22
+          "total": 23
         },
         "MANA-USD": {
-          "wins": 11,
-          "total": 22
+          "wins": 13,
+          "total": 26
         },
         "APE-USD": {
-          "wins": 14,
-          "total": 25
+          "wins": 17,
+          "total": 29
         },
         "AXS-USD": {
-          "wins": 10,
-          "total": 25
+          "wins": 11,
+          "total": 29
         },
         "THETA-USD": {
-          "wins": 10,
-          "total": 24
+          "wins": 15,
+          "total": 29
         },
         "ICP-USD": {
           "wins": 8,
@@ -760,87 +760,87 @@
         },
         "SHIB-USD": {
           "wins": 11,
-          "total": 26
+          "total": 31
         },
         "TON-USD": {
           "wins": 3,
-          "total": 26
+          "total": 31
         },
         "WIF-USD": {
-          "wins": 12,
-          "total": 20
+          "wins": 13,
+          "total": 24
         },
         "OP-USD": {
           "wins": 9,
-          "total": 25
+          "total": 29
         },
         "ARB-USD": {
           "wins": 0,
-          "total": 26
+          "total": 31
         },
         "VET-USD": {
           "wins": 16,
-          "total": 26
+          "total": 31
         },
         "LDO-USD": {
-          "wins": 14,
-          "total": 22
+          "wins": 16,
+          "total": 24
         },
         "JUP-USD": {
           "wins": 3,
-          "total": 26
+          "total": 31
         },
         "SEI-USD": {
-          "wins": 12,
-          "total": 23
+          "wins": 17,
+          "total": 28
         },
         "FLOKI-USD": {
           "wins": 9,
-          "total": 26
+          "total": 31
         },
         "FET-USD": {
-          "wins": 12,
-          "total": 23
+          "wins": 13,
+          "total": 25
         },
         "AAVE-USD": {
           "wins": 9,
-          "total": 20
+          "total": 25
         },
         "MKR-USD": {
-          "wins": 12,
-          "total": 26
+          "wins": 16,
+          "total": 30
         },
         "RUNE-USD": {
-          "wins": 10,
-          "total": 16
+          "wins": 11,
+          "total": 19
         },
         "GALA-USD": {
-          "wins": 17,
-          "total": 26
+          "wins": 20,
+          "total": 31
         },
         "FLOW-USD": {
-          "wins": 11,
-          "total": 21
+          "wins": 15,
+          "total": 25
         },
         "WLD-USD": {
-          "wins": 11,
-          "total": 21
+          "wins": 13,
+          "total": 23
         },
         "XRP-USD": {
-          "wins": 8,
-          "total": 16
+          "wins": 11,
+          "total": 19
         },
         "FIL-USD": {
           "wins": 8,
           "total": 19
         },
         "ETC-USD": {
-          "wins": 7,
-          "total": 15
+          "wins": 8,
+          "total": 16
         },
         "RENDER-USD": {
-          "wins": 10,
-          "total": 18
+          "wins": 12,
+          "total": 20
         },
         "BNB-USD": {
           "wins": 6,
@@ -848,7 +848,7 @@
         },
         "LINK-USD": {
           "wins": 9,
-          "total": 17
+          "total": 18
         },
         "TRX-USD": {
           "wins": 0,
@@ -857,5 +857,5 @@
       }
     }
   },
-  "updated": "2026-07-17T18:47:40.803744+00:00"
+  "updated": "2026-07-17T19:50:55.983697+00:00"
 }
