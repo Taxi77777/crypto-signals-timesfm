@@ -111,6 +111,11 @@ def generate_signal(
         volume        = float(last["volume"])
         volume_sma    = float(last["volume_sma"])
         fisher        = round(float(last["fisher"]), 2) if "fisher" in last else 0.0
+        # ── SUPERTREND : direction de tendance + flip (le moteur crypto) ──
+        st_dir     = int(last["supertrend_dir"]) if "supertrend_dir" in last else 0
+        st_flip_up = bool(last["st_flip_up"])    if "st_flip_up" in last else False
+        st_flip_dn = bool(last["st_flip_down"])  if "st_flip_down" in last else False
+        st_value   = round(float(last["supertrend"]), 6) if "supertrend" in last else current_price
         # Croisement Fisher / ligne signal (trigger = Fisher decale de 1, style TradingView)
         f1 = float(df.iloc[-1]["fisher"]) if "fisher" in last else 0.0
         f2 = float(df.iloc[-2]["fisher"]) if len(df) > 1 and "fisher" in last else f1
@@ -151,10 +156,17 @@ def generate_signal(
             elif depth >= 2.0:  fisher_status = "⚠️ Croisement extreme haut (SELL)"
             else:               fisher_status = "📈 Croisement zone haute (SELL leger)"
 
-        # Filtre de securite : signal uniquement au moment d'un croisement en zone extreme
+        # Fisher en ZONE extreme (sans exiger le croisement pile sur la derniere bougie)
+        # -> reouvre les signaux tout en gardant le Fisher comme fort contributeur
         if fisher_status == "Neutre":
-            logger.info(f"⏳ Filtre Fisher actif sur {symbol} (Fisher {fisher:+.2f} : pas de croisement extreme) -> Signal annule")
-            return None
+            if fisher <= -1.5:
+                fisher_status = "📉 Zone basse (BUY)" if fisher > -3 else "💎 Zone tres basse (BUY fort)"
+                depth = fisher
+            elif fisher >= 1.5:
+                fisher_status = "📈 Zone haute (SELL)" if fisher < 3 else "🔥 Zone tres haute (SELL fort)"
+                depth = fisher
+        # Le Fisher n'est plus un filtre bloquant : il enrichit le score (voir plus bas).
+        # On ne rejette QUE si toutes les autres conditions echouent aussi.
 
         macd_bullish = macd_hist > 0 and macd_val > 0
         macd_bearish = macd_hist < 0 and macd_val < 0
@@ -212,17 +224,20 @@ def generate_signal(
         if current_price < bb_lower: buy_score  += 2
         if current_price > bb_upper: sell_score += 2
 
-        # Fisher : croisement en zone extreme (poids gradue selon la profondeur du creux/sommet)
-        if fisher_cross_up:
-            if depth <= -4.0:   buy_score  += 5  # croisement depuis un creux ultra extreme
-            elif depth <= -3.0: buy_score  += 4
-            elif depth <= -2.0: buy_score  += 3
-            elif depth <= -1.5: buy_score  += 1
-        if fisher_cross_down:
-            if depth >= 4.0:    sell_score += 5  # croisement depuis un sommet ultra extreme
-            elif depth >= 3.0:  sell_score += 4
-            elif depth >= 2.0:  sell_score += 3
-            elif depth >= 1.5:  sell_score += 1
+        # ── SUPERTREND : moteur de tendance (adapte a la crypto qui trend fort) ──
+        # Flip de tendance = signal fort (poids 5). Tendance etablie = poids 2.
+        if st_flip_up:
+            buy_score  += 5          # retournement haussier confirme
+        elif st_dir == 1:
+            buy_score  += 2          # tendance haussiere en cours
+        if st_flip_dn:
+            sell_score += 5          # retournement baissier confirme
+        elif st_dir == -1:
+            sell_score += 2          # tendance baissiere en cours
+
+        # Fisher conserve en APPOINT (poids leger) : confirme les exces
+        if fisher <= -2.0:   buy_score  += 1
+        if fisher >= 2.0:    sell_score += 1
 
         # ── PONDERATION DYNAMIQUE : chaque IA vote selon son taux de reussite reel ──
         from src.track_record import load_track, get_weight
@@ -235,12 +250,15 @@ def generate_signal(
         for k, d in _dirs_tmp.items():
             w = ai_weights[k]
             if w == 0:
-                continue  # IA statistiquement mauvaise (<45%) -> ignoree
+                continue  # (ne se produit plus : plancher a 2)
             if d == "BUY":  buy_score  += w
             if d == "SELL": sell_score += w
 
+        # ── FILTRE SUPERTREND : jamais a contre-tendance ──
+        # (un BUY exige que le Supertrend ne soit pas baissier, et inversement)
+
         # ── Décision finale ──────────────────────────────────────────────────
-        max_score = 27  # 5 IA x3 + RSI2 + MACD2 + EMA1 + BB2 + Fisher5
+        max_score = 27  # 5 IA x3 + RSI2 + MACD2 + EMA1 + BB2 + ST5 + Fisher1
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)

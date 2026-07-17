@@ -51,7 +51,7 @@ def record_result(track: dict, model: str, symbol: str, correct: bool):
 def get_weight(track: dict, model: str, symbol: str) -> int:
     """
     Poids du vote selon le taux de reussite historique :
-      >=60% -> 5 | >=55% -> 4 | >=52% -> 3 | >=48% -> 2 | >=45% -> 1 | <45% -> 0 (ignoree)
+      >=60% -> 5 | >=55% -> 4 | >=52% -> 3 | sinon -> 2 (plancher, jamais 0)
     Par paire si >=30 predictions, sinon global si >=100, sinon poids par defaut.
     """
     m = track.get("models", {}).get(model)
@@ -66,12 +66,12 @@ def get_weight(track: dict, model: str, symbol: str) -> int:
     if not stats:
         return DEFAULT_WEIGHT
     acc = stats["wins"] / stats["total"]
+    # Plancher a 2 : les 5 IA votent TOUJOURS (couplees au Supertrend).
+    # Le carnet ne fait qu'AMPLIFIER les meilleures, jamais bacillonner.
     if acc >= 0.60: return 5
     if acc >= 0.55: return 4
     if acc >= 0.52: return 3
-    if acc >= 0.48: return 2
-    if acc >= 0.45: return 1
-    return 0
+    return 2
 
 
 def accuracy_summary(track: dict) -> str:
