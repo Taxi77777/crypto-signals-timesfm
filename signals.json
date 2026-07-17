@@ -1,27 +1,16 @@
 {
-  "last_update": "2026-07-17T20:38:13.688455+00:00",
+  "last_update": "2026-07-17T21:29:34.348373+00:00",
   "signals": [
     {
-      "pair_name": "Lido DAO (LDO)",
-      "signal": "BUY",
-      "current_price": "$0.371000",
-      "take_profit": "$0.374249",
-      "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 38.4,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:HOLD"
-    },
-    {
-      "pair_name": "ApeCoin (APE)",
+      "pair_name": "Worldcoin (WLD)",
       "signal": "SELL",
-      "current_price": "$0.145103",
-      "take_profit": "$0.144586",
+      "current_price": "$0.385500",
+      "take_profit": "$0.381494",
       "stop_loss": "Aucun",
-      "confidence": 59,
-      "rsi": 31.5,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "confidence": 70,
+      "rsi": 62.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:HOLD"
     }
   ]
 }
