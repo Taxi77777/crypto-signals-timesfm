@@ -74,7 +74,7 @@ SYMBOL_MAP = {
     "FLOKI-USD": "FLOKI_USDT",
     "FET-USD":   "FET_USDT",
     "AAVE-USD":  "AAVE_USDT",
-    "MKR-USD":   "MKR_USDT",
+    "INJ-USD":   "INJ_USDT",
     "RUNE-USD":  "RUNE_USDT",
     "GALA-USD":  "GALA_USDT",
     "FLOW-USD":  "FLOW_USDT",

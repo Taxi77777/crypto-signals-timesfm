@@ -32,7 +32,7 @@ CRYPTO_PAIRS = [
     "SHIB-USD", "TON11419-USD", "SUI20947-USD", "PEPE24478-USD", "WIF-USD",
     "RENDER-USD","APT21794-USD", "TIA-USD", "GRT6719-USD", "OP-USD",
     "ARB11841-USD", "STX4847-USD", "VET-USD", "LDO-USD", "JUP29210-USD",
-    "SEI-USD",  "FLOKI-USD","FET-USD",  "AAVE-USD", "MKR-USD",
+    "SEI-USD",  "FLOKI-USD","FET-USD",  "AAVE-USD", "INJ-USD",
     "RUNE-USD", "GALA-USD", "FLOW-USD", "WLD-USD",  "IMX10603-USD",
 ]
 
@@ -51,7 +51,7 @@ PAIR_NAMES = {
     "TRX-USD":   "Tron (TRX)",
     "LTC-USD":   "Litecoin (LTC)",
     "ATOM-USD":  "Cosmos (ATOM)",
-    "BCH-USD":   "Bitcoin Cash (BCH)",
+    "BCH-USD":   "BCH Chain (BCH)",
     "ALGO-USD":  "Algorand (ALGO)",
     "NEAR-USD":  "NEAR Protocol (NEAR)",
     "FIL-USD":   "Filecoin (FIL)",
@@ -81,7 +81,7 @@ PAIR_NAMES = {
     "FLOKI-USD": "Floki (FLOKI)",
     "FET-USD":   "Artificial Superintelligence (FET)",
     "AAVE-USD":  "Aave (AAVE)",
-    "MKR-USD":   "Maker (MKR)",
+    "INJ-USD":   "Injective (INJ)",
     "RUNE-USD":  "THORChain (RUNE)",
     "GALA-USD":  "Gala (GALA)",
     "FLOW-USD":  "Flow (FLOW)",
