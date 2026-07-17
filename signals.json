@@ -1,26 +1,26 @@
 {
-  "last_update": "2026-07-17T19:50:56.184715+00:00",
+  "last_update": "2026-07-17T20:38:13.688455+00:00",
   "signals": [
     {
-      "pair_name": "Litecoin (LTC)",
-      "signal": "SELL",
-      "current_price": "$45.0800",
-      "take_profit": "$44.7981",
+      "pair_name": "Lido DAO (LDO)",
+      "signal": "BUY",
+      "current_price": "$0.371000",
+      "take_profit": "$0.374249",
       "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 60.4,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
+      "confidence": 72,
+      "rsi": 38.4,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:HOLD"
     },
     {
       "pair_name": "ApeCoin (APE)",
       "signal": "SELL",
-      "current_price": "$0.145304",
-      "take_profit": "$0.144414",
+      "current_price": "$0.145103",
+      "take_profit": "$0.144586",
       "stop_loss": "Aucun",
-      "confidence": 69,
-      "rsi": 34.1,
-      "macd_trend": "Baissier 🔴",
+      "confidence": 59,
+      "rsi": 31.5,
+      "macd_trend": "Neutre ⚪",
       "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]
