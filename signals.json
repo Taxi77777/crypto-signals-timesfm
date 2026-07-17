@@ -1,25 +1,25 @@
 {
-  "last_update": "2026-07-17T14:58:15.166449+00:00",
+  "last_update": "2026-07-17T15:16:03.176867+00:00",
   "signals": [
     {
-      "pair_name": "Internet Computer (ICP)",
-      "signal": "SELL",
-      "current_price": "$2.1300",
-      "take_profit": "$2.1109",
+      "pair_name": "Polkadot (DOT)",
+      "signal": "BUY",
+      "current_price": "$0.839000",
+      "take_profit": "$0.847481",
       "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 53.4,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "confidence": 59,
+      "rsi": 38.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
     },
     {
       "pair_name": "Optimism (OP)",
       "signal": "SELL",
       "current_price": "$0.096000",
-      "take_profit": "$0.094891",
+      "take_profit": "$0.094630",
       "stop_loss": "Aucun",
       "confidence": 59,
-      "rsi": 47.6,
+      "rsi": 49.3,
       "macd_trend": "Neutre ⚪",
       "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
