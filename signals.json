@@ -1,38 +1,38 @@
 {
-  "last_update": "2026-07-18T07:04:55.327695+00:00",
+  "last_update": "2026-07-18T07:17:30.051992+00:00",
   "signals": [
-    {
-      "pair_name": "Axie Infinity (AXS)",
-      "signal": "SELL",
-      "current_price": "$0.939000",
-      "take_profit": "$0.936882",
-      "stop_loss": "Aucun",
-      "confidence": 85,
-      "rsi": 68.6,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
-    },
     {
       "pair_name": "dYdX (DYDX)",
       "signal": "SELL",
       "current_price": "$0.122200",
-      "take_profit": "$0.121916",
+      "take_profit": "$0.121973",
       "stop_loss": "Aucun",
-      "confidence": 81,
+      "confidence": 72,
       "rsi": 67.7,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:BUY/GRA:SELL"
     },
     {
-      "pair_name": "Arbitrum (ARB)",
-      "signal": "BUY",
-      "current_price": "$0.090200",
-      "take_profit": "$0.090797",
+      "pair_name": "Optimism (OP)",
+      "signal": "SELL",
+      "current_price": "$0.096000",
+      "take_profit": "$0.095790",
       "stop_loss": "Aucun",
-      "confidence": 64,
-      "rsi": 52.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "confidence": 60,
+      "rsi": 37.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Avalanche (AVAX)",
+      "signal": "BUY",
+      "current_price": "$6.6000",
+      "take_profit": "$6.6179",
+      "stop_loss": "Aucun",
+      "confidence": 57,
+      "rsi": 46.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:HOLD"
     }
   ]
 }
