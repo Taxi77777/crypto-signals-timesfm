@@ -294,7 +294,6 @@ def main():
             try:
                 btc_df = all_data_1h.get("BTC-USD")
                 if btc_df is not None and not btc_df.empty:
-                    from src.indicators import compute_all_indicators
                     btc_df_ind = compute_all_indicators(btc_df)
                     if not btc_df_ind.empty:
                         btc_last = btc_df_ind.iloc[-1]
