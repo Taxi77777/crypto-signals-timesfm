@@ -1,4 +1,27 @@
 {
-  "last_update": "2026-07-18T12:44:24.849593+00:00",
-  "signals": []
+  "last_update": "2026-07-18T12:50:21.200129+00:00",
+  "signals": [
+    {
+      "pair_name": "Axie Infinity (AXS)",
+      "signal": "SELL",
+      "current_price": "$0.928000",
+      "take_profit": "$0.925485",
+      "stop_loss": "Aucun",
+      "confidence": 61,
+      "rsi": 45.9,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Hedera (HBAR)",
+      "signal": "SELL",
+      "current_price": "$0.066400",
+      "take_profit": "$0.066211",
+      "stop_loss": "Aucun",
+      "confidence": 59,
+      "rsi": 63.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    }
+  ]
 }
