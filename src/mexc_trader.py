@@ -17,7 +17,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 MEXC_BASE          = "https://api.mexc.com"
-LEVERAGE           = 20
+LEVERAGE           = 40
 MARGIN_PCT         = 0.95
 TRAILING_CALLBACK  = 2.0
 
