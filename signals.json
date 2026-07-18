@@ -1,16 +1,27 @@
 {
-  "last_update": "2026-07-18T14:43:18.316052+00:00",
+  "last_update": "2026-07-18T15:37:54.847486+00:00",
   "signals": [
     {
-      "pair_name": "Immutable (IMX)",
-      "signal": "SELL",
-      "current_price": "$0.126700",
-      "take_profit": "$0.126426",
+      "pair_name": "Arbitrum (ARB)",
+      "signal": "BUY",
+      "current_price": "$0.088300",
+      "take_profit": "$0.088788",
       "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 60.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:BUY/GRA:SELL"
+      "confidence": 77,
+      "rsi": 20.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Axie Infinity (AXS)",
+      "signal": "SELL",
+      "current_price": "$0.932000",
+      "take_profit": "$0.929078",
+      "stop_loss": "Aucun",
+      "confidence": 56,
+      "rsi": 49.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:BUY"
     }
   ]
 }
