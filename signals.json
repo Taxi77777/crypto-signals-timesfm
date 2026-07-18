@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-18T23:04:26.204598+00:00",
-  "signals": []
+  "last_update": "2026-07-18T23:52:33.437815+00:00",
+  "signals": [
+    {
+      "pair_name": "MultiversX (EGLD)",
+      "signal": "BUY",
+      "current_price": "$3.2300",
+      "take_profit": "$3.2401",
+      "stop_loss": "Aucun",
+      "confidence": 57,
+      "rsi": 38.7,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:HOLD"
+    }
+  ]
 }
