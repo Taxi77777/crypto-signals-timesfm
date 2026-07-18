@@ -1,38 +1,4 @@
 {
-  "last_update": "2026-07-18T12:10:47.180904+00:00",
-  "signals": [
-    {
-      "pair_name": "Injective (INJ)",
-      "signal": "BUY",
-      "current_price": "$5.1320",
-      "take_profit": "$5.1772",
-      "stop_loss": "Aucun",
-      "confidence": 82,
-      "rsi": 68.9,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "Curve DAO (CRV)",
-      "signal": "SELL",
-      "current_price": "$0.213200",
-      "take_profit": "$0.212435",
-      "stop_loss": "Aucun",
-      "confidence": 64,
-      "rsi": 62.5,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "The Sandbox (SAND)",
-      "signal": "SELL",
-      "current_price": "$0.047300",
-      "take_profit": "$0.047213",
-      "stop_loss": "Aucun",
-      "confidence": 59,
-      "rsi": 48.3,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
-    }
-  ]
+  "last_update": "2026-07-18T12:44:24.849593+00:00",
+  "signals": []
 }
