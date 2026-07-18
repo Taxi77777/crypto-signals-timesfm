@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-18T21:49:06.351591+00:00",
-  "signals": []
+  "last_update": "2026-07-18T22:05:39.459739+00:00",
+  "signals": [
+    {
+      "pair_name": "WOO Network (WOO)",
+      "signal": "BUY",
+      "current_price": "$0.012489",
+      "take_profit": "$0.012536",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 54.3,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:BUY"
+    }
+  ]
 }
