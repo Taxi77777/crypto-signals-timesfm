@@ -1,16 +1,49 @@
 {
-  "last_update": "2026-07-17T23:35:56.545820+00:00",
+  "last_update": "2026-07-18T00:04:21.984865+00:00",
   "signals": [
     {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "BUY",
-      "current_price": "$0.073500",
-      "take_profit": "$0.074524",
+      "pair_name": "Curve DAO (CRV)",
+      "signal": "SELL",
+      "current_price": "$0.218100",
+      "take_profit": "$0.216709",
       "stop_loss": "Aucun",
-      "confidence": 65,
-      "rsi": 48.6,
+      "confidence": 81,
+      "rsi": 72.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "ENS (ENS)",
+      "signal": "BUY",
+      "current_price": "$4.5400",
+      "take_profit": "$4.5972",
+      "stop_loss": "Aucun",
+      "confidence": 80,
+      "rsi": 29.3,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Pyth Network (PYTH)",
+      "signal": "SELL",
+      "current_price": "$0.048500",
+      "take_profit": "$0.048060",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 48.3,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "BCH Chain (BCH)",
+      "signal": "SELL",
+      "current_price": "$219.7800",
+      "take_profit": "$218.3688",
+      "stop_loss": "Aucun",
+      "confidence": 64,
+      "rsi": 50.2,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
     }
   ]
 }
