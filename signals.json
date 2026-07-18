@@ -1,49 +1,38 @@
 {
-  "last_update": "2026-07-18T11:19:50.778015+00:00",
+  "last_update": "2026-07-18T12:10:47.180904+00:00",
   "signals": [
     {
-      "pair_name": "NEAR Protocol (NEAR)",
-      "signal": "SELL",
-      "current_price": "$1.8990",
-      "take_profit": "$1.8880",
-      "stop_loss": "Aucun",
-      "confidence": 83,
-      "rsi": 46.7,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "Arbitrum (ARB)",
+      "pair_name": "Injective (INJ)",
       "signal": "BUY",
-      "current_price": "$0.089800",
-      "take_profit": "$0.090380",
+      "current_price": "$5.1320",
+      "take_profit": "$5.1772",
       "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 44.2,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+      "confidence": 82,
+      "rsi": 68.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:BUY"
     },
     {
-      "pair_name": "Optimism (OP)",
+      "pair_name": "Curve DAO (CRV)",
       "signal": "SELL",
-      "current_price": "$0.095000",
-      "take_profit": "$0.094218",
+      "current_price": "$0.213200",
+      "take_profit": "$0.212435",
       "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 41.8,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:BUY/GRA:SELL"
+      "confidence": 64,
+      "rsi": 62.5,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
     },
     {
-      "pair_name": "Cardano (ADA)",
-      "signal": "BUY",
-      "current_price": "$0.165900",
-      "take_profit": "$0.166549",
+      "pair_name": "The Sandbox (SAND)",
+      "signal": "SELL",
+      "current_price": "$0.047300",
+      "take_profit": "$0.047213",
       "stop_loss": "Aucun",
       "confidence": 59,
-      "rsi": 50.8,
+      "rsi": 48.3,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
     }
   ]
 }
