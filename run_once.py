@@ -398,6 +398,7 @@ def main():
                 if reasons:
                     block_msg = " + ".join(reasons)
                     logger.info(f"🛡️ Guard Block | Achat bloqué sur {s.pair_name} car : {block_msg}.")
+                    send_message(f"🛡️ *Macro/Crypto Guard*\nAchat bloqué sur {s.pair_name} car :\n_{block_msg}_", chat_id="375129602")
                 else:
                     filtered_tradables.append(s)
                     
@@ -416,6 +417,7 @@ def main():
                 if reasons:
                     block_msg = " + ".join(reasons)
                     logger.info(f"🛡️ Guard Block | Vente bloquée sur {s.pair_name} car : {block_msg}.")
+                    send_message(f"🛡️ *Macro/Crypto Guard*\nVente bloquée sur {s.pair_name} car :\n_{block_msg}_", chat_id="375129602")
                 else:
                     filtered_tradables.append(s)
             else:
@@ -425,6 +427,11 @@ def main():
         if not tradables:
             names = ", ".join(s.pair_name for s in strong_signals[:5])
             logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
+            send_message(
+                f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
+                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position, crypto absente ou bloquée par BTC Guard)._",
+                chat_id="375129602"
+            )
         else:
             # Calculer combien de nouveaux trades on peut ouvrir (maximum 2 en tout)
             slots_available = max(0, 2 - open_count)
@@ -449,9 +456,11 @@ def main():
                     logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
                     if best.signal == "BUY" and imbalance < -0.2:
                         logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat.")
+                        send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
                         signal_valid = False
                     elif best.signal == "SELL" and imbalance > 0.2:
                         logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente.")
+                        send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
                         signal_valid = False
 
                 from src.mexc_trader import get_funding_rate
@@ -460,9 +469,11 @@ def main():
                     logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
                     if best.signal == "BUY" and funding > 0.10:
                         logger.info(f"❌ Funding trop positif ({funding:+.4f}%) -> Achat bloqué.")
+                        send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : longs surchargés.", chat_id="375129602")
                         signal_valid = False
                     elif best.signal == "SELL" and funding < -0.10:
                         logger.info(f"❌ Funding trop négatif ({funding:+.4f}%) -> Vente bloquée.")
+                        send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.", chat_id="375129602")
                         signal_valid = False
 
                 if signal_valid:
