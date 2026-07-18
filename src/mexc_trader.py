@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 MEXC_BASE          = "https://api.mexc.com"
 LEVERAGE           = 40
-MARGIN_PCT         = 0.95
+MARGIN_PCT         = 0.90
 TRAILING_CALLBACK  = 2.0
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
