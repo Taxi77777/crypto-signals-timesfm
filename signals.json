@@ -1,60 +1,16 @@
 {
-  "last_update": "2026-07-18T02:32:29.027963+00:00",
+  "last_update": "2026-07-18T05:12:23.303078+00:00",
   "signals": [
     {
-      "pair_name": "Artificial Superintelligence (FET)",
+      "pair_name": "Immutable (IMX)",
       "signal": "SELL",
-      "current_price": "$0.159900",
-      "take_profit": "$0.159231",
-      "stop_loss": "Aucun",
-      "confidence": 73,
-      "rsi": 58.8,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "NEAR Protocol (NEAR)",
-      "signal": "SELL",
-      "current_price": "$1.9330",
-      "take_profit": "$1.9244",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 63.0,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Arbitrum (ARB)",
-      "signal": "BUY",
-      "current_price": "$0.090900",
-      "take_profit": "$0.092001",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 42.3,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "dYdX (DYDX)",
-      "signal": "BUY",
-      "current_price": "$0.123400",
-      "take_profit": "$0.123758",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 16.0,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:HOLD/MOI:BUY/LLA:SELL/GRA:BUY"
-    },
-    {
-      "pair_name": "Chiliz (CHZ)",
-      "signal": "SELL",
-      "current_price": "$0.016000",
-      "take_profit": "$0.015950",
+      "current_price": "$0.127300",
+      "take_profit": "$0.127061",
       "stop_loss": "Aucun",
       "confidence": 67,
-      "rsi": 55.8,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:BUY"
+      "rsi": 29.4,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:SELL"
     }
   ]
 }
