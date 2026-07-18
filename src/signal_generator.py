@@ -264,13 +264,9 @@ def generate_signal(
         if buy_score > sell_score and buy_score >= 6:
             signal     = "BUY"
             confidence = min(95, int((buy_score / max_score) * 100) + confidence_tf // 4)
-            tp_mult    = 1 + (atr * 3.5 / current_price)
-            sl_mult    = 1 - (atr * 3.0 / current_price)
         elif sell_score > buy_score and sell_score >= 6:
             signal     = "SELL"
             confidence = min(95, int((sell_score / max_score) * 100) + confidence_tf // 4)
-            tp_mult    = 1 - (atr * 3.5 / current_price)
-            sl_mult    = 1 + (atr * 3.0 / current_price)
         else:
             return None  # Pas de signal clair
 
@@ -283,7 +279,30 @@ def generate_signal(
                 f"{n_avail}/5 modeles actifs) -> Signal rejete"
             )
             return None
-        logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)}) | poids: {ai_weights}")
+        
+        # Nombre exact de modèles d'IA en accord avec la direction
+        votes_count = list(dirs.values()).count(signal)
+        logger.info(f"CONSENSUS {n_avail}/5 IA MAJORITAIRE sur {symbol} : {consensus} ({_fmt_dirs(dirs)}) | Accord: {votes_count}/5 | poids: {ai_weights}")
+
+        # Take Profit Adaptatif selon la force du consensus IA
+        if votes_count >= 5:
+            tp_mult_factor = 4.0
+            tp_desc = "Consensus 5/5 IA (Max)"
+        elif votes_count == 4:
+            tp_mult_factor = 3.5
+            tp_desc = "Consensus 4/5 IA (Standard)"
+        else:
+            tp_mult_factor = 2.5
+            tp_desc = "Consensus 3/5 IA (Prudent)"
+            
+        logger.info(f"🎯 TP Adaptatif choisi pour {symbol} : {tp_mult_factor}x ATR ({tp_desc})")
+        
+        if signal == "BUY":
+            tp_mult = 1 + (atr * tp_mult_factor / current_price)
+            sl_mult = 1 - (atr * 3.0 / current_price)
+        else:
+            tp_mult = 1 - (atr * tp_mult_factor / current_price)
+            sl_mult = 1 + (atr * 3.0 / current_price)
 
         # FILTRE MULTI-TIMEFRAME (TENDANCE EMA 1H + SUPERTREND 1H)
         if df_1h is not None and not df_1h.empty:

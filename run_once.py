@@ -287,15 +287,54 @@ def main():
     # ── 5. Auto-trading MEXC Futures : jusqu'à 2 trades simultanés ──────────
     if use_mexc and trade_allowed and strong_signals:
         from src.mexc_trader import SYMBOL_MAP
+        
+        # ── BTC Correlation Guard ──
+        btc_trend_1h = "NEUTRAL"
+        if all_data_1h and "BTC-USD" in all_data_1h:
+            try:
+                btc_df = all_data_1h.get("BTC-USD")
+                if btc_df is not None and not btc_df.empty:
+                    from src.indicators import compute_all_indicators
+                    btc_df_ind = compute_all_indicators(btc_df)
+                    if not btc_df_ind.empty:
+                        btc_last = btc_df_ind.iloc[-1]
+                        btc_ema20 = float(btc_last["ema20"])
+                        btc_ema50 = float(btc_last["ema50"])
+                        btc_st_dir = int(btc_last["supertrend_dir"])
+                        
+                        if btc_ema20 < btc_ema50 or btc_st_dir == -1:
+                            btc_trend_1h = "BEARISH"
+                        elif btc_ema20 > btc_ema50 or btc_st_dir == 1:
+                            btc_trend_1h = "BULLISH"
+                logger.info(f"📊 BTC Correlation Guard | État du Bitcoin (BTC-USD 1H) : {btc_trend_1h}")
+            except Exception as e:
+                logger.error(f"Erreur calcul BTC Correlation Guard : {e}")
+
         # Ne trader QUE les cryptos disponibles sur MEXC Futures et non déjà ouvertes
         tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
         
+        # Filtrer avec le BTC Correlation Guard (uniquement pour les Altcoins)
+        filtered_tradables = []
+        for s in tradables:
+            if s.symbol == "BTC-USD":
+                filtered_tradables.append(s)
+            else:
+                if s.signal == "BUY" and btc_trend_1h == "BEARISH":
+                    logger.info(f"🛡️ BTC Correlation Guard | Achat bloqué sur {s.pair_name} car BTC est baissier.")
+                    send_message(f"🛡️ *BTC Correlation Guard*\nAchat bloqué sur {s.pair_name} car le Bitcoin est baissier.", chat_id="375129602")
+                elif s.signal == "SELL" and btc_trend_1h == "BULLISH":
+                    logger.info(f"🛡️ BTC Correlation Guard | Vente bloquée sur {s.pair_name} car BTC est haussier.")
+                    send_message(f"🛡️ *BTC Correlation Guard*\nVente bloquée sur {s.pair_name} car le Bitcoin est haussier.", chat_id="375129602")
+                else:
+                    filtered_tradables.append(s)
+        tradables = filtered_tradables
+
         if not tradables:
             names = ", ".join(s.pair_name for s in strong_signals[:5])
-            logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position) → pas de trade")
+            logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
             send_message(
                 f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
-                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._",
+                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position, crypto absente ou bloquée par BTC Guard)._",
                 chat_id="375129602"
             )
         else:
