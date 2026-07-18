@@ -1,16 +1,38 @@
 {
-  "last_update": "2026-07-18T05:12:23.303078+00:00",
+  "last_update": "2026-07-18T06:58:58.249071+00:00",
   "signals": [
     {
-      "pair_name": "Immutable (IMX)",
+      "pair_name": "Celestia (TIA)",
       "signal": "SELL",
-      "current_price": "$0.127300",
-      "take_profit": "$0.127061",
+      "current_price": "$0.364800",
+      "take_profit": "$0.362575",
       "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 29.4,
+      "confidence": 82,
+      "rsi": 38.2,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Optimism (OP)",
+      "signal": "SELL",
+      "current_price": "$0.096000",
+      "take_profit": "$0.095718",
+      "stop_loss": "Aucun",
+      "confidence": 60,
+      "rsi": 37.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Axie Infinity (AXS)",
+      "signal": "SELL",
+      "current_price": "$0.938000",
+      "take_profit": "$0.935988",
+      "stop_loss": "Aucun",
+      "confidence": 57,
+      "rsi": 63.4,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
     }
   ]
 }
