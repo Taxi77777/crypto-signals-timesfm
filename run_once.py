@@ -242,6 +242,131 @@ def main():
 
     # Trier par confiance décroissante
     strong_signals = [s for s in signals if s.is_strong and s.signal != "HOLD"]
+
+    # ── BTC Correlation Guard ──
+    btc_trend_1h = "NEUTRAL"
+    if all_data_1h and "BTC-USD" in all_data_1h:
+        try:
+            btc_df = all_data_1h.get("BTC-USD")
+            if btc_df is not None and not btc_df.empty:
+                btc_df_ind = compute_all_indicators(btc_df)
+                if not btc_df_ind.empty:
+                    btc_last = btc_df_ind.iloc[-1]
+                    btc_ema20 = float(btc_last["ema20"])
+                    btc_ema50 = float(btc_last["ema50"])
+                    btc_st_dir = int(btc_last["supertrend_dir"])
+                    
+                    if btc_ema20 < btc_ema50 or btc_st_dir == -1:
+                        btc_trend_1h = "BEARISH"
+                    elif btc_ema20 > btc_ema50 or btc_st_dir == 1:
+                        btc_trend_1h = "BULLISH"
+            logger.info(f"📊 BTC Correlation Guard | État du Bitcoin (BTC-USD 1H) : {btc_trend_1h}")
+        except Exception as e:
+            logger.error(f"Erreur calcul BTC Correlation Guard : {e}")
+
+    # ── DXY (US Dollar Index) Guard ──
+    dxy_trend = "NEUTRAL"
+    from datetime import datetime, timezone
+    is_weekend = datetime.now(timezone.utc).weekday() >= 5
+    if not is_weekend:
+        try:
+            import yfinance as yf
+            dxy_df = yf.download("DX-Y.NYB", period="10d", interval="1h", progress=False)
+            if dxy_df is not None and not dxy_df.empty:
+                dxy_df_ind = compute_all_indicators(dxy_df)
+                if not dxy_df_ind.empty:
+                    dxy_last = dxy_df_ind.iloc[-1]
+                    dxy_ema20 = float(dxy_last["ema20"])
+                    dxy_ema50 = float(dxy_last["ema50"])
+                    dxy_st_dir = int(dxy_last["supertrend_dir"])
+                    
+                    if dxy_ema20 > dxy_ema50 and dxy_st_dir == 1:
+                        dxy_trend = "BULLISH"
+                    elif dxy_ema20 < dxy_ema50 and dxy_st_dir == -1:
+                        dxy_trend = "BEARISH"
+            logger.info(f"📊 Macro Guard | Dollar Index (DXY 1H) : {dxy_trend}")
+        except Exception as e:
+            logger.error(f"Erreur calcul DXY Guard : {e}")
+
+    # ── Nasdaq (^IXIC) Guard ──
+    nasdaq_trend = "NEUTRAL"
+    if not is_weekend:
+        try:
+            import yfinance as yf
+            ndx_df = yf.download("^IXIC", period="10d", interval="1h", progress=False)
+            if ndx_df is not None and not ndx_df.empty:
+                ndx_df_ind = compute_all_indicators(ndx_df)
+                if not ndx_df_ind.empty:
+                    ndx_last = ndx_df_ind.iloc[-1]
+                    ndx_ema20 = float(ndx_last["ema20"])
+                    ndx_ema50 = float(ndx_last["ema50"])
+                    ndx_st_dir = int(ndx_last["supertrend_dir"])
+                    
+                    if ndx_ema20 < ndx_ema50 or ndx_st_dir == -1:
+                        nasdaq_trend = "BEARISH"
+                    elif ndx_ema20 > ndx_ema50 or ndx_st_dir == 1:
+                        nasdaq_trend = "BULLISH"
+            logger.info(f"📊 Macro Guard | Nasdaq (^IXIC 1H) : {nasdaq_trend}")
+        except Exception as e:
+            logger.error(f"Erreur calcul Nasdaq Guard : {e}")
+
+    # ── ETH/BTC Ratio Guard (Force Altcoins) ──
+    alt_strength = "NEUTRAL"
+    try:
+        import yfinance as yf
+        ethbtc_df = yf.download("ETH-BTC", period="10d", interval="1h", progress=False)
+        if ethbtc_df is not None and not ethbtc_df.empty:
+            ethbtc_df_ind = compute_all_indicators(ethbtc_df)
+            if not ethbtc_df_ind.empty:
+                ethbtc_last = ethbtc_df_ind.iloc[-1]
+                ethbtc_ema20 = float(ethbtc_last["ema20"])
+                ethbtc_ema50 = float(ethbtc_last["ema50"])
+                ethbtc_st_dir = int(ethbtc_last["supertrend_dir"])
+                
+                if ethbtc_ema20 < ethbtc_ema50 or ethbtc_st_dir == -1:
+                    alt_strength = "WEAK"
+                elif ethbtc_ema20 > ethbtc_ema50 or ethbtc_st_dir == 1:
+                    alt_strength = "STRONG"
+        logger.info(f"📊 Crypto Guard | Altcoin Strength (ETH/BTC 1H) : {alt_strength}")
+    except Exception as e:
+        logger.error(f"Erreur calcul ETH/BTC Guard : {e}")
+
+    # Filtrer strong_signals en amont avec les Guards
+    filtered_strong_signals = []
+    for s in strong_signals:
+        is_btc = (s.symbol == "BTC-USD")
+        block = False
+        reasons = []
+        
+        if s.signal == "BUY":
+            if not is_btc and btc_trend_1h == "BEARISH":
+                reasons.append("Bitcoin baissier")
+            if dxy_trend == "BULLISH":
+                reasons.append("Dollar (DXY) haussier")
+            if nasdaq_trend == "BEARISH":
+                reasons.append("Nasdaq baissier")
+            if not is_btc and alt_strength == "WEAK":
+                reasons.append("Altcoins faibles (ETH/BTC)")
+                
+        elif s.signal == "SELL":
+            if not is_btc and btc_trend_1h == "BULLISH":
+                reasons.append("Bitcoin haussier")
+            if dxy_trend == "BEARISH":
+                reasons.append("Dollar (DXY) baissier")
+            if nasdaq_trend == "BULLISH":
+                reasons.append("Nasdaq haussier")
+            if not is_btc and alt_strength == "STRONG":
+                reasons.append("Altcoins forts (ETH/BTC)")
+                
+        if reasons:
+            block_msg = " + ".join(reasons)
+            logger.info(f"🛡️ Guard Block | Signal {s.pair_name} {s.signal} bloqué car : {block_msg}.")
+            # On envoie l'explication EN PRIVÉ
+            send_message(f"🛡️ *Macro/Crypto Guard*\nSignal {s.pair_name} {s.signal} bloqué car :\n_{block_msg}_", chat_id="375129602")
+        else:
+            filtered_strong_signals.append(s)
+            
+    strong_signals = filtered_strong_signals
     strong_signals.sort(key=lambda s: s.confidence, reverse=True)
 
     # ── 3. Export JSON ────────────────────────────────────────────────────────
@@ -288,148 +413,15 @@ def main():
     if use_mexc and trade_allowed and strong_signals:
         from src.mexc_trader import SYMBOL_MAP
         
-        # ── BTC Correlation Guard ──
-        btc_trend_1h = "NEUTRAL"
-        if all_data_1h and "BTC-USD" in all_data_1h:
-            try:
-                btc_df = all_data_1h.get("BTC-USD")
-                if btc_df is not None and not btc_df.empty:
-                    btc_df_ind = compute_all_indicators(btc_df)
-                    if not btc_df_ind.empty:
-                        btc_last = btc_df_ind.iloc[-1]
-                        btc_ema20 = float(btc_last["ema20"])
-                        btc_ema50 = float(btc_last["ema50"])
-                        btc_st_dir = int(btc_last["supertrend_dir"])
-                        
-                        if btc_ema20 < btc_ema50 or btc_st_dir == -1:
-                            btc_trend_1h = "BEARISH"
-                        elif btc_ema20 > btc_ema50 or btc_st_dir == 1:
-                            btc_trend_1h = "BULLISH"
-                logger.info(f"📊 BTC Correlation Guard | État du Bitcoin (BTC-USD 1H) : {btc_trend_1h}")
-            except Exception as e:
-                logger.error(f"Erreur calcul BTC Correlation Guard : {e}")
-
-        # ── DXY (US Dollar Index) Guard ──
-        dxy_trend = "NEUTRAL"
-        is_weekend = datetime.now(timezone.utc).weekday() >= 5
-        if not is_weekend:
-            try:
-                import yfinance as yf
-                dxy_df = yf.download("DX-Y.NYB", period="10d", interval="1h", progress=False)
-                if dxy_df is not None and not dxy_df.empty:
-                    dxy_df_ind = compute_all_indicators(dxy_df)
-                    if not dxy_df_ind.empty:
-                        dxy_last = dxy_df_ind.iloc[-1]
-                        dxy_ema20 = float(dxy_last["ema20"])
-                        dxy_ema50 = float(dxy_last["ema50"])
-                        dxy_st_dir = int(dxy_last["supertrend_dir"])
-                        
-                        if dxy_ema20 > dxy_ema50 and dxy_st_dir == 1:
-                            dxy_trend = "BULLISH"
-                        elif dxy_ema20 < dxy_ema50 and dxy_st_dir == -1:
-                            dxy_trend = "BEARISH"
-                logger.info(f"📊 Macro Guard | Dollar Index (DXY 1H) : {dxy_trend}")
-            except Exception as e:
-                logger.error(f"Erreur calcul DXY Guard : {e}")
-
-        # ── Nasdaq (^IXIC) Guard ──
-        nasdaq_trend = "NEUTRAL"
-        if not is_weekend:
-            try:
-                import yfinance as yf
-                ndx_df = yf.download("^IXIC", period="10d", interval="1h", progress=False)
-                if ndx_df is not None and not ndx_df.empty:
-                    ndx_df_ind = compute_all_indicators(ndx_df)
-                    if not ndx_df_ind.empty:
-                        ndx_last = ndx_df_ind.iloc[-1]
-                        ndx_ema20 = float(ndx_last["ema20"])
-                        ndx_ema50 = float(ndx_last["ema50"])
-                        ndx_st_dir = int(ndx_last["supertrend_dir"])
-                        
-                        if ndx_ema20 < ndx_ema50 or ndx_st_dir == -1:
-                            nasdaq_trend = "BEARISH"
-                        elif ndx_ema20 > ndx_ema50 or ndx_st_dir == 1:
-                            nasdaq_trend = "BULLISH"
-                logger.info(f"📊 Macro Guard | Nasdaq (^IXIC 1H) : {nasdaq_trend}")
-            except Exception as e:
-                logger.error(f"Erreur calcul Nasdaq Guard : {e}")
-
-        # ── ETH/BTC Ratio Guard (Force Altcoins) ──
-        alt_strength = "NEUTRAL"
-        try:
-            import yfinance as yf
-            ethbtc_df = yf.download("ETH-BTC", period="10d", interval="1h", progress=False)
-            if ethbtc_df is not None and not ethbtc_df.empty:
-                ethbtc_df_ind = compute_all_indicators(ethbtc_df)
-                if not ethbtc_df_ind.empty:
-                    ethbtc_last = ethbtc_df_ind.iloc[-1]
-                    ethbtc_ema20 = float(ethbtc_last["ema20"])
-                    ethbtc_ema50 = float(ethbtc_last["ema50"])
-                    ethbtc_st_dir = int(ethbtc_last["supertrend_dir"])
-                    
-                    if ethbtc_ema20 < ethbtc_ema50 or ethbtc_st_dir == -1:
-                        alt_strength = "WEAK"
-                    elif ethbtc_ema20 > ethbtc_ema50 or ethbtc_st_dir == 1:
-                        alt_strength = "STRONG"
-            logger.info(f"📊 Crypto Guard | Altcoin Strength (ETH/BTC 1H) : {alt_strength}")
-        except Exception as e:
-            logger.error(f"Erreur calcul ETH/BTC Guard : {e}")
-
         # Ne trader QUE les cryptos disponibles sur MEXC Futures et non déjà ouvertes
         tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
         
-        # Filtrer avec le BTC Correlation Guard et les 3 nouveaux boucliers macro
-        filtered_tradables = []
-        for s in tradables:
-            is_btc = (s.symbol == "BTC-USD")
-            
-            # Conditions de blocage pour BUY (Achat)
-            if s.signal == "BUY":
-                reasons = []
-                if not is_btc and btc_trend_1h == "BEARISH":
-                    reasons.append("Bitcoin baissier")
-                if dxy_trend == "BULLISH":
-                    reasons.append("Dollar (DXY) haussier")
-                if nasdaq_trend == "BEARISH":
-                    reasons.append("Nasdaq baissier")
-                if not is_btc and alt_strength == "WEAK":
-                    reasons.append("Altcoins faibles (ETH/BTC)")
-                    
-                if reasons:
-                    block_msg = " + ".join(reasons)
-                    logger.info(f"🛡️ Guard Block | Achat bloqué sur {s.pair_name} car : {block_msg}.")
-                    send_message(f"🛡️ *Macro/Crypto Guard*\nAchat bloqué sur {s.pair_name} car :\n_{block_msg}_", chat_id="375129602")
-                else:
-                    filtered_tradables.append(s)
-                    
-            # Conditions de blocage pour SELL (Vente)
-            elif s.signal == "SELL":
-                reasons = []
-                if not is_btc and btc_trend_1h == "BULLISH":
-                    reasons.append("Bitcoin haussier")
-                if dxy_trend == "BEARISH":
-                    reasons.append("Dollar (DXY) baissier")
-                if nasdaq_trend == "BULLISH":
-                    reasons.append("Nasdaq haussier")
-                if not is_btc and alt_strength == "STRONG":
-                    reasons.append("Altcoins forts (ETH/BTC)")
-                    
-                if reasons:
-                    block_msg = " + ".join(reasons)
-                    logger.info(f"🛡️ Guard Block | Vente bloquée sur {s.pair_name} car : {block_msg}.")
-                    send_message(f"🛡️ *Macro/Crypto Guard*\nVente bloquée sur {s.pair_name} car :\n_{block_msg}_", chat_id="375129602")
-                else:
-                    filtered_tradables.append(s)
-            else:
-                filtered_tradables.append(s)
-        tradables = filtered_tradables
-
         if not tradables:
             names = ", ".join(s.pair_name for s in strong_signals[:5])
             logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
             send_message(
                 f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
-                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position, crypto absente ou bloquée par BTC Guard)._",
+                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._",
                 chat_id="375129602"
             )
         else:
