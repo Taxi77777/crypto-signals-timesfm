@@ -1,37 +1,70 @@
 {
-  "last_update": "2026-07-18T20:31:55.055801+00:00",
+  "last_update": "2026-07-18T21:14:31.047080+00:00",
   "signals": [
-    {
-      "pair_name": "Solana (SOL)",
-      "signal": "SELL",
-      "current_price": "$75.3800",
-      "take_profit": "$75.0824",
-      "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 57.4,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
-    },
     {
       "pair_name": "Ripple (XRP)",
       "signal": "SELL",
-      "current_price": "$1.0945",
-      "take_profit": "$1.0917",
+      "current_price": "$1.0939",
+      "take_profit": "$1.0903",
       "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 66.0,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:HOLD"
+      "confidence": 75,
+      "rsi": 56.8,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
     },
     {
-      "pair_name": "Decentraland (MANA)",
-      "signal": "SELL",
-      "current_price": "$0.069700",
-      "take_profit": "$0.069635",
+      "pair_name": "WOO Network (WOO)",
+      "signal": "BUY",
+      "current_price": "$0.012540",
+      "take_profit": "$0.012601",
       "stop_loss": "Aucun",
-      "confidence": 67,
-      "rsi": 33.2,
+      "confidence": 75,
+      "rsi": 63.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Hedera (HBAR)",
+      "signal": "BUY",
+      "current_price": "$0.066940",
+      "take_profit": "$0.067100",
+      "stop_loss": "Aucun",
+      "confidence": 69,
+      "rsi": 63.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Curve DAO (CRV)",
+      "signal": "SELL",
+      "current_price": "$0.211500",
+      "take_profit": "$0.210851",
+      "stop_loss": "Aucun",
+      "confidence": 69,
+      "rsi": 33.5,
       "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "ENS (ENS)",
+      "signal": "BUY",
+      "current_price": "$4.5200",
+      "take_profit": "$4.5375",
+      "stop_loss": "Aucun",
+      "confidence": 62,
+      "rsi": 62.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Sei (SEI)",
+      "signal": "SELL",
+      "current_price": "$0.046870",
+      "take_profit": "$0.046756",
+      "stop_loss": "Aucun",
+      "confidence": 57,
+      "rsi": 57.6,
+      "macd_trend": "Haussier 🟢",
       "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
     }
   ]
