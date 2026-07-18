@@ -274,92 +274,92 @@ def get_current_price(symbol_mexc: str) -> float:
 def check_and_trail(api_key: str, secret_key: str) -> dict | None:
     """
     Vérifie les positions ouvertes et applique le trailing stop software.
-    [DESACTIVÉ] Retourne None pour ne pas modifier ni poser de Stop Loss.
+    Ne pose de Stop Loss que si la position est déjà en profit (TRAIL_BREAKEVEN_PCT).
+    Zéro Stop Loss initial à l'ouverture.
     """
-    return None
+    try:
+        positions = get_open_positions(api_key, secret_key)
+        if not positions:
+            return None
 
-    pos          = positions[0]
-    symbol       = pos.get("symbol", "")
-    pos_type     = pos.get("positionType", 1)   # 1=Long, 2=Short
-    entry_price  = float(pos.get("openAvgPrice", 0)) or float(pos.get("holdAvgPrice", 0))
-    cur_sl       = float(pos.get("stopLossPrice", 0))
+        pos          = positions[0]
+        symbol       = pos.get("symbol", "")
+        pos_type     = pos.get("positionType", 1)   # 1=Long, 2=Short
+        entry_price  = float(pos.get("openAvgPrice", 0)) or float(pos.get("holdAvgPrice", 0))
+        cur_sl       = float(pos.get("stopLossPrice", 0))
 
-    # Obtenir le prix actuel en temps réel
-    current_price = get_current_price(symbol)
+        # Obtenir le prix actuel en temps réel
+        current_price = get_current_price(symbol)
 
-    if entry_price == 0 or current_price == 0:
-        logger.warning(f"check_and_trail: prix invalide pour {symbol} (Entrée: {entry_price}, Actuel: {current_price})")
-        return None
+        if entry_price == 0 or current_price == 0:
+            logger.warning(f"check_and_trail: prix invalide pour {symbol} (Entrée: {entry_price}, Actuel: {current_price})")
+            return None
 
-    # Calcul du profit en %
-    if pos_type == 1:  # Long
-        profit_pct = (current_price - entry_price) / entry_price * 100
-    else:              # Short
-        profit_pct = (entry_price - current_price) / entry_price * 100
+        # Calcul du profit en %
+        if pos_type == 1:  # Long
+            profit_pct = (current_price - entry_price) / entry_price * 100
+        else:              # Short
+            profit_pct = (entry_price - current_price) / entry_price * 100
 
-    logger.info(f"Position {symbol} | Profit: {profit_pct:.2f}% | SL actuel: {cur_sl} | Prix actuel: {current_price}")
+        logger.info(f"Position {symbol} | Profit: {profit_pct:.2f}% | SL actuel: {cur_sl} | Prix actuel: {current_price}")
 
-    new_sl       = None
-    trail_label  = ""
+        new_sl       = None
+        trail_label  = ""
 
-    if pos_type == 1:  # LONG
-        if profit_pct >= TRAIL_75PCT:
-            new_sl      = entry_price + (current_price - entry_price) * 0.75
-            trail_label = f"🔒 Trailing +{TRAIL_75PCT}% → capture 75% gains"
-        elif profit_pct >= TRAIL_50PCT:
-            new_sl      = entry_price + (current_price - entry_price) * 0.50
-            trail_label = f"🔒 Trailing +{TRAIL_50PCT}% → capture 50% gains"
-        elif profit_pct >= TRAIL_BREAKEVEN_PCT:
-            new_sl      = entry_price * 1.001
-            trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
-        elif cur_sl == 0:
-            new_sl      = entry_price * 0.98  # Stop Loss initial 2%
-            trail_label = "🛡️ Initialisation Stop Loss initial (2%)"
+        if pos_type == 1:  # LONG
+            if profit_pct >= TRAIL_75PCT:
+                new_sl      = entry_price + (current_price - entry_price) * 0.75
+                trail_label = f"🔒 Trailing +{TRAIL_75PCT}% → capture 75% gains"
+            elif profit_pct >= TRAIL_50PCT:
+                new_sl      = entry_price + (current_price - entry_price) * 0.50
+                trail_label = f"🔒 Trailing +{TRAIL_50PCT}% → capture 50% gains"
+            elif profit_pct >= TRAIL_BREAKEVEN_PCT:
+                new_sl      = entry_price * 1.001
+                trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
 
-        if new_sl:
-            _, price_unit, price_scale = get_contract_info(symbol)
-            new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
+            if new_sl:
+                _, price_unit, price_scale = get_contract_info(symbol)
+                new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
 
-            # N'update que si le nouveau SL est meilleur que l'actuel
-            if cur_sl == 0 or new_sl_rounded > cur_sl:
-                success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
-                if success:
-                    return {
-                        "symbol":      symbol,
-                        "profit_pct":  round(profit_pct, 2),
-                        "old_sl":      cur_sl,
-                        "new_sl":      new_sl_rounded,
-                        "label":       trail_label,
-                    }
+                # N'update que si le nouveau SL est meilleur que l'actuel
+                if cur_sl == 0 or new_sl_rounded > cur_sl:
+                    success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
+                    if success:
+                        return {
+                            "symbol":      symbol,
+                            "profit_pct":  round(profit_pct, 2),
+                            "old_sl":      cur_sl,
+                            "new_sl":      new_sl_rounded,
+                            "label":       trail_label,
+                        }
 
-    else:  # SHORT
-        if profit_pct >= TRAIL_75PCT:
-            new_sl      = entry_price - (entry_price - current_price) * 0.75
-            trail_label = f"🔒 Trailing +{TRAIL_75PCT}% → capture 75% gains"
-        elif profit_pct >= TRAIL_50PCT:
-            new_sl      = entry_price - (entry_price - current_price) * 0.50
-            trail_label = f"🔒 Trailing +{TRAIL_50PCT}% → capture 50% gains"
-        elif profit_pct >= TRAIL_BREAKEVEN_PCT:
-            new_sl      = entry_price * 0.999
-            trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
-        elif cur_sl == 0:
-            new_sl      = entry_price * 1.02  # Stop Loss initial 2%
-            trail_label = "🛡️ Initialisation Stop Loss initial (2%)"
+        else:  # SHORT
+            if profit_pct >= TRAIL_75PCT:
+                new_sl      = entry_price - (entry_price - current_price) * 0.75
+                trail_label = f"🔒 Trailing +{TRAIL_75PCT}% → capture 75% gains"
+            elif profit_pct >= TRAIL_50PCT:
+                new_sl      = entry_price - (entry_price - current_price) * 0.50
+                trail_label = f"🔒 Trailing +{TRAIL_50PCT}% → capture 50% gains"
+            elif profit_pct >= TRAIL_BREAKEVEN_PCT:
+                new_sl      = entry_price * 0.999
+                trail_label = f"🔒 Trailing +{TRAIL_BREAKEVEN_PCT}% → Breakeven sécurisé"
 
-        if new_sl:
-            _, price_unit, price_scale = get_contract_info(symbol)
-            new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
+            if new_sl:
+                _, price_unit, price_scale = get_contract_info(symbol)
+                new_sl_rounded = round(round(new_sl / price_unit) * price_unit, price_scale)
 
-            if cur_sl == 0 or new_sl_rounded < cur_sl:
-                success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
-                if success:
-                    return {
-                        "symbol":      symbol,
-                        "profit_pct":  round(profit_pct, 2),
-                        "old_sl":      cur_sl,
-                        "new_sl":      new_sl_rounded,
-                        "label":       trail_label,
-                    }
+                if cur_sl == 0 or new_sl_rounded < cur_sl:
+                    success = update_stop_loss(api_key, secret_key, symbol, pos_type, new_sl_rounded)
+                    if success:
+                        return {
+                            "symbol":      symbol,
+                            "profit_pct":  round(profit_pct, 2),
+                            "old_sl":      cur_sl,
+                            "new_sl":      new_sl_rounded,
+                            "label":       trail_label,
+                        }
+    except Exception as e:
+        logger.error(f"Erreur check_and_trail : {e}")
     return None
 
 def place_position_tp_sl(
