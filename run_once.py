@@ -91,21 +91,32 @@ def main():
 
     # ── 1. Vérification position + Trailing Stop ──────────────────────────────
     trade_allowed = False
+    open_count = 0
+    open_symbols = []
     if use_mexc:
         balance = get_usdt_balance(mexc_key, mexc_secret)
         logger.info(f"Solde MEXC Futures : {balance:.2f} USDT")
 
-        if has_open_position(mexc_key, mexc_secret):
-            # Position ouverte → appliquer trailing stop software
-            logger.info("Position active → Vérification trailing stop...")
+        from src.mexc_trader import get_open_positions
+        open_positions = get_open_positions(mexc_key, mexc_secret)
+        open_count = len(open_positions)
+        open_symbols = [p.get("symbol") for p in open_positions]
+        logger.info(f"Positions actives sur MEXC : {open_count}/2 ({', '.join(open_symbols)})")
+
+        if open_count > 0:
+            # Positions ouvertes → appliquer trailing stop software
+            logger.info("Positions actives → Vérification trailing stop...")
             trail_result = check_and_trail(mexc_key, mexc_secret)
             if trail_result:
                 msg = format_trail_telegram(trail_result)
                 send_message(msg, chat_id="375129602")
                 logger.info(f"Trailing stop appliqué : {trail_result}")
-            trade_allowed = False  # Pas de nouveau trade
+
+        if open_count >= 2:
+            logger.info("Limite de 2 positions simultanées atteinte → pas de nouveau trade")
+            trade_allowed = False
         else:
-            logger.info("Aucune position → Recherche du meilleur signal...")
+            logger.info(f"Autorisé à ouvrir {2 - open_count} nouveau(x) trade(s)...")
             trade_allowed = True
     else:
         logger.warning("Clés MEXC absentes — Mode analyse seule.")
@@ -273,85 +284,95 @@ def main():
             chat_id="375129602"
         )
 
-    # ── 5. Auto-trading MEXC Futures : 1 seul trade, meilleur signal ──────────
+    # ── 5. Auto-trading MEXC Futures : jusqu'à 2 trades simultanés ──────────
     if use_mexc and trade_allowed and strong_signals:
         from src.mexc_trader import SYMBOL_MAP
-        # Ne trader QUE les cryptos réellement disponibles sur MEXC Futures.
-        # Les autres restent des signaux Telegram (pas d'ordre, pas d'erreur).
-        tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP]
+        # Ne trader QUE les cryptos disponibles sur MEXC Futures et non déjà ouvertes
+        tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
+        
         if not tradables:
             names = ", ".join(s.pair_name for s in strong_signals[:5])
-            logger.info(f"Aucun signal fort n'est tradable sur MEXC (non mappés: {names}) → pas de trade")
+            logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position) → pas de trade")
             send_message(
                 f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
-                f"{names}\n_Signal envoyé, aucun ordre passé (crypto absente de MEXC Futures)._",
+                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._",
                 chat_id="375129602"
             )
-            best = None
         else:
-            best = tradables[0]
-            logger.info(f"→ Meilleur signal tradable : {best.pair_name} {best.signal} {best.confidence}%")
-
-        symbol_mexc = SYMBOL_MAP.get(best.symbol) if best else None
-        if best and symbol_mexc:
-            imbalance = get_order_book_imbalance(symbol_mexc)
-            if imbalance is not None:
-                logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
-                if best.signal == "BUY" and imbalance < -0.2:
-                    logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat contre mur de vente.")
-                    send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
-                    trade_allowed = False
-                elif best.signal == "SELL" and imbalance > 0.2:
-                    logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente contre mur d'achat.")
-                    send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
-                    trade_allowed = False
+            # Calculer combien de nouveaux trades on peut ouvrir (maximum 2 en tout)
+            slots_available = max(0, 2 - open_count)
+            trades_to_open = tradables[:slots_available]
+            
+            # Ajuster le pourcentage de marge en fonction du nombre de slots ouverts
+            # Si 0 positions actives et on ouvre 2 trades d'un coup, chacun prend 45% de la balance (total 90%).
+            # Si 1 position active et on ouvre 1 nouveau trade, il prend 90% de la balance restante.
+            if open_count == 0 and len(trades_to_open) >= 2:
+                margin_pct_per_trade = 0.45
             else:
-                logger.warning("Impossible de récupérer l'OBI (Ignoré, trading autorisé)")
+                margin_pct_per_trade = 0.90
+                
+            for idx, best in enumerate(trades_to_open):
+                logger.info(f"→ Traitement du signal #{idx+1} : {best.pair_name} {best.signal} {best.confidence}%")
+                symbol_mexc = SYMBOL_MAP.get(best.symbol)
+                
+                # Vérification OBI et Funding pour ce signal spécifique
+                signal_valid = True
+                imbalance = get_order_book_imbalance(symbol_mexc)
+                if imbalance is not None:
+                    logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
+                    if best.signal == "BUY" and imbalance < -0.2:
+                        logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat.")
+                        send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
+                        signal_valid = False
+                    elif best.signal == "SELL" and imbalance > 0.2:
+                        logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente.")
+                        send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance: {imbalance:+.2f})", chat_id="375129602")
+                        signal_valid = False
 
-            # ── Filtre Funding Rate (sentiment de levier) ──
-            from src.mexc_trader import get_funding_rate
-            funding = get_funding_rate(symbol_mexc)
-            if funding is not None:
-                logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
-                if best.signal == "BUY" and funding > 0.10:
-                    logger.info(f"❌ Funding trop positif ({funding:+.4f}% > +0.10%) -> Longs surchargés, achat bloqué.")
-                    send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : trop de longs à levier.", chat_id="375129602")
-                    trade_allowed = False
-                elif best.signal == "SELL" and funding < -0.10:
-                    logger.info(f"❌ Funding trop négatif ({funding:+.4f}% < -0.10%) -> Shorts surchargés, vente bloquée.")
-                    send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : trop de shorts à levier.", chat_id="375129602")
-                    trade_allowed = False
-            else:
-                logger.warning("Funding rate indisponible (Ignoré, trading autorisé)")
+                from src.mexc_trader import get_funding_rate
+                funding = get_funding_rate(symbol_mexc)
+                if funding is not None:
+                    logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
+                    if best.signal == "BUY" and funding > 0.10:
+                        logger.info(f"❌ Funding trop positif ({funding:+.4f}%) -> Achat bloqué.")
+                        send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : longs surchargés.", chat_id="375129602")
+                        signal_valid = False
+                    elif best.signal == "SELL" and funding < -0.10:
+                        logger.info(f"❌ Funding trop négatif ({funding:+.4f}%) -> Vente bloquée.")
+                        send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.", chat_id="375129602")
+                        signal_valid = False
 
-        if best:
-            raw_price = raw_prices.get(best.symbol, 0)
+                if signal_valid:
+                    raw_price = raw_prices.get(best.symbol, 0)
+                    
+                    def parse_price(s: str) -> float:
+                        if s == "Aucun":
+                            return 0.0
+                        return float(s.replace("$", "").replace(",", ""))
 
-            def parse_price(s: str) -> float:
-                if s == "Aucun":
-                    return 0.0
-                return float(s.replace("$", "").replace(",", ""))
+                    tp_num = parse_price(best.take_profit)
+                    sl_num = parse_price(best.stop_loss)
 
-            tp_num = parse_price(best.take_profit)
-            sl_num = parse_price(best.stop_loss)
+                    # Passer l'ordre avec le pourcentage de marge calculé
+                    result = place_order(
+                        api_key    = mexc_key,
+                        secret_key = mexc_secret,
+                        symbol_yf  = best.symbol,
+                        signal     = best.signal,
+                        price      = raw_price,
+                        tp_price   = tp_num,
+                        sl_price   = sl_num,
+                        margin_pct = margin_pct_per_trade,
+                    )
 
-            result = place_order(
-                api_key    = mexc_key,
-                secret_key = mexc_secret,
-                symbol_yf  = best.symbol,
-                signal     = best.signal,
-                price      = raw_price,
-                tp_price   = tp_num,
-                sl_price   = sl_num,
-            ) if trade_allowed else None
-
-            if result and result.get("success"):
-                send_message(format_order_telegram(result, best), chat_id="375129602")
-                logger.info("✅ Ordre MEXC Futures ouvert et notifié sur Telegram !")
-            elif trade_allowed:
-                err = result.get("error", "Inconnue") if result else "Réponse MEXC vide (vérifie clés API / solde ≥ 1 USDT / KYC)"
-                logger.error(f"❌ Échec ordre : {err}")
-                send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._", chat_id="375129602")
+                    if result and result.get("success"):
+                        send_message(format_order_telegram(result, best), chat_id="375129602")
+                        logger.info(f"✅ Ordre MEXC Futures pour {best.pair_name} ouvert et notifié !")
+                        time.sleep(0.5)
+                    else:
+                        err = result.get("error", "Inconnue") if result else "Réponse MEXC vide"
+                        logger.error(f"❌ Échec ordre {best.pair_name}: {err}")
+                        send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._", chat_id="375129602")
     elif use_mexc and trade_allowed and not strong_signals:
         logger.info("Aucun signal fort → Pas de trade ce scan.")
 

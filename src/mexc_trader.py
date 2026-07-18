@@ -470,6 +470,7 @@ def place_order(
     price:      float,
     tp_price:   float,
     sl_price:   float,
+    margin_pct: float = None,
 ) -> dict | None:
     """Place un ordre futures MEXC (Market) puis pose le TP/SL séparément."""
 
@@ -491,8 +492,9 @@ def place_order(
     else:
         logger.warning(f"Prix live indisponible — utilisation du prix yfinance: {price}")
 
+    pct = margin_pct if margin_pct is not None else MARGIN_PCT
     contract_size, price_unit, price_scale = get_contract_info(symbol_mexc)
-    vol = calculate_contracts(balance, price, contract_size)
+    vol = calculate_contracts(balance * pct, price, contract_size)
     side = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
 
     tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
@@ -547,7 +549,7 @@ def place_order(
                 "symbol":       symbol_mexc,
                 "side":         "LONG" if side == 1 else "SHORT",
                 "vol":          vol,
-                "balance_used": round(balance * MARGIN_PCT, 2),
+                "balance_used": round(balance * pct, 2),
                 "leverage":     LEVERAGE,
                 "trailing":     f"{TRAILING_CALLBACK}%",
                 "tp_sl_set":    tp_sl_ok,
