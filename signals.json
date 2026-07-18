@@ -1,60 +1,49 @@
 {
-  "last_update": "2026-07-18T18:31:46.421794+00:00",
+  "last_update": "2026-07-18T19:45:09.564411+00:00",
   "signals": [
     {
-      "pair_name": "Ripple (XRP)",
-      "signal": "SELL",
-      "current_price": "$1.0931",
-      "take_profit": "$1.0890",
-      "stop_loss": "Aucun",
-      "confidence": 80,
-      "rsi": 68.1,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:HOLD"
-    },
-    {
-      "pair_name": "Arbitrum (ARB)",
+      "pair_name": "MultiversX (EGLD)",
       "signal": "BUY",
-      "current_price": "$0.088500",
-      "take_profit": "$0.088953",
+      "current_price": "$3.2000",
+      "take_profit": "$3.2043",
       "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 49.8,
+      "confidence": 70,
+      "rsi": 34.1,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Sui (SUI)",
+      "signal": "SELL",
+      "current_price": "$0.741100",
+      "take_profit": "$0.737790",
+      "stop_loss": "Aucun",
+      "confidence": 69,
+      "rsi": 63.7,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY"
-    },
-    {
-      "pair_name": "Cosmos (ATOM)",
-      "signal": "SELL",
-      "current_price": "$1.5000",
-      "take_profit": "$1.4931",
-      "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 59.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:HOLD"
-    },
-    {
-      "pair_name": "NEAR Protocol (NEAR)",
-      "signal": "SELL",
-      "current_price": "$1.9390",
-      "take_profit": "$1.9294",
-      "stop_loss": "Aucun",
-      "confidence": 66,
-      "rsi": 76.5,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
     },
     {
       "pair_name": "Solana (SOL)",
       "signal": "SELL",
-      "current_price": "$75.4100",
-      "take_profit": "$75.1382",
+      "current_price": "$75.2800",
+      "take_profit": "$74.9445",
+      "stop_loss": "Aucun",
+      "confidence": 67,
+      "rsi": 54.9,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "The Graph (GRT)",
+      "signal": "SELL",
+      "current_price": "$0.017100",
+      "take_profit": "$0.017013",
       "stop_loss": "Aucun",
       "confidence": 61,
-      "rsi": 63.2,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:HOLD"
+      "rsi": 55.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:HOLD"
     }
   ]
 }
