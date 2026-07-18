@@ -353,6 +353,19 @@ def main():
                     tp_num = parse_price(best.take_profit)
                     sl_num = parse_price(best.stop_loss)
 
+                    # Sécurité : distance minimale de TP (1.0% de l'entry price pour éviter l'erreur MEXC "The price of stop-limit order error")
+                    min_dist_pct = 0.010
+                    if best.signal == "BUY":
+                        min_tp = raw_price * (1 + min_dist_pct)
+                        if tp_num < min_tp:
+                            logger.info(f"🔄 Ajustement TP BUY pour {best.pair_name} : {tp_num} -> {min_tp:.5f} (min {min_dist_pct*100}%)")
+                            tp_num = min_tp
+                    elif best.signal == "SELL":
+                        max_tp = raw_price * (1 - min_dist_pct)
+                        if tp_num > max_tp or tp_num <= 0:
+                            logger.info(f"🔄 Ajustement TP SELL pour {best.pair_name} : {tp_num} -> {max_tp:.5f} (min {min_dist_pct*100}%)")
+                            tp_num = max_tp
+
                     # Passer l'ordre avec le pourcentage de marge calculé
                     result = place_order(
                         api_key    = mexc_key,
