@@ -39,7 +39,7 @@ CRYPTO_PAIRS = [
     "WOO-USD", "CHZ-USD", "CRV-USD", "ENS-USD", "PENDLE-USD",
     # 50 Nouveaux Altcoins Qualitatifs et Liquides
     "DOGE-USD", "FLOKI-USD", "ONDO-USD", "AR-USD", "ETC-USD",
-    "NEO-USD", "BONK-USD", "IOTA-USD", "DASH-USD", "BAT-USD",
+    "NEO-USD", "SHIB-USD", "IOTA-USD", "DASH-USD", "BAT-USD",
     "ZIL-USD", "ENJ-USD", "KNC-USD", "LRC-USD", "ANKR-USD",
     "STORJ-USD", "YFI-USD", "SUSHI-USD", "UNI7083-USD", "1INCH-USD",
     "CELO-USD", "ZRX-USD", "IOST-USD", "BAND-USD", "JST-USD",
@@ -110,7 +110,7 @@ PAIR_NAMES = {
     "AR-USD":       "Arweave (AR)",
     "ETC-USD":      "Ethereum Classic (ETC)",
     "NEO-USD":      "Neo (NEO)",
-    "BONK-USD":     "Bonk (BONK)",
+    "SHIB-USD":     "Shiba Inu (SHIB)",
     "IOTA-USD":     "IOTA (IOTA)",
     "DASH-USD":     "Dash (DASH)",
     "BAT-USD":      "Basic Attention Token (BAT)",

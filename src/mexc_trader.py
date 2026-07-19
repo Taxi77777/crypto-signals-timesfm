@@ -89,7 +89,7 @@ SYMBOL_MAP = {
     "AR-USD":       "AR_USDT",
     "ETC-USD":      "ETC_USDT",
     "NEO-USD":      "NEO_USDT",
-    "BONK-USD":     "BONK_USDT",
+    "SHIB-USD":     "SHIB_USDT",
     "IOTA-USD":     "IOTA_USDT",
     "DASH-USD":     "DASH_USDT",
     "BAT-USD":      "BAT_USDT",
