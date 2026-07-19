@@ -209,17 +209,6 @@ def main():
     unload_granite()
     gc.collect()
 
-    # ── Enregistrer les prédictions du scan pour vérification future ─────────
-    from src.signal_generator import _ai_direction
-    for sym, series in series_map.items():
-        cur_price = float(series[-1])
-        for key, mp in (("TFM", "tfm"), ("CHO", "cho"), ("MOI", "moi"), ("LLA", "lla"), ("GRA", "gra")):
-            d = _ai_direction(cur_price, ai_preds[mp].get(sym))
-            if d in ("BUY", "SELL"):
-                waiting.append({"ts": now_ts, "model": key, "symbol": sym, "dir": d, "price": cur_price})
-    save_pending(waiting)
-    save_track(track)   # garantit l'existence du fichier pour le commit
-
     # ── Phase C : génération des signaux (consensus strict 5 IA) ─────────────
     signals = []
     for symbol, df_ind in ind_map.items():
@@ -273,6 +262,7 @@ def main():
             import yfinance as yf
             dxy_df = yf.download("DX-Y.NYB", period="10d", interval="1h", progress=False)
             if dxy_df is not None and not dxy_df.empty:
+                dxy_df.columns = [c.lower() for c in dxy_df.columns]
                 dxy_df_ind = compute_all_indicators(dxy_df)
                 if not dxy_df_ind.empty:
                     dxy_last = dxy_df_ind.iloc[-1]
@@ -287,7 +277,7 @@ def main():
             logger.info(f"📊 Macro Guard | Dollar Index (DXY 1H) : {dxy_trend}")
         except Exception as e:
             logger.error(f"Erreur calcul DXY Guard : {e}")
-
+ 
     # ── Nasdaq (^IXIC) Guard ──
     nasdaq_trend = "NEUTRAL"
     if not is_weekend:
@@ -295,6 +285,7 @@ def main():
             import yfinance as yf
             ndx_df = yf.download("^IXIC", period="10d", interval="1h", progress=False)
             if ndx_df is not None and not ndx_df.empty:
+                ndx_df.columns = [c.lower() for c in ndx_df.columns]
                 ndx_df_ind = compute_all_indicators(ndx_df)
                 if not ndx_df_ind.empty:
                     ndx_last = ndx_df_ind.iloc[-1]
@@ -309,13 +300,14 @@ def main():
             logger.info(f"📊 Macro Guard | Nasdaq (^IXIC 1H) : {nasdaq_trend}")
         except Exception as e:
             logger.error(f"Erreur calcul Nasdaq Guard : {e}")
-
+ 
     # ── ETH/BTC Ratio Guard (Force Altcoins) ──
     alt_strength = "NEUTRAL"
     try:
         import yfinance as yf
         ethbtc_df = yf.download("ETH-BTC", period="10d", interval="1h", progress=False)
         if ethbtc_df is not None and not ethbtc_df.empty:
+            ethbtc_df.columns = [c.lower() for c in ethbtc_df.columns]
             ethbtc_df_ind = compute_all_indicators(ethbtc_df)
             if not ethbtc_df_ind.empty:
                 ethbtc_last = ethbtc_df_ind.iloc[-1]
