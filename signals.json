@@ -1,16 +1,49 @@
 {
-  "last_update": "2026-07-19T21:25:44.119461+00:00",
+  "last_update": "2026-07-19T22:08:54.336205+00:00",
   "signals": [
     {
-      "pair_name": "ether.fi (ETHFI)",
+      "pair_name": "Starknet (STRK)",
       "signal": "BUY",
-      "current_price": "$0.449000",
-      "take_profit": "$0.452498",
+      "current_price": "$0.028098",
+      "take_profit": "$0.028720",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 38.2,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Neo (NEO)",
+      "signal": "BUY",
+      "current_price": "$2.0629",
+      "take_profit": "$2.0700",
       "stop_loss": "Aucun",
       "confidence": 80,
-      "rsi": 38.7,
+      "rsi": 38.1,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "JasmyCoin (JASMY)",
+      "signal": "BUY",
+      "current_price": "$0.004630",
+      "take_profit": "$0.004658",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 17.3,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "THORChain (RUNE)",
+      "signal": "BUY",
+      "current_price": "$0.443025",
+      "take_profit": "$0.443572",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 32.9,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY"
     }
   ]
 }
