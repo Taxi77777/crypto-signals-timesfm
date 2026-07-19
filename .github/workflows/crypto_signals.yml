@@ -35,6 +35,9 @@ jobs:
           pip install git+https://github.com/time-series-foundation-models/lag-llama.git
           pip install "transformers<4.50"  # compat torch 2.4 (uni2ts) - evite l'erreur DTensor
 
+      - name: Vérification des contrats MEXC
+        run: python verify_mexc_futures.py
+
       - name: Lancement de l'analyse Crypto
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
