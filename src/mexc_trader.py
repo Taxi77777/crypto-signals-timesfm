@@ -107,7 +107,7 @@ SYMBOL_MAP = {
     "ZRX-USD":      "ZRX_USDT",
     "IOST-USD":     "IOST_USDT",
     "BAND-USD":     "BAND_USDT",
-    "SXP-USD":      "SXP_USDT",
+    "JST-USD":      "JST_USDT",
     "KSM-USD":      "KSM_USDT",
     "AUDIO-USD":    "AUDIO_USDT",
     "SKL-USD":      "SKL_USDT",
