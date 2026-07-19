@@ -1,16 +1,16 @@
 {
-  "last_update": "2026-07-19T15:12:21.205138+00:00",
+  "last_update": "2026-07-19T16:11:48.710634+00:00",
   "signals": [
     {
-      "pair_name": "THORChain (RUNE)",
+      "pair_name": "Solana (SOL)",
       "signal": "BUY",
-      "current_price": "$0.449371",
-      "take_profit": "$0.450233",
+      "current_price": "$76.0700",
+      "take_profit": "$76.3847",
       "stop_loss": "Aucun",
-      "confidence": 82,
-      "rsi": 72.2,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:HOLD"
+      "confidence": 72,
+      "rsi": 44.2,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:BUY"
     }
   ]
 }
