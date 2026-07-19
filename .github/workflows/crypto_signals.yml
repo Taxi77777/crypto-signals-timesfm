@@ -51,7 +51,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add signals.json track_record.json pending_predictions.json pending_pullbacks.json
+          git add signals.json track_record.json pending_predictions.json
+          git add pending_pullbacks.json || true
           git commit -m "chore: update crypto signals.json [skip ci]" || echo "Aucune modification"
           git push
 
