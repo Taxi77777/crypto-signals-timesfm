@@ -233,9 +233,6 @@ def main():
     strong_signals = [s for s in signals if s.is_strong and s.signal != "HOLD"]
 
     # ── Gestionnaire de Pullback (Wait for Pullback logic) ───────────────────
-    import os
-    import json
-    import time
 
     pullbacks_file = "pending_pullbacks.json"
     pending_pullbacks = []
