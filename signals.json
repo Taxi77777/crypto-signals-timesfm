@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-19T14:11:57.037273+00:00",
-  "signals": []
+  "last_update": "2026-07-19T15:12:21.205138+00:00",
+  "signals": [
+    {
+      "pair_name": "THORChain (RUNE)",
+      "signal": "BUY",
+      "current_price": "$0.449371",
+      "take_profit": "$0.450233",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 72.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:HOLD"
+    }
+  ]
 }
