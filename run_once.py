@@ -35,7 +35,7 @@ import config
 from src.data_fetcher      import fetch_all_pairs, prepare_timesfm_input
 from src.indicators        import compute_all_indicators
 from src.timesfm_predictor import predict_timesfm
-from src.signal_generator  import generate_signal
+from src.signal_generator  import generate_signal, TradingSignal, _format_crypto_price
 from src.telegram_bot      import send_signal, send_message
 from src.mexc_trader       import (
     has_open_position, place_order,
@@ -232,6 +232,170 @@ def main():
     # Trier par confiance décroissante
     strong_signals = [s for s in signals if s.is_strong and s.signal != "HOLD"]
 
+    # ── Gestionnaire de Pullback (Wait for Pullback logic) ───────────────────
+    import os
+    import json
+    import time
+
+    pullbacks_file = "pending_pullbacks.json"
+    pending_pullbacks = []
+    if os.path.exists(pullbacks_file):
+        try:
+            with open(pullbacks_file, "r", encoding="utf-8") as f:
+                pending_pullbacks = json.load(f)
+        except Exception as e:
+            logger.error(f"Erreur chargement pullbacks : {e}")
+
+    active_pullbacks = []
+    completed_signals = []
+    limit_pct = getattr(config, "MAX_EMA_EXTENSION_PCT", 0.5)
+
+    # 1. Vérifier les pullbacks existants dans la file
+    for p in pending_pullbacks:
+        # Expiration (2h = 7200s)
+        if time.time() - p["timestamp"] >= 7200:
+            logger.info(f"⏳ Pullback expiré pour {p['pair_name']} {p['signal']}")
+            send_message(f"⏳ *Pullback expiré (Timeout 2h)*\nSignal {p['pair_name']} {p['signal']} annulé.", chat_id="375129602")
+            continue
+
+        # Invalidation par un nouveau signal inverse dans la passe actuelle
+        inverse_detected = False
+        for s in signals:
+            if s.symbol == p["symbol"] and s.is_strong and s.signal != "HOLD" and s.signal != p["signal"]:
+                inverse_detected = True
+                break
+        if inverse_detected:
+            logger.info(f"⏳ Pullback invalidé pour {p['pair_name']} par un signal inverse")
+            send_message(f"❌ *Pullback invalidé*\nLe signal d'origine {p['pair_name']} {p['signal']} est annulé suite à une inversion de tendance.", chat_id="375129602")
+            continue
+
+        # Vérification du pullback réel
+        df_ind = ind_map.get(p["symbol"])
+        if df_ind is not None and not df_ind.empty:
+            last_row = df_ind.iloc[-1]
+            cur_price = float(last_row["close"])
+            ema20 = float(last_row["ema20"])
+            ema50 = float(last_row["ema50"])
+            extension_pct = (cur_price - ema20) / ema20 * 100
+
+            triggered = False
+            invalidated = False
+            reason = ""
+
+            if p["signal"] == "BUY":
+                if cur_price < ema50:
+                    invalidated = True
+                    reason = "cassure de l'EMA50 (tendance baissière)"
+                elif extension_pct <= limit_pct:
+                    triggered = True
+            elif p["signal"] == "SELL":
+                if cur_price > ema50:
+                    invalidated = True
+                    reason = "cassure de l'EMA50 (tendance haussière)"
+                elif extension_pct >= -limit_pct:
+                    triggered = True
+
+            if invalidated:
+                logger.info(f"⏳ Pullback invalidé pour {p['pair_name']} : {reason}")
+                send_message(f"❌ *Pullback invalidé*\nSignal {p['pair_name']} {p['signal']} annulé : {reason}.", chat_id="375129602")
+                continue
+
+            if triggered:
+                logger.info(f"🎯 Pullback complété pour {p['pair_name']} {p['signal']} à {cur_price}")
+                send_message(
+                    f"📥 *Pullback validé - Exécution de l'ordre* 📥\n"
+                    f"Pair : *{p['pair_name']}* | Direction : *{p['signal']}*\n"
+                    f"Entrée au pullback : {cur_price:.5f} (EMA20: {ema20:.5f})\n"
+                    f"Confiance d'origine : {p['confidence']}%\n"
+                    f"TP : {p['take_profit']}",
+                    chat_id="375129602"
+                )
+                
+                tp_val = float(p["take_profit_raw"])
+                sl_val = float(p["stop_loss_raw"])
+                
+                triggered_sig = TradingSignal(
+                    symbol=p["symbol"],
+                    pair_name=p["pair_name"],
+                    signal=p["signal"],
+                    current_price=_format_crypto_price(cur_price),
+                    take_profit=_format_crypto_price(tp_val),
+                    stop_loss="Aucun",
+                    confidence=p["confidence"],
+                    rsi=p["rsi"],
+                    rsi_status=p["rsi_status"],
+                    macd_trend=p["macd_trend"],
+                    ema_trend=p["ema_trend"],
+                    bb_position=p["bb_position"],
+                    forecast_dir=p["forecast_dir"],
+                    forecast_4h=p["forecast_4h"],
+                    tp_pct=p["tp_pct"],
+                    sl_pct="0.0",
+                    is_strong=True,
+                    fisher=p["fisher"],
+                    fisher_status=p["fisher_status"],
+                    is_extended=False
+                )
+                completed_signals.append(triggered_sig)
+            else:
+                active_pullbacks.append(p)
+        else:
+            active_pullbacks.append(p)
+
+    # 2. Traiter les nouveaux signaux de la passe actuelle
+    immediate_signals = []
+    for s in strong_signals:
+        if s.is_extended:
+            if not any(p["symbol"] == s.symbol for p in active_pullbacks):
+                df_ind = ind_map.get(s.symbol)
+                last_row = df_ind.iloc[-1] if df_ind is not None else None
+                ema20_val = float(last_row["ema20"]) if last_row is not None else 0.0
+                
+                tp_val = float(s.take_profit.replace("$", "").replace(",", ""))
+                sl_val = 0.0
+                
+                new_p = {
+                    "symbol": s.symbol,
+                    "pair_name": s.pair_name,
+                    "signal": s.signal,
+                    "confidence": s.confidence,
+                    "take_profit": s.take_profit,
+                    "take_profit_raw": tp_val,
+                    "stop_loss_raw": sl_val,
+                    "rsi": s.rsi,
+                    "rsi_status": s.rsi_status,
+                    "macd_trend": s.macd_trend,
+                    "ema_trend": s.ema_trend,
+                    "bb_position": s.bb_position,
+                    "forecast_dir": s.forecast_dir,
+                    "forecast_4h": s.forecast_4h,
+                    "tp_pct": s.tp_pct,
+                    "fisher": s.fisher,
+                    "fisher_status": s.fisher_status,
+                    "timestamp": time.time(),
+                }
+                active_pullbacks.append(new_p)
+                logger.info(f"⏳ Nouveau signal {s.pair_name} {s.signal} mis en attente de pullback")
+                send_message(
+                    f"⏳ *Signal détecté (En attente de Pullback)* ⏳\n"
+                    f"Pair : *{s.pair_name}* | Direction : *{s.signal}* (Confiance: {s.confidence}%)\n"
+                    f"Prix actuel : {s.current_price} (Trop étendu par rapport à l'EMA20)\n"
+                    f"Seuil d'entrée souhaité : <= +{limit_pct}% de l'EMA20 (EMA20 actuelle : {ema20_val:.5f})",
+                    chat_id="375129602"
+                )
+        else:
+            immediate_signals.append(s)
+
+    # Sauvegarder la file d'attente des pullbacks
+    try:
+        with open(pullbacks_file, "w", encoding="utf-8") as f:
+            json.dump(active_pullbacks, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"Erreur sauvegarde pullbacks : {e}")
+
+    # strong_signals contient maintenant uniquement les signaux immédiats + les pullbacks complétés de ce scan
+    strong_signals = immediate_signals + completed_signals
+
     # ── BTC Correlation Guard ──
     btc_trend_1h = "NEUTRAL"
     if all_data_1h and "BTC-USD" in all_data_1h:
@@ -260,7 +424,8 @@ def main():
     if not is_weekend:
         try:
             import yfinance as yf
-            dxy_df = yf.download("DX-Y.NYB", period="10d", interval="1h", progress=False)
+            ticker_dxy = yf.Ticker("DX-Y.NYB")
+            dxy_df = ticker_dxy.history(period="10d", interval="1h")
             if dxy_df is not None and not dxy_df.empty:
                 dxy_df.columns = [c.lower() for c in dxy_df.columns]
                 dxy_df_ind = compute_all_indicators(dxy_df)
@@ -283,7 +448,8 @@ def main():
     if not is_weekend:
         try:
             import yfinance as yf
-            ndx_df = yf.download("^IXIC", period="10d", interval="1h", progress=False)
+            ticker_ndx = yf.Ticker("^IXIC")
+            ndx_df = ticker_ndx.history(period="10d", interval="1h")
             if ndx_df is not None and not ndx_df.empty:
                 ndx_df.columns = [c.lower() for c in ndx_df.columns]
                 ndx_df_ind = compute_all_indicators(ndx_df)
@@ -305,7 +471,8 @@ def main():
     alt_strength = "NEUTRAL"
     try:
         import yfinance as yf
-        ethbtc_df = yf.download("ETH-BTC", period="10d", interval="1h", progress=False)
+        ticker_ethbtc = yf.Ticker("ETH-BTC")
+        ethbtc_df = ticker_ethbtc.history(period="10d", interval="1h")
         if ethbtc_df is not None and not ethbtc_df.empty:
             ethbtc_df.columns = [c.lower() for c in ethbtc_df.columns]
             ethbtc_df_ind = compute_all_indicators(ethbtc_df)

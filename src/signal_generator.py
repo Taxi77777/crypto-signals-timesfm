@@ -33,6 +33,7 @@ class TradingSignal:
     is_strong:       bool
     fisher:          float   # Fisher Transform value
     fisher_status:   str     # Extreme BUY / Extreme SELL / Neutre
+    is_extended:     bool = False
 
 
 def _format_crypto_price(price: float) -> str:
@@ -299,15 +300,16 @@ def generate_signal(
         
         # FILTRE D'EXTENSION EMA20 (Structure du Chart)
         # Évite d'acheter ou de vendre si le prix s'est déjà trop éloigné de la moyenne (EMA20 5m).
+        is_extended = False
         if ema20 and ema20 > 0:
             extension_pct = (current_price - ema20) / ema20 * 100
-            limit_pct = getattr(config, "MAX_EMA_EXTENSION_PCT", 1.2)
+            limit_pct = getattr(config, "MAX_EMA_EXTENSION_PCT", 0.5)
             if signal == "BUY" and extension_pct > limit_pct:
-                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop haut par rapport à EMA20 5m : +{extension_pct:.2f}% > {limit_pct}%) -> Signal BUY annulé")
-                return None
-            if signal == "SELL" and extension_pct < -limit_pct:
-                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop bas par rapport à EMA20 5m : {extension_pct:.2f}% < -{limit_pct}%) -> Signal SELL annulé")
-                return None
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop haut par rapport à EMA20 5m : +{extension_pct:.2f}% > {limit_pct}%) -> Signal BUY marqué comme étendu (en attente de pullback)")
+                is_extended = True
+            elif signal == "SELL" and extension_pct < -limit_pct:
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop bas par rapport à EMA20 5m : {extension_pct:.2f}% < -{limit_pct}%) -> Signal SELL marqué comme étendu (en attente de pullback)")
+                is_extended = True
 
         if signal == "BUY":
             tp_mult = 1 + (atr * tp_mult_factor / current_price)
@@ -372,6 +374,7 @@ def generate_signal(
             is_strong     = is_strong,
             fisher        = fisher,
             fisher_status = fisher_status,
+            is_extended   = is_extended,
         )
 
     except Exception as e:
