@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "symbol": "SXP-USD",
+    "pair_name": "SXP (SXP)",
+    "signal": "SELL",
+    "confidence": 86,
+    "take_profit": "$0.000025",
+    "take_profit_raw": 2.5e-05,
+    "stop_loss_raw": 0.0,
+    "rsi": 0.1,
+    "rsi_status": "Survendu",
+    "macd_trend": "Neutre ⚪",
+    "ema_trend": "EMA20 < EMA50 🔴",
+    "bb_position": "Prix < BB Basse 🟢",
+    "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL",
+    "forecast_4h": "$0.000000",
+    "tp_pct": "87.43",
+    "fisher": -0.62,
+    "fisher_status": "Neutre",
+    "timestamp": 1784495511.42535
+  }
+]
