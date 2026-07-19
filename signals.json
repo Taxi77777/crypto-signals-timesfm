@@ -1,16 +1,16 @@
 {
-  "last_update": "2026-07-18T23:52:33.437815+00:00",
+  "last_update": "2026-07-19T01:15:55.640351+00:00",
   "signals": [
     {
-      "pair_name": "MultiversX (EGLD)",
+      "pair_name": "THORChain (RUNE)",
       "signal": "BUY",
-      "current_price": "$3.2300",
-      "take_profit": "$3.2401",
+      "current_price": "$0.434801",
+      "take_profit": "$0.435681",
       "stop_loss": "Aucun",
-      "confidence": 57,
-      "rsi": 38.7,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:HOLD"
+      "confidence": 80,
+      "rsi": 82.3,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
     }
   ]
 }
