@@ -23,7 +23,7 @@ SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 MAX_EMA_EXTENSION_PCT    = 0.5     # Écart max toléré avec EMA20 5m (%) (Évite d'acheter les breakouts sur-étendus)
 
-# ── Cryptos surveillées (50 cryptos qualitatives et liquides) ──────────────────
+# ── Cryptos surveillées (100 cryptos qualitatives et liquides) ──────────────────
 CRYPTO_PAIRS = [
     # Top 20 Majeures
     "BTC-USD",  "ETH-USD",  "BNB-USD",  "SOL-USD",  "XRP-USD",
@@ -36,7 +36,18 @@ CRYPTO_PAIRS = [
     "FIL-USD", "PYTH-USD", "THETA-USD", "FLOW-USD", "AXS-USD",
     "SAND-USD", "MANA-USD", "ATOM-USD", "ALGO-USD", "VET-USD",
     "HBAR-USD", "KAVA-USD", "GALA-USD", "DYDX-USD", "MINA-USD",
-    "WOO-USD", "CHZ-USD", "CRV-USD", "ENS-USD", "PENDLE-USD"
+    "WOO-USD", "CHZ-USD", "CRV-USD", "ENS-USD", "PENDLE-USD",
+    # 50 Nouveaux Altcoins Qualitatifs et Liquides
+    "DOGE-USD", "MKR-USD", "ONDO-USD", "AR-USD", "ETC-USD",
+    "NEO-USD", "EOS-USD", "IOTA-USD", "DASH-USD", "BAT-USD",
+    "ZIL-USD", "ENJ-USD", "KNC-USD", "LRC-USD", "ANKR-USD",
+    "STORJ-USD", "YFI-USD", "SUSHI-USD", "UNI7083-USD", "1INCH-USD",
+    "CELO-USD", "ZRX-USD", "IOST-USD", "BAND-USD", "SXP-USD",
+    "KSM-USD", "AUDIO-USD", "SKL-USD", "CTSI-USD", "LPT-USD",
+    "CELR-USD", "OGN-USD", "COTI-USD", "RLC-USD", "NKN-USD",
+    "MTL-USD", "DGB-USD", "CKB-USD", "GMT18069-USD", "APE-USD",
+    "WLD-USD", "ARKM-USD", "ALT29073-USD", "MANTA-USD", "ETHFI-USD",
+    "NOT-USD", "RVN-USD", "QTUM-USD", "JASMY-USD", "WIF-USD"
 ]
 
 PAIR_NAMES = {
@@ -92,4 +103,55 @@ PAIR_NAMES = {
     "CRV-USD":      "Curve DAO (CRV)",
     "ENS-USD":      "ENS (ENS)",
     "PENDLE-USD":   "Pendle (PENDLE)",
+    # 50 Nouveaux Altcoins
+    "DOGE-USD":     "Dogecoin (DOGE)",
+    "MKR-USD":      "Maker (MKR)",
+    "ONDO-USD":     "Ondo Finance (ONDO)",
+    "AR-USD":       "Arweave (AR)",
+    "ETC-USD":      "Ethereum Classic (ETC)",
+    "NEO-USD":      "Neo (NEO)",
+    "EOS-USD":      "EOS (EOS)",
+    "IOTA-USD":     "IOTA (IOTA)",
+    "DASH-USD":     "Dash (DASH)",
+    "BAT-USD":      "Basic Attention Token (BAT)",
+    "ZIL-USD":      "Zilliqa (ZIL)",
+    "ENJ-USD":      "Enjin Coin (ENJ)",
+    "KNC-USD":      "Kyber Network (KNC)",
+    "LRC-USD":      "Loopring (LRC)",
+    "ANKR-USD":     "Ankr (ANKR)",
+    "STORJ-USD":    "Storj (STORJ)",
+    "YFI-USD":      "yearn.finance (YFI)",
+    "SUSHI-USD":    "SushiSwap (SUSHI)",
+    "UNI7083-USD":  "Uniswap (UNI)",
+    "1INCH-USD":    "1inch (1INCH)",
+    "CELO-USD":     "Celo (CELO)",
+    "ZRX-USD":      "0x (ZRX)",
+    "IOST-USD":     "IOST (IOST)",
+    "BAND-USD":     "Band Protocol (BAND)",
+    "SXP-USD":      "SXP (SXP)",
+    "KSM-USD":      "Kusama (KSM)",
+    "AUDIO-USD":    "Audius (AUDIO)",
+    "SKL-USD":      "SKALE (SKL)",
+    "CTSI-USD":     "Cartesi (CTSI)",
+    "LPT-USD":      "Livepeer (LPT)",
+    "CELR-USD":     "Celer Network (CELR)",
+    "OGN-USD":      "Origin Protocol (OGN)",
+    "COTI-USD":     "COTI (COTI)",
+    "RLC-USD":      "iExec RLC (RLC)",
+    "NKN-USD":      "NKN (NKN)",
+    "MTL-USD":      "Metal DAO (MTL)",
+    "DGB-USD":      "DigiByte (DGB)",
+    "CKB-USD":      "Nervos Network (CKB)",
+    "GMT18069-USD": "STEPN (GMT)",
+    "APE-USD":      "ApeCoin (APE)",
+    "WLD-USD":      "Worldcoin (WLD)",
+    "ARKM-USD":     "Arkham (ARKM)",
+    "ALT29073-USD": "Altlayer (ALT)",
+    "MANTA-USD":    "Manta Network (MANTA)",
+    "ETHFI-USD":    "ether.fi (ETHFI)",
+    "NOT-USD":      "Notcoin (NOT)",
+    "RVN-USD":      "Ravencoin (RVN)",
+    "QTUM-USD":     "Qtum (QTUM)",
+    "JASMY-USD":    "JasmyCoin (JASMY)",
+    "WIF-USD":      "dogwifhat (WIF)",
 }
