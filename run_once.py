@@ -572,12 +572,53 @@ def main():
         json.dump(web_data, f, indent=2, ensure_ascii=False)
     logger.info("signals.json mis à jour.")
 
-    # ── 4. Envoi Telegram des signaux forts ───────────────────────────────────
-    if strong_signals:
-        logger.info(f"Envoi de {len(strong_signals)} signaux forts sur Telegram...")
-        for s in strong_signals:
+    # ── Chargement des signaux déjà envoyés (anti-doublon) ───────────────────
+    sent_signals_file = "sent_signals.json"
+    already_sent = {}
+    if os.path.exists(sent_signals_file):
+        try:
+            with open(sent_signals_file, "r", encoding="utf-8") as f:
+                already_sent = json.load(f)  # {symbol: signal_direction}
+        except Exception:
+            already_sent = {}
+
+    # Identifie les signaux vraiment NOUVEAUX
+    # - Jamais envoyé avant
+    # - OU direction différente (ex: était SELL, maintenant BUY)
+    # - OU issu d'un pullback complété (toujours envoyer)
+    completed_syms = {s.symbol for s in completed_signals}
+    new_signals_to_send = []
+    for s in strong_signals:
+        prev = already_sent.get(s.symbol)
+        if s.symbol in completed_syms:
+            # Pullback déclenché → toujours notifier
+            new_signals_to_send.append(s)
+        elif prev != s.signal:
+            # Nouveau signal ou inversion de direction
+            new_signals_to_send.append(s)
+        else:
+            logger.info(f"🔕 Signal {s.pair_name} {s.signal} déjà envoyé au scan précédent — ignoré.")
+
+    # Mettre à jour le fichier des signaux envoyés
+    for s in strong_signals:
+        already_sent[s.symbol] = s.signal
+    # Supprimer les anciens signaux qui ne sont plus actifs
+    active_syms = {s.symbol for s in strong_signals}
+    already_sent = {sym: sig for sym, sig in already_sent.items() if sym in active_syms}
+    try:
+        with open(sent_signals_file, "w", encoding="utf-8") as f:
+            json.dump(already_sent, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"Erreur sauvegarde sent_signals: {e}")
+
+    # ── 4. Envoi Telegram des signaux forts (uniquement les NOUVEAUX) ──────────
+    if new_signals_to_send:
+        logger.info(f"Envoi de {len(new_signals_to_send)} nouveaux signaux sur Telegram ({len(strong_signals) - len(new_signals_to_send)} doublons ignorés)...")
+        for s in new_signals_to_send:
             send_signal(s)
             time.sleep(0.5)
+    elif strong_signals:
+        logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés au scan précédent — pas de notification Telegram.")
     else:
         logger.info("Aucun signal fort ce scan.")
         # Heartbeat : confirme que le bot tourne même sans signal
