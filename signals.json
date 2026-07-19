@@ -1,16 +1,16 @@
 {
-  "last_update": "2026-07-19T21:11:54.065744+00:00",
+  "last_update": "2026-07-19T21:25:44.119461+00:00",
   "signals": [
     {
       "pair_name": "ether.fi (ETHFI)",
       "signal": "BUY",
       "current_price": "$0.449000",
-      "take_profit": "$0.452810",
+      "take_profit": "$0.452498",
       "stop_loss": "Aucun",
-      "confidence": 73,
-      "rsi": 37.0,
+      "confidence": 80,
+      "rsi": 38.7,
       "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
     }
   ]
 }
