@@ -252,7 +252,16 @@ def main():
         # Expiration (2h = 7200s)
         if time.time() - p["timestamp"] >= 7200:
             logger.info(f"⏳ Pullback expiré pour {p['pair_name']} {p['signal']}")
-            send_message(f"⏳ *Pullback expiré (Timeout 2h)*\nSignal {p['pair_name']} {p['signal']} annulé.", chat_id="375129602")
+            send_message(
+                f"⏰ *PULLBACK EXPIRÉ (Timeout 2h)*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🪙 *{p['pair_name']}* | {p['signal']} {'🟢' if p['signal'] == 'BUY' else '🔴'}\n"
+                f"💡 Confiance d'origine : {p['confidence']}%\n"
+                f"🎯 TP visé : `{p['take_profit']}`\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"❌ _Le prix n'est pas revenu dans la zone EMA20 en 2h — signal annulé._",
+                chat_id="375129602"
+            )
             continue
 
         # Invalidation par un nouveau signal inverse dans la passe actuelle
@@ -300,11 +309,18 @@ def main():
             if triggered:
                 logger.info(f"🎯 Pullback complété pour {p['pair_name']} {p['signal']} à {cur_price}")
                 send_message(
-                    f"📥 *Pullback validé - Exécution de l'ordre* 📥\n"
-                    f"Pair : *{p['pair_name']}* | Direction : *{p['signal']}*\n"
-                    f"Entrée au pullback : {cur_price:.5f} (EMA20: {ema20:.5f})\n"
-                    f"Confiance d'origine : {p['confidence']}%\n"
-                    f"TP : {p['take_profit']}",
+                    f"🎯 *PULLBACK ATTEINT — ENTRÉE EN COURS !* 🎯\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🪙 *{p['pair_name']}*\n"
+                    f"📊 Direction : *{p['signal']}* {'🟢' if p['signal'] == 'BUY' else '🔴'}\n"
+                    f"💡 Confiance IA : *{p['confidence']}%*\n"
+                    f"💰 Prix d'entrée : `{cur_price:.5f}`\n"
+                    f"📏 EMA20 : `{ema20:.5f}` | EMA50 : `{ema50:.5f}`\n"
+                    f"🎯 Take Profit : `{p['take_profit']}`\n"
+                    f"📈 RSI : `{p['rsi']}` | {p['macd_trend']}\n"
+                    f"🤖 Consensus : `{p['forecast_dir']}`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"✅ _Le prix est revenu en zone EMA20 — ordre en train d'être passé !_",
                     chat_id="375129602"
                 )
                 
@@ -374,10 +390,19 @@ def main():
                 active_pullbacks.append(new_p)
                 logger.info(f"⏳ Nouveau signal {s.pair_name} {s.signal} mis en attente de pullback")
                 send_message(
-                    f"⏳ *Signal détecté (En attente de Pullback)* ⏳\n"
-                    f"Pair : *{s.pair_name}* | Direction : *{s.signal}* (Confiance: {s.confidence}%)\n"
-                    f"Prix actuel : {s.current_price} (Trop étendu par rapport à l'EMA20)\n"
-                    f"Seuil d'entrée souhaité : <= +{limit_pct}% de l'EMA20 (EMA20 actuelle : {ema20_val:.5f})",
+                    f"⏳ *EN ATTENTE DE PULLBACK* ⏳\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🪙 *{s.pair_name}*\n"
+                    f"📊 Direction : *{s.signal}* {'🟢' if s.signal == 'BUY' else '🔴'}\n"
+                    f"💡 Confiance IA : *{s.confidence}%*\n"
+                    f"💰 Prix actuel : `{s.current_price}`\n"
+                    f"📏 EMA20 actuelle : `{ema20_val:.5f}`\n"
+                    f"⚠️ Prix trop étendu — attente d'un retour à <= {limit_pct}% de l'EMA20\n"
+                    f"🎯 Take Profit visé : `{s.take_profit}`\n"
+                    f"📈 RSI : `{s.rsi}` | {s.macd_trend}\n"
+                    f"🤖 Consensus : `{s.forecast_dir}`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"_Ordre déclenché automatiquement dès le pullback (max 2h)_",
                     chat_id="375129602"
                 )
         else:
