@@ -29,7 +29,7 @@ CRYPTO_PAIRS = [
     "BTC-USD",  "ETH-USD",  "BNB-USD",  "SOL-USD",  "XRP-USD",
     "ADA-USD",  "AVAX-USD", "LINK-USD", "DOT-USD",  "LTC-USD",
     "BCH-USD",  "NEAR-USD", "ICP-USD",  "TIA-USD",  "INJ-USD",
-    "AAVE-USD", "OP-USD",   "ARB11841-USD", "TON11419-USD", "SUI20947-USD",
+    "AAVE-USD", "OP-USD",   "ARB11841-USD", "PEPE-USD",     "SUI20947-USD",
     # 30 Altcoins Qualitatifs
     "APT21794-USD", "SEI-USD", "FET-USD", "RUNE-USD", "IMX10603-USD",
     "LDO-USD", "GRT6719-USD", "STX4847-USD", "JUP29210-USD", "EGLD-USD",
@@ -70,7 +70,7 @@ PAIR_NAMES = {
     "AAVE-USD":     "Aave (AAVE)",
     "OP-USD":       "Optimism (OP)",
     "ARB11841-USD": "Arbitrum (ARB)",
-    "TON11419-USD": "Toncoin (TON)",
+    "PEPE-USD":     "Pepe (PEPE)",
     "SUI20947-USD": "Sui (SUI)",
     # Altcoins
     "APT21794-USD": "Aptos (APT)",

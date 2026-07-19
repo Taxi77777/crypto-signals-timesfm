@@ -49,7 +49,7 @@ SYMBOL_MAP = {
     "AAVE-USD":     "AAVE_USDT",
     "OP-USD":       "OP_USDT",
     "ARB11841-USD": "ARB_USDT",
-    "TON11419-USD": "TON_USDT",
+    "PEPE-USD":      "PEPE_USDT",
     "SUI20947-USD": "SUI_USDT",
     # Altcoins
     "APT21794-USD": "APT_USDT",
