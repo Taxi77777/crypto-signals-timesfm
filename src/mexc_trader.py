@@ -462,6 +462,72 @@ def get_funding_rate(symbol_mexc: str) -> float | None:
     return None
 
 
+def get_cumulative_depth_ratio(symbol_mexc: str, mark_price: float, depth_pct: float = 0.015) -> float | None:
+    """
+    Récupère la profondeur de carnet (jusqu'à 100 niveaux) et calcule le ratio des volumes
+    Bids / Asks dans une zone de depth_pct (ex: 1.5%) autour du prix.
+    Retourne le ratio Bids/Asks, ou None si erreur.
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=100", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            depth = data.get("data", {})
+            bids = depth.get("bids", [])
+            asks = depth.get("asks", [])
+            
+            if not bids or not asks:
+                return None
+            
+            min_bid_price = mark_price * (1 - depth_pct)
+            max_ask_price = mark_price * (1 + depth_pct)
+            
+            sum_bids = sum(float(b[1]) for b in bids if float(b[0]) >= min_bid_price)
+            sum_asks = sum(float(a[1]) for a in asks if float(a[0]) <= max_ask_price)
+            
+            if sum_asks == 0.0:
+                return 999.0 if sum_bids > 0 else 1.0
+            
+            ratio = sum_bids / sum_asks
+            return round(ratio, 2)
+    except Exception as e:
+        logger.error(f"Erreur calcul cumulative depth pour {symbol_mexc}: {e}")
+    return None
+
+
+def get_recent_cvd_ratio(symbol_mexc: str) -> float | None:
+    """
+    Récupère les 100 dernières transactions (deals) et calcule le ratio Volume Achat / Volume Vente.
+    Retourne le ratio (ex: 1.5 = +50% volume acheteur agressif), ou None si erreur.
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/deals/{symbol_mexc}?limit=100", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            deals = data.get("data", [])
+            if not deals:
+                return None
+            
+            buy_vol = 0.0
+            sell_vol = 0.0
+            for trade in deals:
+                vol = float(trade.get("v", 0.0))
+                side = int(trade.get("T", 0))
+                if side == 1:     # Buy / Long taker
+                    buy_vol += vol
+                elif side == 2:   # Sell / Short taker
+                    sell_vol += vol
+            
+            if sell_vol == 0.0:
+                return 999.0 if buy_vol > 0 else 1.0
+            
+            ratio = buy_vol / sell_vol
+            return round(ratio, 2)
+    except Exception as e:
+        logger.error(f"Erreur calcul CVD pour {symbol_mexc}: {e}")
+    return None
+
+
 def place_order(
     api_key:    str,
     secret_key: str,

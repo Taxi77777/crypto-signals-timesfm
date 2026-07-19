@@ -468,6 +468,42 @@ def main():
                         send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.", chat_id="375129602")
                         signal_valid = False
 
+                # Vérification Cumulative Depth et CVD
+                if signal_valid:
+                    from src.mexc_trader import get_cumulative_depth_ratio, get_recent_cvd_ratio, get_current_price
+                    # Obtenir le prix live pour estimer les zones de murs d'ordres
+                    mexc_price = get_current_price(symbol_mexc)
+                    if mexc_price <= 0:
+                        mexc_price = raw_prices.get(best.symbol, 0)
+                    
+                    if mexc_price > 0:
+                        # 1. Vérification Profondeur Cumulative (Murs d'ordres à 1.5%)
+                        depth_ratio = get_cumulative_depth_ratio(symbol_mexc, mexc_price, depth_pct=0.015)
+                        if depth_ratio is not None:
+                            logger.info(f"🧱 Profondeur cumulative {symbol_mexc} | Ratio Bids/Asks (1.5%): {depth_ratio}")
+                            if best.signal == "BUY" and depth_ratio < 1.2:
+                                logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} < 1.2) -> Blocage achat (murs de vente trop forts).")
+                                send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nMurs de vente trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})", chat_id="375129602")
+                                signal_valid = False
+                            elif best.signal == "SELL" and depth_ratio > 0.8:
+                                logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} > 0.8) -> Blocage vente (murs d'achat trop forts).")
+                                send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nMurs d'achat trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})", chat_id="375129602")
+                                signal_valid = False
+                        
+                        # 2. Vérification CVD (Flux d'ordres sur les 100 dernières transactions)
+                        if signal_valid:
+                            cvd_ratio = get_recent_cvd_ratio(symbol_mexc)
+                            if cvd_ratio is not None:
+                                logger.info(f"📊 CVD Transactions {symbol_mexc} | Ratio Volume Achat/Vente (100 trades): {cvd_ratio}")
+                                if best.signal == "BUY" and cvd_ratio < 1.15:
+                                    logger.info(f"❌ CVD défavorable ({cvd_ratio} < 1.15) -> Blocage achat (flux vendeur domine).")
+                                    send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFlux d'achat agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})", chat_id="375129602")
+                                    signal_valid = False
+                                elif best.signal == "SELL" and cvd_ratio > 0.85:
+                                    logger.info(f"❌ CVD défavorable ({cvd_ratio} > 0.85) -> Blocage vente (flux acheteur domine).")
+                                    send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFlux de vente agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})", chat_id="375129602")
+                                    signal_valid = False
+
                 if signal_valid:
                     raw_price = raw_prices.get(best.symbol, 0)
                     
