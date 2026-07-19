@@ -297,6 +297,18 @@ def generate_signal(
             
         logger.info(f"🎯 TP Adaptatif choisi pour {symbol} : {tp_mult_factor}x ATR ({tp_desc})")
         
+        # FILTRE D'EXTENSION EMA20 (Structure du Chart)
+        # Évite d'acheter ou de vendre si le prix s'est déjà trop éloigné de la moyenne (EMA20 5m).
+        if ema20 and ema20 > 0:
+            extension_pct = (current_price - ema20) / ema20 * 100
+            limit_pct = getattr(config, "MAX_EMA_EXTENSION_PCT", 1.2)
+            if signal == "BUY" and extension_pct > limit_pct:
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop haut par rapport à EMA20 5m : +{extension_pct:.2f}% > {limit_pct}%) -> Signal BUY annulé")
+                return None
+            if signal == "SELL" and extension_pct < -limit_pct:
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop bas par rapport à EMA20 5m : {extension_pct:.2f}% < -{limit_pct}%) -> Signal SELL annulé")
+                return None
+
         if signal == "BUY":
             tp_mult = 1 + (atr * tp_mult_factor / current_price)
             sl_mult = 1 - (atr * 3.0 / current_price)

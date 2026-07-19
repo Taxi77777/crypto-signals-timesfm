@@ -21,6 +21,7 @@ DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "5m")
 DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
+MAX_EMA_EXTENSION_PCT    = 1.2     # Écart max toléré avec EMA20 5m (%)
 
 # ── Cryptos surveillées (50 cryptos qualitatives et liquides) ──────────────────
 CRYPTO_PAIRS = [
