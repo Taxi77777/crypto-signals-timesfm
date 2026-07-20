@@ -74,9 +74,9 @@ def _majority_consensus(dirs: dict) -> tuple:
     buys = list(avail.values()).count("BUY")
     sells = list(avail.values()).count("SELL")
     
-    if buys >= 3:
+    if buys >= 4:
         return ("BUY", n, True)
-    if sells >= 3:
+    if sells >= 4:
         return ("SELL", n, True)
         
     return ("HOLD", n, False)
