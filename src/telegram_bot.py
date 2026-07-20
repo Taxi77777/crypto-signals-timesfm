@@ -29,7 +29,7 @@ def format_signal_message(signal: TradingSignal) -> str:
 
     walls_part = ""
     if getattr(config, "ENABLE_WALLS_IN_SIGNAL", True) and signal.orderbook_walls != "N/A":
-        walls_part = f"🧱 Carnet d'ordres (1.5%) :\n{signal.orderbook_walls}\n"
+        walls_part = f"🧱 *Murs dans ±1.5% du prix :*\n{signal.orderbook_walls}\n"
 
     return (
         f"🤖 *CRYPTO SIGNAL — {signal.pair_name}* 🚨 *SIGNAL FORT*\n"

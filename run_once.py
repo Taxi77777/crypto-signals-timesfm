@@ -568,9 +568,9 @@ def main():
                         w_ask = walls.get("largest_ask")
                         walls_str = ""
                         if w_bid:
-                            walls_str += f"🟢 *Plus gros support (1.5%) :* `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
+                            walls_str += f"🟢 *Mur ACHAT (support ±1.5%) :* `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
                         if w_ask:
-                            walls_str += f"🔴 *Plus gros mur (1.5%) :* `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`"
+                            walls_str += f"🔴 *Mur VENTE (résistance ±1.5%) :* `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`"
                         if walls_str:
                             s.orderbook_walls = walls_str.strip()
             except Exception as e:
@@ -669,11 +669,11 @@ def main():
                             w_bid = walls.get("largest_bid")
                             w_ask = walls.get("largest_ask")
                             name = heartbeat_name.get(sym, sym.replace("-USD", "").replace("10603", ""))
-                            majors_walls += f"\n*🧱 {name} (1.5%) :*\n"
+                            majors_walls += f"\n*🧱 {name} — Murs dans ±1.5% du prix :*\n"
                             if w_bid:
-                                majors_walls += f"  🟢 Support: `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
+                                majors_walls += f"  🟢 Mur ACHAT (support) : `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
                             if w_ask:
-                                majors_walls += f"  🔴 Résistance: `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`\n"
+                                majors_walls += f"  🔴 Mur VENTE (résistance) : `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`\n"
                 except Exception as e:
                     logger.error(f"Erreur heartbeat walls {sym}: {e}")
 
