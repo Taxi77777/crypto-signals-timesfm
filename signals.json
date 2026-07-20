@@ -1,60 +1,49 @@
 {
-  "last_update": "2026-07-20T12:44:43.842305+00:00",
+  "last_update": "2026-07-20T13:07:05.178400+00:00",
   "signals": [
     {
-      "pair_name": "Starknet (STRK)",
+      "pair_name": "Jupiter (JUP)",
       "signal": "BUY",
-      "current_price": "$0.028371",
-      "take_profit": "$0.029206",
+      "current_price": "$0.195200",
+      "take_profit": "$0.197145",
       "stop_loss": "Aucun",
-      "confidence": 93,
-      "rsi": 48.6,
-      "macd_trend": "Neutre ⚪",
+      "confidence": 88,
+      "rsi": 33.9,
+      "macd_trend": "Baissier 🔴",
       "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Aptos (APT)",
+      "signal": "SELL",
+      "current_price": "$0.590700",
+      "take_profit": "$0.587313",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 54.0,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
     },
     {
       "pair_name": "Loopring (LRC)",
       "signal": "SELL",
-      "current_price": "$0.012500",
-      "take_profit": "$0.012309",
+      "current_price": "$0.012700",
+      "take_profit": "$0.012242",
       "stop_loss": "Aucun",
       "confidence": 77,
-      "rsi": 75.0,
+      "rsi": 68.6,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:BUY"
-    },
-    {
-      "pair_name": "Polkadot (DOT)",
-      "signal": "SELL",
-      "current_price": "$0.814000",
-      "take_profit": "$0.810047",
-      "stop_loss": "Aucun",
-      "confidence": 73,
-      "rsi": 61.1,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
     },
     {
       "pair_name": "Uniswap (UNI)",
       "signal": "SELL",
-      "current_price": "$3.4950",
-      "take_profit": "$3.4569",
+      "current_price": "$3.4970",
+      "take_profit": "$3.4711",
       "stop_loss": "Aucun",
       "confidence": 72,
-      "rsi": 55.3,
+      "rsi": 55.2,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Celestia (TIA)",
-      "signal": "SELL",
-      "current_price": "$0.363400",
-      "take_profit": "$0.360958",
-      "stop_loss": "Aucun",
-      "confidence": 70,
-      "rsi": 56.5,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]
 }
