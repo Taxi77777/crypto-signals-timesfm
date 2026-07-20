@@ -691,7 +691,8 @@ def main():
             return "  —"
         lines = []
         for ratio, name, bid, ask in lst:
-            lines.append(f"  *{name}* ({ratio}) → 🎯 Entrée: `{bid}` | TP: `{ask}`")
+            # Plus d'acheteurs → pullback au mur ACHAT (bas) → monter vers mur VENTE (haut)
+            lines.append(f"  📈 *{name}* (x{ratio}) | Attends pullback à `{bid}` → vise `{ask}`")
         return "\n".join(lines)
 
     def _fmt_sellers(lst):
@@ -699,7 +700,8 @@ def main():
             return "  —"
         lines = []
         for ratio, name, bid, ask in lst:
-            lines.append(f"  *{name}* ({ratio}) → 🎯 Entrée: `{ask}` | TP: `{bid}`")
+            # Plus de vendeurs → pullback au mur VENTE (haut) → descendre vers mur ACHAT (bas)
+            lines.append(f"  📉 *{name}* (x{ratio}) | Attends pullback à `{ask}` → vise `{bid}`")
         return "\n".join(lines)
 
     def _fmt_balanced(lst):
@@ -711,8 +713,8 @@ def main():
         f"📊 *Pression Orderbook — Toutes cryptos (±1.5%)*\n"
         f"🕐 Scan toutes les 5 min\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🟢 *Acheteurs dominent ({len(buyers_list)}) — LONG :*\n{_fmt_buyers(buyers_list)}\n\n"
-        f"🔴 *Vendeurs dominent ({len(sellers_list)}) — SHORT :*\n{_fmt_sellers(sellers_list)}\n\n"
+        f"🟢 *Plus d'ACHETEURS ({len(buyers_list)}) — cherche le BAS :*\n{_fmt_buyers(buyers_list)}\n\n"
+        f"🔴 *Plus de VENDEURS ({len(sellers_list)}) — cherche le HAUT :*\n{_fmt_sellers(sellers_list)}\n\n"
         f"⚖️ *Équilibré ({len(balanced_list)}) :*\n{_fmt_balanced(balanced_list)}\n"
         f"_Prochain scan dans 5 min_",
         chat_id="375129602"
