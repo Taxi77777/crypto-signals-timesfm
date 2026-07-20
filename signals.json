@@ -1,4 +1,16 @@
 {
-  "last_update": "2026-07-20T16:34:22.103667+00:00",
-  "signals": []
+  "last_update": "2026-07-20T16:45:18.570897+00:00",
+  "signals": [
+    {
+      "pair_name": "Manta Network (MANTA)",
+      "signal": "BUY",
+      "current_price": "$0.064871",
+      "take_profit": "$0.065317",
+      "stop_loss": "Aucun",
+      "confidence": 95,
+      "rsi": 33.2,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    }
+  ]
 }
