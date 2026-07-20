@@ -649,17 +649,19 @@ def main():
         else:
             # Calculer combien de nouveaux trades on peut ouvrir (maximum 2 en tout)
             slots_available = max(0, 2 - open_count)
-            trades_to_open = tradables[:slots_available]
             
             # Ajuster le pourcentage de marge en fonction du nombre de slots ouverts
-            # Si 0 positions actives et on ouvre 2 trades d'un coup, chacun prend 45% de la balance (total 90%).
-            # Si 1 position active et on ouvre 1 nouveau trade, il prend 90% de la balance restante.
-            if open_count == 0 and len(trades_to_open) >= 2:
+            # Si 0 positions actives et on a plusieurs opportunités, chacun prend 45% (total 90%).
+            if open_count == 0 and len(tradables) >= 2:
                 margin_pct_per_trade = 0.45
             else:
                 margin_pct_per_trade = 0.90
                 
-            for idx, best in enumerate(trades_to_open):
+            opened_trades_count = 0
+            for idx, best in enumerate(tradables):
+                if opened_trades_count >= slots_available:
+                    logger.info(f"Slots de trading remplis ({opened_trades_count}/{slots_available}). Fin du traitement.")
+                    break
                 logger.info(f"→ Traitement du signal #{idx+1} : {best.pair_name} {best.signal} {best.confidence}%")
                 symbol_mexc = SYMBOL_MAP.get(best.symbol)
                 
@@ -765,6 +767,7 @@ def main():
                     if result and result.get("success"):
                         send_message(format_order_telegram(result, best), chat_id="375129602")
                         logger.info(f"✅ Ordre MEXC Futures pour {best.pair_name} ouvert et notifié !")
+                        opened_trades_count += 1
                         time.sleep(0.5)
                     else:
                         err = result.get("error", "Inconnue") if result else "Réponse MEXC vide"
