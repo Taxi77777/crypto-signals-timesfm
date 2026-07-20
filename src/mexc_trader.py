@@ -687,6 +687,16 @@ def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.
     Retourne un dictionnaire avec les détails des deux murs (en USDT et prix).
     """
     try:
+        # Récupérer le contractSize pour calculer la vraie valeur en USDT (ex: 0.0001 BTC pour 1 contrat BTC)
+        contract_size = 1.0
+        try:
+            r_detail = requests.get(f"{MEXC_BASE}/api/v1/contract/detail?symbol={symbol_mexc}", timeout=5)
+            data_detail = r_detail.json()
+            if data_detail.get("success"):
+                contract_size = float(data_detail.get("data", {}).get("contractSize", 1.0))
+        except Exception as e:
+            logger.error(f"Erreur contractSize pour {symbol_mexc}: {e}")
+
         r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=100", timeout=10)
         data = r.json()
         if data.get("success"):
@@ -700,12 +710,12 @@ def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.
             min_bid_price = mark_price * (1 - depth_pct)
             max_ask_price = mark_price * (1 + depth_pct)
             
-            # Filtrer et trier les bids par valeur USDT (price * size)
+            # Filtrer et trier les bids par valeur USDT (price * size * contractSize)
             valid_bids = []
             for b in bids:
                 p = float(b[0])
                 s = float(b[1])
-                val_usdt = p * s
+                val_usdt = p * s * contract_size
                 if p >= min_bid_price:
                     valid_bids.append({"price": p, "size": s, "val_usdt": val_usdt})
             
@@ -714,7 +724,7 @@ def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.
             for a in asks:
                 p = float(a[0])
                 s = float(a[1])
-                val_usdt = p * s
+                val_usdt = p * s * contract_size
                 if p <= max_ask_price:
                     valid_asks.append({"price": p, "size": s, "val_usdt": val_usdt})
             
