@@ -657,6 +657,11 @@ def main():
             else:
                 margin_pct_per_trade = 0.90
                 
+            # Initialiser le filtre DefiLlama
+            from src.defillama_filter import DefiLlamaFilter
+            tvl_filter = DefiLlamaFilter()
+            tvl_filter.initialize()
+
             opened_trades_count = 0
             for idx, best in enumerate(tradables):
                 if opened_trades_count >= slots_available:
@@ -667,7 +672,17 @@ def main():
                 
                 # Vérification OBI et Funding pour ce signal spécifique
                 signal_valid = True
-                imbalance = get_order_book_imbalance(symbol_mexc)
+
+                # Vérification TVL DefiLlama
+                is_allowed, tvl_reason = tvl_filter.check_tvl_guard(best.symbol, best.signal)
+                logger.info(f"📊 DefiLlama TVL Guard | {best.pair_name} : {tvl_reason}")
+                if not is_allowed:
+                    logger.info(f"❌ Signal {best.pair_name} bloqué par TVL Guard.")
+                    send_message(f"⚠️ *Signal {best.pair_name} {best.signal} bloqué*\n{tvl_reason}", chat_id="375129602")
+                    signal_valid = False
+
+                if signal_valid:
+                    imbalance = get_order_book_imbalance(symbol_mexc)
                 if imbalance is not None:
                     logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
                     if best.signal == "BUY" and imbalance < -0.2:
