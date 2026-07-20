@@ -110,7 +110,6 @@ SYMBOL_MAP = {
     "JST-USD":      "JST_USDT",
     "KSM-USD":      "KSM_USDT",
     "AUDIO-USD":    "AUDIO_USDT",
-    "SKL-USD":      "SKL_USDT",
     "CTSI-USD":     "CTSI_USDT",
     "LPT-USD":      "LPT_USDT",
     "CELR-USD":     "CELR_USDT",
