@@ -650,40 +650,43 @@ def main():
         logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés au scan précédent — pas de notification Telegram.")
     else:
         logger.info("Aucun signal fort ce scan.")
-        # Heartbeat : confirme que le bot tourne même sans signal
-        # Mapping des symboles heartbeat → nom propre pour Telegram
-        heartbeat_name = {
-            "BTC-USD": "BTC", "ETH-USD": "ETH", "SOL-USD": "SOL",
-            "IMX10603-USD": "IMX"
-        }
         from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
-        majors_walls = ""
-        for sym in ["BTC-USD", "ETH-USD", "SOL-USD", "IMX10603-USD"]:
-            symbol_mexc = SYMBOL_MAP.get(sym)
-            if symbol_mexc:
-                try:
-                    price = get_current_price(symbol_mexc)
-                    if price > 0:
-                        ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
-                        if ratio is not None:
-                            name = heartbeat_name.get(sym, sym.replace("-USD", "").replace("10603", ""))
-                            if ratio >= 1.2:
-                                label = f"🟢 *Acheteurs dominent* (ratio {ratio})"
-                            elif ratio <= 0.8:
-                                label = f"🔴 *Vendeurs dominent* (ratio {ratio})"
-                            else:
-                                label = f"⚖️ *Équilibré* (ratio {ratio})"
-                            majors_walls += f"  *{name}* : {label}\n"
-                except Exception as e:
-                    logger.error(f"Erreur heartbeat ratio {sym}: {e}")
+        import re as _re
+
+        # Nom propre : retire les chiffres CoinGecko (ex: IMX10603 → IMX)
+        def _clean_name(sym):
+            return _re.sub(r'\d+', '', sym.replace("-USD", ""))
+
+        buyers_list, sellers_list, balanced_list = [], [], []
+
+        for sym, symbol_mexc in SYMBOL_MAP.items():
+            try:
+                price = get_current_price(symbol_mexc)
+                if price > 0:
+                    ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
+                    if ratio is not None:
+                        name = _clean_name(sym)
+                        entry = f"{name}({ratio})"
+                        if ratio >= 1.2:
+                            buyers_list.append(entry)
+                        elif ratio <= 0.8:
+                            sellers_list.append(entry)
+                        else:
+                            balanced_list.append(entry)
+                time.sleep(0.15)  # anti rate-limit MEXC
+            except Exception as e:
+                logger.error(f"Erreur heartbeat ratio {sym}: {e}")
+
+        def _fmt_group(lst):
+            return "  " + " | ".join(lst) if lst else "  —"
 
         send_message(
-            f"🔍 *Scan Crypto terminé*\n"
+            f"🔍 *Scan Crypto terminé — Pression Orderbook (±1.5%)*\n"
             f"📊 {len(all_data)} cryptos scannées | {len(ind_map)} analysées\n"
-            f"🤖 {len(signals)} pré-signaux, 0 signal fort\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"📊 *Pression acheteurs/vendeurs (±1.5%) :*\n"
-            f"{majors_walls}"
+            f"🟢 *Acheteurs dominent ({len(buyers_list)}) :*\n{_fmt_group(buyers_list)}\n\n"
+            f"🔴 *Vendeurs dominent ({len(sellers_list)}) :*\n{_fmt_group(sellers_list)}\n\n"
+            f"⚖️ *Équilibré ({len(balanced_list)}) :*\n{_fmt_group(balanced_list)}\n"
             f"_Prochain scan dans 5 min_",
             chat_id="375129602"
         )
