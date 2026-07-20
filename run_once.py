@@ -550,6 +550,32 @@ def main():
     strong_signals = filtered_strong_signals
     strong_signals.sort(key=lambda s: s.confidence, reverse=True)
 
+    # Peupler les gros murs de carnet d'ordres pour les signaux validés
+    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_largest_walls
+    for s in strong_signals:
+        symbol_mexc = SYMBOL_MAP.get(s.symbol)
+        if symbol_mexc:
+            try:
+                # Obtenir le prix live
+                mexc_price = get_current_price(symbol_mexc)
+                if mexc_price <= 0:
+                    mexc_price = float(raw_prices.get(s.symbol, 0))
+                
+                if mexc_price > 0:
+                    walls = get_largest_walls(symbol_mexc, mexc_price, depth_pct=0.015)
+                    if walls:
+                        w_bid = walls.get("largest_bid")
+                        w_ask = walls.get("largest_ask")
+                        walls_str = ""
+                        if w_bid:
+                            walls_str += f"🟢 *Plus gros support (1.5%) :* `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
+                        if w_ask:
+                            walls_str += f"🔴 *Plus gros mur (1.5%) :* `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`"
+                        if walls_str:
+                            s.orderbook_walls = walls_str.strip()
+            except Exception as e:
+                logger.error(f"Erreur calcul murs pour signal {s.symbol}: {e}")
+
     # ── 3. Export JSON ────────────────────────────────────────────────────────
     web_data = {
         "last_update": datetime.now(timezone.utc).isoformat(),
@@ -565,7 +591,8 @@ def main():
                 "macd_trend":    s.macd_trend,
                 "forecast_dir":  s.forecast_dir,
                 "smc_zone":      s.smc_zone,
-                "is_ote":        s.is_ote
+                "is_ote":        s.is_ote,
+                "orderbook_walls": s.orderbook_walls
             }
             for s in strong_signals
         ]

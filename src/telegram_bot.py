@@ -43,6 +43,7 @@ def format_signal_message(signal: TradingSignal) -> str:
         f"Bollinger  : {signal.bb_position}\n"
         f"🎯 Zone SMC : *{signal.smc_zone}*\n"
         f"⚡ Confluence OTE : *{'Oui (61.8%-79%)' if signal.is_ote else 'Non'}*\n"
+        f"🧱 Carnet d'ordres (1.5%) :\n{signal.orderbook_walls}\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🕐 {time_str} (Paris)\n"
         f"⚠️ _Usage éducatif uniquement_"

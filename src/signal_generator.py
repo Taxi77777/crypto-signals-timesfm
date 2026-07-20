@@ -400,6 +400,7 @@ def generate_signal(
             is_extended   = is_extended,
             smc_zone      = smc_zone,
             is_ote        = is_ote,
+            orderbook_walls = "N/A",
         )
 
     except Exception as e:
