@@ -303,12 +303,24 @@ def generate_signal(
         is_extended = False
         if ema20 and ema20 > 0:
             extension_pct = (current_price - ema20) / ema20 * 100
-            limit_pct = getattr(config, "MAX_EMA_EXTENSION_PCT", 0.5)
+            
+            # Limite d'extension EMA20 adaptative selon la volatilité de la crypto
+            clean_sym = symbol.replace("-USD", "").upper()
+            # 1. Memecoins et Ultra-volatiles
+            if any(m in clean_sym for m in ["PEPE", "SHIB", "FLOKI", "WIF", "BONK", "DOGE"]):
+                limit_pct = 0.45
+            # 2. Majors peu volatiles
+            elif any(maj in clean_sym for maj in ["BTC", "ETH"]):
+                limit_pct = 0.10
+            # 3. Altcoins standards
+            else:
+                limit_pct = 0.25
+                
             if signal == "BUY" and extension_pct > limit_pct:
-                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop haut par rapport à EMA20 5m : +{extension_pct:.2f}% > {limit_pct}%) -> Signal BUY marqué comme étendu (en attente de pullback)")
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop haut par rapport à EMA20 : +{extension_pct:.2f}% > {limit_pct}%) -> Signal BUY marqué comme étendu (en attente de pullback)")
                 is_extended = True
             elif signal == "SELL" and extension_pct < -limit_pct:
-                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop bas par rapport à EMA20 5m : {extension_pct:.2f}% < -{limit_pct}%) -> Signal SELL marqué comme étendu (en attente de pullback)")
+                logger.info(f"⏳ Filtre Extension actif sur {symbol} (Prix trop bas par rapport à EMA20 : {extension_pct:.2f}% < -{limit_pct}%) -> Signal SELL marqué comme étendu (en attente de pullback)")
                 is_extended = True
 
         if signal == "BUY":
