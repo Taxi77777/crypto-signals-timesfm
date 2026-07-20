@@ -22,6 +22,8 @@ DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 75      # Seuil signal fort (%)
 MAX_EMA_EXTENSION_PCT    = 0.0     # Écart max toléré avec EMA20 5m (%) (0.0 = Forcer le pullback strict)
+ENABLE_WALLS_IN_SIGNAL   = True    # Affiche temporairement les gros murs de carnet d'ordres dans les signaux Telegram
+
 
 # ── Guards de Marché (Filtres de Tendance) ───────────────────────────────────
 ENABLE_BTC_GUARD         = False   # Bloque les Altcoins BUY si le BTC 1H est baissier, SELL si le BTC est haussier (Désactivé pour avoir plus de signaux)

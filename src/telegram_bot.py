@@ -27,6 +27,10 @@ def format_signal_message(signal: TradingSignal) -> str:
     tp_sign   = "+" if signal.signal == "BUY" else "-"
     sl_sign   = "-" if signal.signal == "BUY" else "+"
 
+    walls_part = ""
+    if getattr(config, "ENABLE_WALLS_IN_SIGNAL", True) and signal.orderbook_walls != "N/A":
+        walls_part = f"🧱 Carnet d'ordres (1.5%) :\n{signal.orderbook_walls}\n"
+
     return (
         f"🤖 *CRYPTO SIGNAL — {signal.pair_name}* 🚨 *SIGNAL FORT*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -43,7 +47,7 @@ def format_signal_message(signal: TradingSignal) -> str:
         f"Bollinger  : {signal.bb_position}\n"
         f"🎯 Zone SMC : *{signal.smc_zone}*\n"
         f"⚡ Confluence OTE : *{'Oui (61.8%-79%)' if signal.is_ote else 'Non'}*\n"
-        f"🧱 Carnet d'ordres (1.5%) :\n{signal.orderbook_walls}\n"
+        f"{walls_part}"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🕐 {time_str} (Paris)\n"
         f"⚠️ _Usage éducatif uniquement_"
