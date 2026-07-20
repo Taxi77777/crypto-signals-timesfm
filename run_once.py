@@ -651,9 +651,14 @@ def main():
     else:
         logger.info("Aucun signal fort ce scan.")
         # Heartbeat : confirme que le bot tourne même sans signal
+        # Mapping des symboles heartbeat → nom propre pour Telegram
+        heartbeat_name = {
+            "BTC-USD": "BTC", "ETH-USD": "ETH", "SOL-USD": "SOL",
+            "IMX10603-USD": "IMX"
+        }
         from src.mexc_trader import SYMBOL_MAP, get_current_price, get_largest_walls
         majors_walls = ""
-        for sym in ["BTC-USD", "ETH-USD", "SOL-USD"]:
+        for sym in ["BTC-USD", "ETH-USD", "SOL-USD", "IMX10603-USD"]:
             symbol_mexc = SYMBOL_MAP.get(sym)
             if symbol_mexc:
                 try:
@@ -663,7 +668,7 @@ def main():
                         if walls:
                             w_bid = walls.get("largest_bid")
                             w_ask = walls.get("largest_ask")
-                            name = sym.replace("-USD", "")
+                            name = heartbeat_name.get(sym, sym.replace("-USD", "").replace("10603", ""))
                             majors_walls += f"\n*🧱 {name} (1.5%) :*\n"
                             if w_bid:
                                 majors_walls += f"  🟢 Support: `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
