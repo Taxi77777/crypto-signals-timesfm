@@ -650,52 +650,50 @@ def main():
         logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés au scan précédent — pas de notification Telegram.")
     else:
         logger.info("Aucun signal fort ce scan.")
-        from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
-        import re as _re
 
-        # Nom propre : retire les chiffres CoinGecko (ex: IMX10603 → IMX)
-        def _clean_name(sym):
-            return _re.sub(r'\d+', '', sym.replace("-USD", ""))
+    # ── Rapport Orderbook permanent : envoyé à CHAQUE scan (toutes les 5 min) ──
+    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
+    import re as _re
 
-        buyers_list, sellers_list, balanced_list = [], [], []
+    def _clean_name(sym):
+        return _re.sub(r'\d+', '', sym.replace("-USD", ""))
 
-        for sym, symbol_mexc in SYMBOL_MAP.items():
-            try:
-                price = get_current_price(symbol_mexc)
-                if price > 0:
-                    ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
-                    if ratio is not None:
-                        name = _clean_name(sym)
-                        if ratio >= 1.2:
-                            buyers_list.append((ratio, name))
-                        elif ratio <= 0.8:
-                            sellers_list.append((ratio, name))
-                        else:
-                            balanced_list.append((ratio, name))
-                time.sleep(0.15)  # anti rate-limit MEXC
-            except Exception as e:
-                logger.error(f"Erreur heartbeat ratio {sym}: {e}")
+    buyers_list, sellers_list, balanced_list = [], [], []
 
-        # 🟢 Acheteurs : du plus fort au plus faible (décroissant)
-        buyers_list.sort(key=lambda x: x[0], reverse=True)
-        # 🔴 Vendeurs : du plus fort vendeur au plus faible (croissant)
-        sellers_list.sort(key=lambda x: x[0])
-        # ⚖️ Équilibré : par ratio décroissant
-        balanced_list.sort(key=lambda x: x[0], reverse=True)
+    for sym, symbol_mexc in SYMBOL_MAP.items():
+        try:
+            price = get_current_price(symbol_mexc)
+            if price > 0:
+                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
+                if ratio is not None:
+                    name = _clean_name(sym)
+                    if ratio >= 1.2:
+                        buyers_list.append((ratio, name))
+                    elif ratio <= 0.8:
+                        sellers_list.append((ratio, name))
+                    else:
+                        balanced_list.append((ratio, name))
+            time.sleep(0.15)  # anti rate-limit MEXC
+        except Exception as e:
+            logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
-        def _fmt_group(lst):
-            return "  " + " | ".join(f"{name}({ratio})" for ratio, name in lst) if lst else "  —"
+    buyers_list.sort(key=lambda x: x[0], reverse=True)   # plus fort acheteur en 1er
+    sellers_list.sort(key=lambda x: x[0])                 # plus fort vendeur en 1er
+    balanced_list.sort(key=lambda x: x[0], reverse=True)
 
-        send_message(
-            f"🔍 *Scan Crypto terminé — Pression Orderbook (±1.5%)*\n"
-            f"📊 {len(all_data)} cryptos scannées | {len(ind_map)} analysées\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🟢 *Acheteurs dominent ({len(buyers_list)}) :*\n{_fmt_group(buyers_list)}\n\n"
-            f"🔴 *Vendeurs dominent ({len(sellers_list)}) :*\n{_fmt_group(sellers_list)}\n\n"
-            f"⚖️ *Équilibré ({len(balanced_list)}) :*\n{_fmt_group(balanced_list)}\n"
-            f"_Prochain scan dans 5 min_",
-            chat_id="375129602"
-        )
+    def _fmt_group(lst):
+        return "  " + " | ".join(f"{name}({ratio})" for ratio, name in lst) if lst else "  —"
+
+    send_message(
+        f"📊 *Pression Orderbook — Toutes cryptos (±1.5%)*\n"
+        f"🕐 Scan toutes les 5 min\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🟢 *Acheteurs dominent ({len(buyers_list)}) :*\n{_fmt_group(buyers_list)}\n\n"
+        f"🔴 *Vendeurs dominent ({len(sellers_list)}) :*\n{_fmt_group(sellers_list)}\n\n"
+        f"⚖️ *Équilibré ({len(balanced_list)}) :*\n{_fmt_group(balanced_list)}\n"
+        f"_Prochain scan dans 5 min_",
+        chat_id="375129602"
+    )
 
     # ── 5. Auto-trading MEXC Futures : jusqu'à 2 trades simultanés ──────────
     if use_mexc and trade_allowed and strong_signals:
