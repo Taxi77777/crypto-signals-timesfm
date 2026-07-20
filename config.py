@@ -21,14 +21,14 @@ DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "5m")
 DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
-MAX_EMA_EXTENSION_PCT    = 0.5     # Écart max toléré avec EMA20 5m (%) (Évite d'acheter les breakouts sur-étendus)
+MAX_EMA_EXTENSION_PCT    = 0.0     # Écart max toléré avec EMA20 5m (%) (0.0 = Forcer le pullback strict)
 
 # ── Guards de Marché (Filtres de Tendance) ───────────────────────────────────
 ENABLE_BTC_GUARD         = False   # Bloque les Altcoins BUY si le BTC 1H est baissier, SELL si le BTC est haussier (Désactivé pour avoir plus de signaux)
 ENABLE_DXY_GUARD         = False   # Bloque les BUY si le Dollar Index est haussier (désactivé car très restrictif)
 ENABLE_NASDAQ_GUARD      = False   # Bloque les BUY si le Nasdaq est baissier (désactivé car très restrictif)
 ENABLE_ETH_BTC_GUARD     = False   # Bloque les Altcoins BUY si la force relative des Altcoins (ETH/BTC) est faible (Désactivé pour avoir plus de signaux)
-ENABLE_MTF_FILTER        = False   # Bloque les BUY 5m si la tendance 1H (EMA/Supertrend) est baissière (Désactivé pour avoir plus de signaux)
+ENABLE_MTF_FILTER        = True    # Bloque les BUY 5m si la tendance 1H (EMA/Supertrend) est baissière (Activé pour suivre la tendance de fond)
 
 # ── Cryptos surveillées (100 cryptos qualitatives et liquides) ──────────────────
 CRYPTO_PAIRS = [
