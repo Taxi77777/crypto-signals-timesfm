@@ -1,27 +1,16 @@
 {
-  "last_update": "2026-07-20T16:57:11.232908+00:00",
+  "last_update": "2026-07-20T17:06:04.511126+00:00",
   "signals": [
     {
-      "pair_name": "MultiversX (EGLD)",
+      "pair_name": "SKALE (SKL)",
       "signal": "SELL",
-      "current_price": "$3.1500",
-      "take_profit": "$3.1271",
+      "current_price": "$0.004000",
+      "take_profit": "$0.003939",
       "stop_loss": "Aucun",
-      "confidence": 87,
-      "rsi": 57.2,
+      "confidence": 75,
+      "rsi": 56.8,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Manta Network (MANTA)",
-      "signal": "BUY",
-      "current_price": "$0.064845",
-      "take_profit": "$0.065230",
-      "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 34.6,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
     }
   ]
 }
