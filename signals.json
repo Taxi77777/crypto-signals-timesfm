@@ -1,4 +1,192 @@
 {
-  "last_update": "2026-07-20T07:43:45.528438+00:00",
-  "signals": []
+  "last_update": "2026-07-20T07:50:20.114702+00:00",
+  "signals": [
+    {
+      "pair_name": "Kyber Network (KNC)",
+      "signal": "SELL",
+      "current_price": "$0.111300",
+      "take_profit": "$0.106192",
+      "stop_loss": "Aucun",
+      "confidence": 95,
+      "rsi": 49.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Lido DAO (LDO)",
+      "signal": "SELL",
+      "current_price": "$0.357000",
+      "take_profit": "$0.354249",
+      "stop_loss": "Aucun",
+      "confidence": 94,
+      "rsi": 65.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "SKALE (SKL)",
+      "signal": "SELL",
+      "current_price": "$0.004100",
+      "take_profit": "$0.004067",
+      "stop_loss": "Aucun",
+      "confidence": 93,
+      "rsi": 75.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Decentraland (MANA)",
+      "signal": "SELL",
+      "current_price": "$0.068800",
+      "take_profit": "$0.068626",
+      "stop_loss": "Aucun",
+      "confidence": 90,
+      "rsi": 88.5,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "IOST (IOST)",
+      "signal": "BUY",
+      "current_price": "$0.000651",
+      "take_profit": "$0.000653",
+      "stop_loss": "Aucun",
+      "confidence": 85,
+      "rsi": 65.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Sei (SEI)",
+      "signal": "BUY",
+      "current_price": "$0.045780",
+      "take_profit": "$0.046012",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 62.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "The Sandbox (SAND)",
+      "signal": "SELL",
+      "current_price": "$0.047100",
+      "take_profit": "$0.046960",
+      "stop_loss": "Aucun",
+      "confidence": 80,
+      "rsi": 81.1,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Chiliz (CHZ)",
+      "signal": "SELL",
+      "current_price": "$0.014700",
+      "take_profit": "$0.014656",
+      "stop_loss": "Aucun",
+      "confidence": 79,
+      "rsi": 70.1,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Aave (AAVE)",
+      "signal": "SELL",
+      "current_price": "$90.1200",
+      "take_profit": "$89.4076",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 61.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Artificial Superintelligence (FET)",
+      "signal": "BUY",
+      "current_price": "$0.152200",
+      "take_profit": "$0.153010",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 58.5,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "dYdX (DYDX)",
+      "signal": "SELL",
+      "current_price": "$0.121100",
+      "take_profit": "$0.120736",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 81.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+    },
+    {
+      "pair_name": "Cosmos (ATOM)",
+      "signal": "SELL",
+      "current_price": "$1.4640",
+      "take_profit": "$1.4563",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 68.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "VeChain (VET)",
+      "signal": "BUY",
+      "current_price": "$0.004650",
+      "take_profit": "$0.004660",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 69.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "dogwifhat (WIF)",
+      "signal": "BUY",
+      "current_price": "$0.151000",
+      "take_profit": "$0.151454",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 58.7,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Celestia (TIA)",
+      "signal": "SELL",
+      "current_price": "$0.363000",
+      "take_profit": "$0.360035",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 72.4,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Ravencoin (RVN)",
+      "signal": "BUY",
+      "current_price": "$0.003738",
+      "take_profit": "$0.003751",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 70.3,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:HOLD/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "NEAR Protocol (NEAR)",
+      "signal": "SELL",
+      "current_price": "$1.9160",
+      "take_profit": "$1.9065",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 59.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:HOLD"
+    }
+  ]
 }
