@@ -1,49 +1,60 @@
 {
-  "last_update": "2026-07-20T12:22:00.197969+00:00",
+  "last_update": "2026-07-20T12:44:43.842305+00:00",
   "signals": [
     {
-      "pair_name": "Stacks (STX)",
+      "pair_name": "Starknet (STRK)",
+      "signal": "BUY",
+      "current_price": "$0.028371",
+      "take_profit": "$0.029206",
+      "stop_loss": "Aucun",
+      "confidence": 93,
+      "rsi": 48.6,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Loopring (LRC)",
       "signal": "SELL",
-      "current_price": "$0.164200",
-      "take_profit": "$0.163580",
-      "stop_loss": "$0.164732",
-      "confidence": 79,
-      "rsi": 60.8,
+      "current_price": "$0.012500",
+      "take_profit": "$0.012309",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 75.0,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:BUY"
+    },
+    {
+      "pair_name": "Polkadot (DOT)",
+      "signal": "SELL",
+      "current_price": "$0.814000",
+      "take_profit": "$0.810047",
+      "stop_loss": "Aucun",
+      "confidence": 73,
+      "rsi": 61.1,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Uniswap (UNI)",
+      "signal": "SELL",
+      "current_price": "$3.4950",
+      "take_profit": "$3.4569",
+      "stop_loss": "Aucun",
+      "confidence": 72,
+      "rsi": 55.3,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
     },
     {
       "pair_name": "Celestia (TIA)",
       "signal": "SELL",
-      "current_price": "$0.362700",
-      "take_profit": "$0.359083",
-      "stop_loss": "$0.365800",
-      "confidence": 72,
-      "rsi": 53.7,
+      "current_price": "$0.363400",
+      "take_profit": "$0.360958",
+      "stop_loss": "Aucun",
+      "confidence": 70,
+      "rsi": 56.5,
       "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Dogecoin (DOGE)",
-      "signal": "SELL",
-      "current_price": "$0.072650",
-      "take_profit": "$0.072341",
-      "stop_loss": "$0.073021",
-      "confidence": 70,
-      "rsi": 63.2,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:HOLD"
-    },
-    {
-      "pair_name": "Arweave (AR)",
-      "signal": "SELL",
-      "current_price": "$1.8833",
-      "take_profit": "$1.8786",
-      "stop_loss": "$1.8889",
-      "confidence": 70,
-      "rsi": 68.3,
-      "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:HOLD/LLA:SELL/GRA:SELL"
     }
   ]
 }

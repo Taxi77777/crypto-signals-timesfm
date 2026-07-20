@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "symbol": "JASMY-USD",
+    "pair_name": "JasmyCoin (JASMY)",
+    "signal": "BUY",
+    "confidence": 77,
+    "take_profit": "$0.004689",
+    "take_profit_raw": 0.004689,
+    "stop_loss_raw": 0.0,
+    "rsi": 50.4,
+    "rsi_status": "Neutre",
+    "macd_trend": "Neutre ⚪",
+    "ema_trend": "EMA20 < EMA50 🔴",
+    "bb_position": "Dans les bandes ⚪",
+    "forecast_dir": "TFM:BUY/CHO:SELL/MOI:BUY/LLA:BUY/GRA:BUY",
+    "forecast_4h": "$0.004700",
+    "tp_pct": "0.63",
+    "fisher": 0.56,
+    "fisher_status": "Neutre",
+    "timestamp": 1784551482.0892878
+  }
+]
