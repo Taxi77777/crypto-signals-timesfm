@@ -680,3 +680,52 @@ def place_order(
         logger.error(f"❌ Exception : {e}")
         return {"success": False, "error": str(e)}
 
+
+def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.015) -> dict | None:
+    """
+    Identifie le plus gros mur d'achat et le plus gros mur de vente dans la zone de depth_pct (ex: 1.5%).
+    Retourne un dictionnaire avec les détails des deux murs (en USDT et prix).
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=100", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            depth = data.get("data", {})
+            bids = depth.get("bids", [])
+            asks = depth.get("asks", [])
+            
+            if not bids and not asks:
+                return None
+            
+            min_bid_price = mark_price * (1 - depth_pct)
+            max_ask_price = mark_price * (1 + depth_pct)
+            
+            # Filtrer et trier les bids par valeur USDT (price * size)
+            valid_bids = []
+            for b in bids:
+                p = float(b[0])
+                s = float(b[1])
+                val_usdt = p * s
+                if p >= min_bid_price:
+                    valid_bids.append({"price": p, "size": s, "val_usdt": val_usdt})
+            
+            # Filtrer et trier les asks par valeur USDT
+            valid_asks = []
+            for a in asks:
+                p = float(a[0])
+                s = float(a[1])
+                val_usdt = p * s
+                if p <= max_ask_price:
+                    valid_asks.append({"price": p, "size": s, "val_usdt": val_usdt})
+            
+            largest_bid = max(valid_bids, key=lambda x: x["val_usdt"]) if valid_bids else None
+            largest_ask = max(valid_asks, key=lambda x: x["val_usdt"]) if valid_asks else None
+            
+            return {
+                "largest_bid": largest_bid,
+                "largest_ask": largest_ask
+            }
+    except Exception as e:
+        logger.error(f"Erreur get_largest_walls pour {symbol_mexc}: {e}")
+    return None
+
