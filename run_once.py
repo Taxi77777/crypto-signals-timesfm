@@ -564,6 +564,8 @@ def main():
                 "rsi":           s.rsi,
                 "macd_trend":    s.macd_trend,
                 "forecast_dir":  s.forecast_dir,
+                "smc_zone":      s.smc_zone,
+                "is_ote":        s.is_ote
             }
             for s in strong_signals
         ]

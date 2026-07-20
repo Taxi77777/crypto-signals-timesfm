@@ -41,6 +41,8 @@ def format_signal_message(signal: TradingSignal) -> str:
         f"MACD       : {signal.macd_trend}\n"
         f"EMA 20/50  : {signal.ema_trend}\n"
         f"Bollinger  : {signal.bb_position}\n"
+        f"🎯 Zone SMC : *{signal.smc_zone}*\n"
+        f"⚡ Confluence OTE : *{'Oui (61.8%-79%)' if signal.is_ote else 'Non'}*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🕐 {time_str} (Paris)\n"
         f"⚠️ _Usage éducatif uniquement_"

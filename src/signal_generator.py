@@ -34,6 +34,8 @@ class TradingSignal:
     fisher:          float   # Fisher Transform value
     fisher_status:   str     # Extreme BUY / Extreme SELL / Neutre
     is_extended:     bool = False
+    smc_zone:        str = "N/A"
+    is_ote:          bool = False
 
 
 def _format_crypto_price(price: float) -> str:
@@ -366,6 +368,15 @@ def generate_signal(
 
         pair_name = config.PAIR_NAMES.get(symbol, symbol)
 
+        # Calcul structure SMC & OTE
+        from src.smc_filter import get_smc_ote_status
+        smc = get_smc_ote_status(df, signal)
+        smc_zone = "N/A"
+        is_ote = False
+        if smc:
+            smc_zone = smc["zone"]
+            is_ote = smc["is_ote"]
+
         return TradingSignal(
             symbol        = symbol,
             pair_name     = pair_name,
@@ -387,6 +398,8 @@ def generate_signal(
             fisher        = fisher,
             fisher_status = fisher_status,
             is_extended   = is_extended,
+            smc_zone      = smc_zone,
+            is_ote        = is_ote,
         )
 
     except Exception as e:
