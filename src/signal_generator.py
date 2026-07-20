@@ -319,7 +319,7 @@ def generate_signal(
             sl_mult = 1 + (atr * 3.0 / current_price)
 
         # FILTRE MULTI-TIMEFRAME (TENDANCE EMA 1H + SUPERTREND 1H)
-        if df_1h is not None and not df_1h.empty:
+        if getattr(config, "ENABLE_MTF_FILTER", True) and df_1h is not None and not df_1h.empty:
             from src.indicators import compute_all_indicators
             df_1h_ind = compute_all_indicators(df_1h)
             if not df_1h_ind.empty:

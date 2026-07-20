@@ -28,6 +28,7 @@ ENABLE_BTC_GUARD         = True    # Bloque les Altcoins BUY si le BTC 1H est ba
 ENABLE_DXY_GUARD         = False   # Bloque les BUY si le Dollar Index est haussier (désactivé car très restrictif)
 ENABLE_NASDAQ_GUARD      = False   # Bloque les BUY si le Nasdaq est baissier (désactivé car très restrictif)
 ENABLE_ETH_BTC_GUARD     = True    # Bloque les Altcoins BUY si la force relative des Altcoins (ETH/BTC) est faible
+ENABLE_MTF_FILTER        = True    # Bloque les BUY 5m si la tendance 1H (EMA/Supertrend) est baissière (Désactive pour plus de signaux)
 
 # ── Cryptos surveillées (100 cryptos qualitatives et liquides) ──────────────────
 CRYPTO_PAIRS = [
