@@ -651,11 +651,33 @@ def main():
     else:
         logger.info("Aucun signal fort ce scan.")
         # Heartbeat : confirme que le bot tourne même sans signal
+        from src.mexc_trader import SYMBOL_MAP, get_current_price, get_largest_walls
+        majors_walls = ""
+        for sym in ["BTC-USD", "ETH-USD", "SOL-USD"]:
+            symbol_mexc = SYMBOL_MAP.get(sym)
+            if symbol_mexc:
+                try:
+                    price = get_current_price(symbol_mexc)
+                    if price > 0:
+                        walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
+                        if walls:
+                            w_bid = walls.get("largest_bid")
+                            w_ask = walls.get("largest_ask")
+                            name = sym.replace("-USD", "")
+                            majors_walls += f"\n*🧱 {name} (1.5%) :*\n"
+                            if w_bid:
+                                majors_walls += f"  🟢 Support: `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
+                            if w_ask:
+                                majors_walls += f"  🔴 Résistance: `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`\n"
+                except Exception as e:
+                    logger.error(f"Erreur heartbeat walls {sym}: {e}")
+
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
             f"📊 {len(all_data)} cryptos scannées | {len(ind_map)} analysées\n"
             f"🤖 {len(signals)} pré-signaux, 0 signal fort\n"
             f"⚖️ Consensus majoritaire (>=3/5) IA + pondération dynamique\n"
+            f"{majors_walls}\n"
             f"_Prochain scan dans 5 min_",
             chat_id="375129602"
         )
