@@ -1,14 +1,80 @@
 {
-  "last_update": "2026-07-20T14:48:45.434805+00:00",
+  "last_update": "2026-07-20T15:22:59.954687+00:00",
   "signals": [
     {
-      "pair_name": "Worldcoin (WLD)",
+      "pair_name": "Stacks (STX)",
       "signal": "SELL",
-      "current_price": "$0.369400",
-      "take_profit": "$0.363536",
+      "current_price": "$0.164400",
+      "take_profit": "$0.163561",
       "stop_loss": "Aucun",
-      "confidence": 79,
-      "rsi": 61.2,
+      "confidence": 95,
+      "rsi": 70.0,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Dogecoin (DOGE)",
+      "signal": "SELL",
+      "current_price": "$0.072870",
+      "take_profit": "$0.072274",
+      "stop_loss": "Aucun",
+      "confidence": 94,
+      "rsi": 69.2,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Algorand (ALGO)",
+      "signal": "SELL",
+      "current_price": "$0.082600",
+      "take_profit": "$0.082097",
+      "stop_loss": "Aucun",
+      "confidence": 93,
+      "rsi": 68.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "dogwifhat (WIF)",
+      "signal": "SELL",
+      "current_price": "$0.152000",
+      "take_profit": "$0.151316",
+      "stop_loss": "Aucun",
+      "confidence": 88,
+      "rsi": 72.6,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Immutable (IMX)",
+      "signal": "SELL",
+      "current_price": "$0.125800",
+      "take_profit": "$0.125134",
+      "stop_loss": "Aucun",
+      "confidence": 87,
+      "rsi": 67.8,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+    },
+    {
+      "pair_name": "Aptos (APT)",
+      "signal": "SELL",
+      "current_price": "$0.591300",
+      "take_profit": "$0.583981",
+      "stop_loss": "Aucun",
+      "confidence": 84,
+      "rsi": 62.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Polkadot (DOT)",
+      "signal": "SELL",
+      "current_price": "$0.817000",
+      "take_profit": "$0.809936",
+      "stop_loss": "Aucun",
+      "confidence": 81,
+      "rsi": 63.6,
       "macd_trend": "Haussier 🟢",
       "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
     }
