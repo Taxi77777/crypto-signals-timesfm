@@ -36,6 +36,7 @@ class TradingSignal:
     is_extended:     bool = False
     smc_zone:        str = "N/A"
     is_ote:          bool = False
+    orderbook_walls: str = "N/A"
 
 
 def _format_crypto_price(price: float) -> str:
