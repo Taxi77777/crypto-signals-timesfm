@@ -666,19 +666,25 @@ def main():
                     ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
                     if ratio is not None:
                         name = _clean_name(sym)
-                        entry = f"{name}({ratio})"
                         if ratio >= 1.2:
-                            buyers_list.append(entry)
+                            buyers_list.append((ratio, name))
                         elif ratio <= 0.8:
-                            sellers_list.append(entry)
+                            sellers_list.append((ratio, name))
                         else:
-                            balanced_list.append(entry)
+                            balanced_list.append((ratio, name))
                 time.sleep(0.15)  # anti rate-limit MEXC
             except Exception as e:
                 logger.error(f"Erreur heartbeat ratio {sym}: {e}")
 
+        # 🟢 Acheteurs : du plus fort au plus faible (décroissant)
+        buyers_list.sort(key=lambda x: x[0], reverse=True)
+        # 🔴 Vendeurs : du plus fort vendeur au plus faible (croissant)
+        sellers_list.sort(key=lambda x: x[0])
+        # ⚖️ Équilibré : par ratio décroissant
+        balanced_list.sort(key=lambda x: x[0], reverse=True)
+
         def _fmt_group(lst):
-            return "  " + " | ".join(lst) if lst else "  —"
+            return "  " + " | ".join(f"{name}({ratio})" for ratio, name in lst) if lst else "  —"
 
         send_message(
             f"🔍 *Scan Crypto terminé — Pression Orderbook (±1.5%)*\n"
