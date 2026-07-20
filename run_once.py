@@ -520,23 +520,23 @@ def main():
         reasons = []
         
         if s.signal == "BUY":
-            if not is_btc and btc_trend_1h == "BEARISH":
+            if getattr(config, "ENABLE_BTC_GUARD", True) and not is_btc and btc_trend_1h == "BEARISH":
                 reasons.append("Bitcoin baissier")
-            if dxy_trend == "BULLISH":
+            if getattr(config, "ENABLE_DXY_GUARD", False) and dxy_trend == "BULLISH":
                 reasons.append("Dollar (DXY) haussier")
-            if nasdaq_trend == "BEARISH":
+            if getattr(config, "ENABLE_NASDAQ_GUARD", False) and nasdaq_trend == "BEARISH":
                 reasons.append("Nasdaq baissier")
-            if not is_btc and alt_strength == "WEAK":
+            if getattr(config, "ENABLE_ETH_BTC_GUARD", True) and not is_btc and alt_strength == "WEAK":
                 reasons.append("Altcoins faibles (ETH/BTC)")
                 
         elif s.signal == "SELL":
-            if not is_btc and btc_trend_1h == "BULLISH":
+            if getattr(config, "ENABLE_BTC_GUARD", True) and not is_btc and btc_trend_1h == "BULLISH":
                 reasons.append("Bitcoin haussier")
-            if dxy_trend == "BEARISH":
+            if getattr(config, "ENABLE_DXY_GUARD", False) and dxy_trend == "BEARISH":
                 reasons.append("Dollar (DXY) baissier")
-            if nasdaq_trend == "BULLISH":
+            if getattr(config, "ENABLE_NASDAQ_GUARD", False) and nasdaq_trend == "BULLISH":
                 reasons.append("Nasdaq haussier")
-            if not is_btc and alt_strength == "STRONG":
+            if getattr(config, "ENABLE_ETH_BTC_GUARD", True) and not is_btc and alt_strength == "STRONG":
                 reasons.append("Altcoins forts (ETH/BTC)")
                 
         if reasons:

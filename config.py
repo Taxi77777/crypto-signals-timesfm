@@ -23,6 +23,12 @@ SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
 MIN_CONFIDENCE           = 70      # Seuil signal fort (%)
 MAX_EMA_EXTENSION_PCT    = 0.5     # Écart max toléré avec EMA20 5m (%) (Évite d'acheter les breakouts sur-étendus)
 
+# ── Guards de Marché (Filtres de Tendance) ───────────────────────────────────
+ENABLE_BTC_GUARD         = True    # Bloque les Altcoins BUY si le BTC 1H est baissier, SELL si le BTC est haussier
+ENABLE_DXY_GUARD         = False   # Bloque les BUY si le Dollar Index est haussier (désactivé car très restrictif)
+ENABLE_NASDAQ_GUARD      = False   # Bloque les BUY si le Nasdaq est baissier (désactivé car très restrictif)
+ENABLE_ETH_BTC_GUARD     = True    # Bloque les Altcoins BUY si la force relative des Altcoins (ETH/BTC) est faible
+
 # ── Cryptos surveillées (100 cryptos qualitatives et liquides) ──────────────────
 CRYPTO_PAIRS = [
     # Top 20 Majeures
