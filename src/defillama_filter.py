@@ -51,11 +51,14 @@ class DefiLlamaFilter:
             for p in protocols:
                 sym = p.get("symbol", "").upper()
                 if sym:
-                    # Si doublon, on garde celui avec la plus grosse TVL
-                    existing = self.protocol_map.get(sym)
-                    tvl = p.get("tvl") or 0
-                    if not existing or tvl > existing.get("tvl", 0):
-                        self.protocol_map[sym] = p
+                    tvl = p.get("tvl")
+                    if tvl is not None:
+                        tvl_val = float(tvl)
+                        existing = self.protocol_map.get(sym)
+                        existing_tvl = existing.get("tvl") if existing else None
+                        existing_tvl_val = float(existing_tvl) if existing_tvl is not None else 0.0
+                        if not existing or tvl_val > existing_tvl_val:
+                            self.protocol_map[sym] = p
             
             logger.info(f"✅ {len(self.protocol_map)} symboles de protocoles mappés avec succès.")
             self.initialized = True
