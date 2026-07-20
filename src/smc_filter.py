@@ -17,15 +17,15 @@ def get_smc_ote_status(df: pd.DataFrame, signal_dir: str, lookback: int = 50) ->
 
     recent_df = df.iloc[-lookback:]
     
-    # Trouver le swing high et swing low de la période
-    low_val = float(recent_df["Low"].min())
-    high_val = float(recent_df["High"].max())
+    # Trouver le swing high et swing low de la période (colonnes en minuscule pour crypto)
+    low_val = float(recent_df["low"].min())
+    high_val = float(recent_df["high"].max())
     
     range_val = high_val - low_val
     if range_val == 0:
         return None
         
-    current_price = float(df.iloc[-1]["Close"])
+    current_price = float(df.iloc[-1]["close"])
     
     # Retracement en % depuis le sommet (pour un BUY) ou le creux (pour un SELL)
     if signal_dir == "BUY":
