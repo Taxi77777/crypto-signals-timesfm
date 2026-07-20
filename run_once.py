@@ -656,7 +656,7 @@ def main():
             "BTC-USD": "BTC", "ETH-USD": "ETH", "SOL-USD": "SOL",
             "IMX10603-USD": "IMX"
         }
-        from src.mexc_trader import SYMBOL_MAP, get_current_price, get_largest_walls
+        from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
         majors_walls = ""
         for sym in ["BTC-USD", "ETH-USD", "SOL-USD", "IMX10603-USD"]:
             symbol_mexc = SYMBOL_MAP.get(sym)
@@ -664,25 +664,26 @@ def main():
                 try:
                     price = get_current_price(symbol_mexc)
                     if price > 0:
-                        walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
-                        if walls:
-                            w_bid = walls.get("largest_bid")
-                            w_ask = walls.get("largest_ask")
+                        ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
+                        if ratio is not None:
                             name = heartbeat_name.get(sym, sym.replace("-USD", "").replace("10603", ""))
-                            majors_walls += f"\n*🧱 {name} — Murs dans ±1.5% du prix :*\n"
-                            if w_bid:
-                                majors_walls += f"  🟢 Mur ACHAT (support) : `{w_bid['val_usdt']:,.0f} USDT` à `${w_bid['price']}`\n"
-                            if w_ask:
-                                majors_walls += f"  🔴 Mur VENTE (résistance) : `{w_ask['val_usdt']:,.0f} USDT` à `${w_ask['price']}`\n"
+                            if ratio >= 1.2:
+                                label = f"🟢 *Acheteurs dominent* (ratio {ratio})"
+                            elif ratio <= 0.8:
+                                label = f"🔴 *Vendeurs dominent* (ratio {ratio})"
+                            else:
+                                label = f"⚖️ *Équilibré* (ratio {ratio})"
+                            majors_walls += f"  *{name}* : {label}\n"
                 except Exception as e:
-                    logger.error(f"Erreur heartbeat walls {sym}: {e}")
+                    logger.error(f"Erreur heartbeat ratio {sym}: {e}")
 
         send_message(
             f"🔍 *Scan Crypto terminé*\n"
             f"📊 {len(all_data)} cryptos scannées | {len(ind_map)} analysées\n"
             f"🤖 {len(signals)} pré-signaux, 0 signal fort\n"
-            f"⚖️ Consensus majoritaire (>=3/5) IA + pondération dynamique\n"
-            f"{majors_walls}\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📊 *Pression acheteurs/vendeurs (±1.5%) :*\n"
+            f"{majors_walls}"
             f"_Prochain scan dans 5 min_",
             chat_id="375129602"
         )
