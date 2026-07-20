@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "symbol": "AXS-USD",
+    "pair_name": "Axie Infinity (AXS)",
+    "signal": "BUY",
+    "confidence": 77,
+    "take_profit": "$0.925474",
+    "take_profit_raw": 0.925474,
+    "stop_loss_raw": 0.0,
+    "rsi": 70.4,
+    "rsi_status": "Surachete",
+    "macd_trend": "Haussier 🟢",
+    "ema_trend": "EMA20 > EMA50 🟢",
+    "bb_position": "Dans les bandes ⚪",
+    "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:SELL/GRA:BUY",
+    "forecast_4h": "$0.922500",
+    "tp_pct": "0.38",
+    "fisher": 2.91,
+    "fisher_status": "📈 Zone haute (SELL)",
+    "timestamp": 1784533411.2439132
+  },
+  {
+    "symbol": "JASMY-USD",
+    "pair_name": "JasmyCoin (JASMY)",
+    "signal": "BUY",
+    "confidence": 82,
+    "take_profit": "$0.004797",
+    "take_profit_raw": 0.004797,
+    "stop_loss_raw": 0.0,
+    "rsi": 61.4,
+    "rsi_status": "Neutre",
+    "macd_trend": "Haussier 🟢",
+    "ema_trend": "EMA20 > EMA50 🟢",
+    "bb_position": "Dans les bandes ⚪",
+    "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY",
+    "forecast_4h": "$0.004800",
+    "tp_pct": "1.0",
+    "fisher": 0.59,
+    "fisher_status": "Neutre",
+    "timestamp": 1784533411.8807158
+  }
+]
