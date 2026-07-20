@@ -1,38 +1,16 @@
 {
-  "last_update": "2026-07-20T14:36:06.571460+00:00",
+  "last_update": "2026-07-20T14:48:45.434805+00:00",
   "signals": [
     {
-      "pair_name": "Lido DAO (LDO)",
+      "pair_name": "Worldcoin (WLD)",
       "signal": "SELL",
-      "current_price": "$0.357000",
-      "take_profit": "$0.354824",
+      "current_price": "$0.369400",
+      "take_profit": "$0.363536",
       "stop_loss": "Aucun",
-      "confidence": 90,
-      "rsi": 67.4,
+      "confidence": 79,
+      "rsi": 61.2,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Uniswap (UNI)",
-      "signal": "SELL",
-      "current_price": "$3.4920",
-      "take_profit": "$3.4619",
-      "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 53.4,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
-    },
-    {
-      "pair_name": "Ethereum Classic (ETC)",
-      "signal": "SELL",
-      "current_price": "$6.8400",
-      "take_profit": "$6.7980",
-      "stop_loss": "Aucun",
-      "confidence": 75,
-      "rsi": 56.5,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL"
     }
   ]
 }

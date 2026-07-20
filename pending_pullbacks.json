@@ -38,5 +38,25 @@
     "fisher": -0.85,
     "fisher_status": "Neutre",
     "timestamp": 1784552823.9519217
+  },
+  {
+    "symbol": "FET-USD",
+    "pair_name": "Artificial Superintelligence (FET)",
+    "signal": "SELL",
+    "confidence": 82,
+    "take_profit": "$0.151228",
+    "take_profit_raw": 0.151228,
+    "stop_loss_raw": 0.0,
+    "rsi": 47.1,
+    "rsi_status": "Neutre",
+    "macd_trend": "Baissier 🔴",
+    "ema_trend": "EMA20 < EMA50 🔴",
+    "bb_position": "Dans les bandes ⚪",
+    "forecast_dir": "TFM:BUY/CHO:SELL/MOI:HOLD/LLA:SELL/GRA:SELL",
+    "forecast_4h": "$0.152400",
+    "tp_pct": "0.64",
+    "fisher": 0.01,
+    "fisher_status": "Neutre",
+    "timestamp": 1784558923.8849037
   }
 ]
