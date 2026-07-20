@@ -1,49 +1,38 @@
 {
-  "last_update": "2026-07-20T13:07:05.178400+00:00",
+  "last_update": "2026-07-20T14:36:06.571460+00:00",
   "signals": [
     {
-      "pair_name": "Jupiter (JUP)",
-      "signal": "BUY",
-      "current_price": "$0.195200",
-      "take_profit": "$0.197145",
-      "stop_loss": "Aucun",
-      "confidence": 88,
-      "rsi": 33.9,
-      "macd_trend": "Baissier 🔴",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY"
-    },
-    {
-      "pair_name": "Aptos (APT)",
+      "pair_name": "Lido DAO (LDO)",
       "signal": "SELL",
-      "current_price": "$0.590700",
-      "take_profit": "$0.587313",
+      "current_price": "$0.357000",
+      "take_profit": "$0.354824",
       "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 54.0,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:BUY/GRA:SELL"
-    },
-    {
-      "pair_name": "Loopring (LRC)",
-      "signal": "SELL",
-      "current_price": "$0.012700",
-      "take_profit": "$0.012242",
-      "stop_loss": "Aucun",
-      "confidence": 77,
-      "rsi": 68.6,
+      "confidence": 90,
+      "rsi": 67.4,
       "macd_trend": "Haussier 🟢",
-      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY"
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     },
     {
       "pair_name": "Uniswap (UNI)",
       "signal": "SELL",
-      "current_price": "$3.4970",
-      "take_profit": "$3.4711",
+      "current_price": "$3.4920",
+      "take_profit": "$3.4619",
       "stop_loss": "Aucun",
-      "confidence": 72,
-      "rsi": 55.2,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:SELL/CHO:HOLD/MOI:SELL/LLA:BUY/GRA:SELL"
+      "confidence": 77,
+      "rsi": 53.4,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:HOLD/LLA:SELL/GRA:SELL"
+    },
+    {
+      "pair_name": "Ethereum Classic (ETC)",
+      "signal": "SELL",
+      "current_price": "$6.8400",
+      "take_profit": "$6.7980",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 56.5,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:BUY/GRA:SELL"
     }
   ]
 }
