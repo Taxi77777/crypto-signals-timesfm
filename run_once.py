@@ -652,7 +652,7 @@ def main():
         logger.info("Aucun signal fort ce scan.")
 
     # ── Rapport Orderbook permanent : envoyé à CHAQUE scan (toutes les 5 min) ──
-    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio, get_largest_walls
+    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
     import re as _re
 
     def _clean_name(sym):
@@ -665,57 +665,34 @@ def main():
             price = get_current_price(symbol_mexc)
             if price > 0:
                 ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
-                walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
-                    bid_price = walls["largest_bid"]["price"] if walls and walls.get("largest_bid") else "?"
-                    ask_price = walls["largest_ask"]["price"] if walls and walls.get("largest_ask") else "?"
                     if ratio >= 1.2:
-                        # 🟢 Entrée au mur ACHAT → TP au mur VENTE
-                        buyers_list.append((ratio, name, bid_price, ask_price))
+                        buyers_list.append((ratio, name))
                     elif ratio <= 0.8:
-                        # 🔴 Entrée au mur VENTE → TP au mur ACHAT
-                        sellers_list.append((ratio, name, bid_price, ask_price))
+                        sellers_list.append((ratio, name))
                     else:
-                        balanced_list.append((ratio, name, bid_price, ask_price))
-            time.sleep(0.15)  # anti rate-limit MEXC
+                        balanced_list.append((ratio, name))
+            time.sleep(0.15)
         except Exception as e:
             logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
+    # 🟢 Décroissant : plus fort acheteur en premier
     buyers_list.sort(key=lambda x: x[0], reverse=True)
+    # 🔴 Croissant : plus fort vendeur en premier (ratio le plus bas)
     sellers_list.sort(key=lambda x: x[0])
+    # ⚖️ Décroissant
     balanced_list.sort(key=lambda x: x[0], reverse=True)
 
-    def _fmt_buyers(lst):
-        if not lst:
-            return "  —"
-        lines = []
-        for ratio, name, bid, ask in lst:
-            # Plus d'acheteurs → pullback au mur ACHAT (bas) → monter vers mur VENTE (haut)
-            lines.append(f"  📈 *{name}* (x{ratio}) | Attends pullback à `{bid}` → vise `{ask}`")
-        return "\n".join(lines)
-
-    def _fmt_sellers(lst):
-        if not lst:
-            return "  —"
-        lines = []
-        for ratio, name, bid, ask in lst:
-            # Plus de vendeurs → pullback au mur VENTE (haut) → descendre vers mur ACHAT (bas)
-            lines.append(f"  📉 *{name}* (x{ratio}) | Attends pullback à `{ask}` → vise `{bid}`")
-        return "\n".join(lines)
-
-    def _fmt_balanced(lst):
-        if not lst:
-            return "  —"
-        return "  " + " | ".join(f"{name}({ratio})" for ratio, name, *_ in lst)
+    def _fmt(lst):
+        return " | ".join(f"*{n}* `{r}`" for r, n in lst) if lst else "—"
 
     send_message(
-        f"📊 *Pression Orderbook — Toutes cryptos (±1.5%)*\n"
-        f"🕐 Scan toutes les 5 min\n"
+        f"📊 *Orderbook ±1.5% — {len(buyers_list)+len(sellers_list)+len(balanced_list)} cryptos*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🟢 *Plus d'ACHETEURS ({len(buyers_list)}) — cherche le BAS :*\n{_fmt_buyers(buyers_list)}\n\n"
-        f"🔴 *Plus de VENDEURS ({len(sellers_list)}) — cherche le HAUT :*\n{_fmt_sellers(sellers_list)}\n\n"
-        f"⚖️ *Équilibré ({len(balanced_list)}) :*\n{_fmt_balanced(balanced_list)}\n"
+        f"🟢 *ACHETEURS ({len(buyers_list)}) — décroissant :*\n{_fmt(buyers_list)}\n\n"
+        f"🔴 *VENDEURS ({len(sellers_list)}) — croissant :*\n{_fmt(sellers_list)}\n\n"
+        f"⚖️ *EQUILIBRÉ ({len(balanced_list)}) :*\n{_fmt(balanced_list)}\n"
         f"_Prochain scan dans 5 min_",
         chat_id="375129602"
     )
