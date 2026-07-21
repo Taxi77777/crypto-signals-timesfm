@@ -673,41 +673,70 @@ def main():
                     name = _clean_name(sym)
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
-                        # ⚡ Acheteurs dominent + prix proche du mur d'achat → PULLBACK BUY
-                        if walls and walls.get("largest_bid"):
+                        # ⚡ Murs massifs (ratio >= 1.8) + prix proche du mur d'achat → PULLBACK BUY
+                        if ratio >= 1.8 and walls and walls.get("largest_bid"):
                             wall_price = float(walls["largest_bid"]["price"])
                             dist = abs(price - wall_price) / price
                             if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("BUY", name, ratio, price, wall_price, walls["largest_ask"]["price"] if walls.get("largest_ask") else "?"))
+                                pullback_signals.append(("BUY", name, sym, ratio, price, wall_price, walls["largest_ask"]["price"] if walls.get("largest_ask") else "?"))
                     elif ratio <= 0.8:
                         sellers_list.append((ratio, name))
-                        # ⚡ Vendeurs dominent + prix proche du mur de vente → PULLBACK SELL
-                        if walls and walls.get("largest_ask"):
+                        # ⚡ Murs massifs (ratio <= 0.55) + prix proche du mur de vente → PULLBACK SELL
+                        if ratio <= 0.55 and walls and walls.get("largest_ask"):
                             wall_price = float(walls["largest_ask"]["price"])
                             dist = abs(price - wall_price) / price
                             if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("SELL", name, ratio, price, wall_price, walls["largest_bid"]["price"] if walls.get("largest_bid") else "?"))
+                                pullback_signals.append(("SELL", name, sym, ratio, price, wall_price, walls["largest_bid"]["price"] if walls.get("largest_bid") else "?"))
                     else:
                         balanced_list.append((ratio, name))
             time.sleep(0.15)
         except Exception as e:
             logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
-    # ── Envoi des signaux pullback immédiats ──────────────────────────────────
-    for direction, name, ratio, cur_price, entry_price, tp_price in pullback_signals:
-        emoji = "🟢📈" if direction == "BUY" else "🔴📉"
-        send_message(
-            f"⚡ *SIGNAL PULLBACK — {name}* ⚡\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"{emoji} *{direction}* — Acheteurs/Vendeurs ratio : `{ratio}`\n"
-            f"💰 Prix actuel : `{cur_price}`\n"
-            f"🎯 Entrée (mur) : `{entry_price}`\n"
-            f"🏁 TP visé : `{tp_price}`\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"⚠️ _Signal orderbook uniquement — pas de consensus IA_",
-            chat_id="375129602"
-        )
-        logger.info(f"⚡ Signal Pullback envoyé : {name} {direction} @ {cur_price} (mur: {entry_price})")
+    # ── Validation Range/Fisher & Envoi des signaux pullback massifs ──────────
+    import yfinance as yf
+    from src.indicators import compute_all_indicators
+
+    for direction, name, sym, ratio, cur_price, entry_price, tp_price in pullback_signals:
+        try:
+            df = yf.download(sym, period="1d", interval="5m", progress=False)
+            if not df.empty:
+                df = compute_all_indicators(df)
+                last = df.iloc[-1]
+                adx = float(last["adx"])
+                fisher = float(last["fisher"])
+                
+                # Check Range
+                if adx < 25:
+                    range_txt = f"✅ Range confirmé (ADX: {adx:.1f})"
+                else:
+                    range_txt = f"⚠️ Hors Range (ADX: {adx:.1f})"
+                    
+                # Check Fisher
+                if (direction == "BUY" and fisher <= -1.0):
+                    fisher_txt = f"✅ Fisher(9) en creux: {fisher:.2f}"
+                elif (direction == "SELL" and fisher >= 1.0):
+                    fisher_txt = f"✅ Fisher(9) en sommet: {fisher:.2f}"
+                else:
+                    fisher_txt = f"⚠️ Fisher(9) non optimal: {fisher:.2f}"
+                    
+                emoji = "🟢📈" if direction == "BUY" else "🔴📉"
+                send_message(
+                    f"⚡ *SIGNAL PULLBACK MASSIF — {name}* ⚡\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{emoji} *{direction}* — Ratio Orderbook : `{ratio}`\n"
+                    f"💰 Prix actuel : `{cur_price}`\n"
+                    f"🎯 Entrée (mur) : `{entry_price}`\n"
+                    f"🏁 TP visé : `{tp_price}`\n"
+                    f"📊 *Contexte :*\n"
+                    f"  {range_txt}\n"
+                    f"  {fisher_txt}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━",
+                    chat_id="375129602"
+                )
+                logger.info(f"⚡ Signal Pullback Massif envoyé : {name} {direction} @ {cur_price}")
+        except Exception as e:
+            logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
     # ── Rapport global toutes les 5 min ───────────────────────────────────────
     buyers_list.sort(key=lambda x: x[0], reverse=True)
