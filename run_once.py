@@ -626,12 +626,11 @@ def main():
             # Nouveau signal ou inversion de direction
             new_signals_to_send.append(s)
         else:
-            logger.info(f"🔕 Signal {s.pair_name} {s.signal} déjà envoyé au scan précédent — ignoré.")
+            logger.info(f"🔕 Signal {s.pair_name} {s.signal} déjà envoyé — ignoré.")
 
     # Mettre à jour le fichier des signaux envoyés
     for s in strong_signals:
         already_sent[s.symbol] = s.signal
-    # Supprimer les anciens signaux qui ne sont plus actifs
     active_syms = {s.symbol for s in strong_signals}
     already_sent = {sym: sig for sym, sig in already_sent.items() if sym in active_syms}
     try:
@@ -642,62 +641,99 @@ def main():
 
     # ── 4. Envoi Telegram des signaux forts (uniquement les NOUVEAUX) ──────────
     if new_signals_to_send:
-        logger.info(f"Envoi de {len(new_signals_to_send)} nouveaux signaux sur Telegram ({len(strong_signals) - len(new_signals_to_send)} doublons ignorés)...")
+        logger.info(f"Envoi de {len(new_signals_to_send)} nouveaux signaux sur Telegram...")
         for s in new_signals_to_send:
             send_signal(s)
             time.sleep(0.5)
     elif strong_signals:
-        logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés au scan précédent — pas de notification Telegram.")
+        logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés — pas de notification.")
     else:
         logger.info("Aucun signal fort ce scan.")
 
     # ── Rapport Orderbook permanent : envoyé à CHAQUE scan (toutes les 5 min) ──
     from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio, get_largest_walls
     import re as _re
+    import yfinance as _yf_ob
+    import pandas as _pd_ob
 
-    PULLBACK_THRESHOLD = 0.005  # 0.5% → prix à 0.5% du mur = signal pullback
+    APPROACH_THRESHOLD = 0.02   # 2% → prix à 2% du mur = potentiellement en approche
+    PULLBACK_THRESHOLD = 0.005  # 0.5% → prix à 0.5% du mur = en contact direct
 
     def _clean_name(sym):
         return _re.sub(r'\d+', '', sym.replace("-USD", ""))
 
+    def _fmt_p(p):
+        if p >= 1000: return f"{p:.0f}"
+        elif p >= 1: return f"{p:.4f}"
+        elif p >= 0.001: return f"{p:.5f}"
+        else: return f"{p:.7f}"
+
     buyers_list, sellers_list, balanced_list = [], [], []
     pullback_signals = []
 
-    for sym, symbol_mexc in SYMBOL_MAP.items():
+    for sym in config.CRYPTO_PAIRS:
+        symbol_mexc = SYMBOL_MAP.get(sym)
+        if not symbol_mexc:
+            continue
         try:
             price = get_current_price(symbol_mexc)
             if price > 0:
-                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
+                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=1.5)
                 walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
-                        # ⚡ Murs massifs (ratio >= 1.8) + prix proche du mur d'achat → PULLBACK BUY
-                        if ratio >= 1.8 and walls and walls.get("largest_bid") and walls.get("largest_ask"):
+                        # ⚡ Prix qui DESCEND vers un gros mur d'achat (pullback avant impulsion)
+                        if ratio >= 1.2 and walls and walls.get("largest_bid"):
                             wall_price = float(walls["largest_bid"]["price"])
-                            dist = abs(price - wall_price) / price
-                            if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, walls["largest_ask"]["price"]))
+                            dist = (price - wall_price) / price  # positif = au-dessus du mur
+                            if 0.0 <= dist <= APPROACH_THRESHOLD:
+                                # Verifier que le prix descend (pas déjà rebondi)
+                                try:
+                                    df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
+                                    if not df_chk.empty:
+                                        if isinstance(df_chk.columns, _pd_ob.MultiIndex):
+                                            df_chk.columns = df_chk.columns.get_level_values(0)
+                                        df_chk.columns = [c.lower() for c in df_chk.columns]
+                                        if len(df_chk) >= 4:
+                                            trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
+                                            if trend <= 0:  # Prix baisse → approche du mur
+                                                tp_est = float(walls["largest_ask"]["price"]) if walls.get("largest_ask") else price * 1.015
+                                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
+                                except Exception:
+                                    pass
                     elif ratio <= 0.8:
                         sellers_list.append((ratio, name))
-                        # ⚡ Murs massifs (ratio <= 0.55) + prix proche du mur de vente → PULLBACK SELL
-                        if ratio <= 0.55 and walls and walls.get("largest_ask") and walls.get("largest_bid"):
+                        # ⚡ Prix qui MONTE vers un gros mur de vente
+                        if ratio <= 0.8 and walls and walls.get("largest_ask"):
                             wall_price = float(walls["largest_ask"]["price"])
-                            dist = abs(price - wall_price) / price
-                            if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, walls["largest_bid"]["price"]))
+                            dist = (wall_price - price) / price  # positif = en dessous du mur
+                            if 0.0 <= dist <= APPROACH_THRESHOLD:
+                                try:
+                                    df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
+                                    if not df_chk.empty:
+                                        if isinstance(df_chk.columns, _pd_ob.MultiIndex):
+                                            df_chk.columns = df_chk.columns.get_level_values(0)
+                                        df_chk.columns = [c.lower() for c in df_chk.columns]
+                                        if len(df_chk) >= 4:
+                                            trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
+                                            if trend >= 0:  # Prix monte → approche du mur de vente
+                                                tp_est = float(walls["largest_bid"]["price"]) if walls.get("largest_bid") else price * 0.985
+                                                pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
+                                except Exception:
+                                    pass
                     else:
                         balanced_list.append((ratio, name))
             time.sleep(0.15)
         except Exception as e:
             logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
-    # ── Validation Range/Fisher & Envoi des signaux pullback massifs ──────────
+    # ── Validation Fisher & Envoi des signaux pullback (direction confirmée) ──────────
     import yfinance as yf
     from src.indicators import compute_all_indicators
 
-    for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price in pullback_signals:
+    for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m in pullback_signals:
         try:
             # 🛡️ 1. Vérification Anti-Spoofing : Le mur est-il toujours là 15 secondes après ?
             new_walls = get_largest_walls(symbol_mexc, cur_price, depth_pct=0.015)
@@ -751,22 +787,24 @@ def main():
                 else:
                     fisher_txt = f"⚠️ Fisher(9) non optimal: {fisher:.2f}"
                     
-                emoji = "🟢📈" if direction == "BUY" else "🔴📉"
+                arrow = "↘️ descend" if direction == "BUY" else "↗️ monte"
+                emoji = "🟢" if direction == "BUY" else "🔴"
                 send_message(
-                    f"⚡ *SIGNAL PULLBACK MASSIF — {name}* ⚡\n"
+                    f"{emoji} *APPROCHE DU MUR — {name}* {emoji}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"{emoji} *{direction}* — Ratio Orderbook : `{ratio}`\n"
-                    f"💰 Prix actuel : `{cur_price}`\n"
-                    f"🎯 Entrée (mur) : `{entry_price}`\n"
-                    f"🏁 TP visé : `{tp_price}`\n"
-                    f"📊 *Contexte :*\n"
-                    f"  {anti_scam_txt}\n"
-                    f"  {range_txt}\n"
-                    f"  {fisher_txt}\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━━━",
+                    f"📌 *{direction}* — Prix {arrow} vers le mur\n"
+                    f"💰 Prix actuel : `{_fmt_p(cur_price)}`\n"
+                    f"🧱 Mur : `{_fmt_p(entry_price)}` — Distance : `{dist_pct:.2f}%`\n"
+                    f"🏁 TP visé : `{_fmt_p(tp_price)}`\n"
+                    f"📈 Tendance 45min : `{trend_45m:+.2f}%`\n"
+                    f"📊 Ratio Orderbook : `{ratio:.2f}`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{anti_scam_txt}\n"
+                    f"{range_txt}\n"
+                    f"{fisher_txt}",
                     chat_id="375129602"
                 )
-                logger.info(f"⚡ Signal Pullback Massif envoyé : {name} {direction} @ {cur_price}")
+                logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
