@@ -652,36 +652,66 @@ def main():
         logger.info("Aucun signal fort ce scan.")
 
     # ── Rapport Orderbook permanent : envoyé à CHAQUE scan (toutes les 5 min) ──
-    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio
+    from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio, get_largest_walls
     import re as _re
+
+    PULLBACK_THRESHOLD = 0.005  # 0.5% → prix à 0.5% du mur = signal pullback
 
     def _clean_name(sym):
         return _re.sub(r'\d+', '', sym.replace("-USD", ""))
 
     buyers_list, sellers_list, balanced_list = [], [], []
+    pullback_signals = []
 
     for sym, symbol_mexc in SYMBOL_MAP.items():
         try:
             price = get_current_price(symbol_mexc)
             if price > 0:
                 ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)
+                walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
+                        # ⚡ Acheteurs dominent + prix proche du mur d'achat → PULLBACK BUY
+                        if walls and walls.get("largest_bid"):
+                            wall_price = float(walls["largest_bid"]["price"])
+                            dist = abs(price - wall_price) / price
+                            if dist <= PULLBACK_THRESHOLD:
+                                pullback_signals.append(("BUY", name, ratio, price, wall_price, walls["largest_ask"]["price"] if walls.get("largest_ask") else "?"))
                     elif ratio <= 0.8:
                         sellers_list.append((ratio, name))
+                        # ⚡ Vendeurs dominent + prix proche du mur de vente → PULLBACK SELL
+                        if walls and walls.get("largest_ask"):
+                            wall_price = float(walls["largest_ask"]["price"])
+                            dist = abs(price - wall_price) / price
+                            if dist <= PULLBACK_THRESHOLD:
+                                pullback_signals.append(("SELL", name, ratio, price, wall_price, walls["largest_bid"]["price"] if walls.get("largest_bid") else "?"))
                     else:
                         balanced_list.append((ratio, name))
             time.sleep(0.15)
         except Exception as e:
             logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
-    # 🟢 Décroissant : plus fort acheteur en premier
+    # ── Envoi des signaux pullback immédiats ──────────────────────────────────
+    for direction, name, ratio, cur_price, entry_price, tp_price in pullback_signals:
+        emoji = "🟢📈" if direction == "BUY" else "🔴📉"
+        send_message(
+            f"⚡ *SIGNAL PULLBACK — {name}* ⚡\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"{emoji} *{direction}* — Acheteurs/Vendeurs ratio : `{ratio}`\n"
+            f"💰 Prix actuel : `{cur_price}`\n"
+            f"🎯 Entrée (mur) : `{entry_price}`\n"
+            f"🏁 TP visé : `{tp_price}`\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"⚠️ _Signal orderbook uniquement — pas de consensus IA_",
+            chat_id="375129602"
+        )
+        logger.info(f"⚡ Signal Pullback envoyé : {name} {direction} @ {cur_price} (mur: {entry_price})")
+
+    # ── Rapport global toutes les 5 min ───────────────────────────────────────
     buyers_list.sort(key=lambda x: x[0], reverse=True)
-    # 🔴 Croissant : plus fort vendeur en premier (ratio le plus bas)
     sellers_list.sort(key=lambda x: x[0])
-    # ⚖️ Décroissant
     balanced_list.sort(key=lambda x: x[0], reverse=True)
 
     def _fmt(lst):
