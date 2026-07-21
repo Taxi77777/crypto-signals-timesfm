@@ -1,4 +1,33 @@
 {
-  "last_update": "2026-07-20T23:20:27.584497+00:00",
-  "signals": []
+  "last_update": "2026-07-21T00:14:21.056916+00:00",
+  "signals": [
+    {
+      "pair_name": "0x (ZRX)",
+      "signal": "BUY",
+      "current_price": "$0.086395",
+      "take_profit": "$0.086722",
+      "stop_loss": "Aucun",
+      "confidence": 80,
+      "rsi": 26.0,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:SELL/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `86,954 USDT` à `$0.0856`\n🔴 *Mur VENTE (résistance ±1.5%) :* `28,155 USDT` à `$0.0876`"
+    },
+    {
+      "pair_name": "dogwifhat (WIF)",
+      "signal": "BUY",
+      "current_price": "$0.152000",
+      "take_profit": "$0.152913",
+      "stop_loss": "Aucun",
+      "confidence": 80,
+      "rsi": 24.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:HOLD/MOI:BUY/LLA:BUY/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `38,834 USDT` à `$0.1514`\n🔴 *Mur VENTE (résistance ±1.5%) :* `593,820 USDT` à `$0.1543`"
+    }
+  ]
 }
