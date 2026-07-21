@@ -109,7 +109,7 @@ def main():
             trail_result = check_and_trail(mexc_key, mexc_secret)
             if trail_result:
                 msg = format_trail_telegram(trail_result)
-                send_message(msg, chat_id="375129602")
+                send_message(msg)
                 logger.info(f"Trailing stop appliqué : {trail_result}")
 
         if open_count >= 2:
@@ -259,8 +259,7 @@ def main():
                 f"💡 Confiance d'origine : {p['confidence']}%\n"
                 f"🎯 TP visé : `{p['take_profit']}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"❌ _Le prix n'est pas revenu dans la zone EMA20 en 2h — signal annulé._",
-                chat_id="375129602"
+                f"❌ _Le prix n'est pas revenu dans la zone EMA20 en 2h — signal annulé._"
             )
             continue
 
@@ -272,7 +271,7 @@ def main():
                 break
         if inverse_detected:
             logger.info(f"⏳ Pullback invalidé pour {p['pair_name']} par un signal inverse")
-            send_message(f"❌ *Pullback invalidé*\nLe signal d'origine {p['pair_name']} {p['signal']} est annulé suite à une inversion de tendance.", chat_id="375129602")
+            send_message(f"❌ *Pullback invalidé*\nLe signal d'origine {p['pair_name']} {p['signal']} est annulé suite à une inversion de tendance.")
             continue
 
         # Vérification du pullback réel
@@ -303,7 +302,7 @@ def main():
 
             if invalidated:
                 logger.info(f"⏳ Pullback invalidé pour {p['pair_name']} : {reason}")
-                send_message(f"❌ *Pullback invalidé*\nSignal {p['pair_name']} {p['signal']} annulé : {reason}.", chat_id="375129602")
+                send_message(f"❌ *Pullback invalidé*\nSignal {p['pair_name']} {p['signal']} annulé : {reason}.")
                 continue
 
             if triggered:
@@ -320,8 +319,7 @@ def main():
                     f"📈 RSI : `{p['rsi']}` | {p['macd_trend']}\n"
                     f"🤖 Consensus : `{p['forecast_dir']}`\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"✅ _Le prix est revenu en zone EMA20 — ordre en train d'être passé !_",
-                    chat_id="375129602"
+                    f"✅ _Le prix est revenu en zone EMA20 — ordre en train d'être passé !_"
                 )
                 
                 tp_val = float(p["take_profit_raw"])
@@ -402,8 +400,7 @@ def main():
                     f"📈 RSI : `{s.rsi}` | {s.macd_trend}\n"
                     f"🤖 Consensus : `{s.forecast_dir}`\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"_Ordre déclenché automatiquement dès le pullback (max 2h)_",
-                    chat_id="375129602"
+                    f"_Ordre déclenché automatiquement dès le pullback (max 2h)_"
                 )
         else:
             immediate_signals.append(s)
@@ -543,7 +540,7 @@ def main():
             block_msg = " + ".join(reasons)
             logger.info(f"🛡️ Guard Block | Signal {s.pair_name} {s.signal} bloqué car : {block_msg}.")
             # On envoie l'explication EN PRIVÉ
-            send_message(f"🛡️ *Macro/Crypto Guard*\nSignal {s.pair_name} {s.signal} bloqué car :\n_{block_msg}_", chat_id="375129602")
+            send_message(f"🛡️ *Macro/Crypto Guard*\nSignal {s.pair_name} {s.signal} bloqué car :\n_{block_msg}_")
         else:
             filtered_strong_signals.append(s)
             
@@ -801,8 +798,7 @@ def main():
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                     f"{anti_scam_txt}\n"
                     f"{range_txt}\n"
-                    f"{fisher_txt}",
-                    chat_id="375129602"
+                    f"{fisher_txt}"
                 )
                 logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
         except Exception as e:
@@ -822,8 +818,7 @@ def main():
         f"🟢 *ACHETEURS ({len(buyers_list)}) — décroissant :*\n{_fmt(buyers_list)}\n\n"
         f"🔴 *VENDEURS ({len(sellers_list)}) — croissant :*\n{_fmt(sellers_list)}\n\n"
         f"⚖️ *EQUILIBRÉ ({len(balanced_list)}) :*\n{_fmt(balanced_list)}\n"
-        f"_Prochain scan dans 5 min_",
-        chat_id="375129602"
+        f"_Prochain scan dans 5 min_"
     )
 
     # ── 5. Auto-trading MEXC Futures : jusqu'à 2 trades simultanés ──────────
@@ -838,8 +833,7 @@ def main():
             logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
             send_message(
                 f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
-                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._",
-                chat_id="375129602"
+                f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._"
             )
         else:
             # Calculer combien de nouveaux trades on peut ouvrir (maximum 2 en tout)
@@ -873,7 +867,7 @@ def main():
                 logger.info(f"📊 DefiLlama TVL Guard | {best.pair_name} : {tvl_reason}")
                 if not is_allowed:
                     logger.info(f"❌ Signal {best.pair_name} bloqué par TVL Guard.")
-                    send_message(f"⚠️ *Signal {best.pair_name} {best.signal} bloqué*\n{tvl_reason}", chat_id="375129602")
+                    send_message(f"⚠️ *Signal {best.pair_name} {best.signal} bloqué*\n{tvl_reason}")
                     signal_valid = False
 
                 if signal_valid:
@@ -900,11 +894,11 @@ def main():
                         logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
                         if best.signal == "BUY" and imbalance < -0.2:
                             logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat.")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})")
                             signal_valid = False
                         elif best.signal == "SELL" and imbalance > 0.2:
                             logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente.")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})")
                             signal_valid = False
 
                 # 2. Vérification Funding Rate
@@ -915,11 +909,11 @@ def main():
                         logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
                         if best.signal == "BUY" and funding > 0.10:
                             logger.info(f"❌ Funding trop positif ({funding:+.4f}%) -> Achat bloqué.")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : longs surchargés.", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : longs surchargés.")
                             signal_valid = False
                         elif best.signal == "SELL" and funding < -0.10:
                             logger.info(f"❌ Funding trop négatif ({funding:+.4f}%) -> Vente bloquée.")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.")
                             signal_valid = False
 
                 # 3. Vérification Cumulative Depth et CVD
@@ -930,11 +924,11 @@ def main():
                         logger.info(f"🧱 Profondeur cumulative {symbol_mexc} | Ratio Bids/Asks (1.5%): {depth_ratio}")
                         if best.signal == "BUY" and depth_ratio < 1.2:
                             logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} < 1.2) -> Blocage achat (murs de vente trop forts).")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nMurs de vente trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nMurs de vente trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})")
                             signal_valid = False
                         elif best.signal == "SELL" and depth_ratio > 0.8:
                             logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} > 0.8) -> Blocage vente (murs d'achat trop forts).")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nMurs d'achat trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})", chat_id="375129602")
+                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nMurs d'achat trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})")
                             signal_valid = False
                     
                     # CVD (Transactions récentes)
@@ -944,11 +938,11 @@ def main():
                             logger.info(f"📊 CVD Transactions {symbol_mexc} | Ratio Volume Achat/Vente (100 trades): {cvd_ratio}")
                             if best.signal == "BUY" and cvd_ratio < 1.15:
                                 logger.info(f"❌ CVD défavorable ({cvd_ratio} < 1.15) -> Blocage achat (flux vendeur domine).")
-                                send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFlux d'achat agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})", chat_id="375129602")
+                                send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFlux d'achat agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})")
                                 signal_valid = False
                             elif best.signal == "SELL" and cvd_ratio > 0.85:
                                 logger.info(f"❌ CVD défavorable ({cvd_ratio} > 0.85) -> Blocage vente (flux acheteur domine).")
-                                send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFlux de vente agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})", chat_id="375129602")
+                                send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFlux de vente agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})")
                                 signal_valid = False
 
                 if signal_valid:
@@ -988,14 +982,14 @@ def main():
                     )
 
                     if result and result.get("success"):
-                        send_message(format_order_telegram(result, best), chat_id="375129602")
+                        send_message(format_order_telegram(result, best))
                         logger.info(f"✅ Ordre MEXC Futures pour {best.pair_name} ouvert et notifié !")
                         opened_trades_count += 1
                         time.sleep(0.5)
                     else:
                         err = result.get("error", "Inconnue") if result else "Réponse MEXC vide"
                         logger.error(f"❌ Échec ordre {best.pair_name}: {err}")
-                        send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._", chat_id="375129602")
+                        send_message(f"❌ *Erreur MEXC Futures — {best.pair_name}*\n`{err}`\n_Position non ouverte._")
     elif use_mexc and trade_allowed and not strong_signals:
         logger.info("Aucun signal fort → Pas de trade ce scan.")
 
