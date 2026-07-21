@@ -47,7 +47,8 @@ CRYPTO_PAIRS = [
     "APT21794-USD", "SEI-USD", "FET-USD", "RUNE-USD", "IMX10603-USD",
     "LDO-USD", "GRT6719-USD", "STX4847-USD", "JUP29210-USD", "TRX-USD",
     "PYTH-USD", "THETA-USD", "ATOM-USD", "ALGO-USD", "VET-USD",
-    "HBAR-USD", "PENDLE-USD",
+    "HBAR-USD", "PENDLE-USD", "TON-USD", "KAS-USD", "MKR-USD",
+    "FIL-USD", "RENDER-USD",
     # Altcoins à forte liquidité & Memes leaders
     "DOGE-USD", "FLOKI-USD", "ONDO-USD", "AR-USD", "ETC-USD",
     "SHIB-USD", "UNI7083-USD", "STRK-USD", "POL-USD", "CKB-USD",
@@ -94,6 +95,11 @@ PAIR_NAMES = {
     "VET-USD":      "VeChain (VET)",
     "HBAR-USD":     "Hedera (HBAR)",
     "PENDLE-USD":   "Pendle (PENDLE)",
+    "TON-USD":      "Toncoin (TON)",
+    "KAS-USD":      "Kaspa (KAS)",
+    "MKR-USD":      "Maker (MKR)",
+    "FIL-USD":      "Filecoin (FIL)",
+    "RENDER-USD":   "Render (RENDER)",
     # Liquides & Memes
     "DOGE-USD":     "Dogecoin (DOGE)",
     "FLOKI-USD":    "Floki (FLOKI)",
