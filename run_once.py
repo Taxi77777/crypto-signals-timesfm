@@ -101,7 +101,7 @@ def main():
         open_positions = get_open_positions(mexc_key, mexc_secret)
         open_count = len(open_positions)
         open_symbols = [p.get("symbol") for p in open_positions]
-        logger.info(f"Positions actives sur MEXC : {open_count}/2 ({', '.join(open_symbols)})")
+        logger.info(f"Positions actives sur MEXC : {open_count}/1 ({', '.join(open_symbols)})")
 
         if open_count > 0:
             # Positions ouvertes → appliquer trailing stop software
@@ -112,11 +112,11 @@ def main():
                 send_message(msg)
                 logger.info(f"Trailing stop appliqué : {trail_result}")
 
-        if open_count >= 2:
-            logger.info("Limite de 2 positions simultanées atteinte → pas de nouveau trade")
+        if open_count >= 1:
+            logger.info("Limite de 1 position simultanée atteinte → pas de nouveau trade")
             trade_allowed = False
         else:
-            logger.info(f"Autorisé à ouvrir {2 - open_count} nouveau(x) trade(s)...")
+            logger.info("Aucune position ouverte → 1 trade autorisé")
             trade_allowed = True
     else:
         logger.warning("Clés MEXC absentes — Mode analyse seule.")
@@ -679,14 +679,15 @@ def main():
                 walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
+                    MIN_DIST = 0.004   # distance mini au mur (0.4%) pour couvrir les frais
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
-                        # ⚡ Prix qui DESCEND vers un gros mur d'achat (pullback avant impulsion)
-                        if ratio >= 1.2 and walls and walls.get("largest_bid"):
-                            wall_price = float(walls["largest_bid"]["price"])
-                            dist = (price - wall_price) / price  # positif = au-dessus du mur
-                            if 0.0 <= dist <= APPROACH_THRESHOLD:
-                                # Verifier que le prix descend (pas déjà rebondi)
+                        # ⚡ ASPIRATION HAUSSIERE : le prix MONTE, aspiré par le mur de VENTE au-dessus
+                        # -> on LONG (BUY) et on encaisse PILE sur le mur (TP = mur de vente)
+                        if walls and walls.get("largest_ask"):
+                            wall_price = float(walls["largest_ask"]["price"])
+                            dist = (wall_price - price) / price  # positif = mur au-dessus
+                            if MIN_DIST <= dist <= APPROACH_THRESHOLD:
                                 try:
                                     df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
                                     if not df_chk.empty:
@@ -695,18 +696,19 @@ def main():
                                         df_chk.columns = [c.lower() for c in df_chk.columns]
                                         if len(df_chk) >= 4:
                                             trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
-                                            if trend <= 0:  # Prix baisse → approche du mur
-                                                tp_est = float(walls["largest_ask"]["price"]) if walls.get("largest_ask") else price * 1.015
+                                            if trend >= 0:  # le prix monte vers le mur
+                                                tp_est = wall_price * 0.999   # TP juste devant le mur de vente
                                                 pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
                                 except Exception:
                                     pass
                     elif ratio <= 0.8:
                         sellers_list.append((ratio, name))
-                        # ⚡ Prix qui MONTE vers un gros mur de vente
-                        if ratio <= 0.8 and walls and walls.get("largest_ask"):
-                            wall_price = float(walls["largest_ask"]["price"])
-                            dist = (wall_price - price) / price  # positif = en dessous du mur
-                            if 0.0 <= dist <= APPROACH_THRESHOLD:
+                        # ⚡ ASPIRATION BAISSIERE : le prix DESCEND, aspiré par le mur d'ACHAT en dessous
+                        # -> on SHORT (SELL) et on encaisse PILE sur le mur (TP = mur d'achat)
+                        if walls and walls.get("largest_bid"):
+                            wall_price = float(walls["largest_bid"]["price"])
+                            dist = (price - wall_price) / price  # positif = mur en dessous
+                            if MIN_DIST <= dist <= APPROACH_THRESHOLD:
                                 try:
                                     df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
                                     if not df_chk.empty:
@@ -715,8 +717,8 @@ def main():
                                         df_chk.columns = [c.lower() for c in df_chk.columns]
                                         if len(df_chk) >= 4:
                                             trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
-                                            if trend >= 0:  # Prix monte → approche du mur de vente
-                                                tp_est = float(walls["largest_bid"]["price"]) if walls.get("largest_bid") else price * 0.985
+                                            if trend <= 0:  # le prix descend vers le mur
+                                                tp_est = wall_price * 1.001   # TP juste devant le mur d'achat
                                                 pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
                                 except Exception:
                                     pass
@@ -739,14 +741,16 @@ def main():
                 continue
                 
             if direction == "BUY":
-                current_bid_price = float(new_walls["largest_bid"]["price"])
-                if abs(current_bid_price - entry_price) / entry_price > 0.001:  # Si le mur a bougé de plus de 0.1%
-                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur d'achat a été retiré/déplacé -> Signal Annulé")
-                    continue
-            else:
+                # BUY aspiré vers le mur de VENTE au-dessus -> ce mur doit toujours etre la
                 current_ask_price = float(new_walls["largest_ask"]["price"])
                 if abs(current_ask_price - entry_price) / entry_price > 0.001:
-                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur de vente a été retiré/déplacé -> Signal Annulé")
+                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur de vente (cible) a bougé -> Signal Annulé")
+                    continue
+            else:
+                # SELL aspiré vers le mur d'ACHAT en dessous -> ce mur doit toujours etre la
+                current_bid_price = float(new_walls["largest_bid"]["price"])
+                if abs(current_bid_price - entry_price) / entry_price > 0.001:
+                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur d'achat (cible) a bougé -> Signal Annulé")
                     continue
                     
             anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
@@ -784,7 +788,7 @@ def main():
                 else:
                     fisher_txt = f"⚠️ Fisher(9) non optimal: {fisher:.2f}"
                     
-                arrow = "↘️ descend" if direction == "BUY" else "↗️ monte"
+                arrow = "↗️ monte (aspiré par le mur de vente)" if direction == "BUY" else "↘️ descend (aspiré par le mur d'achat)"
                 emoji = "🟢" if direction == "BUY" else "🔴"
                 send_message(
                     f"{emoji} *APPROCHE DU MUR — {name}* {emoji}\n"
@@ -801,6 +805,36 @@ def main():
                     f"{fisher_txt}"
                 )
                 logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
+
+                # ⚡ EXECUTION AUTO (stratégie ASPIRATION) : 1 seul trade, TP pile sur le mur
+                if use_mexc and trade_allowed:
+                    sl_wall = 0.0   # PAS de SL fixe — seul le trailing stop protège les profits
+                    result_wall = place_order(
+                        api_key    = mexc_key,
+                        secret_key = mexc_secret,
+                        symbol_yf  = sym,
+                        signal     = direction,
+                        price      = cur_price,
+                        tp_price   = tp_price,     # TP = pile sur le mur ciblé
+                        sl_price   = sl_wall,
+                    )
+                    if result_wall and result_wall.get("success"):
+                        trade_allowed = False       # 1 seule position a la fois
+                        open_symbols.append(symbol_mexc)
+                        send_message(
+                            f"🚀 *TRADE ASPIRATION OUVERT — {name}*\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"📌 *{direction}* x{result_wall.get('leverage')} — Mise {result_wall.get('balance_used')} USDT\n"
+                            f"💰 Entrée : `{_fmt_p(cur_price)}`\n"
+                            f"🏁 TP (sur le mur) : `{_fmt_p(tp_price)}`\n"
+                            f"🛑 SL : Aucun — trailing stop de profit actif\n"
+                            f"🧱 Mur ciblé : `{_fmt_p(entry_price)}`\n"
+                            f"_Le bot ferme automatiquement au contact du mur._"
+                        )
+                        logger.info(f"🚀 Trade aspiration ouvert : {name} {direction} TP mur {tp_price}")
+                    else:
+                        err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
+                        logger.error(f"❌ Échec trade aspiration {name}: {err_w}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
@@ -836,15 +870,9 @@ def main():
                 f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._"
             )
         else:
-            # Calculer combien de nouveaux trades on peut ouvrir (maximum 2 en tout)
-            slots_available = max(0, 2 - open_count)
-            
-            # Ajuster le pourcentage de marge en fonction du nombre de slots ouverts
-            # Si 0 positions actives et on a plusieurs opportunités, chacun prend 45% (total 90%).
-            if open_count == 0 and len(tradables) >= 2:
-                margin_pct_per_trade = 0.45
-            else:
-                margin_pct_per_trade = 0.90
+            # 1 SEULE position a la fois (demande utilisateur)
+            slots_available = max(0, 1 - open_count)
+            margin_pct_per_trade = 0.90
                 
             # Initialiser le filtre DefiLlama
             from src.defillama_filter import DefiLlamaFilter
