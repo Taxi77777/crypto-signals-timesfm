@@ -674,19 +674,19 @@ def main():
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
                         # ⚡ Murs massifs (ratio >= 1.8) + prix proche du mur d'achat → PULLBACK BUY
-                        if ratio >= 1.8 and walls and walls.get("largest_bid"):
+                        if ratio >= 1.8 and walls and walls.get("largest_bid") and walls.get("largest_ask"):
                             wall_price = float(walls["largest_bid"]["price"])
                             dist = abs(price - wall_price) / price
                             if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("BUY", name, sym, ratio, price, wall_price, walls["largest_ask"]["price"] if walls.get("largest_ask") else "?"))
+                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, walls["largest_ask"]["price"]))
                     elif ratio <= 0.8:
                         sellers_list.append((ratio, name))
                         # ⚡ Murs massifs (ratio <= 0.55) + prix proche du mur de vente → PULLBACK SELL
-                        if ratio <= 0.55 and walls and walls.get("largest_ask"):
+                        if ratio <= 0.55 and walls and walls.get("largest_ask") and walls.get("largest_bid"):
                             wall_price = float(walls["largest_ask"]["price"])
                             dist = abs(price - wall_price) / price
                             if dist <= PULLBACK_THRESHOLD:
-                                pullback_signals.append(("SELL", name, sym, ratio, price, wall_price, walls["largest_bid"]["price"] if walls.get("largest_bid") else "?"))
+                                pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, walls["largest_bid"]["price"]))
                     else:
                         balanced_list.append((ratio, name))
             time.sleep(0.15)
@@ -697,8 +697,28 @@ def main():
     import yfinance as yf
     from src.indicators import compute_all_indicators
 
-    for direction, name, sym, ratio, cur_price, entry_price, tp_price in pullback_signals:
+    for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price in pullback_signals:
         try:
+            # 🛡️ 1. Vérification Anti-Spoofing : Le mur est-il toujours là 15 secondes après ?
+            new_walls = get_largest_walls(symbol_mexc, cur_price, depth_pct=0.015)
+            if not new_walls or not new_walls.get("largest_bid") or not new_walls.get("largest_ask"):
+                logger.info(f"🚨 Spoofing détecté sur {name}: un des murs a disparu -> Signal Annulé")
+                continue
+                
+            if direction == "BUY":
+                current_bid_price = float(new_walls["largest_bid"]["price"])
+                if abs(current_bid_price - entry_price) / entry_price > 0.001:  # Si le mur a bougé de plus de 0.1%
+                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur d'achat a été retiré/déplacé -> Signal Annulé")
+                    continue
+            else:
+                current_ask_price = float(new_walls["largest_ask"]["price"])
+                if abs(current_ask_price - entry_price) / entry_price > 0.001:
+                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur de vente a été retiré/déplacé -> Signal Annulé")
+                    continue
+                    
+            anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
+
+            # 📊 2. Vérification Graphique (Range / Fisher)
             df = yf.download(sym, period="1d", interval="5m", progress=False)
             if not df.empty:
                 df = compute_all_indicators(df)
@@ -729,6 +749,7 @@ def main():
                     f"🎯 Entrée (mur) : `{entry_price}`\n"
                     f"🏁 TP visé : `{tp_price}`\n"
                     f"📊 *Contexte :*\n"
+                    f"  {anti_scam_txt}\n"
                     f"  {range_txt}\n"
                     f"  {fisher_txt}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━",
