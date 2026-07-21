@@ -718,8 +718,8 @@ def main():
                     
             anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
 
-            # 📊 2. Vérification Graphique (Range / Fisher)
-            df = yf.download(sym, period="1d", interval="5m", progress=False)
+            # 📊 2. Vérification Graphique (Range / Fisher en 15 minutes)
+            df = yf.download(sym, period="5d", interval="15m", progress=False)
             if not df.empty:
                 df = compute_all_indicators(df)
                 last = df.iloc[-1]
