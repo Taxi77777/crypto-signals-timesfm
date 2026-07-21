@@ -11,6 +11,10 @@ load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 
+# ── MEXC API ──────────────────────────────────────────────────────────────────
+MEXC_API_KEY       = os.getenv("MEXC_API_KEY", "")
+MEXC_SECRET_KEY    = os.getenv("MEXC_SECRET_KEY", "")
+
 # ── TimesFM ───────────────────────────────────────────────────────────────────
 USE_TIMESFM       = os.getenv("USE_TIMESFM", "true").lower() == "true"
 FORECAST_HORIZON  = 4    # Prédire 4 périodes en avance (20 min pour bougies 5m)

@@ -7,15 +7,26 @@ src/mexc_trader.py — Intégration MEXC Futures avec TimesFM
 - Trailing Stop : 2% callback natif MEXC + protection software
 """
 
+import time
 import hmac
 import hashlib
-import time
 import json
 import logging
 import requests
+import socket
+
+# --- ANTI-CENSURE DNS (Contournement blocage FAI) ---
+original_getaddrinfo = socket.getaddrinfo
+def patched_getaddrinfo(*args, **kwargs):
+    if args[0] == 'api.mexc.com':
+        return original_getaddrinfo('23.220.72.86', *args[1:], **kwargs)
+    return original_getaddrinfo(*args, **kwargs)
+socket.getaddrinfo = patched_getaddrinfo
+# ----------------------------------------------------
 
 logger = logging.getLogger(__name__)
 
+from config import MEXC_API_KEY, MEXC_SECRET_KEY
 MEXC_BASE          = "https://api.mexc.com"
 LEVERAGE           = 20
 MARGIN_PCT         = 0.90
