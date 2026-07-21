@@ -721,10 +721,21 @@ def main():
             # 📊 2. Vérification Graphique (Range / Fisher en 15 minutes)
             df = yf.download(sym, period="5d", interval="15m", progress=False)
             if not df.empty:
+                import pandas as pd
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = df.columns.get_level_values(0)
+                df = df.rename(columns={
+                    "Open": "open", "High": "high",
+                    "Low": "low",  "Close": "close", "Volume": "volume"
+                })
                 df = compute_all_indicators(df)
-                last = df.iloc[-1]
-                adx = float(last["adx"])
-                fisher = float(last["fisher"])
+                if not df.empty:
+                    last = df.iloc[-1]
+                    adx = float(last["adx"])
+                    fisher = float(last["fisher"])
+                else:
+                    logger.error(f"Echec du calcul des indicateurs pour {sym} (df vide)")
+                    continue
                 
                 # Check Range
                 if adx < 25:
