@@ -369,7 +369,7 @@ def generate_signal(
 
         pair_name = config.PAIR_NAMES.get(symbol, symbol)
 
-        # Calcul structure SMC & OTE
+        # FILTRE STRICT PULLBACK (Ne jamais acheter au sommet, ne jamais vendre au creux)
         from src.smc_filter import get_smc_ote_status
         smc = get_smc_ote_status(df, signal)
         smc_zone = "N/A"
@@ -377,6 +377,13 @@ def generate_signal(
         if smc:
             smc_zone = smc["zone"]
             is_ote = smc["is_ote"]
+            retracement = smc["retracement_pct"]
+            if retracement < 50.0:
+                action_str = "Achat trop haut" if signal == "BUY" else "Vente trop basse"
+                logger.info(f"⏳ Filtre Pullback actif sur {symbol} ({action_str} - retracement {retracement:.1f}% < 50%) -> Signal {signal} annulé")
+                return None
+            else:
+                logger.info(f"✅ Pullback validé sur {symbol} (retracement {retracement:.1f}%)")
 
         return TradingSignal(
             symbol        = symbol,
