@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-22T22:56:26.886006+00:00",
-  "signals": []
+  "last_update": "2026-07-22T23:57:41.420377+00:00",
+  "signals": [
+    {
+      "pair_name": "Cosmos (ATOM)",
+      "signal": "SELL",
+      "current_price": "$1.4690",
+      "take_profit": "$1.4636",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 60.9,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:HOLD",
+      "smc_zone": "Premium 🟢 (Short cher/favorable)",
+      "is_ote": true,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `99,044 USDT` à `$1.448`\n🔴 *Mur VENTE (résistance ±1.5%) :* `548,417 USDT` à `$1.492`"
+    }
+  ]
 }
