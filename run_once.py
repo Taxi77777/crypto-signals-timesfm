@@ -867,7 +867,21 @@ def main():
         # Ne trader QUE les cryptos disponibles sur MEXC Futures et non déjà ouvertes
         tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
         
-        if not tradables:
+        # ── Trier par PRIORITÉ VOLUME 24H MEXC / Marché (Prio Forte si Vol > 5M$ USDT, Prio Moyenne sinon) ──
+        def get_crypto_volume_tier(s):
+            df = all_data.get(s.symbol)
+            vol_24h = 0.0
+            if df is not None and not df.empty:
+                sub = df.tail(288)
+                vol_24h = float((sub["close"] * sub["volume"]).sum())
+            return (vol_24h, s.confidence)
+
+        tradables.sort(key=get_crypto_volume_tier, reverse=True)
+        for t in tradables[:3]:
+            df_t = all_data.get(t.symbol)
+            v_usdt = float((df_t.tail(288)["close"] * df_t.tail(288)["volume"]).sum()) if df_t is not None else 0
+            prio = "🔥 PRIORITÉ HAUTE (Forte Vol 24h)" if v_usdt >= 5_000_000 else "⚖️ PRIORITÉ MOYENNE"
+            logger.info(f"📊 Tri Volume MEXC | {t.pair_name} : Vol 24h ~{v_usdt:,.0f} USDT → {prio}")
             names = ", ".join(s.pair_name for s in strong_signals[:5])
             logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
             send_message(
