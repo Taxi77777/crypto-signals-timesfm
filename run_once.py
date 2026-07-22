@@ -730,7 +730,6 @@ def main():
 
     # ── Validation Fisher & Envoi des signaux pullback (direction confirmée) ──────────
     import yfinance as yf
-    from src.indicators import compute_all_indicators
 
     for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m in pullback_signals:
         try:
