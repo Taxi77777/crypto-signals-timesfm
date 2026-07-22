@@ -2,7 +2,7 @@ name: Crypto Signals Bot (50 Cryptos) — Consensus 5 IA, Scan 5min
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # Toutes les 5 minutes (Bitcoin uniquement)
+    - cron: '0,30 * * * *'   # Toutes les 30 minutes
   workflow_dispatch:            # Bouton manuel depuis GitHub
 
 jobs:
