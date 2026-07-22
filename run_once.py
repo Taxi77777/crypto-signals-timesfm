@@ -806,8 +806,13 @@ def main():
                 )
                 logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
 
-                # ⚡ EXECUTION AUTO (stratégie ASPIRATION) : 1 seul trade, TP pile sur le mur
+                # ⚡ EXECUTION AUTO (stratégie ASPIRATION) : 1 seul trade, TP étendu + TRAILING
                 if use_mexc and trade_allowed:
+                    # TP étendu = 2x la distance au mur (au-delà du mur, comme demandé)
+                    if direction == "SELL":
+                        tp_ext = entry_price - (cur_price - entry_price)   # sous le mur d'achat
+                    else:
+                        tp_ext = entry_price + (entry_price - cur_price)   # au-dessus du mur de vente
                     sl_wall = 0.0   # PAS de SL fixe — seul le trailing stop protège les profits
                     result_wall = place_order(
                         api_key    = mexc_key,
@@ -815,7 +820,7 @@ def main():
                         symbol_yf  = sym,
                         signal     = direction,
                         price      = cur_price,
-                        tp_price   = tp_price,     # TP = pile sur le mur ciblé
+                        tp_price   = tp_ext,       # TP étendu au-delà du mur (2x distance) + trailing actif
                         sl_price   = sl_wall,
                     )
                     if result_wall and result_wall.get("success"):
@@ -826,10 +831,11 @@ def main():
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                             f"📌 *{direction}* x{result_wall.get('leverage')} — Mise {result_wall.get('balance_used')} USDT\n"
                             f"💰 Entrée : `{_fmt_p(cur_price)}`\n"
-                            f"🏁 TP (sur le mur) : `{_fmt_p(tp_price)}`\n"
-                            f"🛑 SL : Aucun — trailing stop de profit actif\n"
+                            f"🏁 TP étendu : `{_fmt_p(tp_ext)}` (au-delà du mur)\n"
+                            f"🔒 + Trailing stop actif (+1.5% breakeven, +3% capture 50%, +5% capture 75%)\n"
+                            f"🛑 Pas de SL fixe — seul le trailing protège\n"
                             f"🧱 Mur ciblé : `{_fmt_p(entry_price)}`\n"
-                            f"_Le bot ferme automatiquement au contact du mur._"
+                            f"_Sortie : au TP étendu, ou au trailing si le prix se retourne._"
                         )
                         logger.info(f"🚀 Trade aspiration ouvert : {name} {direction} TP mur {tp_price}")
                     else:
