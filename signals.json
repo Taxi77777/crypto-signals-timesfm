@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-23T22:49:33.398698+00:00",
-  "signals": []
+  "last_update": "2026-07-23T23:52:13.081167+00:00",
+  "signals": [
+    {
+      "pair_name": "Aave (AAVE)",
+      "signal": "BUY",
+      "current_price": "$95.4200",
+      "take_profit": "$95.8192",
+      "stop_loss": "Aucun",
+      "confidence": 75,
+      "rsi": 35.1,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": true,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `204,695 USDT` à `$94.1`\n🔴 *Mur VENTE (résistance ±1.5%) :* `207,544 USDT` à `$96.77`"
+    }
+  ]
 }
