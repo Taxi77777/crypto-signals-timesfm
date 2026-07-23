@@ -1,19 +1,33 @@
 {
-  "last_update": "2026-07-23T05:50:11.547268+00:00",
+  "last_update": "2026-07-23T07:30:59.943326+00:00",
   "signals": [
     {
-      "pair_name": "Shiba Inu (SHIB)",
+      "pair_name": "Starknet (STRK)",
       "signal": "BUY",
-      "current_price": "$0.000004",
-      "take_profit": "$0.000004",
+      "current_price": "$0.029279",
+      "take_profit": "$0.030054",
       "stop_loss": "Aucun",
-      "confidence": 80,
-      "rsi": 44.8,
-      "macd_trend": "Neutre ⚪",
-      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY",
+      "confidence": 82,
+      "rsi": 42.6,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY",
       "smc_zone": "Discount 🟢",
       "is_ote": false,
-      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `836,401 USDT` à `$4.18e-06`\n🔴 *Mur VENTE (résistance ±1.5%) :* `850,507 USDT` à `$4.285e-06`"
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `387,322 USDT` à `$0.0291`\n🔴 *Mur VENTE (résistance ±1.5%) :* `401,889 USDT` à `$0.02979`"
+    },
+    {
+      "pair_name": "Pendle (PENDLE)",
+      "signal": "BUY",
+      "current_price": "$1.6090",
+      "take_profit": "$1.6161",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 27.7,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:HOLD/LLA:BUY/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `72,089 USDT` à `$1.584`\n🔴 *Mur VENTE (résistance ±1.5%) :* `126,254 USDT` à `$1.6146`"
     }
   ]
 }
