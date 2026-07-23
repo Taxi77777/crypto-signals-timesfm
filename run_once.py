@@ -910,7 +910,6 @@ def main():
                     # Vérification du Pullback EMA20 (Protection Achat en Haut de Mèche)
                     df_best = all_data.get(best.symbol)
                     if df_best is not None and not df_best.empty:
-                        from src.indicators import compute_all_indicators
                         df_tmp_b = compute_all_indicators(df_best)
                         if not df_tmp_b.empty:
                             last_b = df_tmp_b.iloc[-1]
