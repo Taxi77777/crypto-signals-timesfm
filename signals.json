@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-23T13:25:38.313103+00:00",
-  "signals": []
+  "last_update": "2026-07-23T15:36:11.490443+00:00",
+  "signals": [
+    {
+      "pair_name": "Starknet (STRK)",
+      "signal": "BUY",
+      "current_price": "$0.029069",
+      "take_profit": "$0.029870",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 45.0,
+      "macd_trend": "Baissier 🔴",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:BUY/LLA:BUY/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `318,567 USDT` à `$0.02893`\n🔴 *Mur VENTE (résistance ±1.5%) :* `152,837 USDT` à `$0.02955`"
+    }
+  ]
 }
