@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-23T04:54:53.618297+00:00",
-  "signals": []
+  "last_update": "2026-07-23T05:50:11.547268+00:00",
+  "signals": [
+    {
+      "pair_name": "Shiba Inu (SHIB)",
+      "signal": "BUY",
+      "current_price": "$0.000004",
+      "take_profit": "$0.000004",
+      "stop_loss": "Aucun",
+      "confidence": 80,
+      "rsi": 44.8,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:BUY/CHO:BUY/MOI:SELL/LLA:BUY/GRA:BUY",
+      "smc_zone": "Discount 🟢",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `836,401 USDT` à `$4.18e-06`\n🔴 *Mur VENTE (résistance ±1.5%) :* `850,507 USDT` à `$4.285e-06`"
+    }
+  ]
 }
