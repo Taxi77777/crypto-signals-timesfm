@@ -997,6 +997,16 @@ def main():
                                 signal_valid = False
 
                 if signal_valid:
+                    # 🛡️ Anti-Spoofing Double-Check Universel 15s sur TOUS les trades
+                    logger.info(f"🛡️ Anti-Spoofing Guard | Pause 15s de double-check pour valider la stabilité du carnet d'ordres sur {symbol_mexc}...")
+                    time.sleep(15)
+                    check_walls_2 = get_largest_walls(symbol_mexc, mexc_price if mexc_price > 0 else raw_prices.get(best.symbol, 0), depth_pct=0.015)
+                    if not check_walls_2:
+                        logger.info(f"🚨 Spoofing détecté sur {best.pair_name}: Mur disparu après 15s -> Ordre Annulé.")
+                        send_message(f"🚨 *Signal {best.pair_name} {best.signal} Annulé par Anti-Spoofing Guard*\nLe mur d'ordres a été retiré/manipulé 15s après l'alerte.")
+                        signal_valid = False
+
+                if signal_valid:
                     raw_price = raw_prices.get(best.symbol, 0)
                     
                     def parse_price(s: str) -> float:
