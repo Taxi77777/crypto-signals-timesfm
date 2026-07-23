@@ -679,47 +679,35 @@ def main():
                 walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
-                    MIN_DIST = 0.004   # distance mini au mur (0.4%) pour couvrir les frais
+                    MIN_DIST = 0.001   # distance mini au mur (0.1%) — au contact du mur
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
-                        # ⚡ ASPIRATION HAUSSIERE : le prix MONTE, aspiré par le mur de VENTE au-dessus
-                        # -> on LONG (BUY) et on encaisse PILE sur le mur (TP = mur de vente)
-                        if walls and walls.get("largest_ask"):
-                            wall_price = float(walls["largest_ask"]["price"])
-                            dist = (wall_price - price) / price  # positif = mur au-dessus
-                            if MIN_DIST <= dist <= APPROACH_THRESHOLD:
-                                try:
-                                    df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
-                                    if not df_chk.empty:
-                                        if isinstance(df_chk.columns, _pd_ob.MultiIndex):
-                                            df_chk.columns = df_chk.columns.get_level_values(0)
-                                        df_chk.columns = [c.lower() for c in df_chk.columns]
-                                        if len(df_chk) >= 4:
-                                            trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
-                                            if trend >= 0:  # le prix monte vers le mur
-                                                tp_est = wall_price * 0.999   # TP juste devant le mur de vente
-                                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
-                                except Exception:
-                                    pass
-                    elif ratio <= 0.8:
-                        sellers_list.append((ratio, name))
-                        # ⚡ ASPIRATION BAISSIERE : le prix DESCEND, aspiré par le mur d'ACHAT en dessous
-                        # -> on SHORT (SELL) et on encaisse PILE sur le mur (TP = mur d'achat)
+                        # ⚡ PULLBACK REBOND SUR MUR DES BALEINES (ACHAT AU MUR DE SUPPORT 0.3268)
                         if walls and walls.get("largest_bid"):
                             wall_price = float(walls["largest_bid"]["price"])
-                            dist = (price - wall_price) / price  # positif = mur en dessous
-                            if MIN_DIST <= dist <= APPROACH_THRESHOLD:
+                            dist = (price - wall_price) / price  # positif = mur de support en dessous
+                            if 0.0005 <= dist <= 0.004:  # Le prix est en plein pullback au contact du mur des baleines (<= 0.4%)
                                 try:
-                                    df_chk = _yf_ob.download(sym, period="1d", interval="15m", progress=False)
-                                    if not df_chk.empty:
-                                        if isinstance(df_chk.columns, _pd_ob.MultiIndex):
-                                            df_chk.columns = df_chk.columns.get_level_values(0)
-                                        df_chk.columns = [c.lower() for c in df_chk.columns]
-                                        if len(df_chk) >= 4:
-                                            trend = (float(df_chk['close'].iloc[-1]) - float(df_chk['close'].iloc[-4])) / float(df_chk['close'].iloc[-4]) * 100
-                                            if trend <= 0:  # le prix descend vers le mur
-                                                tp_est = wall_price * 1.001   # TP juste devant le mur d'achat
-                                                pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, trend))
+                                    tp_est = price * 1.015   # TP étendu +1.5% après le rebond sur le mur des baleines
+                                    pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
+                                except Exception:
+                                    pass
+                        elif walls and walls.get("largest_ask"):
+                            wall_price = float(walls["largest_ask"]["price"])
+                            dist = (wall_price - price) / price
+                            if 0.0005 <= dist <= 0.008:
+                                tp_est = wall_price * 0.999
+                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
+                    elif ratio <= 0.8:
+                        sellers_list.append((ratio, name))
+                        # ⚡ PULLBACK REBOND SUR MUR VENTE DES BALEINES (VENTE AU MUR DE RESISTANCE)
+                        if walls and walls.get("largest_ask"):
+                            wall_price = float(walls["largest_ask"]["price"])
+                            dist = (wall_price - price) / price  # positif = mur de résistance au-dessus
+                            if 0.0005 <= dist <= 0.004:  # Le prix est en plein pullback au contact du mur des baleines (<= 0.4%)
+                                try:
+                                    tp_est = price * 0.985   # TP étendu -1.5% après le rejet du mur des baleines
+                                    pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
                                 except Exception:
                                     pass
                     else:
