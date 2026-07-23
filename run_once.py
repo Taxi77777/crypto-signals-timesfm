@@ -918,6 +918,26 @@ def main():
                     signal_valid = False
 
                 if signal_valid:
+                    # Vérification du Pullback EMA20 (Protection Achat en Haut de Mèche)
+                    df_best = all_data.get(best.symbol)
+                    if df_best is not None and not df_best.empty:
+                        from src.indicators import compute_all_indicators
+                        df_tmp_b = compute_all_indicators(df_best)
+                        if not df_tmp_b.empty:
+                            last_b = df_tmp_b.iloc[-1]
+                            c_p = float(last_b["Close"])
+                            ema20_b = float(last_b.get("ema20", c_p))
+                            ext_p = (c_p - ema20_b) / ema20_b * 100 if ema20_b > 0 else 0
+                            if best.signal == "BUY" and ext_p > 0.08:
+                                logger.info(f"⏳ Crypto Pullback Guard | {best.pair_name} est trop étendu de l'EMA20 (+{ext_p:.2f}% > +0.08%) → Attente de repli.")
+                                send_message(f"⏳ *Signal {best.pair_name} BUY en attente de Pullback*\nPrix trop haut par rapport à l'EMA20 (+{ext_p:.2f}%). L'ordre sera placé dès le repli sur l'EMA20.")
+                                signal_valid = False
+                            elif best.signal == "SELL" and ext_p < -0.08:
+                                logger.info(f"⏳ Crypto Pullback Guard | {best.pair_name} est trop étendu de l'EMA20 ({ext_p:.2f}% < -0.08%) → Attente de repli.")
+                                send_message(f"⏳ *Signal {best.pair_name} SELL en attente de Pullback*\nPrix trop bas par rapport à l'EMA20 ({ext_p:.2f}%). L'ordre sera placé dès le repli sur l'EMA20.")
+                                signal_valid = False
+
+                if signal_valid:
                     # Obtenir les informations de profondeur de carnet en direct
                     from src.mexc_trader import get_current_price, get_largest_walls, get_cumulative_depth_ratio, get_recent_cvd_ratio
                     mexc_price = get_current_price(symbol_mexc)
