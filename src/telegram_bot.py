@@ -32,7 +32,7 @@ def format_signal_message(signal: TradingSignal) -> str:
         walls_part = f"🧱 *Murs dans ±1.5% du prix :*\n{signal.orderbook_walls}\n"
 
     return (
-        f"🤖 *CRYPTO SIGNAL — {signal.pair_name}* 🚨 *SIGNAL FORT*\n"
+        f"🪙 *SIGNAL CRYPTO [MEXC FUTURES x40]* — *{signal.pair_name}* 🚨 *SIGNAL FORT*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📊 Signal      : {emoji} *{signal.signal}*\n"
         f"💰 Prix actuel : `{signal.current_price}`\n"
