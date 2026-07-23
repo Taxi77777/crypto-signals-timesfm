@@ -96,6 +96,36 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         df["st_flip_up"]   = (pd.Series(st_dir, index=df.index) == 1)  & (pd.Series(st_dir, index=df.index).shift(1) == -1)
         df["st_flip_down"] = (pd.Series(st_dir, index=df.index) == -1) & (pd.Series(st_dir, index=df.index).shift(1) == 1)
 
+        # ── STOCHASTIQUE RSI & CROISEMENT REVERSAL (Zone 20/80) ──
+        try:
+            rsi_s = df["rsi"]
+            rsi_min = rsi_s.rolling(14).min()
+            rsi_max = rsi_s.rolling(14).max()
+            stoch_rsi_raw = (rsi_s - rsi_min) / (rsi_max - rsi_min + 1e-8) * 100
+            df["stoch_rsi_k"] = stoch_rsi_raw.rolling(3).mean()
+            df["stoch_rsi_d"] = df["stoch_rsi_k"].rolling(3).mean()
+        except Exception as e:
+            df["stoch_rsi_k"] = 50.0
+            df["stoch_rsi_d"] = 50.0
+
+        # ── BOUGIE D'AVALEMENT SUR EMA20 (Engulfing Candle Reversal) ──
+        try:
+            o = df["open"].values
+            c = df["close"].values
+            h = df["high"].values
+            l = df["low"].values
+            ema20_arr = df["ema20"].values
+            
+            engulf = ["NONE"] * len(df)
+            for i in range(1, len(df)):
+                if c[i] > o[i] and c[i-1] < o[i-1] and c[i] >= o[i-1] and l[i] <= ema20_arr[i] * 1.002:
+                    engulf[i] = "BULLISH_ENGULFING"
+                elif c[i] < o[i] and c[i-1] > o[i-1] and c[i] <= o[i-1] and h[i] >= ema20_arr[i] * 0.998:
+                    engulf[i] = "BEARISH_ENGULFING"
+            df["engulfing_reversal"] = engulf
+        except Exception as e:
+            df["engulfing_reversal"] = "NONE"
+
         df = df.dropna()
         return df
     except Exception as e:

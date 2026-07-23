@@ -243,6 +243,30 @@ def generate_signal(
         if fisher <= -2.0:   buy_score  += 1
         if fisher >= 2.0:    sell_score += 1
 
+        # ── Croisement Stochastique RSI (Fin de Pullback 20/80) ──
+        try:
+            if len(df_with_indicators) >= 3:
+                k1 = float(df_with_indicators.iloc[-1].get("stoch_rsi_k", 50))
+                d1 = float(df_with_indicators.iloc[-1].get("stoch_rsi_d", 50))
+                k2 = float(df_with_indicators.iloc[-2].get("stoch_rsi_k", 50))
+                d2 = float(df_with_indicators.iloc[-2].get("stoch_rsi_d", 50))
+                if k1 > d1 and k2 <= d2 and k2 <= 25:
+                    buy_score += 4
+                elif k1 < d1 and k2 >= d2 and k2 >= 75:
+                    sell_score += 4
+        except Exception:
+            pass
+
+        # ── Bougie d'Avalement sur EMA20 (Engulfing Candle Reversal) ──
+        try:
+            engulfing = df_with_indicators.iloc[-1].get("engulfing_reversal", "NONE")
+            if engulfing == "BULLISH_ENGULFING":
+                buy_score += 3
+            elif engulfing == "BEARISH_ENGULFING":
+                sell_score += 3
+        except Exception:
+            pass
+
         # ── PONDERATION DYNAMIQUE : chaque IA vote selon son taux de reussite reel ──
         from src.track_record import load_track, get_weight
         _track = load_track()
