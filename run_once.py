@@ -779,13 +779,14 @@ def main():
                 else:
                     range_txt = f"⚠️ Hors Range (ADX: {adx:.1f})"
                     
-                # Check Fisher
-                if (direction == "BUY" and fisher <= -1.0):
-                    fisher_txt = f"✅ Fisher(9) en creux: {fisher:.2f}"
-                elif (direction == "SELL" and fisher >= 1.0):
-                    fisher_txt = f"✅ Fisher(9) en sommet: {fisher:.2f}"
+                # Check Fisher Pullback Réel (Obligatoire)
+                if (direction == "BUY" and fisher <= -0.5):
+                    fisher_txt = f"✅ Fisher(9) en creux (Pullback validé): {fisher:.2f}"
+                elif (direction == "SELL" and fisher >= 0.5):
+                    fisher_txt = f"✅ Fisher(9) en sommet (Pullback validé): {fisher:.2f}"
                 else:
-                    fisher_txt = f"⚠️ Fisher(9) non optimal: {fisher:.2f}"
+                    logger.info(f"⏳ Pullback Guard | {name} {direction} Fisher non optimal ({fisher:.2f}) → Achat en haut de mèche bloqué. Attente vrai mouvement de pullback.")
+                    continue
                     
                 arrow = "↗️ monte (aspiré par le mur de vente)" if direction == "BUY" else "↘️ descend (aspiré par le mur d'achat)"
                 emoji = "🟢" if direction == "BUY" else "🔴"
