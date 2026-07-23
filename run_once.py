@@ -721,25 +721,53 @@ def main():
 
     for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m in pullback_signals:
         try:
-            # 🛡️ 1. Vérification Anti-Spoofing : Le mur est-il toujours là 15 secondes après ?
+            # 🛡️ 1. Vérification Anti-Spoofing & Piège des Baleines (Trade Contre-Tendance)
             new_walls = get_largest_walls(symbol_mexc, cur_price, depth_pct=0.015)
+            spoofing_detected = False
+            trap_direction = None
+
             if not new_walls or not new_walls.get("largest_bid") or not new_walls.get("largest_ask"):
-                logger.info(f"🚨 Spoofing détecté sur {name}: un des murs a disparu -> Signal Annulé")
-                continue
-                
-            if direction == "BUY":
-                # BUY aspiré vers le mur de VENTE au-dessus -> ce mur doit toujours etre la
+                spoofing_detected = True
+                trap_direction = "SELL" if direction == "BUY" else "BUY"
+            elif direction == "BUY":
                 current_ask_price = float(new_walls["largest_ask"]["price"])
                 if abs(current_ask_price - entry_price) / entry_price > 0.001:
-                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur de vente (cible) a bougé -> Signal Annulé")
-                    continue
+                    spoofing_detected = True
+                    trap_direction = "BUY"  # Le faux mur de vente a disparu -> Explosion haussière (PUMP)!
             else:
-                # SELL aspiré vers le mur d'ACHAT en dessous -> ce mur doit toujours etre la
                 current_bid_price = float(new_walls["largest_bid"]["price"])
                 if abs(current_bid_price - entry_price) / entry_price > 0.001:
-                    logger.info(f"🚨 Spoofing détecté sur {name}: Le mur d'achat (cible) a bougé -> Signal Annulé")
-                    continue
-                    
+                    spoofing_detected = True
+                    trap_direction = "SELL" # Le faux mur d'achat a disparu -> Cassure baissière (DUMP)!
+
+            if spoofing_detected:
+                logger.info(f"🚨 PIÈGE DE BALEINE DÉTECTÉ sur {name} ! Activation du Trade Contre-Tendance {trap_direction}...")
+                if use_mexc and trade_allowed:
+                    tp_trap = cur_price * (1.02 if trap_direction == "BUY" else 0.98)
+                    result_trap = place_order(
+                        api_key    = mexc_key,
+                        secret_key = mexc_secret,
+                        symbol_yf  = sym,
+                        signal     = trap_direction,
+                        price      = cur_price,
+                        tp_price   = tp_trap,
+                        sl_price   = 0.0,
+                    )
+                    if result_trap and result_trap.get("success"):
+                        trade_allowed = False
+                        open_symbols.append(symbol_mexc)
+                        emoji_trap = "🟢" if trap_direction == "BUY" else "🔴"
+                        send_message(
+                            f"{emoji_trap} *PIÈGE DE BALEINE EXPLOITÉ — {name}* {emoji_trap}\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"🚨 *Faux mur retiré par les baleines !*\n"
+                            f"📌 *ENTRÉE EN CONTRE-TENDANCE : {trap_direction} x{LEVERAGE}*\n"
+                            f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
+                            f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (+2.0% de capture)\n"
+                            f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
+                        )
+                continue
+
             anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
 
             # 📊 2. Vérification Graphique (Range / Fisher en 15 minutes)
