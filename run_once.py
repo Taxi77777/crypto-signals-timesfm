@@ -1058,7 +1058,7 @@ def main():
                             logger.info(f"🔄 Ajustement TP SELL pour {best.pair_name} : {tp_num} -> {max_tp:.5f} (min {min_dist_pct*100}%)")
                             tp_num = max_tp
 
-                    # Passer l'ordre avec le pourcentage de marge calculé
+                    # Passer l'ordre avec pas de SL fixe (sl_price = 0.0) — seul le Trailing Stop protège
                     result = place_order(
                         api_key    = mexc_key,
                         secret_key = mexc_secret,
@@ -1066,7 +1066,7 @@ def main():
                         signal     = best.signal,
                         price      = raw_price,
                         tp_price   = tp_num,
-                        sl_price   = sl_num,
+                        sl_price   = 0.0,
                         margin_pct = margin_pct_per_trade,
                     )
 
