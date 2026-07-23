@@ -776,16 +776,15 @@ def main():
                     logger.info(f"⏳ Pullback Guard | {name} {direction} Fisher non optimal ({fisher:.2f}) → Achat en haut de mèche bloqué. Attente vrai mouvement de pullback.")
                     continue
                     
-                arrow = "↗️ monte (aspiré par le mur de vente)" if direction == "BUY" else "↘️ descend (aspiré par le mur d'achat)"
+                wall_type = "🟢 *REBOND SUR SUPPORT BALEINE (BUY)*" if direction == "BUY" else "🔴 *REJET SUR RÉSISTANCE BALEINE (SELL)*"
                 emoji = "🟢" if direction == "BUY" else "🔴"
                 send_message(
-                    f"{emoji} *APPROCHE DU MUR — {name}* {emoji}\n"
+                    f"{emoji} {wall_type} {emoji}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"📌 *{direction}* — Prix {arrow} vers le mur\n"
+                    f"📌 Pair : *{name}* | Ordre : *{direction}*\n"
                     f"💰 Prix actuel : `{_fmt_p(cur_price)}`\n"
-                    f"🧱 Mur : `{_fmt_p(entry_price)}` — Distance : `{dist_pct:.2f}%`\n"
-                    f"🏁 TP visé : `{_fmt_p(tp_price)}`\n"
-                    f"📈 Tendance 45min : `{trend_45m:+.2f}%`\n"
+                    f"🧱 Mur Baleine : `{_fmt_p(entry_price)}` — Distance : `{dist_pct:.2f}%`\n"
+                    f"🏁 Take Profit : `{_fmt_p(tp_price)}`\n"
                     f"📊 Ratio Orderbook : `{ratio:.2f}`\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                     f"{anti_scam_txt}\n"
@@ -794,38 +793,35 @@ def main():
                 )
                 logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
 
-                # ⚡ EXECUTION AUTO (stratégie ASPIRATION) : 1 seul trade, TP étendu + TRAILING
+                # ⚡ EXECUTION AUTO : 1 seul trade, TP étendu + TRAILING
                 if use_mexc and trade_allowed:
-                    # TP étendu = 2x la distance au mur (au-delà du mur, comme demandé)
                     if direction == "SELL":
-                        tp_ext = entry_price - (cur_price - entry_price)   # sous le mur d'achat
+                        tp_ext = entry_price - (cur_price - entry_price)
                     else:
-                        tp_ext = entry_price + (entry_price - cur_price)   # au-dessus du mur de vente
-                    sl_wall = 0.0   # PAS de SL fixe — seul le trailing stop protège les profits
+                        tp_ext = entry_price + (entry_price - cur_price)
+                    sl_wall = 0.0
                     result_wall = place_order(
                         api_key    = mexc_key,
                         secret_key = mexc_secret,
                         symbol_yf  = sym,
                         signal     = direction,
                         price      = cur_price,
-                        tp_price   = tp_ext,       # TP étendu au-delà du mur (2x distance) + trailing actif
+                        tp_price   = tp_ext,
                         sl_price   = sl_wall,
                     )
                     if result_wall and result_wall.get("success"):
-                        trade_allowed = False       # 1 seule position a la fois
+                        trade_allowed = False
                         open_symbols.append(symbol_mexc)
                         send_message(
-                            f"🚀 *TRADE ASPIRATION OUVERT — {name}*\n"
+                            f"🚀 *TRADE BALEINE OUVERT — {name}*\n"
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"📌 *{direction}* x{result_wall.get('leverage')} — Mise {result_wall.get('balance_used')} USDT\n"
-                            f"💰 Entrée : `{_fmt_p(cur_price)}`\n"
-                            f"🏁 TP étendu : `{_fmt_p(tp_ext)}` (au-delà du mur)\n"
-                            f"🔒 + Trailing stop actif (+1.5% breakeven, +3% capture 50%, +5% capture 75%)\n"
-                            f"🛑 Pas de SL fixe — seul le trailing protège\n"
-                            f"🧱 Mur ciblé : `{_fmt_p(entry_price)}`\n"
-                            f"_Sortie : au TP étendu, ou au trailing si le prix se retourne._"
+                            f"📌 *{direction} ({wall_type})* x{result_wall.get('leverage')} — Mise {result_wall.get('balance_used')} USDT\n"
+                            f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
+                            f"🧱 Mur Baleine : `{_fmt_p(entry_price)}` (Distance: {dist_pct:.2f}%)\n"
+                            f"🏁 TP Cible : `{_fmt_p(tp_ext)}`\n"
+                            f"🔒 + Trailing Stop Actif (+1.5% Breakeven)\n"
                         )
-                        logger.info(f"🚀 Trade aspiration ouvert : {name} {direction} TP mur {tp_price}")
+                        logger.info(f"🚀 Trade Aspiration/Baleine ouvert : {name} {direction} TP {tp_price}")
                     else:
                         err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                         logger.error(f"❌ Échec trade aspiration {name}: {err_w}")
