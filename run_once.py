@@ -783,39 +783,58 @@ def main():
 
             anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
 
-            # 📊 2. Vérification Graphique (Fisher(9) Sommet Baissier en 15 minutes)
-            df = yf.download(sym, period="5d", interval="15m", progress=False)
-            if not df.empty:
-                import pandas as pd
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = df.columns.get_level_values(0)
-                df = df.rename(columns={
+            # 📊 2. Vérification Graphique Multi-Timeframe (15m + 30m Fisher(9) Séquence Vente)
+            df_15m = yf.download(sym, period="5d", interval="15m", progress=False)
+            df_30m = yf.download(sym, period="10d", interval="30m", progress=False)
+
+            import pandas as pd
+            def _clean_df(df_in):
+                if df_in.empty: return df_in
+                if isinstance(df_in.columns, pd.MultiIndex):
+                    df_in.columns = df_in.columns.get_level_values(0)
+                return df_in.rename(columns={
                     "Open": "open", "High": "high",
                     "Low": "low",  "Close": "close", "Volume": "volume"
                 })
-                df = compute_all_indicators(df)
-                if not df.empty:
-                    last = df.iloc[-1]
-                    adx = float(last["adx"])
-                    fisher_curr = float(last["fisher"])
-                    fisher_prev = float(df["fisher"].iloc[-2]) if len(df) >= 2 else fisher_curr
+
+            df_15m = _clean_df(df_15m)
+            df_30m = _clean_df(df_30m)
+
+            if not df_15m.empty and not df_30m.empty:
+                df_15m = compute_all_indicators(df_15m)
+                df_30m = compute_all_indicators(df_30m)
+                if not df_15m.empty and not df_30m.empty:
+                    last_15m = df_15m.iloc[-1]
+                    last_30m = df_30m.iloc[-1]
+                    adx_15m = float(last_15m["adx"])
+                    fish_15m_curr = float(last_15m["fisher"])
+                    fish_15m_prev = float(df_15m["fisher"].iloc[-2]) if len(df_15m) >= 2 else fish_15m_curr
+
+                    fish_30m_curr = float(last_30m["fisher"])
+                    fish_30m_prev = float(df_30m["fisher"].iloc[-2]) if len(df_30m) >= 2 else fish_30m_curr
+                    fish_min_recent_15m = float(df_15m["fisher"].tail(8).min())
                 else:
-                    logger.error(f"Echec du calcul des indicateurs pour {sym} (df vide)")
+                    logger.error(f"Echec du calcul des indicateurs 15m/30m pour {sym}")
                     continue
+            else:
+                logger.error(f"Echec du chargement des donnees 15m/30m pour {sym}")
+                continue
                 
-                # Check Range
-                if adx < 25:
-                    range_txt = f"✅ Range confirmé (ADX: {adx:.1f})"
-                else:
-                    range_txt = f"⚠️ Hors Range (ADX: {adx:.1f})"
-                    
-                # Check Fisher(9) Séquence Vente (Extrême Sell -> Remontée -> Incurvation Chute)
-                fisher_min_recent = float(df["fisher"].tail(8).min())  # A connu une zone d'extrême sell
-                if direction == "SELL" and (fisher_curr < fisher_prev and (fisher_curr >= -1.8 or fisher_min_recent <= -1.5)):
-                    fisher_txt = f"✅ Fisher(9) Séquence Vente Validée : Remontée -> Sommet -> Chute ({fisher_curr:.2f} < {fisher_prev:.2f} 📉)"
-                else:
-                    logger.info(f"⏳ Fisher Guard | {name} {direction} Fisher non optimal ({fisher_curr:.2f}) → Attente sommet de remontée avant la chute.")
-                    continue
+            # Check Range
+            if adx_15m < 25:
+                range_txt = f"✅ Range 15m confirmé (ADX: {adx_15m:.1f})"
+            else:
+                range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
+                
+            # Check Fisher(9) 15m + 30m Séquence Vente (Sommet -> Incurvation Chute)
+            valid_15m = (fish_15m_curr < fish_15m_prev and (fish_15m_curr >= -1.8 or fish_min_recent_15m <= -1.5))
+            valid_30m = (fish_30m_curr < fish_30m_prev or fish_30m_curr >= -1.5)
+
+            if direction == "SELL" and valid_15m and valid_30m:
+                fisher_txt = f"✅ Fisher(9) 15m ({fish_15m_curr:.2f}) & 30m ({fish_30m_curr:.2f}) Validés : Sommet ➔ Chute 📉"
+            else:
+                logger.info(f"⏳ MTF Fisher Guard | {name} {direction} non optimal (15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}) → Attente sommet 15m/30m.")
+                continue
                     
                 wall_type = "🟢 *REBOND SUR SUPPORT BALEINE (BUY)*" if direction == "BUY" else "🔴 *REJET SUR RÉSISTANCE BALEINE (SELL)*"
                 emoji = "🟢" if direction == "BUY" else "🔴"
