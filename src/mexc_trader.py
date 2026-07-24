@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 from config import MEXC_API_KEY, MEXC_SECRET_KEY
 MEXC_BASE          = "https://api.mexc.com"
-LEVERAGE           = 40
+LEVERAGE           = 80
 MARGIN_PCT         = 0.90
 TRAILING_CALLBACK  = 2.0
 

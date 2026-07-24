@@ -40,7 +40,7 @@ from src.telegram_bot      import send_signal, send_message
 from src.mexc_trader       import (
     has_open_position, place_order,
     get_usdt_balance, check_and_trail,
-    get_order_book_imbalance
+    get_order_book_imbalance, LEVERAGE
 )
 
 
@@ -856,22 +856,12 @@ def main():
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
-    # ── Rapport global toutes les 5 min ───────────────────────────────────────
+    # ── Rapport global toutes les 5 min (Silencieux sur Telegram pour ne garder QUE les opportunités Piège de Baleine) ──
     buyers_list.sort(key=lambda x: x[0], reverse=True)
     sellers_list.sort(key=lambda x: x[0])
     balanced_list.sort(key=lambda x: x[0], reverse=True)
 
-    def _fmt(lst):
-        return " | ".join(f"*{n}* `{r}`" for r, n in lst) if lst else "—"
-
-    send_message(
-        f"📊 *Orderbook ±1.5% — {len(buyers_list)+len(sellers_list)+len(balanced_list)} cryptos*\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🟢 *ACHETEURS ({len(buyers_list)}) — décroissant :*\n{_fmt(buyers_list)}\n\n"
-        f"🔴 *VENDEURS ({len(sellers_list)}) — croissant :*\n{_fmt(sellers_list)}\n\n"
-        f"⚖️ *EQUILIBRÉ ({len(balanced_list)}) :*\n{_fmt(balanced_list)}\n"
-        f"_Prochain scan dans 5 min_"
-    )
+    logger.info(f"📊 Orderbook ±1.5% — Acheteurs: {len(buyers_list)}, Vendeurs: {len(sellers_list)}, Équilibrés: {len(balanced_list)}")
 
     # ── 5. Auto-trading MEXC Futures : jusqu'à 2 trades simultanés ──────────
     if use_mexc and trade_allowed and strong_signals:
