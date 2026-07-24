@@ -721,68 +721,6 @@ def main():
 
     for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m in pullback_signals:
         try:
-            # 🛡️ 1. Vérification Anti-Spoofing & Piège des Baleines (Trade Contre-Tendance)
-            new_walls = get_largest_walls(symbol_mexc, cur_price, depth_pct=0.015)
-            spoofing_detected = False
-            trap_direction = None
-
-            if not new_walls or not new_walls.get("largest_bid") or not new_walls.get("largest_ask"):
-                spoofing_detected = True
-                trap_direction = "SELL" if direction == "BUY" else "BUY"
-            elif direction == "BUY":
-                current_ask_price = float(new_walls["largest_ask"]["price"])
-                if abs(current_ask_price - entry_price) / entry_price > 0.001:
-                    spoofing_detected = True
-                    trap_direction = "BUY"  # Le faux mur de vente a disparu -> Explosion haussière (PUMP)!
-            else:
-                current_bid_price = float(new_walls["largest_bid"]["price"])
-                if abs(current_bid_price - entry_price) / entry_price > 0.001:
-                    spoofing_detected = True
-                    trap_direction = "SELL" # Le faux mur d'achat a disparu -> Cassure baissière (DUMP)!
-
-            if spoofing_detected:
-                if trap_direction != "SELL":
-                    logger.info(f"⏳ Mode 100% SELL Actif | Signal {name} {trap_direction} ignoré (seuls les signaux SELL sont exécutés).")
-                    continue
-
-                logger.info(f"🚨 PIÈGE DE BALEINE DÉTECTÉ sur {name} ! Activation du Trade Contre-Tendance SELL (SHORT)...")
-                if use_mexc and trade_allowed:
-                    # Validation Volume CVD Agressif Vente (Vérification que le flux réel suit la baisse)
-                    from src.mexc_trader import get_recent_cvd_ratio
-                    cvd_val = get_recent_cvd_ratio(symbol_mexc)
-                    if cvd_val is not None and cvd_val > 0.85:
-                        logger.info(f"⏳ Trade Contre-Tendance {name} SELL bloqué : Volume de vente CVD insuffisant ({cvd_val:.2f} > 0.85)")
-                        continue
-
-                    tp_trap = cur_price * 0.98   # TP -2.0%
-                    sl_trap = 0.0                # Pas de SL fixe (demande utilisateur) — seul le Trailing Stop protège
-
-                    result_trap = place_order(
-                        api_key    = mexc_key,
-                        secret_key = mexc_secret,
-                        symbol_yf  = sym,
-                        signal     = "SELL",
-                        price      = cur_price,
-                        tp_price   = tp_trap,
-                        sl_price   = sl_trap,
-                    )
-                    if result_trap and result_trap.get("success"):
-                        trade_allowed = False
-                        open_symbols.append(symbol_mexc)
-                        send_message(
-                            f"🔴 *PIÈGE DE BALEINE EXPLOITÉ — {name}* 🔴\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"🚨 *Faux mur d'achat retiré + Flux Vendeur CVD Validé !*\n"
-                            f"📌 *ENTRÉE CONTRE-TENDANCE : SELL (SHORT) x{LEVERAGE}*\n"
-                            f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                            f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (-2.0% de capture)\n"
-                            f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
-                            f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
-                        )
-                continue
-
-            anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
-
             # 📊 2. Vérification Graphique Multi-Timeframe (15m + 30m Fisher(9) Séquence Vente)
             df_15m = yf.download(sym, period="5d", interval="15m", progress=False)
             df_30m = yf.download(sym, period="10d", interval="30m", progress=False)
@@ -835,53 +773,36 @@ def main():
             else:
                 logger.info(f"⏳ MTF Fisher Guard | {name} {direction} non optimal (15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}) → Attente sommet 15m/30m.")
                 continue
-                    
-                wall_type = "🟢 *REBOND SUR SUPPORT BALEINE (BUY)*" if direction == "BUY" else "🔴 *REJET SUR RÉSISTANCE BALEINE (SELL)*"
-                emoji = "🟢" if direction == "BUY" else "🔴"
-                send_message(
-                    f"{emoji} {wall_type} {emoji}\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"📌 Pair : *{name}* | Ordre : *{direction}*\n"
-                    f"💰 Prix actuel : `{_fmt_p(cur_price)}`\n"
-                    f"🧱 Mur Baleine : `{_fmt_p(entry_price)}` — Distance : `{dist_pct:.2f}%`\n"
-                    f"🏁 Take Profit : `{_fmt_p(tp_price)}`\n"
-                    f"📊 Ratio Orderbook : `{ratio:.2f}`\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"{anti_scam_txt}\n"
-                    f"{range_txt}\n"
-                    f"{fisher_txt}"
-                )
-                logger.info(f"⚡ Signal Approche Mur envoyé : {name} {direction} @ {cur_price}")
 
-                # ⚡ EXECUTION AUTO : 1 seul trade, TP étendu + TRAILING
-                if use_mexc and trade_allowed:
-                    if direction == "SELL":
-                        tp_ext = entry_price - (cur_price - entry_price)
-                    else:
-                        tp_ext = entry_price + (entry_price - cur_price)
-                    sl_wall = 0.0
-                    result_wall = place_order(
-                        api_key    = mexc_key,
-                        secret_key = mexc_secret,
-                        symbol_yf  = sym,
-                        signal     = direction,
-                        price      = cur_price,
-                        tp_price   = tp_ext,
-                        sl_price   = sl_wall,
+            # ⚡ EXECUTION AUTO FISHER(9) 15M+30M SELL : 1 seul trade, Levier 80X + Trailing
+            if use_mexc and trade_allowed:
+                tp_ext = cur_price * 0.98   # TP -2.0%
+                result_wall = place_order(
+                    api_key    = mexc_key,
+                    secret_key = mexc_secret,
+                    symbol_yf  = sym,
+                    signal     = "SELL",
+                    price      = cur_price,
+                    tp_price   = tp_ext,
+                    sl_price   = 0.0,
+                )
+                if result_wall and result_wall.get("success"):
+                    trade_allowed = False
+                    open_symbols.append(symbol_mexc)
+                    send_message(
+                        f"🔴 *SIGNAL VENTE FISHER(9) — {name}* 🔴\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📌 *SELL (SHORT) x{LEVERAGE}*\n"
+                        f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
+                        f"🏁 TP Cible : `{_fmt_p(tp_ext)}` (-2.0%)\n"
+                        f"✅ Fisher(9) 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) Validés : Sommet ➔ Chute 📉\n"
+                        f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
+                        f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                     )
-                    if result_wall and result_wall.get("success"):
-                        trade_allowed = False
-                        open_symbols.append(symbol_mexc)
-                        send_message(
-                            f"🚀 *TRADE BALEINE OUVERT — {name}*\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"📌 *{direction} ({wall_type})* x{result_wall.get('leverage')} — Mise {result_wall.get('balance_used')} USDT\n"
-                            f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                            f"🧱 Mur Baleine : `{_fmt_p(entry_price)}` (Distance: {dist_pct:.2f}%)\n"
-                            f"🏁 TP Cible : `{_fmt_p(tp_ext)}`\n"
-                            f"🔒 + Trailing Stop Actif (+1.5% Breakeven)\n"
-                        )
-                        logger.info(f"🚀 Trade Aspiration/Baleine ouvert : {name} {direction} TP {tp_price}")
+                    logger.info(f"🚀 Trade Fisher 15m+30m SELL ouvert : {name} SELL @ {cur_price}")
+                else:
+                    err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
+                    logger.error(f"❌ Échec trade Fisher {name}: {err_w}")
                     else:
                         err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                         logger.error(f"❌ Échec trade aspiration {name}: {err_w}")
