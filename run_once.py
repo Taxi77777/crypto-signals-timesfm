@@ -743,7 +743,20 @@ def main():
             if spoofing_detected:
                 logger.info(f"🚨 PIÈGE DE BALEINE DÉTECTÉ sur {name} ! Activation du Trade Contre-Tendance {trap_direction}...")
                 if use_mexc and trade_allowed:
+                    # Validation Volume CVD Agressif (Vérification que le flux réel suit l'impulsion)
+                    from src.mexc_trader import get_recent_cvd_ratio
+                    cvd_val = get_recent_cvd_ratio(symbol_mexc)
+                    if cvd_val is not None:
+                        if trap_direction == "BUY" and cvd_val < 1.15:
+                            logger.info(f"⏳ Trade Contre-Tendance {name} BUY bloqué : Volume d'achat CVD insuffisant ({cvd_val:.2f} < 1.15)")
+                            continue
+                        elif trap_direction == "SELL" and cvd_val > 0.85:
+                            logger.info(f"⏳ Trade Contre-Tendance {name} SELL bloqué : Volume de vente CVD insuffisant ({cvd_val:.2f} > 0.85)")
+                            continue
+
                     tp_trap = cur_price * (1.02 if trap_direction == "BUY" else 0.98)
+                    sl_trap = cur_price * 0.99 if trap_direction == "BUY" else cur_price * 1.01  # SL d'urgence hard à -1.0% du prix
+
                     result_trap = place_order(
                         api_key    = mexc_key,
                         secret_key = mexc_secret,
@@ -751,7 +764,7 @@ def main():
                         signal     = trap_direction,
                         price      = cur_price,
                         tp_price   = tp_trap,
-                        sl_price   = 0.0,
+                        sl_price   = sl_trap,
                     )
                     if result_trap and result_trap.get("success"):
                         trade_allowed = False
@@ -760,10 +773,11 @@ def main():
                         send_message(
                             f"{emoji_trap} *PIÈGE DE BALEINE EXPLOITÉ — {name}* {emoji_trap}\n"
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"🚨 *Faux mur retiré par les baleines !*\n"
-                            f"📌 *ENTRÉE EN CONTRE-TENDANCE : {trap_direction} x{LEVERAGE}*\n"
+                            f"🚨 *Faux mur retiré + Flux CVD Validé !*\n"
+                            f"📌 *ENTRÉE CONTRE-TENDANCE : {trap_direction} x{LEVERAGE}*\n"
                             f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                             f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (+2.0% de capture)\n"
+                            f"🛡️ SL D'Urgence Hard : `{_fmt_p(sl_trap)}` (-1.0% protection)\n"
                             f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                         )
                 continue
