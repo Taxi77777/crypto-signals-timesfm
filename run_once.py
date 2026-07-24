@@ -809,11 +809,12 @@ def main():
                 else:
                     range_txt = f"⚠️ Hors Range (ADX: {adx:.1f})"
                     
-                # Check Fisher(9) Sommet Baissier (Obligatoire pour Vente / SELL)
-                if direction == "SELL" and (fisher_curr >= 0.3 or fisher_curr < fisher_prev):
-                    fisher_txt = f"✅ Fisher(9) Sommet Vente validé : {fisher_curr:.2f} (Orienté vers le bas 📉)"
+                # Check Fisher(9) Séquence Vente (Extrême Sell -> Remontée -> Incurvation Chute)
+                fisher_min_recent = float(df["fisher"].tail(8).min())  # A connu une zone d'extrême sell
+                if direction == "SELL" and (fisher_curr < fisher_prev and (fisher_curr >= -1.8 or fisher_min_recent <= -1.5)):
+                    fisher_txt = f"✅ Fisher(9) Séquence Vente Validée : Remontée -> Sommet -> Chute ({fisher_curr:.2f} < {fisher_prev:.2f} 📉)"
                 else:
-                    logger.info(f"⏳ Fisher Guard | {name} {direction} Fisher non optimal ({fisher_curr:.2f}) → Attente sommet Fisher Vente.")
+                    logger.info(f"⏳ Fisher Guard | {name} {direction} Fisher non optimal ({fisher_curr:.2f}) → Attente sommet de remontée avant la chute.")
                     continue
                     
                 wall_type = "🟢 *REBOND SUR SUPPORT BALEINE (BUY)*" if direction == "BUY" else "🔴 *REJET SUR RÉSISTANCE BALEINE (SELL)*"
