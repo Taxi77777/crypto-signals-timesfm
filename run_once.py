@@ -755,7 +755,7 @@ def main():
                         continue
 
                     tp_trap = cur_price * 0.98   # TP -2.0%
-                    sl_trap = cur_price * 1.01   # SL D'urgence Hard +1.0%
+                    sl_trap = 0.0                # Pas de SL fixe (demande utilisateur) — seul le Trailing Stop protège
 
                     result_trap = place_order(
                         api_key    = mexc_key,
@@ -776,7 +776,7 @@ def main():
                             f"📌 *ENTRÉE CONTRE-TENDANCE : SELL (SHORT) x{LEVERAGE}*\n"
                             f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                             f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (-2.0% de capture)\n"
-                            f"🛡️ SL D'Urgence Hard : `{_fmt_p(sl_trap)}` (+1.0% protection)\n"
+                            f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
                             f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                         )
                 continue
