@@ -803,9 +803,6 @@ def main():
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                     logger.error(f"❌ Échec trade Fisher {name}: {err_w}")
-                    else:
-                        err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
-                        logger.error(f"❌ Échec trade aspiration {name}: {err_w}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
