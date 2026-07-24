@@ -741,27 +741,27 @@ def main():
                     trap_direction = "SELL" # Le faux mur d'achat a disparu -> Cassure baissière (DUMP)!
 
             if spoofing_detected:
-                logger.info(f"🚨 PIÈGE DE BALEINE DÉTECTÉ sur {name} ! Activation du Trade Contre-Tendance {trap_direction}...")
+                if trap_direction != "SELL":
+                    logger.info(f"⏳ Mode 100% SELL Actif | Signal {name} {trap_direction} ignoré (seuls les signaux SELL sont exécutés).")
+                    continue
+
+                logger.info(f"🚨 PIÈGE DE BALEINE DÉTECTÉ sur {name} ! Activation du Trade Contre-Tendance SELL (SHORT)...")
                 if use_mexc and trade_allowed:
-                    # Validation Volume CVD Agressif (Vérification que le flux réel suit l'impulsion)
+                    # Validation Volume CVD Agressif Vente (Vérification que le flux réel suit la baisse)
                     from src.mexc_trader import get_recent_cvd_ratio
                     cvd_val = get_recent_cvd_ratio(symbol_mexc)
-                    if cvd_val is not None:
-                        if trap_direction == "BUY" and cvd_val < 1.15:
-                            logger.info(f"⏳ Trade Contre-Tendance {name} BUY bloqué : Volume d'achat CVD insuffisant ({cvd_val:.2f} < 1.15)")
-                            continue
-                        elif trap_direction == "SELL" and cvd_val > 0.85:
-                            logger.info(f"⏳ Trade Contre-Tendance {name} SELL bloqué : Volume de vente CVD insuffisant ({cvd_val:.2f} > 0.85)")
-                            continue
+                    if cvd_val is not None and cvd_val > 0.85:
+                        logger.info(f"⏳ Trade Contre-Tendance {name} SELL bloqué : Volume de vente CVD insuffisant ({cvd_val:.2f} > 0.85)")
+                        continue
 
-                    tp_trap = cur_price * (1.02 if trap_direction == "BUY" else 0.98)
-                    sl_trap = cur_price * 0.99 if trap_direction == "BUY" else cur_price * 1.01  # SL d'urgence hard à -1.0% du prix
+                    tp_trap = cur_price * 0.98   # TP -2.0%
+                    sl_trap = cur_price * 1.01   # SL D'urgence Hard +1.0%
 
                     result_trap = place_order(
                         api_key    = mexc_key,
                         secret_key = mexc_secret,
                         symbol_yf  = sym,
-                        signal     = trap_direction,
+                        signal     = "SELL",
                         price      = cur_price,
                         tp_price   = tp_trap,
                         sl_price   = sl_trap,
@@ -769,22 +769,21 @@ def main():
                     if result_trap and result_trap.get("success"):
                         trade_allowed = False
                         open_symbols.append(symbol_mexc)
-                        emoji_trap = "🟢" if trap_direction == "BUY" else "🔴"
                         send_message(
-                            f"{emoji_trap} *PIÈGE DE BALEINE EXPLOITÉ — {name}* {emoji_trap}\n"
+                            f"🔴 *PIÈGE DE BALEINE EXPLOITÉ — {name}* 🔴\n"
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"🚨 *Faux mur retiré + Flux CVD Validé !*\n"
-                            f"📌 *ENTRÉE CONTRE-TENDANCE : {trap_direction} x{LEVERAGE}*\n"
+                            f"🚨 *Faux mur d'achat retiré + Flux Vendeur CVD Validé !*\n"
+                            f"📌 *ENTRÉE CONTRE-TENDANCE : SELL (SHORT) x{LEVERAGE}*\n"
                             f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                            f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (+2.0% de capture)\n"
-                            f"🛡️ SL D'Urgence Hard : `{_fmt_p(sl_trap)}` (-1.0% protection)\n"
+                            f"🏁 TP Cible : `{_fmt_p(tp_trap)}` (-2.0% de capture)\n"
+                            f"🛡️ SL D'Urgence Hard : `{_fmt_p(sl_trap)}` (+1.0% protection)\n"
                             f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                         )
                 continue
 
             anti_scam_txt = "🛡️ Validé Anti-Spoofing (Double check OK)"
 
-            # 📊 2. Vérification Graphique (Range / Fisher en 15 minutes)
+            # 📊 2. Vérification Graphique (Fisher(9) Sommet Baissier en 15 minutes)
             df = yf.download(sym, period="5d", interval="15m", progress=False)
             if not df.empty:
                 import pandas as pd
@@ -798,7 +797,8 @@ def main():
                 if not df.empty:
                     last = df.iloc[-1]
                     adx = float(last["adx"])
-                    fisher = float(last["fisher"])
+                    fisher_curr = float(last["fisher"])
+                    fisher_prev = float(df["fisher"].iloc[-2]) if len(df) >= 2 else fisher_curr
                 else:
                     logger.error(f"Echec du calcul des indicateurs pour {sym} (df vide)")
                     continue
@@ -809,13 +809,11 @@ def main():
                 else:
                     range_txt = f"⚠️ Hors Range (ADX: {adx:.1f})"
                     
-                # Check Fisher Pullback Réel (Obligatoire)
-                if (direction == "BUY" and fisher <= -0.5):
-                    fisher_txt = f"✅ Fisher(9) en creux (Pullback validé): {fisher:.2f}"
-                elif (direction == "SELL" and fisher >= 0.5):
-                    fisher_txt = f"✅ Fisher(9) en sommet (Pullback validé): {fisher:.2f}"
+                # Check Fisher(9) Sommet Baissier (Obligatoire pour Vente / SELL)
+                if direction == "SELL" and (fisher_curr >= 0.3 or fisher_curr < fisher_prev):
+                    fisher_txt = f"✅ Fisher(9) Sommet Vente validé : {fisher_curr:.2f} (Orienté vers le bas 📉)"
                 else:
-                    logger.info(f"⏳ Pullback Guard | {name} {direction} Fisher non optimal ({fisher:.2f}) → Achat en haut de mèche bloqué. Attente vrai mouvement de pullback.")
+                    logger.info(f"⏳ Fisher Guard | {name} {direction} Fisher non optimal ({fisher_curr:.2f}) → Attente sommet Fisher Vente.")
                     continue
                     
                 wall_type = "🟢 *REBOND SUR SUPPORT BALEINE (BUY)*" if direction == "BUY" else "🔴 *REJET SUR RÉSISTANCE BALEINE (SELL)*"
@@ -881,8 +879,8 @@ def main():
     if use_mexc and trade_allowed and strong_signals:
         from src.mexc_trader import SYMBOL_MAP
         
-        # Ne trader QUE les cryptos disponibles sur MEXC Futures et non déjà ouvertes
-        tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
+        # Mode 100% SELL : Ne trader QUE les signaux SELL disponibles sur MEXC Futures et non déjà ouverts
+        tradables = [s for s in strong_signals if s.signal == "SELL" and s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
         
         # ── Trier par PRIORITÉ VOLUME 24H MEXC / Marché (Prio Forte si Vol > 5M$ USDT, Prio Moyenne sinon) ──
         def get_crypto_volume_tier(s):
