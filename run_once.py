@@ -723,6 +723,7 @@ def main():
     def _fetch_pair_mtf(sig_tuple):
         direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m = sig_tuple
         try:
+            import pandas as pd
             df_15m = yf.download(sym, period="5d", interval="15m", progress=False)
             df_30m = yf.download(sym, period="10d", interval="30m", progress=False)
 
