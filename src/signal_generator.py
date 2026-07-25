@@ -291,7 +291,7 @@ def generate_signal(
         max_score = 2 + 2 + 1 + 2 + st_max + fish_max + sum(ai_weights.values())
         # Mode 100% SELL : Ignorer les signaux BUY
         if buy_score > sell_score:
-            logger.info(f"⏳ Mode 100% SELL Actif | Signal BUY {pair_name} ignoré.")
+            logger.info(f"⏳ Mode 100% SELL Actif | Signal BUY {symbol} ignoré.")
             return None
         elif sell_score > buy_score and sell_score >= 6:
             signal     = "SELL"
