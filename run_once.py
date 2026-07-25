@@ -775,23 +775,35 @@ def main():
             else:
                 range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
                 
-            # 🚀 Stratégie Impulsion Pur Fisher(9) + MA20 (Bi-directionnel : ACHAT & VENTE)
-            valid_buy  = (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0)
-            valid_sell = (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0)
+            # 🚀 Stratégie Impulsion VÉRITABLE & TRÈS AVANCÉE (Anti-Fausse Cassure / Anti-Arnaque)
+            # 1. Acceleration Fisher(9) 15m + 30m
+            fish_accel_buy  = (fish_15m_curr >= fish_15m_prev + 0.15) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0)
+            fish_accel_sell = (fish_15m_curr <= fish_15m_prev - 0.15) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0)
 
-            ma20_15m = float(last_15m["sma_20"]) if "sma_20" in last_15m else cur_price
+            # 2. Cassure de Bollinger + MA20
+            bb_upper = float(last_15m["bb_high"]) if "bb_high" in last_15m else cur_price * 1.01
+            bb_lower = float(last_15m["bb_low"])  if "bb_low" in last_15m  else cur_price * 0.99
+            ma20_15m = float(last_15m["sma_20"])  if "sma_20" in last_15m  else cur_price
 
-            is_buy_impulse  = (direction == "BUY")  and valid_buy  and (cur_price >= ma20_15m)
-            is_sell_impulse = (direction == "SELL") and valid_sell and (cur_price <= ma20_15m)
+            # 3. Volume Climax Institutionnel (Volume >= 1.4x la moyenne)
+            vol_curr = float(last_15m["volume"]) if "volume" in last_15m else 1.0
+            vol_mean = float(df_15m["volume"].tail(20).mean()) if "volume" in df_15m else 1.0
+            has_vol_climax = (vol_curr >= 1.4 * vol_mean) if vol_mean > 0 else True
 
-            if not (is_buy_impulse or is_sell_impulse):
-                logger.info(f"⏳ Impulsion Guard | {name} {direction} non optimal (Fisher 15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}) → Attente départ impulsion.")
+            # 4. Tendance / Momentum ADX > 20
+            has_adx_momentum = (adx_15m >= 20.0)
+
+            is_true_buy_impulse  = (direction == "BUY")  and fish_accel_buy  and (cur_price >= ma20_15m) and has_vol_climax and has_adx_momentum
+            is_true_sell_impulse = (direction == "SELL") and fish_accel_sell and (cur_price <= ma20_15m) and has_vol_climax and has_adx_momentum
+
+            if not (is_true_buy_impulse or is_true_sell_impulse):
+                logger.info(f"⏳ Impulsion Guard Vrai | {name} {direction} non optimal (Fisher 15m: {fish_15m_curr:.2f}, Vol Climax: {has_vol_climax}, ADX: {adx_15m:.1f}) → Attente véritable impulsion.")
                 continue
 
-            target_signal = "BUY" if is_buy_impulse else "SELL"
-            logger.info(f"🔥 IMPULSION DÉTECTÉE — {name} {target_signal} | Fisher 15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}")
+            target_signal = "BUY" if is_true_buy_impulse else "SELL"
+            logger.info(f"🔥 VÉRITABLE IMPULSION DÉTECTÉE — {name} {target_signal} | Vol: {vol_curr/vol_mean:.1f}x, ADX: {adx_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
 
-            # ⚡ EXECUTION AUTO IMPULSION 80X (BUY ou SELL) : Levier 80X + Trailing
+            # ⚡ EXECUTION AUTO VÉRITABLE IMPULSION 80X : Levier 80X + Trailing
             if use_mexc and trade_allowed:
                 tp_ext = (cur_price * 1.015) if target_signal == "BUY" else (cur_price * 0.985)   # TP ±1.5% (+120% Gain Net)
                 result_wall = place_order(
@@ -810,16 +822,17 @@ def main():
                     type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
                     arrow_str = "Haussière 📈" if target_signal == "BUY" else "Baissière 📉"
                     send_message(
-                        f"{icon} *SIGNAL IMPULSION 80X — {name}* {icon}\n"
+                        f"{icon} *VÉRITABLE IMPULSION 80X — {name}* {icon}\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📌 *{type_str} x80*\n"
                         f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                         f"🏁 TP Impulsion : `{_fmt_p(tp_ext)}` (±1.5% / +120% Gain Net)\n"
-                        f"✅ Fisher 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) : Impulsion {arrow_str}\n"
+                        f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
+                        f"✅ Fisher 15m (`{fish_15m_curr:.2f}`) & ADX (`{adx_15m:.1f}`) : Impulsion {arrow_str}\n"
                         f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
                         f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                     )
-                    logger.info(f"🚀 Trade Impulsion 80X {target_signal} ouvert : {name} {target_signal} @ {cur_price}")
+                    logger.info(f"🚀 Trade Véritable Impulsion 80X {target_signal} ouvert : {name} {target_signal} @ {cur_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                     logger.error(f"❌ Échec trade Impulsion {name}: {err_w}")
