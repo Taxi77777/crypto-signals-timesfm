@@ -768,15 +768,24 @@ def main():
             valid_15m = (fish_15m_curr < fish_15m_prev and (fish_15m_curr >= -1.8 or fish_min_recent_15m <= -1.5))
             valid_30m = (fish_30m_curr < fish_30m_prev or fish_30m_curr >= -1.5)
 
-            if direction == "SELL" and valid_15m and valid_30m:
-                fisher_txt = f"✅ Fisher(9) 15m ({fish_15m_curr:.2f}) & 30m ({fish_30m_curr:.2f}) Validés : Sommet ➔ Chute 📉"
+            # Check Liquidation Sweep Rejection Wick (Mèche haute de chasse aux stops)
+            recent_high_15m = float(df_15m["high"].iloc[-20:-1].max()) if len(df_15m) >= 20 else cur_price
+            last_candle_high = float(last_15m["high"])
+            last_candle_open = float(last_15m["open"])
+            last_candle_low  = float(last_15m["low"])
+            upper_shadow = last_candle_high - max(last_candle_open, cur_price)
+            body_length  = max(0.0001, last_candle_high - last_candle_low)
+            has_rejection_wick = (upper_shadow / body_length >= 0.25) or (last_candle_high >= recent_high_15m)
+
+            if direction == "SELL" and valid_15m and valid_30m and has_rejection_wick:
+                fisher_txt = f"✅ Ultra-Sniper 80X | Fisher(9) 15m ({fish_15m_curr:.2f}) & 30m ({fish_30m_curr:.2f}) + Mèche de Réjection Validés 📉"
             else:
-                logger.info(f"⏳ MTF Fisher Guard | {name} {direction} non optimal (15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}) → Attente sommet 15m/30m.")
+                logger.info(f"⏳ Ultra-Sniper Guard | {name} SELL non optimal (15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}, Mèche: {has_rejection_wick}) → Attente configuration optimale.")
                 continue
 
-            # ⚡ EXECUTION AUTO FISHER(9) 15M+30M SELL : 1 seul trade, Levier 80X + Trailing
+            # ⚡ EXECUTION AUTO ULTRA-SNIPER 80X SELL : Levier 80X, TP Scalp Précision -1.0% (+80% net) + Trailing
             if use_mexc and trade_allowed:
-                tp_ext = cur_price * 0.98   # TP -2.0%
+                tp_ext = cur_price * 0.99   # TP Scalp Précision -1.0% (+80% profit net en 80X)
                 result_wall = place_order(
                     api_key    = mexc_key,
                     secret_key = mexc_secret,
@@ -790,16 +799,16 @@ def main():
                     trade_allowed = False
                     open_symbols.append(symbol_mexc)
                     send_message(
-                        f"🔴 *SIGNAL VENTE FISHER(9) — {name}* 🔴\n"
+                        f"🔴 *ULTRA-SNIPER 80X (HAUTE PRÉCISION) — {name}* 🔴\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📌 *SELL (SHORT) x{LEVERAGE}*\n"
+                        f"📌 *SELL (SHORT) x80*\n"
                         f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                        f"🏁 TP Cible : `{_fmt_p(tp_ext)}` (-2.0%)\n"
-                        f"✅ Fisher(9) 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) Validés : Sommet ➔ Chute 📉\n"
+                        f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (-1.0% / +80% Gain Net)\n"
+                        f"✅ Fisher 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) + Mèche de Chasse Validés 📉\n"
                         f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
                         f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                     )
-                    logger.info(f"🚀 Trade Fisher 15m+30m SELL ouvert : {name} SELL @ {cur_price}")
+                    logger.info(f"🚀 Trade Ultra-Sniper 80X SELL ouvert : {name} SELL @ {cur_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                     logger.error(f"❌ Échec trade Fisher {name}: {err_w}")
