@@ -774,33 +774,30 @@ def main():
             else:
                 range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
                 
-            # Check Fisher(9) 15m + 30m Séquence Vente (Sommet -> Incurvation Chute)
-            valid_15m = (fish_15m_curr < fish_15m_prev and (fish_15m_curr >= -1.8 or fish_min_recent_15m <= -1.5))
-            valid_30m = (fish_30m_curr < fish_30m_prev or fish_30m_curr >= -1.5)
+            # 🚀 Stratégie Impulsion Pur Fisher(9) + MA20 (Bi-directionnel : ACHAT & VENTE)
+            valid_buy  = (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0)
+            valid_sell = (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0)
 
-            # Check Liquidation Sweep Rejection Wick (Mèche haute de chasse aux stops)
-            recent_high_15m = float(df_15m["high"].iloc[-20:-1].max()) if len(df_15m) >= 20 else cur_price
-            last_candle_high = float(last_15m["high"])
-            last_candle_open = float(last_15m["open"])
-            last_candle_low  = float(last_15m["low"])
-            upper_shadow = last_candle_high - max(last_candle_open, cur_price)
-            body_length  = max(0.0001, last_candle_high - last_candle_low)
-            has_rejection_wick = (upper_shadow / body_length >= 0.25) or (last_candle_high >= recent_high_15m)
+            ma20_15m = float(last_15m["sma_20"]) if "sma_20" in last_15m else cur_price
 
-            if direction == "SELL" and valid_15m and valid_30m and has_rejection_wick:
-                fisher_txt = f"✅ Ultra-Sniper 80X | Fisher(9) 15m ({fish_15m_curr:.2f}) & 30m ({fish_30m_curr:.2f}) + Mèche de Réjection Validés 📉"
-            else:
-                logger.info(f"⏳ Ultra-Sniper Guard | {name} SELL non optimal (15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}, Mèche: {has_rejection_wick}) → Attente configuration optimale.")
+            is_buy_impulse  = (direction == "BUY")  and valid_buy  and (cur_price >= ma20_15m)
+            is_sell_impulse = (direction == "SELL") and valid_sell and (cur_price <= ma20_15m)
+
+            if not (is_buy_impulse or is_sell_impulse):
+                logger.info(f"⏳ Impulsion Guard | {name} {direction} non optimal (Fisher 15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}) → Attente départ impulsion.")
                 continue
 
-            # ⚡ EXECUTION AUTO ULTRA-SNIPER 80X SELL : Levier 80X, TP Scalp Précision -1.0% (+80% net) + Trailing
+            target_signal = "BUY" if is_buy_impulse else "SELL"
+            logger.info(f"🔥 IMPULSION DÉTECTÉE — {name} {target_signal} | Fisher 15m: {fish_15m_curr:.2f}, 30m: {fish_30m_curr:.2f}")
+
+            # ⚡ EXECUTION AUTO IMPULSION 80X (BUY ou SELL) : Levier 80X + Trailing
             if use_mexc and trade_allowed:
-                tp_ext = cur_price * 0.99   # TP Scalp Précision -1.0% (+80% profit net en 80X)
+                tp_ext = (cur_price * 1.015) if target_signal == "BUY" else (cur_price * 0.985)   # TP ±1.5% (+120% Gain Net)
                 result_wall = place_order(
                     api_key    = mexc_key,
                     secret_key = mexc_secret,
                     symbol_yf  = sym,
-                    signal     = "SELL",
+                    signal     = target_signal,
                     price      = cur_price,
                     tp_price   = tp_ext,
                     sl_price   = 0.0,
@@ -808,20 +805,23 @@ def main():
                 if result_wall and result_wall.get("success"):
                     trade_allowed = False
                     open_symbols.append(symbol_mexc)
+                    icon = "🟢" if target_signal == "BUY" else "🔴"
+                    type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
+                    arrow_str = "Haussière 📈" if target_signal == "BUY" else "Baissière 📉"
                     send_message(
-                        f"🔴 *ULTRA-SNIPER 80X (HAUTE PRÉCISION) — {name}* 🔴\n"
+                        f"{icon} *SIGNAL IMPULSION 80X — {name}* {icon}\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📌 *SELL (SHORT) x80*\n"
+                        f"📌 *{type_str} x80*\n"
                         f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                        f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (-1.0% / +80% Gain Net)\n"
-                        f"✅ Fisher 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) + Mèche de Chasse Validés 📉\n"
+                        f"🏁 TP Impulsion : `{_fmt_p(tp_ext)}` (±1.5% / +120% Gain Net)\n"
+                        f"✅ Fisher 15m (`{fish_15m_curr:.2f}`) & 30m (`{fish_30m_curr:.2f}`) : Impulsion {arrow_str}\n"
                         f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
                         f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
                     )
-                    logger.info(f"🚀 Trade Ultra-Sniper 80X SELL ouvert : {name} SELL @ {cur_price}")
+                    logger.info(f"🚀 Trade Impulsion 80X {target_signal} ouvert : {name} {target_signal} @ {cur_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
-                    logger.error(f"❌ Échec trade Fisher {name}: {err_w}")
+                    logger.error(f"❌ Échec trade Impulsion {name}: {err_w}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
