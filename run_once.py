@@ -716,16 +716,16 @@ def main():
         except Exception as e:
             logger.error(f"Erreur orderbook ratio {sym}: {e}")
 
-    # ── Validation Fisher & Envoi des signaux pullback (direction confirmée) ──────────
+    # ── Validation Fisher & Envoi des signaux Ultra-Sniper 80X ──────────
     import yfinance as yf
+    from concurrent.futures import ThreadPoolExecutor
 
-    for direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m in pullback_signals:
+    def _fetch_pair_mtf(sig_tuple):
+        direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m = sig_tuple
         try:
-            # 📊 2. Vérification Graphique Multi-Timeframe (15m + 30m Fisher(9) Séquence Vente)
             df_15m = yf.download(sym, period="5d", interval="15m", progress=False)
             df_30m = yf.download(sym, period="10d", interval="30m", progress=False)
 
-            import pandas as pd
             def _clean_df(df_in):
                 if df_in.empty: return df_in
                 if isinstance(df_in.columns, pd.MultiIndex):
@@ -737,7 +737,17 @@ def main():
 
             df_15m = _clean_df(df_15m)
             df_30m = _clean_df(df_30m)
+            return sig_tuple, df_15m, df_30m
+        except Exception as e:
+            logger.error(f"Erreur téléchargement rapide MTF pour {sym}: {e}")
+            return sig_tuple, pd.DataFrame(), pd.DataFrame()
 
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        mtf_results = list(executor.map(_fetch_pair_mtf, pullback_signals))
+
+    for sig_tuple, df_15m, df_30m in mtf_results:
+        direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m = sig_tuple
+        try:
             if not df_15m.empty and not df_30m.empty:
                 df_15m = compute_all_indicators(df_15m)
                 df_30m = compute_all_indicators(df_30m)
