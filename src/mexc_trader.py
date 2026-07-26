@@ -740,7 +740,42 @@ def place_order(
             }
         else:
             err = data.get("message") or data.get("msg") or str(data)
-            logger.error(f"❌ Erreur MEXC : {err}")
+            logger.error(f"❌ Erreur MEXC pour {symbol_mexc}: {err}")
+            # Fallback automatique vers la paire _USDC si le solde USDT est insuffisant mais que du solde USDC est présent
+            if ("Balance insufficient" in str(err) or data.get("code") == 2005) and symbol_mexc.endswith("_USDT"):
+                usdc_sym = symbol_mexc.replace("_USDT", "_USDC")
+                logger.info(f"🔄 Tentative de bascule automatique vers le contrat USDC : {usdc_sym}...")
+                order["symbol"] = usdc_sym
+                body_str_usdc = json.dumps(order)
+                headers_usdc = _get_headers(api_key, secret_key, body_str_usdc)
+                try:
+                    r_usdc = requests.post(
+                        f"{MEXC_BASE}/api/v1/private/order/create",
+                        headers=headers_usdc,
+                        data=body_str_usdc,
+                        timeout=15,
+                    )
+                    data_usdc = r_usdc.json()
+                    if data_usdc.get("success"):
+                        order_id = data_usdc.get("data", {}).get("orderId") if isinstance(data_usdc.get("data"), dict) else data_usdc.get("data")
+                        logger.info(f"✅ Ordre Market USDC placé avec succès sur {usdc_sym} ! ID : {order_id}")
+                        return {
+                            "success":      True,
+                            "order_id":     order_id,
+                            "symbol":       usdc_sym,
+                            "side":         "LONG" if side == 1 else "SHORT",
+                            "vol":          vol,
+                            "balance_used": round(balance * pct, 2),
+                            "leverage":     LEVERAGE,
+                            "trailing":     "software (check_and_trail, pas natif MEXC)",
+                            "tp_sl_set":    True,
+                            "tp":           tp_rounded,
+                            "sl":           sl_rounded if sl_rounded > 0 else "Aucun",
+                        }
+                    else:
+                        logger.error(f"❌ Échec de la bascule USDC {usdc_sym}: {data_usdc.get('message')}")
+                except Exception as _e_usdc:
+                    logger.error(f"❌ Exception lors du fallback USDC pour {usdc_sym}: {_e_usdc}")
             return {"success": False, "error": err}
     except Exception as e:
         logger.error(f"❌ Exception : {e}")
