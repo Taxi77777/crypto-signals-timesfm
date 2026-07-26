@@ -45,7 +45,7 @@ OBI_MAX_FOR_SELL         = 0.60   # au-dessus, un mur acheteur bloque les ventes
 # pouvait être tradée avec un notionnel de plus de 1 000 USD → slippage énorme.
 # Ce plancher exclut réellement les paires trop illiquides.
 ENABLE_VOLUME_FLOOR      = True
-MIN_VOLUME_24H_USDT      = 5_000_000   # baisse-le si trop de paires sont exclues
+MIN_VOLUME_24H_USDT      = 1_000_000   # 1M$ USDT volume floor (permits all major liquid altcoins)
 
 # ── Volume Climax : bougie clôturée ou bougie en cours ? ─────────────────────
 # yfinance renvoie la bougie 15m EN FORMATION comme dernière ligne. Comparer son
@@ -53,18 +53,13 @@ MIN_VOLUME_24H_USDT      = 5_000_000   # baisse-le si trop de paires sont exclue
 # True  = compare la dernière bougie CLÔTURÉE (iloc[-2]) — comparaison à périmètre égal.
 # False = ancien comportement (bougie en cours).
 VOL_CLIMAX_USE_CLOSED_CANDLE = True
-VOL_CLIMAX_MULT              = 1.3     # volume >= 1.3x la moyenne des 20 précédentes
+VOL_CLIMAX_MULT              = 1.15    # volume >= 1.15x la moyenne des 20 précédentes
 
 # ── Filtre Fibonacci en confluence avec le VWAP ──────────────────────────────
-# Retracement du swing de la SESSION en cours (plus bas → plus haut du jour).
-# BUY  : le prix doit être retracé dans la "golden pocket" 0.382–0.618 depuis le
-#        plus haut de session, ET sous le VWAP → repli sain, pas un couteau qui tombe.
-# SELL : miroir depuis le plus bas de session, ET au-dessus du VWAP.
-# ⚠️ Ce filtre RESTREINT les entrées. Surveille le compteur de rejets dans les logs
-#    Actions : si "fibo" domine les rejets, élargis la zone ou repasse à False.
-ENABLE_VWAP_FIBO         = True
-FIBO_ZONE_LOW            = 0.382   # début de la zone de retracement
-FIBO_ZONE_HIGH           = 0.618   # fin de la zone (golden pocket)
+# Desactivé par défaut pour éviter d'étouffer les opportunités d'impulsion
+ENABLE_VWAP_FIBO         = False
+FIBO_ZONE_LOW            = 0.236   # début de la zone de retracement
+FIBO_ZONE_HIGH           = 0.786   # fin de la zone (golden pocket élargie)
 FIBO_MIN_RANGE_PCT       = 0.004   # range de session mini 0.4% (sinon Fibo = bruit)
 
 # ── Bandes d'écart-type VWAP (version institutionnelle quantifiée) ───────────
