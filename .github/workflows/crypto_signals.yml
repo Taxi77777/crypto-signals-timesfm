@@ -67,15 +67,21 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add signals.json track_record.json pending_predictions.json
-          git add pending_pullbacks.json || true
-          git commit -m "chore: update crypto signals.json [skip ci]" || echo "Aucune modification"
-          # En mode automatique le remote peut avoir bougé entre le checkout et le push.
-          # Sans ce rebase, le push échoue et le track record est perdu pour ce run.
-          for i in 1 2 3; do
-            git pull --rebase --autostash origin main && git push && break
-            echo "Push tentative $i échouée, nouvel essai..."
-            sleep 5
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --soft origin/main
+            git add signals.json track_record.json pending_predictions.json pending_pullbacks.json 2>/dev/null || true
+            if git diff --cached --quiet; then
+              echo "Aucune modification à commit."
+              break
+            fi
+            git commit -m "chore: update crypto signals.json [skip ci]" || true
+            if git push origin main; then
+              echo "✅ Push réussi avec succès à la tentative $i !"
+              break
+            fi
+            echo "⚠️ Push tentative $i échouée, nouvel essai dans 3s..."
+            sleep 3
           done
 
       - name: Sauvegarde des logs
