@@ -1205,14 +1205,8 @@ def main():
                             f"📊 Carnet d'ordres {symbol_mexc} | OBI {_obi_01:.2f} "
                             f"(brut {imbalance:+.2f}) | seuils BUY>={_min_buy:.2f} SELL<={_max_sell:.2f}"
                         )
-                        if best.signal == "BUY" and _obi_01 < _min_buy:
-                            logger.info(f"❌ OBI {_obi_01:.2f} < {_min_buy:.2f} → blocage achat (mur vendeur).")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (OBI {_obi_01:.2f} < {_min_buy:.2f})")
-                            signal_valid = False
-                        elif best.signal == "SELL" and _obi_01 > _max_sell:
-                            logger.info(f"❌ OBI {_obi_01:.2f} > {_max_sell:.2f} → blocage vente (mur acheteur).")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (OBI {_obi_01:.2f} > {_max_sell:.2f})")
-                            signal_valid = False
+                        # Filtre OBI neutralisé pour la Stratégie Pure Belkhayate (ne bloque plus les signaux)
+                        logger.info(f"📊 Carnet OBI {_obi_01:.2f} — Stratégie Pure Belkhayate active (Signal validé sans blocage).")
 
                 # 2. Vérification Funding Rate
                 if signal_valid:
