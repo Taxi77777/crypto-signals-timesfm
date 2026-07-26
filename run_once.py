@@ -40,7 +40,7 @@ from src.telegram_bot      import send_signal, send_message
 from src.mexc_trader       import (
     has_open_position, place_order,
     get_usdt_balance, check_and_trail,
-    get_order_book_imbalance, LEVERAGE
+    get_order_book_imbalance, get_mexc_depth, LEVERAGE
 )
 
 
@@ -878,8 +878,8 @@ def main():
     if use_mexc and trade_allowed and strong_signals:
         from src.mexc_trader import SYMBOL_MAP
         
-        # Mode 100% SELL : Ne trader QUE les signaux SELL disponibles sur MEXC Futures et non déjà ouverts
-        tradables = [s for s in strong_signals if s.signal == "SELL" and s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
+        # Mode Bi-Directionnel : Trader les signaux BUY et SELL disponibles sur MEXC Futures et non déjà ouverts
+        tradables = [s for s in strong_signals if s.symbol in SYMBOL_MAP and SYMBOL_MAP[s.symbol] not in open_symbols]
         
         # ── Trier par PRIORITÉ VOLUME 24H MEXC / Marché (Prio Forte si Vol > 5M$ USDT, Prio Moyenne sinon) ──
         def get_crypto_volume_tier(s):

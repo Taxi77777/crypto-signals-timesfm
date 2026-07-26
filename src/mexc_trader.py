@@ -760,3 +760,22 @@ def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.
         logger.error(f"Erreur get_largest_walls pour {symbol_mexc}: {e}")
     return None
 
+
+def get_mexc_depth(symbol_mexc: str, depth_pct: float = 0.015) -> tuple[float, float]:
+    """
+    Retourne (bid_qty_usdt, ask_qty_usdt) cumulés dans la zone depth_pct (ex: 1.5%).
+    """
+    try:
+        r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=100", timeout=10)
+        data = r.json()
+        if data.get("success"):
+            depth = data.get("data", {})
+            bids = depth.get("bids", [])
+            asks = depth.get("asks", [])
+            sum_bids = sum(float(b[1]) for b in bids)
+            sum_asks = sum(float(a[1]) for a in asks)
+            return sum_bids, sum_asks
+    except Exception as e:
+        logger.error(f"Erreur get_mexc_depth {symbol_mexc}: {e}")
+    return 1000.0, 1000.0
+
