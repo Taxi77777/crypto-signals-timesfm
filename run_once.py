@@ -775,10 +775,20 @@ def main():
             else:
                 range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
                 
-            # 🚀 Stratégie EXTRÊMEMENT AVANCÉE (RSI Extrême + Volume Climax 1.5X + Tendance Macro 1H/4H + Scalp 1.2%)
+            # 🚀 Stratégie EXTRÊMEMENT AVANCÉE INSTITUTIONNELLE (VWAP + RSI Extrême + Volume Climax + Macro 1H/4H)
             rsi_15m = float(last_15m["rsi"]) if "rsi" in last_15m else 50.0
             rsi_min_recent = float(df_15m["rsi"].tail(6).min()) if "rsi" in df_15m else rsi_15m
             rsi_max_recent = float(df_15m["rsi"].tail(6).max()) if "rsi" in df_15m else rsi_15m
+
+            # Calcul du VWAP Institutionnel (Volume-Weighted Average Price)
+            typical_price = (df_15m["high"] + df_15m["low"] + df_15m["close"]) / 3
+            vol_sum = df_15m["volume"].cumsum()
+            vwap_series = (typical_price * df_15m["volume"]).cumsum() / vol_sum.replace(0, 1)
+            vwap_curr = float(vwap_series.iloc[-1])
+
+            # Biais Institutionnel VWAP (Discount pour BUY / Premium pour SELL)
+            vwap_discount = (cur_price <= vwap_curr * 1.002)   # Prix avantageux pour BUY
+            vwap_premium  = (cur_price >= vwap_curr * 0.998)   # Prix avantageux pour SELL
 
             # Détermination de la Tendance Macro 1H/4H (Close vs EMA200 1H)
             ema200_1h = float(last_30m["ema200"]) if "ema200" in last_30m else cur_price
@@ -790,21 +800,21 @@ def main():
             vol_mean = float(df_15m["volume"].tail(20).mean()) if "volume" in df_15m else 1.0
             has_vol_climax = (vol_curr >= 1.3 * vol_mean) if vol_mean > 0 else True
 
-            # 1. Impulsion ACHAT (BUY) : Départ après Sur-Vente (RSI recent <= 42) + Rebond Fisher(9) 15m/30m (↑) + Vol Climax
-            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax
+            # 1. Impulsion ACHAT (BUY) : Départ après Sur-Vente (RSI <= 42) + Fisher(9) (↑) + Vol Climax + VWAP Discount
+            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount
             
-            # 2. Impulsion VENTE (SELL) : Départ après Sur-Achat (RSI recent >= 58) + Chute Fisher(9) 15m/30m (↓) + Vol Climax
-            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax
+            # 2. Impulsion VENTE (SELL) : Départ après Sur-Achat (RSI >= 58) + Fisher(9) (↓) + Vol Climax + VWAP Premium
+            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
 
             if not (is_buy_impulse or is_sell_impulse):
-                logger.info(f"⏳ Stratégie Avancée Guard | {name} {direction} non optimal (RSI 15m: {rsi_15m:.1f}, Vol Climax: {has_vol_climax}) → Attente départ impulsion avancée.")
+                logger.info(f"⏳ Stratégie Institutionnelle Guard | {name} {direction} non optimal (RSI: {rsi_15m:.1f}, VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x) → Attente setup parfait.")
                 continue
 
             target_signal = "BUY" if is_buy_impulse else "SELL"
-            logger.info(f"🔥 IMPULSION EXTRÊMEMENT AVANCÉE DÉTECTÉE — {name} {target_signal} | Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
+            logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
 
             # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION EXTRÊMEMENT AVANCÉE 80X
             tp_ext = (cur_price * 1.012) if target_signal == "BUY" else (cur_price * 0.988)   # TP Scalp Précision ±1.2% (+96% Gain Net en 80X)
