@@ -1075,12 +1075,21 @@ def main():
                     # Vérification du Pullback EMA20 (Protection Achat en Haut de Mèche)
                     df_best = all_data.get(best.symbol)
                     if df_best is not None and not df_best.empty:
-                        df_tmp_b = compute_all_indicators(df_best)
+                        df_tmp_b = compute_all_indicators(df_best.copy())
                         if not df_tmp_b.empty:
                             last_b = df_tmp_b.iloc[-1]
-                            c_p = float(last_b["Close"])
+                            # data_fetcher normalise les colonnes en MINUSCULES.
+                            # "Close" levait KeyError et faisait planter tout le bot
+                            # (exit code 1) dès qu'un signal atteignait ce point.
+                            if "close" in last_b:
+                                c_p = float(last_b["close"])
+                            elif "Close" in last_b:
+                                c_p = float(last_b["Close"])
+                            else:
+                                logger.error(f"Colonne close absente pour {best.symbol} → guard EMA20 ignoré")
+                                c_p = 0.0
                             ema20_b = float(last_b.get("ema20", c_p))
-                            ext_p = (c_p - ema20_b) / ema20_b * 100 if ema20_b > 0 else 0
+                            ext_p = (c_p - ema20_b) / ema20_b * 100 if (ema20_b > 0 and c_p > 0) else 0
                             if best.signal == "BUY" and ext_p > 0.08:
                                 logger.info(f"⏳ Crypto Pullback Guard | {best.pair_name} est trop étendu de l'EMA20 (+{ext_p:.2f}% > +0.08%) → Attente de repli.")
                                 send_message(f"⏳ *Signal {best.pair_name} BUY en attente de Pullback*\nPrix trop haut par rapport à l'EMA20 (+{ext_p:.2f}%). L'ordre sera placé dès le repli sur l'EMA20.")
