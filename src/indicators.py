@@ -34,6 +34,19 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         df["ema20"] = ta.trend.EMAIndicator(df["close"], window=20).ema_indicator()
         df["ema50"] = ta.trend.EMAIndicator(df["close"], window=50).ema_indicator()
 
+        # EMA 200 — utilisée par le filtre de tendance macro de run_once.py.
+        # Elle était LUE sans jamais être CALCULÉE : le filtre recevait une valeur
+        # de repli égale au prix courant, ce qui bloquait 100% des signaux.
+        # Calculée seulement si l'historique suffit : sinon la colonne serait
+        # entièrement NaN et le dropna() final viderait tout le DataFrame.
+        if len(df) >= 200:
+            df["ema200"] = ta.trend.EMAIndicator(df["close"], window=200).ema_indicator()
+        else:
+            logger.warning(
+                f"Historique insuffisant pour EMA200 ({len(df)} bougies < 200) — "
+                f"colonne non créée, le filtre macro sera neutralisé"
+            )
+
         # ATR (14) — volatilité
         df["atr"] = ta.volatility.AverageTrueRange(
             df["high"], df["low"], df["close"], window=14
