@@ -36,6 +36,13 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         df["ma30"]  = ta.trend.SMAIndicator(df["close"], window=30).sma_indicator()
         df["ma60"]  = ta.trend.SMAIndicator(df["close"], window=60).sma_indicator()
 
+        # Proportion des mèches (Rejection Wick Ratio)
+        candle_range = (df["high"] - df["low"]).replace(0, 1e-6)
+        body_min = np.minimum(df["open"], df["close"])
+        body_max = np.maximum(df["open"], df["close"])
+        df["lower_wick_pct"] = (body_min - df["low"]) / candle_range
+        df["upper_wick_pct"] = (df["high"] - body_max) / candle_range
+
         # EMA 200 — utilisée par le filtre de tendance macro de run_once.py.
         # Elle était LUE sans jamais être CALCULÉE : le filtre recevait une valeur
         # de repli égale au prix courant, ce qui bloquait 100% des signaux.
