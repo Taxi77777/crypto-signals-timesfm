@@ -816,19 +816,21 @@ def main():
             target_signal = "BUY" if is_buy_impulse else "SELL"
             logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
 
-            # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION EXTRÊMEMENT AVANCÉE 80X
+            # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP 80X
             tp_ext = (cur_price * 1.012) if target_signal == "BUY" else (cur_price * 0.988)   # TP Scalp Précision ±1.2% (+96% Gain Net en 80X)
             icon = "🟢" if target_signal == "BUY" else "🔴"
             type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
             trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
+            vwap_txt = "Discount (Achat Bon Marché) 🟢" if target_signal == "BUY" else "Premium (Vente Chère) 🔴"
 
             # Toujours envoyer le signal sur Telegram
             send_message(
-                f"{icon} *SIGNAL IMPULSION EXTRÊMEMENT AVANCÉE 80X — {name}* {icon}\n"
+                f"{icon} *SIGNAL SNIPER RSI VWAP 80X — {name}* {icon}\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📌 *{type_str} x80*\n"
                 f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                 f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±1.2% / +96% Gain Net)\n"
+                f"🎯 Filtre VWAP : `{vwap_curr:.4f}` ({vwap_txt})\n"
                 f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
                 f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}`\n"
                 f"✅ Alignement Tendance Macro : {trend_str}\n"
