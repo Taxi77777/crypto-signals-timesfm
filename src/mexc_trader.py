@@ -3,8 +3,13 @@ src/mexc_trader.py — Intégration MEXC Futures avec TimesFM
 - 1 seule position ouverte à la fois
 - Mise totale du solde USDT/USDC disponible
 - Levier défini par LEVERAGE ci-dessous, market order isolé
-- TP/SL automatiques
-- Trailing Stop : 2% callback natif MEXC + protection software
+- TP posé côté EXCHANGE (atomique avec l'ordre) → seule protection toujours active
+- SL initial : aucun par défaut (config.ENABLE_CATASTROPHE_SL)
+- Trailing : SOFTWARE uniquement, exécuté au début de chaque run par check_and_trail().
+  ⚠️ Il N'Y A PAS de trailing natif MEXC : aucun paramètre trailing n'est envoyé
+  dans l'ordre. TRAILING_CALLBACK ci-dessous n'est qu'une chaîne d'affichage.
+  Sur un scalp qui se résout en quelques minutes et un run toutes les 15-60 min,
+  le trailing software n'a souvent aucune occasion de s'exécuter.
 """
 
 import time
@@ -30,7 +35,7 @@ from config import MEXC_API_KEY, MEXC_SECRET_KEY
 MEXC_BASE          = "https://api.mexc.com"
 LEVERAGE           = 80
 MARGIN_PCT         = 0.90
-TRAILING_CALLBACK  = 2.0
+TRAILING_CALLBACK  = 2.0   # ⚠️ AFFICHAGE SEULEMENT — non envoyé à MEXC, aucun effet réel
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
@@ -728,7 +733,7 @@ def place_order(
                 "vol":          vol,
                 "balance_used": round(balance * pct, 2),
                 "leverage":     LEVERAGE,
-                "trailing":     f"{TRAILING_CALLBACK}%",
+                "trailing":     "software (check_and_trail, pas natif MEXC)",
                 "tp_sl_set":    tp_sl_ok,
                 "tp":           tp_rounded,
                 "sl":           sl_rounded if sl_rounded > 0 else "Aucun",
