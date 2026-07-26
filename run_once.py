@@ -928,12 +928,24 @@ def main():
             obi_buy_ok  = (obi_score >= _obi_min_buy)    # pas bloqué par un mur vendeur géant
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
-            # Alignement Croisement Moyennes Mobiles 30 / 60 (Tendance 15m)
-            ma30_val = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
-            ma60_val = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
-            ma30_prev = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
-            ma_buy_ok  = (ma30_val >= ma60_val * 0.998) or (ma30_val > ma30_prev)
-            ma_sell_ok = (ma30_val <= ma60_val * 1.002) or (ma30_val < ma30_prev)
+            # Détection du Croisement Précis MA 30 / MA 60 (Golden Cross / Death Cross 15m)
+            ma30_curr = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
+            ma60_curr = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
+
+            ma30_p1   = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
+            ma60_p1   = float(df_15m["ma60"].iloc[-2]) if "ma60" in df_15m.columns else cur_price
+
+            ma30_p2   = float(df_15m["ma30"].iloc[-3]) if len(df_15m) >= 3 and "ma30" in df_15m.columns else ma30_p1
+            ma60_p2   = float(df_15m["ma60"].iloc[-3]) if len(df_15m) >= 3 and "ma60" in df_15m.columns else ma60_p1
+
+            # 🟢 Golden Cross Précis (BUY) : MA30 croise au-dessus de MA60 (bougie courante ou précédente)
+            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr) or (ma30_p2 < ma60_p2 and ma30_p1 >= ma60_p1)
+
+            # 🔴 Death Cross Précis (SELL) : MA30 croise en-dessous de MA60 (bougie courante ou précédente)
+            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr) or (ma30_p2 > ma60_p2 and ma30_p1 <= ma60_p1)
+
+            ma_buy_ok  = is_exact_golden_cross
+            ma_sell_ok = is_exact_death_cross
 
             # 1. Impulsion ACHAT (BUY) : Momentum + MA30/60 Alignée + VWAP Discount + OBI Acheteur (>= 50%) + Macro Bullish
             valid_buy_rsi  = (rsi_min_recent <= 56.0 or rsi_15m <= 56.0) and (vol_curr >= 0.85 * vol_mean) and vwap_discount and obi_buy_ok and fibo_buy_ok and ma_buy_ok
