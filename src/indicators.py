@@ -88,6 +88,17 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         df["fisher_trigger"] = pd.Series(fishers, index=df.index).shift(1)  # ligne signal (Fisher decale de 1)
 
         # ── SUPERTREND (ATR 10, multiplicateur 3) — suiveur de tendance crypto ──
+        # ── INDICATEURS DE MOSTAFA BELKHAYATE (Barycentre + Timing) ──
+        # 1. Barycentre de Belkhayate (Centre de Gravité + Écartement Nombre d'Or 1.618)
+        barycenter_len = 30
+        df["belkhayate_barycenter"] = df["close"].rolling(window=barycenter_len).mean()
+        bary_std = df["close"].rolling(window=barycenter_len).std()
+        df["belkhayate_upper_zone"] = df["belkhayate_barycenter"] + (1.618 * 2.0 * bary_std) # Zone rouge VENTE
+        df["belkhayate_lower_zone"] = df["belkhayate_barycenter"] - (1.618 * 2.0 * bary_std) # Zone verte ACHAT
+        
+        # 2. Belkhayate Timing Oscillator (Déviation relative du prix par rapport au Centre de Gravité)
+        denom_std = bary_std.replace(0, 1e-6)
+        df["belkhayate_timing"] = (df["close"] - df["belkhayate_barycenter"]) / denom_std
         st_period, st_mult = 10, 3.0
         atr_st = ta.volatility.AverageTrueRange(
             df["high"], df["low"], df["close"], window=st_period

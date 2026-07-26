@@ -242,6 +242,21 @@ def generate_signal(
         if fisher <= -2.0:   buy_score  += 1
         if fisher >= 2.0:    sell_score += 1
 
+        # ── SYSTEME MOSTAFA BELKHAYATE (Barycentre + Timing) ──
+        try:
+            bary_lower = float(df.iloc[-1].get("belkhayate_lower_zone", 0.0))
+            bary_upper = float(df.iloc[-1].get("belkhayate_upper_zone", 0.0))
+            bary_timing = float(df.iloc[-1].get("belkhayate_timing", 0.0))
+            
+            # Achats en zone extrême verte du Barycentre + Belkhayate Timing survendu
+            if current_price <= bary_lower or bary_timing <= -2.0:
+                buy_score += 4
+            # Ventes en zone extrême rouge du Barycentre + Belkhayate Timing suracheté
+            elif current_price >= bary_upper or bary_timing >= 2.0:
+                sell_score += 4
+        except Exception as _e:
+            logger.warning(f"{symbol}: règle Belkhayate ignorée ({type(_e).__name__}: {_e})")
+
         # ── Croisement Stochastique RSI (Fin de Pullback 20/80) ──
         try:
             if len(df) >= 3:
