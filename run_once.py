@@ -878,11 +878,27 @@ def main():
                             ema200_1h = _v
                 except Exception as _e:
                     logger.warning(f"EMA200 1H indisponible pour {sym}: {_e}")
+            if ema200_1h is None and "ema200" in last_30m:
+                try:
+                    _v30 = float(last_30m["ema200"])
+                    if _v30 == _v30 and _v30 > 0:
+                        ema200_1h = _v30
+                        macro_tf_txt = "30m (repli)"
+                except Exception:
+                    pass
+
             if ema200_1h is None:
-                ema200_1h = float(last_30m["ema200"]) if "ema200" in last_30m else cur_price
-                macro_tf_txt = "30m (repli)"
-            macro_trend_1h_bull = (cur_price > ema200_1h)
-            macro_trend_1h_bear = (cur_price < ema200_1h)
+                # EMA200 réellement indisponible (historique trop court).
+                # On NEUTRALISE le filtre au lieu de le laisser tout bloquer :
+                # avec ema200 = cur_price, les tests stricts > et < étaient tous
+                # les deux faux et AUCUN signal ne pouvait passer.
+                macro_trend_1h_bull = True
+                macro_trend_1h_bear = True
+                macro_tf_txt = "indisponible → filtre neutralisé"
+                logger.warning(f"EMA200 indisponible pour {sym} → filtre de tendance macro neutralisé")
+            else:
+                macro_trend_1h_bull = (cur_price > ema200_1h)
+                macro_trend_1h_bear = (cur_price < ema200_1h)
 
             # ── Volume Climax Institutionnel ──
             # DEUX corrections par rapport à la version précédente :
