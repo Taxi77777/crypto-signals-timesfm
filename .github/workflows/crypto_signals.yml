@@ -1,7 +1,18 @@
-name: Crypto Signals Bot (50 Cryptos) — Manual Dispatch Only
+name: Crypto Signals Bot (50 Cryptos) — Auto 15m
 
 on:
-  workflow_dispatch:            # Bouton manuel depuis GitHub uniquement (pas de cron automatique)
+  schedule:
+    # Toutes les 15 minutes, aligné sur la clôture des bougies 15m (timeframe de trading).
+    # GitHub Actions peut retarder les runs planifiés de quelques minutes en heure de pointe.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:            # Bouton manuel toujours disponible
+
+# Empêche deux runs de trader en parallèle (un run dure 7-9 min, le cron est à 15 min :
+# en cas de retard GitHub, deux runs pourraient se chevaucher et ouvrir des doublons).
+# cancel-in-progress: false → on ne tue JAMAIS un run qui a peut-être déjà ouvert une position.
+concurrency:
+  group: crypto-signals-live
+  cancel-in-progress: false
 
 jobs:
   send-signals:
@@ -43,19 +54,29 @@ jobs:
           MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
           MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
           USE_TIMESFM: 'true'
+          # NE PAS passer à 15m : run_once.py calcule le volume 24h avec tail(288),
+          # ce qui suppose des bougies 5m. La stratégie Sniper télécharge de toute
+          # façon ses propres bougies 15m/30m indépendamment de ce réglage.
           DATA_INTERVAL: '5m'
           SIGNAL_FREQUENCY_HOURS: '1'
           LOG_LEVEL: 'INFO'
         run: python run_once.py
 
       - name: Commit et Push de signals.json
+        if: always()
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add signals.json track_record.json pending_predictions.json
           git add pending_pullbacks.json || true
           git commit -m "chore: update crypto signals.json [skip ci]" || echo "Aucune modification"
-          git push
+          # En mode automatique le remote peut avoir bougé entre le checkout et le push.
+          # Sans ce rebase, le push échoue et le track record est perdu pour ce run.
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin main && git push && break
+            echo "Push tentative $i échouée, nouvel essai..."
+            sleep 5
+          done
 
       - name: Sauvegarde des logs
         if: always()
