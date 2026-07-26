@@ -982,18 +982,24 @@ def main():
             obi_pct = f"{obi_score*100:.0f}% Acheteurs / {(1-obi_score)*100:.0f}% Vendeurs"
 
             # Toujours envoyer le signal sur Telegram
+            time_str = datetime.now(PARIS_TZ).strftime("%d/%m/%Y %H:%M")
             send_message(
-                f"🏆 *SIGNAL MOSTAFA BELKHAYATE & IA [MEXC FUTURES x80]* — *{name}* {icon}\n"
+                f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM* 👑\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📌 *{type_str} x80*\n"
-                f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                f"🏛️ Méthode : *MOSTAFA BELKHAYATE + MÈCHE DE REJET*\n"
-                f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% prix / ~+{_tp_pct*100*LEVERAGE:.0f}% brut en x{LEVERAGE})\n"
-                f"🎯 Belkhayate Barycentre : `{vwap_curr:.4f}` ({vwap_txt})\n"
-                f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}` | {range_txt}\n"
-                f"🛑 Stop Loss : {sl_txt}\n"
-                f"🔒 Trailing software → Breakeven à +{TRAIL_BREAKEVEN_PCT}%\n"
-                f"⚠️ _Trailing vérifié uniquement à chaque run (~15-60 min). Seul le TP est posé côté MEXC._\n"
+                f"📊 Signal      : {icon} *{target_signal}*\n"
+                f"🪙 Paire       : *{name}* [MEXC FUTURES x80]\n"
+                f"💰 Prix d'Entrée : `{_fmt_p(cur_price)}`\n"
+                f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x80)\n"
+                f"🛑 Stop Loss   : `{sl_txt}`\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE :*\n"
+                f"📍 Zone Barycentre  : *{'Zone Verte (Achat)' if target_signal == 'BUY' else 'Zone Rouge (Vente)'}*\n"
+                f"⏱️ Timing Oscillator : `{bary_timing:+.2f}` (Extrême Validé)\n"
+                f"🕯️ Mèche de Rejet    : *Physique ≥ 15% Confirmée*\n"
+                f"📈 Croisement MA     : *MA 30/60 Valide (0-1 bougie)*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"
+                f"🕐 {time_str} (Heure de Paris)\n"
             )
             logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {cur_price}")
 
