@@ -246,11 +246,39 @@ def get_contract_info(symbol_mexc: str) -> tuple[float, float, int]:
     return 0.001, 0.01, 2
 
 
-def calculate_contracts(balance_usdt: float, price: float, contract_size: float) -> int:
-    """Calcule le nombre de contrats avec la mise totale + levier."""
-    usable    = balance_usdt * MARGIN_PCT
-    contracts = int((usable * LEVERAGE) / (price * contract_size))
-    return max(1, contracts)
+def calculate_contracts(margin_usdt: float, price: float, contract_size: float) -> int:
+    """
+    Calcule le nombre de contrats pour une MARGE DÉJÀ CALCULÉE.
+
+    ⚠️ margin_usdt doit être la marge finale à engager. MARGIN_PCT n'est PAS
+    réappliqué ici : place_order l'a déjà fait. Avant, il l'était deux fois
+    (22 × 0.90 × 0.90 = 17.82 au lieu de 19.80).
+
+    Retourne 0 si un seul contrat dépasse déjà le notionnel finançable —
+    l'appelant doit alors renoncer au trade au lieu d'ouvrir une position
+    sur-dimensionnée (l'ancien max(1, ...) forçait 1 contrat coûte que coûte).
+    """
+    if margin_usdt <= 0 or price <= 0 or contract_size <= 0:
+        logger.error(f"calculate_contracts: paramètres invalides (marge={margin_usdt}, prix={price}, taille={contract_size})")
+        return 0
+
+    notional_max     = margin_usdt * LEVERAGE
+    notional_1_contr = price * contract_size
+
+    if notional_1_contr > notional_max:
+        logger.error(
+            f"Marge insuffisante : 1 contrat = {notional_1_contr:.2f} USD "
+            f"> notionnel finançable {notional_max:.2f} USD "
+            f"(marge {margin_usdt:.2f} × levier {LEVERAGE}) → trade abandonné"
+        )
+        return 0
+
+    contracts = int(notional_max / notional_1_contr)
+    logger.info(
+        f"Sizing : marge {margin_usdt:.2f} USD × x{LEVERAGE} = {notional_max:.2f} notionnel "
+        f"→ {contracts} contrat(s) de {notional_1_contr:.4f} USD"
+    )
+    return contracts
 
 
 def _place_stop_order(
@@ -634,6 +662,16 @@ def place_order(
     pct = margin_pct if margin_pct is not None else MARGIN_PCT
     contract_size, price_unit, price_scale = get_contract_info(symbol_mexc)
     vol = calculate_contracts(balance * pct, price, contract_size)
+
+    # calculate_contracts renvoie 0 si la marge ne finance même pas 1 contrat.
+    # On abandonne proprement au lieu d'envoyer un ordre vol=0 (rejeté par MEXC)
+    # ou sur-dimensionné (ancien comportement max(1, ...)).
+    if vol <= 0:
+        msg = (f"Marge insuffisante pour {symbol_mexc} : "
+               f"{balance * pct:.2f} USD × x{LEVERAGE} ne finance pas 1 contrat")
+        logger.error(f"❌ {msg}")
+        return {"success": False, "error": msg}
+
     side = 1 if signal == "BUY" else 3   # 1=Open Long, 3=Open Short
 
     tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
