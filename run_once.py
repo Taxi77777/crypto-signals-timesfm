@@ -797,11 +797,9 @@ def main():
             vwap_series = _pv / _vv.replace(0, 1)
             vwap_curr = float(vwap_series.iloc[-1])
 
-            # Biais Institutionnel VWAP — zones MUTUELLEMENT EXCLUSIVES.
-            # Avant : discount <= vwap*1.002 ET premium >= vwap*0.998 se chevauchaient
-            # sur une bande de 0.4% où les DEUX étaient vrais → filtre inopérant.
-            vwap_discount = (cur_price < vwap_curr)   # Sous le VWAP → achat bon marché
-            vwap_premium  = (cur_price > vwap_curr)   # Au-dessus du VWAP → vente chère
+            # Biais Institutionnel VWAP — zones dynamiques tolérantes (±0.5% autour du VWAP).
+            vwap_discount = (cur_price <= vwap_curr * 1.005)   # Achat bon marché ou proche VWAP
+            vwap_premium  = (cur_price >= vwap_curr * 0.995)   # Vente chère ou proche VWAP
 
             # ── Bandes d'écart-type VWAP (config.ENABLE_VWAP_SIGMA_BANDS) ──
             # Quantifie l'étirement au lieu de dire seulement "de quel côté du VWAP".
@@ -892,8 +890,8 @@ def main():
                 macro_tf_txt = "indisponible → filtre neutralisé"
                 logger.warning(f"EMA200 indisponible pour {sym} → filtre de tendance macro neutralisé")
             else:
-                macro_trend_1h_bull = (cur_price > ema200_1h)
-                macro_trend_1h_bear = (cur_price < ema200_1h)
+                macro_trend_1h_bull = (cur_price > ema200_1h * 0.985)  # Tolérance 1.5% autour de l'EMA200 1H
+                macro_trend_1h_bear = (cur_price < ema200_1h * 1.015)
 
             # ── Volume Climax Institutionnel ──
             # DEUX corrections par rapport à la version précédente :
@@ -901,7 +899,7 @@ def main():
             #     formation, dont le volume est partiel et donc jamais comparable ;
             #  2) la moyenne de référence EXCLUT la bougie mesurée (avant, un pic
             #     se diluait dans sa propre moyenne : un vrai 1.50x sortait à 1.46x).
-            _vol_mult    = float(getattr(config, "VOL_CLIMAX_MULT", 1.3))
+            _vol_mult    = float(getattr(config, "VOL_CLIMAX_MULT", 1.15))
             _use_closed  = getattr(config, "VOL_CLIMAX_USE_CLOSED_CANDLE", True)
             vol_curr = 1.0
             vol_mean = 1.0
@@ -931,10 +929,10 @@ def main():
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
             # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
-            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
+            valid_buy_rsi  = (rsi_min_recent <= 48.0 or rsi_15m <= 48.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
             
             # 2. Impulsion VENTE (SELL) : Chute Sur-Achat + Fisher(9) (↓) + Vol Climax + VWAP Premium + OBI Vendeur
-            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
+            valid_sell_rsi = (rsi_max_recent >= 52.0 or rsi_15m >= 52.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
