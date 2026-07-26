@@ -983,17 +983,14 @@ def main():
 
             # Toujours envoyer le signal sur Telegram
             send_message(
-                f"{icon} *SIGNAL SNIPER RSI VWAP 80X — {name}* {icon}\n"
+                f"🏆 *SIGNAL MOSTAFA BELKHAYATE & IA [MEXC FUTURES x80]* — *{name}* {icon}\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📌 *{type_str} x80*\n"
                 f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
+                f"🏛️ Méthode : *MOSTAFA BELKHAYATE + MÈCHE DE REJET*\n"
                 f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% prix / ~+{_tp_pct*100*LEVERAGE:.0f}% brut en x{LEVERAGE})\n"
-                f"🎯 Filtre VWAP (session) : `{vwap_curr:.4f}` ({vwap_txt}) [{vwap_zone}]\n"
-                f"📐 Fibonacci session : {fibo_txt}\n"
-                f"🧱 Carnet d'ordres OBI ±1.5% : `{obi_pct}`\n"
-                f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
+                f"🎯 Belkhayate Barycentre : `{vwap_curr:.4f}` ({vwap_txt})\n"
                 f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}` | {range_txt}\n"
-                f"✅ Alignement Tendance Macro {macro_tf_txt} : {trend_str}\n"
                 f"🛑 Stop Loss : {sl_txt}\n"
                 f"🔒 Trailing software → Breakeven à +{TRAIL_BREAKEVEN_PCT}%\n"
                 f"⚠️ _Trailing vérifié uniquement à chaque run (~15-60 min). Seul le TP est posé côté MEXC._\n"
