@@ -65,21 +65,23 @@ def _ai_direction(current_price: float, predictions, threshold_pct: float = 0.05
 
 def _majority_consensus(dirs: dict) -> tuple:
     """
-    Consensus MAJORITE IA : au moins 3 IA disponibles doivent etre d'accord.
-    Minimum 3 modeles disponibles requis.
-    Retourne (direction, nb_disponibles, consensus_atteint: bool).
+    Consensus MAJORITE IA : la majorité des modèles IA disponibles (ex: 2/2, 2/3, 3/4, 3/5)
+    doivent être d'accord sur BUY ou SELL.
     """
     avail = {k: v for k, v in dirs.items() if v != "N/A"}
     n = len(avail)
-    if n < 3:
-        return ("HOLD", n, False)
+    if n == 0:
+        return ("HOLD", 0, False)
     
     buys = list(avail.values()).count("BUY")
     sells = list(avail.values()).count("SELL")
+
+    # Majorité relative des modèles disponibles (ex: 2/2, 2/3, 3/4, 3/5)
+    needed = max(2, (n // 2) + 1) if n >= 2 else 1
     
-    if buys >= 4:
+    if buys >= needed and buys > sells:
         return ("BUY", n, True)
-    if sells >= 4:
+    if sells >= needed and sells > buys:
         return ("SELL", n, True)
         
     return ("HOLD", n, False)
