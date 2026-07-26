@@ -174,7 +174,7 @@ def _get_headers(api_key: str, secret_key: str, body: str = "") -> dict:
 
 
 def get_usdt_balance(api_key: str, secret_key: str) -> float:
-    """Retourne le solde USDT disponible sur le compte futures MEXC."""
+    """Retourne le solde disponible (USDT ou USDC) sur le compte futures MEXC."""
     try:
         headers = _get_headers(api_key, secret_key)
         r   = requests.get(
@@ -184,11 +184,16 @@ def get_usdt_balance(api_key: str, secret_key: str) -> float:
         )
         data = r.json()
         if data.get("success"):
+            total_bal = 0.0
             for asset in data.get("data", []):
-                if asset.get("currency") == "USDT":
-                    balance = float(asset.get("availableBalance", 0))
-                    logger.info(f"Solde USDT : {balance:.2f} USDT")
-                    return balance
+                curr = asset.get("currency", "")
+                if curr in ("USDT", "USDC"):
+                    bal = float(asset.get("availableBalance", 0))
+                    total_bal += bal
+                    logger.info(f"Solde {curr} : {bal:.2f} {curr}")
+            if total_bal > 0:
+                logger.info(f"Solde Total Futures Disponible (USDT/USDC) : {total_bal:.2f} USD")
+                return total_bal
         logger.warning(f"Balance MEXC : {data}")
         return 0.0
     except Exception as e:
