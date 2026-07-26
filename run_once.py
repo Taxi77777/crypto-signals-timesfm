@@ -957,8 +957,8 @@ def main():
             # 2. Impulsion VENTE (SELL) : Momentum + Croisement MA30/60 + Mèche Rejet + VWAP Premium + OBI Vendeur (>= 50%) + Macro Bearish
             valid_sell_rsi = (rsi_max_recent >= 44.0 or rsi_15m >= 44.0) and (vol_curr >= 0.85 * vol_mean) and vwap_premium and obi_sell_ok and fibo_sell_ok and ma_sell_ok
 
-            is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
-            is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
+            is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi
+            is_sell_impulse = (direction == "SELL") and valid_sell_rsi
 
             candidates_seen += 1
 
