@@ -40,7 +40,8 @@ from src.telegram_bot      import send_signal, send_message
 from src.mexc_trader       import (
     has_open_position, place_order,
     get_usdt_balance, check_and_trail,
-    get_order_book_imbalance, get_mexc_depth, LEVERAGE
+    get_order_book_imbalance, get_mexc_depth, LEVERAGE,
+    TRAIL_BREAKEVEN_PCT
 )
 
 
@@ -675,7 +676,7 @@ def main():
         try:
             price = get_current_price(symbol_mexc)
             if price > 0:
-                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=1.5)
+                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)   # 0.015 = ±1.5% (0.5 avant = ±150%, tout le carnet)
                 walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
@@ -761,7 +762,6 @@ def main():
 
                     fish_30m_curr = float(last_30m["fisher"])
                     fish_30m_prev = float(df_30m["fisher"].iloc[-2]) if len(df_30m) >= 2 else fish_30m_curr
-                    fish_min_recent_15m = float(df_15m["fisher"].tail(8).min())
                 else:
                     logger.error(f"Echec du calcul des indicateurs 15m/30m pour {sym}")
                     continue
@@ -769,31 +769,59 @@ def main():
                 logger.error(f"Echec du chargement des donnees 15m/30m pour {sym}")
                 continue
                 
-            # Check Range
-            if adx_15m < 25:
-                range_txt = f"✅ Range 15m confirmé (ADX: {adx_15m:.1f})"
-            # Récupération du Carnet d'Ordres MEXC (bid_qty & ask_qty à ±1.5%)
-            bid_qty, ask_qty = get_mexc_depth(symbol_mexc)
+            # État du régime de marché 15m (informatif, affiché dans le signal)
+            range_txt = (f"✅ Range 15m (ADX: {adx_15m:.1f})" if adx_15m < 25
+                         else f"⚡ Tendance 15m (ADX: {adx_15m:.1f})")
+
+            # Récupération du Carnet d'Ordres MEXC (bid & ask cumulés à ±1.5% du prix)
+            bid_qty, ask_qty = get_mexc_depth(symbol_mexc, mark_price=cur_price, depth_pct=0.015)
+            if (bid_qty + ask_qty) <= 0:
+                logger.warning(f"⚠️ Carnet d'ordres MEXC indisponible pour {symbol_mexc} → signal {name} {direction} ignoré (fail-closed).")
+                continue
             
             # 🚀 Stratégie EXTRÊMEMENT AVANCÉE INSTITUTIONNELLE (VWAP + RSI Extrême + Volume Climax + Macro 1H/4H + OBI)
             rsi_15m = float(last_15m["rsi"]) if "rsi" in last_15m else 50.0
             rsi_min_recent = float(df_15m["rsi"].tail(6).min()) if "rsi" in df_15m else rsi_15m
             rsi_max_recent = float(df_15m["rsi"].tail(6).max()) if "rsi" in df_15m else rsi_15m
 
-            # Calcul du VWAP Institutionnel (Volume-Weighted Average Price)
+            # VWAP Institutionnel 15m ANCRÉ SUR LA SESSION (reset chaque jour UTC).
+            # Un cumsum sur 5 jours ne représente aucun niveau exploitable.
             typical_price = (df_15m["high"] + df_15m["low"] + df_15m["close"]) / 3
-            vol_sum = df_15m["volume"].cumsum()
-            vwap_series = (typical_price * df_15m["volume"]).cumsum() / vol_sum.replace(0, 1)
+            try:
+                _session = df_15m.index.normalize()
+                _pv = (typical_price * df_15m["volume"]).groupby(_session).cumsum()
+                _vv = df_15m["volume"].groupby(_session).cumsum()
+            except Exception:
+                _pv = (typical_price * df_15m["volume"]).cumsum()
+                _vv = df_15m["volume"].cumsum()
+            vwap_series = _pv / _vv.replace(0, 1)
             vwap_curr = float(vwap_series.iloc[-1])
 
-            # Biais Institutionnel VWAP (Discount pour BUY / Premium pour SELL)
-            vwap_discount = (cur_price <= vwap_curr * 1.002)   # Prix avantageux pour BUY
-            vwap_premium  = (cur_price >= vwap_curr * 0.998)   # Prix avantageux pour SELL
+            # Biais Institutionnel VWAP — zones MUTUELLEMENT EXCLUSIVES.
+            # Avant : discount <= vwap*1.002 ET premium >= vwap*0.998 se chevauchaient
+            # sur une bande de 0.4% où les DEUX étaient vrais → filtre inopérant.
+            vwap_discount = (cur_price < vwap_curr)   # Sous le VWAP → achat bon marché
+            vwap_premium  = (cur_price > vwap_curr)   # Au-dessus du VWAP → vente chère
 
-            # Détermination de la Tendance Macro 1H/4H (Close vs EMA200 1H)
-            ema200_1h = float(last_30m["ema200"]) if "ema200" in last_30m else cur_price
-            macro_trend_1h_bull = (cur_price >= ema200_1h)
-            macro_trend_1h_bear = (cur_price <= ema200_1h)
+            # Tendance Macro RÉELLE en 1H (Close vs EMA200 sur bougies 1H).
+            # Avant : lisait last_30m["ema200"] — c'était de l'EMA200 30m, pas 1H.
+            ema200_1h   = None
+            macro_tf_txt = "1H"
+            _df_1h_macro = all_data_1h.get(sym)
+            if _df_1h_macro is not None and not _df_1h_macro.empty and len(_df_1h_macro) >= 50:
+                try:
+                    _d1h = compute_all_indicators(_df_1h_macro.copy())
+                    if not _d1h.empty and "ema200" in _d1h:
+                        _v = float(_d1h["ema200"].iloc[-1])
+                        if _v == _v and _v > 0:      # rejette NaN
+                            ema200_1h = _v
+                except Exception as _e:
+                    logger.warning(f"EMA200 1H indisponible pour {sym}: {_e}")
+            if ema200_1h is None:
+                ema200_1h = float(last_30m["ema200"]) if "ema200" in last_30m else cur_price
+                macro_tf_txt = "30m (repli)"
+            macro_trend_1h_bull = (cur_price > ema200_1h)
+            macro_trend_1h_bear = (cur_price < ema200_1h)
 
             # Volume Climax Institutionnel (Volume >= 1.3x la moyenne)
             vol_curr = float(last_15m["volume"]) if "volume" in last_15m else 1.0
@@ -822,11 +850,20 @@ def main():
             target_signal = "BUY" if is_buy_impulse else "SELL"
             logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, OBI: {obi_score:.2f}")
 
-            # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP 80X
-            tp_ext = (cur_price * 1.012) if target_signal == "BUY" else (cur_price * 0.988)   # TP Scalp Précision ±1.2% (+96% Gain Net en 80X)
+            # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP
+            # TP Scalp piloté par config.TP_SCALP_PCT (défaut 1.2% de mouvement de prix)
+            _tp_pct = float(getattr(config, "TP_SCALP_PCT", 0.012))
+            tp_ext = cur_price * (1 + _tp_pct) if target_signal == "BUY" else cur_price * (1 - _tp_pct)
+
+            # Stop Loss catastrophe optionnel (config.ENABLE_CATASTROPHE_SL)
+            sl_ext = 0.0
+            if getattr(config, "ENABLE_CATASTROPHE_SL", False):
+                _sl_pct = float(getattr(config, "CATASTROPHE_SL_PCT", 0.009))
+                sl_ext = cur_price * (1 - _sl_pct) if target_signal == "BUY" else cur_price * (1 + _sl_pct)
+            sl_txt = f"`{_fmt_p(sl_ext)}`" if sl_ext > 0 else "`Aucun` ⚠️ (protégé uniquement par le trailing)"
             icon = "🟢" if target_signal == "BUY" else "🔴"
             type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
-            trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
+            trend_str = "Haussière 📈" if target_signal == "BUY" else "Baissière 📉"
             vwap_txt = "Discount (Achat Bon Marché) 🟢" if target_signal == "BUY" else "Premium (Vente Chère) 🔴"
             obi_pct = f"{obi_score*100:.0f}% Acheteurs / {(1-obi_score)*100:.0f}% Vendeurs"
 
@@ -836,14 +873,14 @@ def main():
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📌 *{type_str} x80*\n"
                 f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±1.2% / +96% Gain Net)\n"
-                f"🎯 Filtre VWAP : `{vwap_curr:.4f}` ({vwap_txt})\n"
-                f"🧱 Carnet d'ordres OBI : `{obi_pct}`\n"
+                f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% prix / ~+{_tp_pct*100*LEVERAGE:.0f}% brut en x{LEVERAGE})\n"
+                f"🎯 Filtre VWAP (session) : `{vwap_curr:.4f}` ({vwap_txt})\n"
+                f"🧱 Carnet d'ordres OBI ±1.5% : `{obi_pct}`\n"
                 f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
-                f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}`\n"
-                f"✅ Alignement Tendance Macro : {trend_str}\n"
-                f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
-                f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
+                f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}` | {range_txt}\n"
+                f"✅ Alignement Tendance Macro {macro_tf_txt} : {trend_str}\n"
+                f"🛑 Stop Loss : {sl_txt}\n"
+                f"🔒 Trailing Stop → Breakeven à +{TRAIL_BREAKEVEN_PCT}% (avant le TP)\n"
             )
             logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {cur_price}")
 
@@ -855,7 +892,7 @@ def main():
                     signal     = target_signal,
                     price      = cur_price,
                     tp_price   = tp_ext,
-                    sl_price   = 0.0,
+                    sl_price   = sl_ext,
                 )
                 if result_wall and result_wall.get("success"):
                     trade_allowed = False
@@ -891,18 +928,25 @@ def main():
             return (vol_24h, s.confidence)
 
         tradables.sort(key=get_crypto_volume_tier, reverse=True)
-        for t in tradables[:3]:
-            df_t = all_data.get(t.symbol)
-            v_usdt = float((df_t.tail(288)["close"] * df_t.tail(288)["volume"]).sum()) if df_t is not None else 0
-            prio = "🔥 PRIORITÉ HAUTE (Forte Vol 24h)" if v_usdt >= 5_000_000 else "⚖️ PRIORITÉ MOYENNE"
-            logger.info(f"📊 Tri Volume MEXC | {t.pair_name} : Vol 24h ~{v_usdt:,.0f} USDT → {prio}")
+
+        if not tradables:
+            # AUCUN signal tradable → on informe, et on ne va pas plus loin.
+            # (Avant : "for ... else" — le else s'exécutait TOUJOURS et la boucle
+            #  envoyait un faux "non tradable" pour chaque signal avant de trader.)
             names = ", ".join(s.pair_name for s in strong_signals[:5])
-            logger.info(f"Aucun signal fort n'est tradable ou disponible sur MEXC (non déjà en position / non bloqué par BTC Guard) → pas de trade")
+            logger.info("Aucun signal fort tradable sur MEXC (déjà en position ou crypto absente) → pas de trade")
             send_message(
                 f"ℹ️ *Signal(s) détecté(s) mais non tradable(s) sur MEXC*\n"
                 f"{names}\n_Signal envoyé, aucun ordre passé (déjà en position ou crypto absente)._"
             )
         else:
+            # Log du classement par volume 24h (informatif, aucun message Telegram)
+            for t in tradables[:3]:
+                df_t = all_data.get(t.symbol)
+                v_usdt = float((df_t.tail(288)["close"] * df_t.tail(288)["volume"]).sum()) if df_t is not None else 0
+                prio = "🔥 PRIORITÉ HAUTE (Forte Vol 24h)" if v_usdt >= 5_000_000 else "⚖️ PRIORITÉ MOYENNE"
+                logger.info(f"📊 Tri Volume MEXC | {t.pair_name} : Vol 24h ~{v_usdt:,.0f} USDT → {prio}")
+
             # 1 SEULE position a la fois (demande utilisateur)
             slots_available = max(0, 1 - open_count)
             margin_pct_per_trade = 0.90
@@ -1059,7 +1103,17 @@ def main():
                             logger.info(f"🔄 Ajustement TP SELL pour {best.pair_name} : {tp_num} -> {max_tp:.5f} (min {min_dist_pct*100}%)")
                             tp_num = max_tp
 
-                    # Passer l'ordre avec pas de SL fixe (sl_price = 0.0) — seul le Trailing Stop protège
+                    # SL : même politique que la stratégie Sniper (config.ENABLE_CATASTROPHE_SL).
+                    # Si désactivé → 0.0, seul le trailing software protège.
+                    sl_order = 0.0
+                    if getattr(config, "ENABLE_CATASTROPHE_SL", False):
+                        _sl_pct = float(getattr(config, "CATASTROPHE_SL_PCT", 0.009))
+                        if raw_price > 0:
+                            sl_order = (raw_price * (1 - _sl_pct) if best.signal == "BUY"
+                                        else raw_price * (1 + _sl_pct))
+                        elif sl_num > 0:
+                            sl_order = sl_num
+
                     result = place_order(
                         api_key    = mexc_key,
                         secret_key = mexc_secret,
@@ -1067,7 +1121,7 @@ def main():
                         signal     = best.signal,
                         price      = raw_price,
                         tp_price   = tp_num,
-                        sl_price   = 0.0,
+                        sl_price   = sl_order,
                         margin_pct = margin_pct_per_trade,
                     )
 

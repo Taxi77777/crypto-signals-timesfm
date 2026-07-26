@@ -24,6 +24,18 @@ CONTEXT_LENGTH    = 512  # Nombre de bougies historiques utilisées
 DATA_INTERVAL            = os.getenv("DATA_INTERVAL", "5m")
 DATA_PERIOD              = "30d"   # 30 jours d'historique (max 60j pour 5m)
 SIGNAL_FREQUENCY_HOURS   = int(os.getenv("SIGNAL_FREQUENCY_HOURS", "1"))
+
+# ── Stratégie Scalp 15m (timeframe de trading unique) ────────────────────────
+TRADING_TIMEFRAME        = "15m"   # Timeframe d'exécution des signaux
+MACRO_TIMEFRAME          = "1h"    # Timeframe de confirmation de tendance macro
+TP_SCALP_PCT             = 0.012   # Take Profit scalp = ±1.2% de mouvement de prix
+
+# ── Stop Loss catastrophe (protection anti-liquidation) ──────────────────────
+# Le design d'origine n'ouvre AUCUN stop loss : seul le trailing software protège,
+# et il ne s'active qu'à +0.5% de profit. Entre l'entrée et +0.5%, la position est
+# donc nue. Mettre True pour poser un SL dur dès l'ouverture.
+ENABLE_CATASTROPHE_SL    = False
+CATASTROPHE_SL_PCT       = 0.009   # 0.9% de mouvement adverse max
 MIN_CONFIDENCE           = 75      # Seuil signal fort (%)
 MAX_EMA_EXTENSION_PCT    = 0.0     # Écart max toléré avec EMA20 5m (%) (0.0 = Forcer le pullback strict)
 ENABLE_WALLS_IN_SIGNAL   = True    # Affiche temporairement les gros murs de carnet d'ordres dans les signaux Telegram
