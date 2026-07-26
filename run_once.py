@@ -747,6 +747,11 @@ def main():
     with ThreadPoolExecutor(max_workers=10) as executor:
         mtf_results = list(executor.map(_fetch_pair_mtf, pullback_signals))
 
+    # Compteur de rejets par filtre : permet de savoir QUEL filtre étouffe la stratégie.
+    from collections import Counter as _Counter
+    reject_stats = _Counter()
+    candidates_seen = 0
+
     for sig_tuple, df_15m, df_30m in mtf_results:
         direction, name, sym, symbol_mexc, ratio, cur_price, entry_price, tp_price, dist_pct, trend_45m = sig_tuple
         try:
@@ -803,6 +808,62 @@ def main():
             vwap_discount = (cur_price < vwap_curr)   # Sous le VWAP → achat bon marché
             vwap_premium  = (cur_price > vwap_curr)   # Au-dessus du VWAP → vente chère
 
+            # ── Bandes d'écart-type VWAP (config.ENABLE_VWAP_SIGMA_BANDS) ──
+            # Quantifie l'étirement au lieu de dire seulement "de quel côté du VWAP".
+            vwap_std  = 0.0
+            vwap_zone = "binaire"
+            if getattr(config, "ENABLE_VWAP_SIGMA_BANDS", False):
+                try:
+                    _dev = (df_15m["close"] - vwap_series)
+                    vwap_std = float(_dev.groupby(_session).std().iloc[-1])
+                except Exception:
+                    vwap_std = 0.0
+                if vwap_std == vwap_std and vwap_std > 0:
+                    _k = float(getattr(config, "VWAP_SIGMA_MULT", 1.0))
+                    vwap_discount = (cur_price < vwap_curr - _k * vwap_std)
+                    vwap_premium  = (cur_price > vwap_curr + _k * vwap_std)
+                    vwap_zone = f"{_k:g}σ"
+                else:
+                    logger.warning(f"σ VWAP indisponible pour {sym} → repli sur le test binaire")
+
+            # ── Fibonacci en CONFLUENCE avec le VWAP (config.ENABLE_VWAP_FIBO) ──
+            # Retracement du swing de la session en cours. On ne plaque pas des ratios
+            # sur le VWAP : on mesure où le prix se situe dans le range du jour, et on
+            # exige que ce retracement tombe dans la golden pocket 0.382-0.618.
+            fibo_buy_ok  = True
+            fibo_sell_ok = True
+            fibo_txt     = "désactivé"
+            if getattr(config, "ENABLE_VWAP_FIBO", False):
+                try:
+                    _today   = df_15m.index.normalize()[-1]
+                    _sess_df = df_15m[df_15m.index.normalize() == _today]
+                    if len(_sess_df) < 4:
+                        _sess_df = df_15m.tail(16)      # session trop jeune → 4h glissantes
+                    _hi = float(_sess_df["high"].max())
+                    _lo = float(_sess_df["low"].min())
+                    _rng = _hi - _lo
+                    _z_lo = float(getattr(config, "FIBO_ZONE_LOW", 0.382))
+                    _z_hi = float(getattr(config, "FIBO_ZONE_HIGH", 0.618))
+                    _min_rng = float(getattr(config, "FIBO_MIN_RANGE_PCT", 0.004))
+
+                    if _rng <= 0 or (_rng / cur_price) < _min_rng:
+                        # Range de session trop étroit : les niveaux Fibo seraient du bruit.
+                        fibo_txt = f"range session {_rng/cur_price*100:.2f}% < {_min_rng*100:.1f}% → neutre"
+                    else:
+                        # Retracement mesuré DEPUIS LE HAUT pour un BUY (repli acheté)
+                        _retr_buy  = (_hi - cur_price) / _rng
+                        # Retracement mesuré DEPUIS LE BAS pour un SELL (rebond vendu)
+                        _retr_sell = (cur_price - _lo) / _rng
+                        fibo_buy_ok  = (_z_lo <= _retr_buy  <= _z_hi)
+                        fibo_sell_ok = (_z_lo <= _retr_sell <= _z_hi)
+                        _fib_lvl = _hi - _z_lo * _rng, _hi - _z_hi * _rng
+                        fibo_txt = (f"retr. {_retr_buy*100:.0f}% (zone {_z_lo*100:.0f}-{_z_hi*100:.0f}%) "
+                                    f"| pocket {_fmt_p(_fib_lvl[1])}-{_fmt_p(_fib_lvl[0])}")
+                except Exception as _e:
+                    logger.warning(f"Fibo session indisponible pour {sym}: {_e} → filtre neutre")
+                    fibo_buy_ok = fibo_sell_ok = True
+                    fibo_txt = "erreur → neutre"
+
             # Tendance Macro RÉELLE en 1H (Close vs EMA200 sur bougies 1H).
             # Avant : lisait last_30m["ema200"] — c'était de l'EMA200 30m, pas 1H.
             ema200_1h   = None
@@ -835,16 +896,42 @@ def main():
             obi_sell_ok = (obi_score <= 0.60)      # Pas bloqué par un mur acheteur géant
 
             # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
-            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok
+            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
             
             # 2. Impulsion VENTE (SELL) : Chute Sur-Achat + Fisher(9) (↓) + Vol Climax + VWAP Premium + OBI Vendeur
-            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok
+            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
 
+            candidates_seen += 1
+
             if not (is_buy_impulse or is_sell_impulse):
-                logger.info(f"⏳ Stratégie Institutionnelle Guard | {name} {direction} non optimal (RSI: {rsi_15m:.1f}, VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, OBI: {obi_score:.2f}) → Attente setup parfait.")
+                # Identifier précisément quel(s) filtre(s) ont bloqué ce candidat
+                _fails = []
+                if direction == "BUY":
+                    if not (rsi_min_recent <= 42.0 or rsi_15m <= 42.0): _fails.append("rsi")
+                    if not (fish_15m_curr > fish_15m_prev):             _fails.append("fisher15m")
+                    if not (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0): _fails.append("fisher30m")
+                    if not has_vol_climax:                             _fails.append("vol_climax")
+                    if not vwap_discount:                              _fails.append("vwap")
+                    if not obi_buy_ok:                                 _fails.append("obi")
+                    if not fibo_buy_ok:                                _fails.append("fibo")
+                    if not macro_trend_1h_bull:                        _fails.append("macro1h")
+                else:
+                    if not (rsi_max_recent >= 58.0 or rsi_15m >= 58.0): _fails.append("rsi")
+                    if not (fish_15m_curr < fish_15m_prev):             _fails.append("fisher15m")
+                    if not (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0): _fails.append("fisher30m")
+                    if not has_vol_climax:                              _fails.append("vol_climax")
+                    if not vwap_premium:                                _fails.append("vwap")
+                    if not obi_sell_ok:                                 _fails.append("obi")
+                    if not fibo_sell_ok:                                _fails.append("fibo")
+                    if not macro_trend_1h_bear:                         _fails.append("macro1h")
+                for _f in _fails:
+                    reject_stats[_f] += 1
+                logger.info(f"⏳ Guard | {name} {direction} rejeté par : {', '.join(_fails) or '?'} "
+                            f"(RSI {rsi_15m:.1f} | VWAP {vwap_curr:.4f} [{vwap_zone}] | Vol {vol_curr/vol_mean:.1f}x "
+                            f"| OBI {obi_score:.2f} | Fibo {fibo_txt})")
                 continue
 
             target_signal = "BUY" if is_buy_impulse else "SELL"
@@ -874,7 +961,8 @@ def main():
                 f"📌 *{type_str} x80*\n"
                 f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                 f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% prix / ~+{_tp_pct*100*LEVERAGE:.0f}% brut en x{LEVERAGE})\n"
-                f"🎯 Filtre VWAP (session) : `{vwap_curr:.4f}` ({vwap_txt})\n"
+                f"🎯 Filtre VWAP (session) : `{vwap_curr:.4f}` ({vwap_txt}) [{vwap_zone}]\n"
+                f"📐 Fibonacci session : {fibo_txt}\n"
                 f"🧱 Carnet d'ordres OBI ±1.5% : `{obi_pct}`\n"
                 f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
                 f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}` | {range_txt}\n"
@@ -903,6 +991,14 @@ def main():
                     logger.error(f"❌ Échec auto-trading MEXC {name}: {err_w}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
+
+    # ── Bilan des filtres : combien de candidats, et qui les a bloqués ──────────
+    if candidates_seen:
+        _det = " | ".join(f"{k}:{v}" for k, v in reject_stats.most_common())
+        logger.info(f"📉 BILAN FILTRES — {candidates_seen} candidat(s) analysé(s), rejets par filtre → {_det or 'aucun'}")
+        logger.info("    (un candidat peut être compté sur plusieurs filtres ; le filtre en tête est celui qui étouffe le plus la stratégie)")
+    else:
+        logger.info("📉 BILAN FILTRES — 0 candidat n'a atteint l'étape de validation (aucun pullback sur mur détecté en amont)")
 
     # ── Rapport global toutes les 5 min (Silencieux sur Telegram pour ne garder QUE les opportunités Piège de Baleine) ──
     buyers_list.sort(key=lambda x: x[0], reverse=True)

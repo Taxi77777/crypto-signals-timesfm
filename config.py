@@ -30,6 +30,25 @@ TRADING_TIMEFRAME        = "15m"   # Timeframe d'exécution des signaux
 MACRO_TIMEFRAME          = "1h"    # Timeframe de confirmation de tendance macro
 TP_SCALP_PCT             = 0.012   # Take Profit scalp = ±1.2% de mouvement de prix
 
+# ── Filtre Fibonacci en confluence avec le VWAP ──────────────────────────────
+# Retracement du swing de la SESSION en cours (plus bas → plus haut du jour).
+# BUY  : le prix doit être retracé dans la "golden pocket" 0.382–0.618 depuis le
+#        plus haut de session, ET sous le VWAP → repli sain, pas un couteau qui tombe.
+# SELL : miroir depuis le plus bas de session, ET au-dessus du VWAP.
+# ⚠️ Ce filtre RESTREINT les entrées. Surveille le compteur de rejets dans les logs
+#    Actions : si "fibo" domine les rejets, élargis la zone ou repasse à False.
+ENABLE_VWAP_FIBO         = True
+FIBO_ZONE_LOW            = 0.382   # début de la zone de retracement
+FIBO_ZONE_HIGH           = 0.618   # fin de la zone (golden pocket)
+FIBO_MIN_RANGE_PCT       = 0.004   # range de session mini 0.4% (sinon Fibo = bruit)
+
+# ── Bandes d'écart-type VWAP (version institutionnelle quantifiée) ───────────
+# Remplace le test binaire "prix < VWAP" par "prix < VWAP − N×σ".
+# σ = dispersion réelle du prix autour du VWAP sur la session.
+# Laissé à False : c'est une suggestion, pas ta demande. Passe à True pour comparer.
+ENABLE_VWAP_SIGMA_BANDS  = False
+VWAP_SIGMA_MULT          = 1.0     # 1.0 = ~16% des bougies passent ; 0.5 = plus permissif
+
 # ── Stop Loss catastrophe (protection anti-liquidation) ──────────────────────
 # Le design d'origine n'ouvre AUCUN stop loss : seul le trailing software protège,
 # et il ne s'active qu'à +0.5% de profit. Entre l'entrée et +0.5%, la position est
