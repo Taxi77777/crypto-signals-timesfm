@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-25T12:01:01.459137+00:00",
-  "signals": []
+  "last_update": "2026-07-26T14:13:42.298140+00:00",
+  "signals": [
+    {
+      "pair_name": "Pyth Network (PYTH)",
+      "signal": "SELL",
+      "current_price": "$0.043100",
+      "take_profit": "$0.042887",
+      "stop_loss": "Aucun",
+      "confidence": 82,
+      "rsi": 57.4,
+      "macd_trend": "Neutre ⚪",
+      "forecast_dir": "TFM:SELL/CHO:SELL/MOI:SELL/LLA:SELL/GRA:BUY",
+      "smc_zone": "Premium 🟢 (Short cher/favorable)",
+      "is_ote": true,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `340,260 USDT` à `$0.04261`\n🔴 *Mur VENTE (résistance ±1.5%) :* `314,345 USDT` à `$0.04336`"
+    }
+  ]
 }
