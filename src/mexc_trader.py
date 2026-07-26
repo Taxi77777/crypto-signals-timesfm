@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 from config import MEXC_API_KEY, MEXC_SECRET_KEY
 MEXC_BASE          = "https://api.mexc.com"
 LEVERAGE           = 80
-MARGIN_PCT         = 0.90
+MARGIN_PCT         = 0.78
 TRAILING_CALLBACK  = 2.0   # ⚠️ AFFICHAGE SEULEMENT — non envoyé à MEXC, aucun effet réel
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
