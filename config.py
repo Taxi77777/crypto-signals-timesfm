@@ -47,9 +47,8 @@ MIN_VOLUME_24H_USDT      = 1_000_000   # 1M$ USDT volume floor (permits all majo
 # yfinance renvoie la bougie 15m EN FORMATION comme dernière ligne. Comparer son
 # volume partiel à des bougies complètes rend le filtre quasi inatteignable.
 # True  = compare la dernière bougie CLÔTURÉE (iloc[-2]) — comparaison à périmètre égal.
-# False = ancien comportement (bougie en cours).
-VOL_CLIMAX_USE_CLOSED_CANDLE = True
-VOL_CLIMAX_MULT              = 1.15    # volume >= 1.15x la moyenne des 20 précédentes
+# Seuil de hausse de volume vs moyenne 20 bougies pour valider une bougie de climax (+5%)
+VOL_CLIMAX_MULT              = 1.05    # volume >= 1.15x la moyenne des 20 précédentes
 
 # ── Filtre Fibonacci en confluence avec le VWAP ──────────────────────────────
 # Desactivé par défaut pour éviter d'étouffer les opportunités d'impulsion

@@ -797,9 +797,9 @@ def main():
             vwap_series = _pv / _vv.replace(0, 1)
             vwap_curr = float(vwap_series.iloc[-1])
 
-            # Biais Institutionnel VWAP — zones dynamiques tolérantes (±0.5% autour du VWAP).
-            vwap_discount = (cur_price <= vwap_curr * 1.005)   # Achat bon marché ou proche VWAP
-            vwap_premium  = (cur_price >= vwap_curr * 0.995)   # Vente chère ou proche VWAP
+            # Biais Institutionnel VWAP — zones dynamiques tolérantes (±1.0% autour du VWAP).
+            vwap_discount = (cur_price <= vwap_curr * 1.010)   # Achat bon marché ou proche VWAP
+            vwap_premium  = (cur_price >= vwap_curr * 0.990)   # Vente chère ou proche VWAP
 
             # ── Bandes d'écart-type VWAP (config.ENABLE_VWAP_SIGMA_BANDS) ──
             # Quantifie l'étirement au lieu de dire seulement "de quel côté du VWAP".
@@ -929,10 +929,10 @@ def main():
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
             # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
-            valid_buy_rsi  = (rsi_min_recent <= 48.0 or rsi_15m <= 48.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
+            valid_buy_rsi  = (rsi_min_recent <= 52.0 or rsi_15m <= 52.0) and (fish_15m_curr > fish_15m_prev or fish_15m_curr >= -1.5) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.5) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
             
             # 2. Impulsion VENTE (SELL) : Chute Sur-Achat + Fisher(9) (↓) + Vol Climax + VWAP Premium + OBI Vendeur
-            valid_sell_rsi = (rsi_max_recent >= 52.0 or rsi_15m >= 52.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
+            valid_sell_rsi = (rsi_max_recent >= 48.0 or rsi_15m >= 48.0) and (fish_15m_curr < fish_15m_prev or fish_15m_curr <= 1.5) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.5) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
