@@ -30,9 +30,11 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
         df["bb_lower"] = bb.bollinger_lband()
         df["bb_mid"]   = bb.bollinger_mavg()
 
-        # EMA 20 / 50
+        # EMA 20 / 50 & MA 30 / 60
         df["ema20"] = ta.trend.EMAIndicator(df["close"], window=20).ema_indicator()
         df["ema50"] = ta.trend.EMAIndicator(df["close"], window=50).ema_indicator()
+        df["ma30"]  = ta.trend.SMAIndicator(df["close"], window=30).sma_indicator()
+        df["ma60"]  = ta.trend.SMAIndicator(df["close"], window=60).sma_indicator()
 
         # EMA 200 — utilisée par le filtre de tendance macro de run_once.py.
         # Elle était LUE sans jamais être CALCULÉE : le filtre recevait une valeur

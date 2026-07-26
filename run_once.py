@@ -928,11 +928,18 @@ def main():
             obi_buy_ok  = (obi_score >= _obi_min_buy)    # pas bloqué par un mur vendeur géant
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
-            # 1. Impulsion ACHAT (BUY) : Momentum + VWAP Discount + OBI Acheteur (>= 50%) + Macro Bullish
-            valid_buy_rsi  = (rsi_min_recent <= 56.0 or rsi_15m <= 56.0) and (vol_curr >= 0.85 * vol_mean) and vwap_discount and obi_buy_ok and fibo_buy_ok
+            # Alignement Croisement Moyennes Mobiles 30 / 60 (Tendance 15m)
+            ma30_val = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
+            ma60_val = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
+            ma30_prev = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
+            ma_buy_ok  = (ma30_val >= ma60_val * 0.998) or (ma30_val > ma30_prev)
+            ma_sell_ok = (ma30_val <= ma60_val * 1.002) or (ma30_val < ma30_prev)
+
+            # 1. Impulsion ACHAT (BUY) : Momentum + MA30/60 Alignée + VWAP Discount + OBI Acheteur (>= 50%) + Macro Bullish
+            valid_buy_rsi  = (rsi_min_recent <= 56.0 or rsi_15m <= 56.0) and (vol_curr >= 0.85 * vol_mean) and vwap_discount and obi_buy_ok and fibo_buy_ok and ma_buy_ok
             
-            # 2. Impulsion VENTE (SELL) : Momentum + VWAP Premium + OBI Vendeur (>= 50%) + Macro Bearish
-            valid_sell_rsi = (rsi_max_recent >= 44.0 or rsi_15m >= 44.0) and (vol_curr >= 0.85 * vol_mean) and vwap_premium and obi_sell_ok and fibo_sell_ok
+            # 2. Impulsion VENTE (SELL) : Momentum + MA30/60 Alignée + VWAP Premium + OBI Vendeur (>= 50%) + Macro Bearish
+            valid_sell_rsi = (rsi_max_recent >= 44.0 or rsi_15m >= 44.0) and (vol_curr >= 0.85 * vol_mean) and vwap_premium and obi_sell_ok and fibo_sell_ok and ma_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
