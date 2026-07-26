@@ -665,48 +665,17 @@ def main():
             continue
         try:
             price = get_current_price(symbol_mexc)
+            name = _clean_name(sym)
             if price > 0:
-                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015)   # 0.015 = ±1.5% (0.5 avant = ±150%, tout le carnet)
-                walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
-                if ratio is not None:
-                    name = _clean_name(sym)
-                    if ratio >= 1.2:
-                        buyers_list.append((ratio, name))
-                        # ⚡ PULLBACK REBOND SUR MUR DES BALEINES (ACHAT AU MUR DE SUPPORT 0.3268)
-                        if walls and walls.get("largest_bid"):
-                            wall_price = float(walls["largest_bid"]["price"])
-                            dist = (price - wall_price) / price  # positif = mur de support en dessous
-                            if 0.0005 <= dist <= 0.015:  # Le prix est dans la zone du mur des baleines (<= 1.5%)
-                                try:
-                                    tp_est = price * 1.015   # TP étendu +1.5% après le rebond sur le mur des baleines
-                                    pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
-                                except Exception:
-                                    pass
-                        elif walls and walls.get("largest_ask"):
-                            wall_price = float(walls["largest_ask"]["price"])
-                            dist = (wall_price - price) / price
-                            if 0.0005 <= dist <= 0.015:
-                                tp_est = wall_price * 0.999
-                                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
-                    elif ratio <= 0.8:
-                        sellers_list.append((ratio, name))
-                        # ⚡ PULLBACK REBOND SUR MUR VENTE DES BALEINES (VENTE AU MUR DE RESISTANCE)
-                        if walls and walls.get("largest_ask"):
-                            wall_price = float(walls["largest_ask"]["price"])
-                            dist = (wall_price - price) / price  # positif = mur de résistance au-dessus
-                            if 0.0005 <= dist <= 0.004:  # Le prix est en plein pullback au contact du mur des baleines (<= 0.4%)
-                                try:
-                                    tp_est = price * 0.985   # TP étendu -1.5% après le rejet du mur des baleines
-                                    pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
-                                except Exception:
-                                    pass
-                    else:
-                        balanced_list.append((ratio, name))
-            time.sleep(0.15)
+                ratio = get_cumulative_depth_ratio(symbol_mexc, price, depth_pct=0.015) or 1.0
+                # Ajouter TOUTES les cryptos pour évaluation Pure Belkhayate (BUY & SELL)
+                pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, price, price * 1.018, 0.0, 0.0))
+                pullback_signals.append(("SELL", name, sym, symbol_mexc, ratio, price, price, price * 0.982, 0.0, 0.0))
+            time.sleep(0.05)
         except Exception as e:
-            logger.error(f"Erreur orderbook ratio {sym}: {e}")
+            logger.error(f"Erreur préparation crypto {sym}: {e}")
 
-    # ── Validation Fisher & Envoi des signaux Ultra-Sniper 80X ──────────
+    # ── Validation Belkhayate & Envoi des signaux Ultra-Sniper 80X ──────────
     import yfinance as yf
     from concurrent.futures import ThreadPoolExecutor
 
