@@ -775,23 +775,27 @@ def main():
             else:
                 range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
                 
-            # 🚀 Stratégie RSI + TENDANCE MACRO 1H/4H + IMPULSION FISHER(9) 80X
+            # 🚀 Stratégie DÉPART D'IMPULSION APRÈS SUR-ACHAT OU SUR-VENTE (Bi-directionnel 80X)
             rsi_15m = float(last_15m["rsi"]) if "rsi" in last_15m else 50.0
+            rsi_min_recent = float(df_15m["rsi"].tail(6).min()) if "rsi" in df_15m else rsi_15m
+            rsi_max_recent = float(df_15m["rsi"].tail(6).max()) if "rsi" in df_15m else rsi_15m
 
-            # Détermination de la Tendance Macro 1H (Close vs EMA200 1H)
+            # Détermination de la Tendance Macro 1H/4H (Close vs EMA200 1H)
             ema200_1h = float(last_30m["ema200"]) if "ema200" in last_30m else cur_price
             macro_trend_1h_bull = (cur_price >= ema200_1h)
             macro_trend_1h_bear = (cur_price <= ema200_1h)
 
-            # Conditions Impulsion + RSI + Alignement Tendance Macro 1H/4H
-            valid_buy_rsi  = (rsi_15m >= 48.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0)
-            valid_sell_rsi = (rsi_15m <= 52.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0)
+            # 1. Impulsion ACHAT (BUY) : Départ après Sur-Vente (RSI recent <= 45) + Rebond Fisher(9) 15m/30m (↑)
+            valid_buy_rsi  = (rsi_min_recent <= 45.0 or rsi_15m <= 45.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0)
+            
+            # 2. Impulsion VENTE (SELL) : Départ après Sur-Achat (RSI recent >= 55) + Chute Fisher(9) 15m/30m (↓)
+            valid_sell_rsi = (rsi_max_recent >= 55.0 or rsi_15m >= 55.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0)
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
 
             if not (is_buy_impulse or is_sell_impulse):
-                logger.info(f"⏳ RSI Macro Guard | {name} {direction} non optimal (RSI 15m: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}, 1H Bull: {macro_trend_1h_bull}) → Attente alignement Tendance 1H/4H.")
+                logger.info(f"⏳ Impulsion Surachat/Survente Guard | {name} {direction} non optimal (RSI 15m: {rsi_15m:.1f}, Min Recent: {rsi_min_recent:.1f}, Max Recent: {rsi_max_recent:.1f}) → Attente départ d'impulsion.")
                 continue
 
             target_signal = "BUY" if is_buy_impulse else "SELL"
