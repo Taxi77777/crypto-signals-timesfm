@@ -816,7 +816,7 @@ def main():
                     type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
                     trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
                     send_message(
-                        f"{icon} *SIGNAL IMPULSION RSI + TENDANCE MACRO 80X — {name}* {icon}\n"
+                        f"{icon} *SIGNAL IMPULSION RSI 80X — {name}* {icon}\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📌 *{type_str} x80*\n"
                         f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
