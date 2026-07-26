@@ -1180,49 +1180,8 @@ def main():
                         # Filtre OBI neutralisé pour la Stratégie Pure Belkhayate (ne bloque plus les signaux)
                         logger.info(f"📊 Carnet OBI {_obi_01:.2f} — Stratégie Pure Belkhayate active (Signal validé sans blocage).")
 
-                # 2. Vérification Funding Rate
-                if signal_valid:
-                    from src.mexc_trader import get_funding_rate
-                    funding = get_funding_rate(symbol_mexc)
-                    if funding is not None:
-                        logger.info(f"💰 Funding rate {symbol_mexc}: {funding:+.4f}%")
-                        if best.signal == "BUY" and funding > 0.10:
-                            logger.info(f"❌ Funding trop positif ({funding:+.4f}%) -> Achat bloqué.")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : longs surchargés.")
-                            signal_valid = False
-                        elif best.signal == "SELL" and funding < -0.10:
-                            logger.info(f"❌ Funding trop négatif ({funding:+.4f}%) -> Vente bloquée.")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFunding rate surchauffé ({funding:+.4f}%) : shorts surchargés.")
-                            signal_valid = False
-
-                # 3. Vérification Cumulative Depth et CVD
-                if signal_valid and mexc_price > 0:
-                    # Profondeur Cumulative (1.5%)
-                    depth_ratio = get_cumulative_depth_ratio(symbol_mexc, mexc_price, depth_pct=0.015)
-                    if depth_ratio is not None:
-                        logger.info(f"🧱 Profondeur cumulative {symbol_mexc} | Ratio Bids/Asks (1.5%): {depth_ratio}")
-                        if best.signal == "BUY" and depth_ratio < 1.2:
-                            logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} < 1.2) -> Blocage achat (murs de vente trop forts).")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nMurs de vente trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})")
-                            signal_valid = False
-                        elif best.signal == "SELL" and depth_ratio > 0.8:
-                            logger.info(f"❌ Profondeur cumulative défavorable ({depth_ratio} > 0.8) -> Blocage vente (murs d'achat trop forts).")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nMurs d'achat trop forts à proximité (Ratio Acheteurs/Vendeurs à 1.5% : {depth_ratio})")
-                            signal_valid = False
-                    
-                    # CVD (Transactions récentes)
-                    if signal_valid:
-                        cvd_ratio = get_recent_cvd_ratio(symbol_mexc)
-                        if cvd_ratio is not None:
-                            logger.info(f"📊 CVD Transactions {symbol_mexc} | Ratio Volume Achat/Vente (100 trades): {cvd_ratio}")
-                            if best.signal == "BUY" and cvd_ratio < 1.15:
-                                logger.info(f"❌ CVD défavorable ({cvd_ratio} < 1.15) -> Blocage achat (flux vendeur domine).")
-                                send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nFlux d'achat agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})")
-                                signal_valid = False
-                            elif best.signal == "SELL" and cvd_ratio > 0.85:
-                                logger.info(f"❌ CVD défavorable ({cvd_ratio} > 0.85) -> Blocage vente (flux acheteur domine).")
-                                send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nFlux de vente agressif insuffisant (Ratio Achat/Vente: {cvd_ratio})")
-                                signal_valid = False
+                # 2. Stratégie Pure Belkhayate : Tous les anciens filtres secondaires (Funding, Depth Ratio, CVD) sont neutralisés.
+                logger.info("🏛️ Stratégie Pure Belkhayate active : Filtres secondaires Funding/Depth/CVD neutralisés (Signal 100% validé).")
 
                 if signal_valid:
                     # 🛡️ Anti-Spoofing Double-Check Universel 15s sur TOUS les trades
