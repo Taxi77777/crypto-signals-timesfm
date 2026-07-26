@@ -905,64 +905,48 @@ def main():
             ma30_p2   = float(df_15m["ma30"].iloc[-3]) if len(df_15m) >= 3 and "ma30" in df_15m.columns else ma30_p1
             ma60_p2   = float(df_15m["ma60"].iloc[-3]) if len(df_15m) >= 3 and "ma60" in df_15m.columns else ma60_p1
 
-            # ── 1. MOSTAFA BELKHAYATE SYSTEM (Barycentre + Timing Oscillator) ──
-            bary_lower = float(df_15m["belkhayate_lower_zone"].iloc[-1]) if "belkhayate_lower_zone" in df_15m.columns else 0.0
-            bary_upper = float(df_15m["belkhayate_upper_zone"].iloc[-1]) if "belkhayate_upper_zone" in df_15m.columns else 0.0
-            bary_timing = float(df_15m["belkhayate_timing"].iloc[-1]) if "belkhayate_timing" in df_15m.columns else 0.0
+            # ── EVALUATION MULTI-TIMEFRAME (15m, 30m, 1h) MOSTAFA BELKHAYATE ──
+            def _eval_belkhayate_tf(df_tf):
+                if df_tf.empty or len(df_tf) < 30: return False, False, 0.0
+                cur_p = float(df_tf["close"].iloc[-1])
+                bary  = df_tf["close"].rolling(window=30).mean()
+                bary_s = df_tf["close"].rolling(window=30).std()
+                tim   = float((df_tf["close"] - bary) / bary_s.replace(0, 1e-6)).iloc[-1] if len(df_tf) >= 30 else 0.0
+                
+                # Mèches
+                c_range = (df_tf["high"] - df_tf["low"]).replace(0, 1e-6)
+                b_min = np.minimum(df_tf["open"], df_tf["close"])
+                b_max = np.maximum(df_tf["open"], df_tf["close"])
+                lw = float((b_min - df_tf["low"]) / c_range).iloc[-1]
+                uw = float((df_tf["high"] - b_max) / c_range).iloc[-1]
+                
+                buy_ok  = (tim <= -1.50 or (cur_price <= float(bary.iloc[-1] - 1.618*1.8*bary_s.iloc[-1]))) and lw >= 0.15
+                sell_ok = (tim >= 1.50  or (cur_price >= float(bary.iloc[-1] + 1.618*1.8*bary_s.iloc[-1]))) and uw >= 0.15
+                return buy_ok, sell_ok, tim
 
-            # ── 2. MÈCHES DE REJET PHYSIQUES (Rejection Wicks >= 15%) ──
-            lower_wick = float(df_15m["lower_wick_pct"].iloc[-1]) if "lower_wick_pct" in df_15m.columns else 0.0
-            upper_wick = float(df_15m["upper_wick_pct"].iloc[-1]) if "upper_wick_pct" in df_15m.columns else 0.0
-            has_buy_wick  = (lower_wick >= 0.15)
-            has_sell_wick = (upper_wick >= 0.15)
+            buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
+            buy_30, sell_30, tim_30 = _eval_belkhayate_tf(df_30m)
+            
+            # Téléchargement rapide 1H si besoin pour validation multi-tf
+            try:
+                df_1h = yf.download(sym, period="10d", interval="1h", progress=False)
+                if isinstance(df_1h.columns, pd.MultiIndex): df_1h.columns = df_1h.columns.get_level_values(0)
+                df_1h = df_1h.rename(columns={"Open":"open","High":"high","Low":"low","Close":"close","Volume":"volume"})
+                buy_1h, sell_1h, tim_1h = _eval_belkhayate_tf(df_1h)
+            except Exception:
+                buy_1h, sell_1h, tim_1h = False, False, 0.0
 
-            # ── 3. CROISEMENT PRECIS MA 30 / MA 60 (0-1 bougie) ──
-            ma30_curr = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
-            ma60_curr = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
-            ma30_p1   = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
-            ma60_p1   = float(df_15m["ma60"].iloc[-2]) if "ma60" in df_15m.columns else cur_price
-            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr)
-            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr)
-
-            # RÈGLE PURE MOSTAFA BELKHAYATE + MÈCHE DE REJET :
-            belkhayate_buy_ok  = (cur_price <= bary_lower or bary_timing <= -1.5 or is_exact_golden_cross) and has_buy_wick
-            belkhayate_sell_ok = (cur_price >= bary_upper or bary_timing >= 1.5  or is_exact_death_cross)  and has_sell_wick
-
-            is_buy_impulse  = (direction == "BUY")  and belkhayate_buy_ok
-            is_sell_impulse = (direction == "SELL") and belkhayate_sell_ok
+            belkhayate_buy_ok  = (buy_15 or buy_30 or buy_1h) and direction == "BUY"
+            belkhayate_sell_ok = (sell_15 or sell_30 or sell_1h) and direction == "SELL"
+            bary_timing = tim_15 or tim_30 or tim_1h
 
             candidates_seen += 1
 
-            if not (is_buy_impulse or is_sell_impulse):
-                # Identifier précisément quel(s) filtre(s) ont bloqué ce candidat
-                _fails = []
-                if direction == "BUY":
-                    if not (rsi_min_recent <= 42.0 or rsi_15m <= 42.0): _fails.append("rsi")
-                    if not (fish_15m_curr > fish_15m_prev):             _fails.append("fisher15m")
-                    if not (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0): _fails.append("fisher30m")
-                    if not has_vol_climax:                             _fails.append("vol_climax")
-                    if not vwap_discount:                              _fails.append("vwap")
-                    if not obi_buy_ok:                                 _fails.append("obi")
-                    if not fibo_buy_ok:                                _fails.append("fibo")
-                    if not macro_trend_1h_bull:                        _fails.append("macro1h")
-                else:
-                    if not (rsi_max_recent >= 58.0 or rsi_15m >= 58.0): _fails.append("rsi")
-                    if not (fish_15m_curr < fish_15m_prev):             _fails.append("fisher15m")
-                    if not (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0): _fails.append("fisher30m")
-                    if not has_vol_climax:                              _fails.append("vol_climax")
-                    if not vwap_premium:                                _fails.append("vwap")
-                    if not obi_sell_ok:                                 _fails.append("obi")
-                    if not fibo_sell_ok:                                _fails.append("fibo")
-                    if not macro_trend_1h_bear:                         _fails.append("macro1h")
-                for _f in _fails:
-                    reject_stats[_f] += 1
-                logger.info(f"⏳ Guard | {name} {direction} rejeté par : {', '.join(_fails) or '?'} "
-                            f"(RSI {rsi_15m:.1f} | VWAP {vwap_curr:.4f} [{vwap_zone}] | Vol {vol_curr/vol_mean:.2f}x [{vol_src}] "
-                            f"| OBI {obi_score:.2f} | Fibo {fibo_txt})")
+            if not (belkhayate_buy_ok or belkhayate_sell_ok):
                 continue
 
-            target_signal = "BUY" if is_buy_impulse else "SELL"
-            logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, OBI: {obi_score:.2f}")
+            target_signal = "BUY" if belkhayate_buy_ok else "SELL"
+            logger.info(f"🔥 MOSTAFA BELKHAYATE & IA DÉTECTÉ — {name} {target_signal} | Timing: {bary_timing:+.2f}")
 
             # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP
             # TP Scalp piloté par config.TP_SCALP_PCT (défaut 1.2% de mouvement de prix)
