@@ -32,7 +32,7 @@ def format_signal_message(signal: TradingSignal) -> str:
         walls_part = f"🧱 *Murs dans ±1.5% du prix :*\n{signal.orderbook_walls}\n"
 
     return (
-        f"🪙 *SIGNAL CRYPTO [MEXC FUTURES x40]* — *{signal.pair_name}* 🚨 *SIGNAL FORT*\n"
+        f"🏆 *SIGNAL MOSTAFA BELKHAYATE & IA [MEXC FUTURES x80]* — *{signal.pair_name}* 🚨 *SIGNAL FORT*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📊 Signal      : {emoji} *{signal.signal}*\n"
         f"💰 Prix actuel : `{signal.current_price}`\n"
@@ -40,6 +40,7 @@ def format_signal_message(signal: TradingSignal) -> str:
         f"🛑 Stop Loss   : `{signal.stop_loss}` ({sl_sign}{signal.sl_pct}%)\n"
         f"🔮 Confiance   : `{conf_bar}` {signal.confidence}%\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🏛️ Méthode    : *MOSTAFA BELKHAYATE + MÈCHE DE REJET*\n"
         f"RSI        : `{signal.rsi}` {signal.rsi_status}\n"
         f"Fisher     : `{signal.fisher:+.2f}` {signal.fisher_status}\n"
         f"MACD       : {signal.macd_trend}\n"
