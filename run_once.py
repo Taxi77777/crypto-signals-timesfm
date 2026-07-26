@@ -928,13 +928,13 @@ def main():
             obi_buy_ok  = (obi_score >= _obi_min_buy)    # pas bloqué par un mur vendeur géant
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
-            # Détection des Mèches de Rejet (Rejection Wicks) sur 15m
+            # Détection des Mèches de Rejet Physiques Stricte (Rejection Wicks >= 15% de la bougie)
             lower_wick = float(df_15m["lower_wick_pct"].iloc[-1]) if "lower_wick_pct" in df_15m.columns else 0.0
             upper_wick = float(df_15m["upper_wick_pct"].iloc[-1]) if "upper_wick_pct" in df_15m.columns else 0.0
-            has_buy_wick  = (lower_wick >= 0.15) or (float(df_15m["close"].iloc[-1]) > float(df_15m["open"].iloc[-1]))
-            has_sell_wick = (upper_wick >= 0.15) or (float(df_15m["close"].iloc[-1]) < float(df_15m["open"].iloc[-1]))
+            has_buy_wick  = (lower_wick >= 0.15)
+            has_sell_wick = (upper_wick >= 0.15)
 
-            # Détection du Croisement Précis MA 30 / MA 60 (Multi-Timeframe 5m, 15m, 30m)
+            # Détection du Croisement Précis MA 30 / MA 60 (STRICT 0 À 1 BOUGIE APRÈS LE CROISEMENT)
             ma30_curr = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
             ma60_curr = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
             ma30_p1   = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
@@ -942,11 +942,11 @@ def main():
             ma30_p2   = float(df_15m["ma30"].iloc[-3]) if len(df_15m) >= 3 and "ma30" in df_15m.columns else ma30_p1
             ma60_p2   = float(df_15m["ma60"].iloc[-3]) if len(df_15m) >= 3 and "ma60" in df_15m.columns else ma60_p1
 
-            # 🟢 Golden Cross Précis (BUY) : 0 à 1 bougie après le croisement 15m OU MA30 > MA60 forte
-            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr) or (ma30_p2 < ma60_p2 and ma30_p1 >= ma60_p1) or (ma30_curr >= ma60_curr * 0.999 and has_buy_wick)
+            # 🟢 Golden Cross Précis (BUY) : STRICTEMENT 0 à 1 bougie après le croisement
+            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr) or (ma30_p2 < ma60_p2 and ma30_p1 >= ma60_p1)
 
-            # 🔴 Death Cross Précis (SELL) : 0 à 1 bougie après le croisement 15m OU MA30 < MA60 forte
-            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr) or (ma30_p2 > ma60_p2 and ma30_p1 <= ma60_p1) or (ma30_curr <= ma60_curr * 1.001 and has_sell_wick)
+            # 🔴 Death Cross Précis (SELL) : STRICTEMENT 0 à 1 bougie après le croisement
+            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr) or (ma30_p2 > ma60_p2 and ma30_p1 <= ma60_p1)
 
             ma_buy_ok  = is_exact_golden_cross and has_buy_wick
             ma_sell_ok = is_exact_death_cross and has_sell_wick
