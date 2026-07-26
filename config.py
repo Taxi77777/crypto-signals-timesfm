@@ -30,6 +30,22 @@ TRADING_TIMEFRAME        = "15m"   # Timeframe d'exécution des signaux
 MACRO_TIMEFRAME          = "1h"    # Timeframe de confirmation de tendance macro
 TP_SCALP_PCT             = 0.012   # Take Profit scalp = ±1.2% de mouvement de prix
 
+# ── Plancher de liquidité (volume 24h) ───────────────────────────────────────
+# Le code triait déjà les paires par volume 24h et affichait "PRIORITÉ HAUTE"
+# au-delà de 5 M$, mais ce seuil n'excluait RIEN : une paire à 200 k$ de volume
+# pouvait être tradée avec un notionnel de plus de 1 000 USD → slippage énorme.
+# Ce plancher exclut réellement les paires trop illiquides.
+ENABLE_VOLUME_FLOOR      = True
+MIN_VOLUME_24H_USDT      = 5_000_000   # baisse-le si trop de paires sont exclues
+
+# ── Volume Climax : bougie clôturée ou bougie en cours ? ─────────────────────
+# yfinance renvoie la bougie 15m EN FORMATION comme dernière ligne. Comparer son
+# volume partiel à des bougies complètes rend le filtre quasi inatteignable.
+# True  = compare la dernière bougie CLÔTURÉE (iloc[-2]) — comparaison à périmètre égal.
+# False = ancien comportement (bougie en cours).
+VOL_CLIMAX_USE_CLOSED_CANDLE = True
+VOL_CLIMAX_MULT              = 1.3     # volume >= 1.3x la moyenne des 20 précédentes
+
 # ── Filtre Fibonacci en confluence avec le VWAP ──────────────────────────────
 # Retracement du swing de la SESSION en cours (plus bas → plus haut du jour).
 # BUY  : le prix doit être retracé dans la "golden pocket" 0.382–0.618 depuis le

@@ -96,7 +96,7 @@ def main():
     open_symbols = []
     if use_mexc:
         balance = get_usdt_balance(mexc_key, mexc_secret)
-        logger.info(f"Solde MEXC Futures : {balance:.2f} USDT")
+        logger.info(f"Solde MEXC Futures disponible : {balance:.2f} USD (USDT + USDC cumulés)")
 
         from src.mexc_trader import get_open_positions
         open_positions = get_open_positions(mexc_key, mexc_secret)
@@ -884,10 +884,32 @@ def main():
             macro_trend_1h_bull = (cur_price > ema200_1h)
             macro_trend_1h_bear = (cur_price < ema200_1h)
 
-            # Volume Climax Institutionnel (Volume >= 1.3x la moyenne)
-            vol_curr = float(last_15m["volume"]) if "volume" in last_15m else 1.0
-            vol_mean = float(df_15m["volume"].tail(20).mean()) if "volume" in df_15m else 1.0
-            has_vol_climax = (vol_curr >= 1.3 * vol_mean) if vol_mean > 0 else True
+            # ── Volume Climax Institutionnel ──
+            # DEUX corrections par rapport à la version précédente :
+            #  1) on mesure la dernière bougie CLÔTURÉE (iloc[-2]) et non celle en
+            #     formation, dont le volume est partiel et donc jamais comparable ;
+            #  2) la moyenne de référence EXCLUT la bougie mesurée (avant, un pic
+            #     se diluait dans sa propre moyenne : un vrai 1.50x sortait à 1.46x).
+            _vol_mult    = float(getattr(config, "VOL_CLIMAX_MULT", 1.3))
+            _use_closed  = getattr(config, "VOL_CLIMAX_USE_CLOSED_CANDLE", True)
+            vol_curr = 1.0
+            vol_mean = 1.0
+            vol_src  = "en cours"
+            try:
+                _v = df_15m["volume"].astype(float)
+                if _use_closed and len(_v) >= 22:
+                    vol_curr = float(_v.iloc[-2])            # dernière bougie clôturée
+                    vol_mean = float(_v.iloc[-22:-2].mean())  # les 20 qui la précèdent
+                    vol_src  = "clôturée"
+                elif len(_v) >= 21:
+                    vol_curr = float(_v.iloc[-1])
+                    vol_mean = float(_v.iloc[-21:-1].mean())  # exclut la bougie mesurée
+            except Exception as _e:
+                logger.warning(f"Volume indisponible pour {sym}: {_e} → climax neutralisé")
+                vol_curr = vol_mean = 1.0
+            if not (vol_mean > 0) or vol_mean != vol_mean:
+                vol_mean = 1.0
+            has_vol_climax = (vol_curr >= _vol_mult * vol_mean)
 
             # Order Book Imbalance (OBI) Carnet d'ordres à ±1.5%
             total_wall_vol = (bid_qty + ask_qty) if (bid_qty + ask_qty) > 0 else 1.0
@@ -930,7 +952,7 @@ def main():
                 for _f in _fails:
                     reject_stats[_f] += 1
                 logger.info(f"⏳ Guard | {name} {direction} rejeté par : {', '.join(_fails) or '?'} "
-                            f"(RSI {rsi_15m:.1f} | VWAP {vwap_curr:.4f} [{vwap_zone}] | Vol {vol_curr/vol_mean:.1f}x "
+                            f"(RSI {rsi_15m:.1f} | VWAP {vwap_curr:.4f} [{vwap_zone}] | Vol {vol_curr/vol_mean:.2f}x [{vol_src}] "
                             f"| OBI {obi_score:.2f} | Fibo {fibo_txt})")
                 continue
 
@@ -1022,6 +1044,22 @@ def main():
                 sub = df.tail(288)
                 vol_24h = float((sub["close"] * sub["volume"]).sum())
             return (vol_24h, s.confidence)
+
+        # ── Plancher de liquidité : EXCLUT réellement les paires illiquides ──
+        # Avant, le seuil de 5 M$ ne servait qu'à écrire une étiquette dans les logs.
+        if getattr(config, "ENABLE_VOLUME_FLOOR", False):
+            _floor = float(getattr(config, "MIN_VOLUME_24H_USDT", 5_000_000))
+            _kept, _dropped = [], []
+            for _s in tradables:
+                _v24 = get_crypto_volume_tier(_s)[0]
+                (_kept if _v24 >= _floor else _dropped).append((_s, _v24))
+            if _dropped:
+                logger.info(
+                    "🚱 Plancher de liquidité (%s USD) — %d paire(s) exclue(s) : %s"
+                    % (f"{_floor:,.0f}", len(_dropped),
+                       ", ".join(f"{s.pair_name} {v:,.0f}" for s, v in _dropped[:6]))
+                )
+            tradables = [s for s, _ in _kept]
 
         tradables.sort(key=get_crypto_volume_tier, reverse=True)
 
