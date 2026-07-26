@@ -635,16 +635,10 @@ def main():
     except Exception as e:
         logger.error(f"Erreur sauvegarde sent_signals: {e}")
 
-    # ── 4. Envoi Telegram des signaux forts (uniquement les NOUVEAUX) ──────────
+    # ── 4. Notifications Telegram d'information (DÉSACTIVÉES : L'utilisateur exige UNIQUEMENT des signaux confirmés avec croisement) ──
+    # Les notifications Telegram ne seront envoyées QU'À LA SECTION 5 lorsqu'un signal a son Croisement MA30/60 + Mèche de Rejet 100% confirmé.
     if new_signals_to_send:
-        logger.info(f"Envoi de {len(new_signals_to_send)} nouveaux signaux sur Telegram...")
-        for s in new_signals_to_send:
-            send_signal(s)
-            time.sleep(0.5)
-    elif strong_signals:
-        logger.info(f"Signaux actifs ({len(strong_signals)}) déjà envoyés — pas de notification.")
-    else:
-        logger.info("Aucun signal fort ce scan.")
+        logger.info(f"💡 {len(new_signals_to_send)} signaux informatifs détectés (conservés pour analyse, Telegram neutralisé).")
 
     # ── Rapport Orderbook permanent : envoyé à CHAQUE scan (toutes les 5 min) ──
     from src.mexc_trader import SYMBOL_MAP, get_current_price, get_cumulative_depth_ratio, get_largest_walls
