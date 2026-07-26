@@ -928,11 +928,11 @@ def main():
             obi_buy_ok  = (obi_score >= _obi_min_buy)    # pas bloqué par un mur vendeur géant
             obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
-            # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
-            valid_buy_rsi  = (rsi_min_recent <= 52.0 or rsi_15m <= 52.0) and (fish_15m_curr > fish_15m_prev or fish_15m_curr >= -1.5) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.5) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
+            # 1. Impulsion ACHAT (BUY) : Momentum + VWAP Discount + OBI Acheteur (>= 50%) + Macro Bullish
+            valid_buy_rsi  = (rsi_min_recent <= 56.0 or rsi_15m <= 56.0) and (vol_curr >= 0.85 * vol_mean) and vwap_discount and obi_buy_ok and fibo_buy_ok
             
-            # 2. Impulsion VENTE (SELL) : Chute Sur-Achat + Fisher(9) (↓) + Vol Climax + VWAP Premium + OBI Vendeur
-            valid_sell_rsi = (rsi_max_recent >= 48.0 or rsi_15m >= 48.0) and (fish_15m_curr < fish_15m_prev or fish_15m_curr <= 1.5) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.5) and has_vol_climax and vwap_premium and obi_sell_ok and fibo_sell_ok
+            # 2. Impulsion VENTE (SELL) : Momentum + VWAP Premium + OBI Vendeur (>= 50%) + Macro Bearish
+            valid_sell_rsi = (rsi_max_recent >= 44.0 or rsi_15m >= 44.0) and (vol_curr >= 0.85 * vol_mean) and vwap_premium and obi_sell_ok and fibo_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
