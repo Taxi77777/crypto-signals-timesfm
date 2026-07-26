@@ -936,23 +936,31 @@ def main():
             ma30_p2   = float(df_15m["ma30"].iloc[-3]) if len(df_15m) >= 3 and "ma30" in df_15m.columns else ma30_p1
             ma60_p2   = float(df_15m["ma60"].iloc[-3]) if len(df_15m) >= 3 and "ma60" in df_15m.columns else ma60_p1
 
-            # 🟢 Golden Cross Précis (BUY) : STRICTEMENT 0 à 1 bougie après le croisement
-            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr) or (ma30_p2 < ma60_p2 and ma30_p1 >= ma60_p1)
+            # ── 1. MOSTAFA BELKHAYATE SYSTEM (Barycentre + Timing Oscillator) ──
+            bary_lower = float(df_15m["belkhayate_lower_zone"].iloc[-1]) if "belkhayate_lower_zone" in df_15m.columns else 0.0
+            bary_upper = float(df_15m["belkhayate_upper_zone"].iloc[-1]) if "belkhayate_upper_zone" in df_15m.columns else 0.0
+            bary_timing = float(df_15m["belkhayate_timing"].iloc[-1]) if "belkhayate_timing" in df_15m.columns else 0.0
 
-            # 🔴 Death Cross Précis (SELL) : STRICTEMENT 0 à 1 bougie après le croisement
-            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr) or (ma30_p2 > ma60_p2 and ma30_p1 <= ma60_p1)
+            # ── 2. MÈCHES DE REJET PHYSIQUES (Rejection Wicks >= 15%) ──
+            lower_wick = float(df_15m["lower_wick_pct"].iloc[-1]) if "lower_wick_pct" in df_15m.columns else 0.0
+            upper_wick = float(df_15m["upper_wick_pct"].iloc[-1]) if "upper_wick_pct" in df_15m.columns else 0.0
+            has_buy_wick  = (lower_wick >= 0.15)
+            has_sell_wick = (upper_wick >= 0.15)
 
-            ma_buy_ok  = is_exact_golden_cross and has_buy_wick
-            ma_sell_ok = is_exact_death_cross and has_sell_wick
+            # ── 3. CROISEMENT PRECIS MA 30 / MA 60 (0-1 bougie) ──
+            ma30_curr = float(df_15m["ma30"].iloc[-1]) if "ma30" in df_15m.columns else cur_price
+            ma60_curr = float(df_15m["ma60"].iloc[-1]) if "ma60" in df_15m.columns else cur_price
+            ma30_p1   = float(df_15m["ma30"].iloc[-2]) if "ma30" in df_15m.columns else cur_price
+            ma60_p1   = float(df_15m["ma60"].iloc[-2]) if "ma60" in df_15m.columns else cur_price
+            is_exact_golden_cross = (ma30_p1 < ma60_p1 and ma30_curr >= ma60_curr)
+            is_exact_death_cross  = (ma30_p1 > ma60_p1 and ma30_curr <= ma60_curr)
 
-            # 1. Impulsion ACHAT (BUY) : Momentum + Croisement MA30/60 + Mèche Rejet + VWAP Discount + OBI Acheteur (>= 50%) + Macro Bullish
-            valid_buy_rsi  = (rsi_min_recent <= 56.0 or rsi_15m <= 56.0) and (vol_curr >= 0.85 * vol_mean) and vwap_discount and obi_buy_ok and fibo_buy_ok and ma_buy_ok
-            
-            # 2. Impulsion VENTE (SELL) : Momentum + Croisement MA30/60 + Mèche Rejet + VWAP Premium + OBI Vendeur (>= 50%) + Macro Bearish
-            valid_sell_rsi = (rsi_max_recent >= 44.0 or rsi_15m >= 44.0) and (vol_curr >= 0.85 * vol_mean) and vwap_premium and obi_sell_ok and fibo_sell_ok and ma_sell_ok
+            # RÈGLE PURE MOSTAFA BELKHAYATE + MÈCHE DE REJET :
+            belkhayate_buy_ok  = (cur_price <= bary_lower or bary_timing <= -1.5 or is_exact_golden_cross) and has_buy_wick
+            belkhayate_sell_ok = (cur_price >= bary_upper or bary_timing >= 1.5  or is_exact_death_cross)  and has_sell_wick
 
-            is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi
-            is_sell_impulse = (direction == "SELL") and valid_sell_rsi
+            is_buy_impulse  = (direction == "BUY")  and belkhayate_buy_ok
+            is_sell_impulse = (direction == "SELL") and belkhayate_sell_ok
 
             candidates_seen += 1
 
