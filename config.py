@@ -30,6 +30,15 @@ TRADING_TIMEFRAME        = "15m"   # Timeframe d'exécution des signaux
 MACRO_TIMEFRAME          = "1h"    # Timeframe de confirmation de tendance macro
 TP_SCALP_PCT             = 0.012   # Take Profit scalp = ±1.2% de mouvement de prix
 
+# ── Order Book Imbalance (OBI) — SEUILS UNIQUES ──────────────────────────────
+# Il existait deux implémentations incohérentes : la stratégie Sniper utilisait un
+# score 0→1 (neutre 0.50) et la section 5 un score -1→+1 (neutre 0.00), avec des
+# seuils différents. Les deux sont maintenant exprimées sur l'échelle 0→1 et
+# lisent CES seuils — un seul endroit à modifier.
+#   0.50 = carnet équilibré | > 0.50 = acheteurs dominants | < 0.50 = vendeurs dominants
+OBI_MIN_FOR_BUY          = 0.40   # sous ce score, un mur vendeur bloque les achats
+OBI_MAX_FOR_SELL         = 0.60   # au-dessus, un mur acheteur bloque les ventes
+
 # ── Plancher de liquidité (volume 24h) ───────────────────────────────────────
 # Le code triait déjà les paires par volume 24h et affichait "PRIORITÉ HAUTE"
 # au-delà de 5 M$, mais ce seuil n'excluait RIEN : une paire à 200 k$ de volume

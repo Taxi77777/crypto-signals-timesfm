@@ -140,7 +140,6 @@ def main():
     pending = load_pending()
     now_ts  = _time.time()
     matured = [pr for pr in pending if now_ts - pr["ts"] >= 3600]
-    waiting = [pr for pr in pending if now_ts - pr["ts"] < 3600]
     verified = 0
     for pr in matured:
         df_p = all_data.get(pr["symbol"])
@@ -514,7 +513,6 @@ def main():
     filtered_strong_signals = []
     for s in strong_signals:
         is_btc = (s.symbol == "BTC-USD")
-        block = False
         reasons = []
         
         if s.signal == "BUY":
@@ -654,8 +652,6 @@ def main():
     import yfinance as _yf_ob
     import pandas as _pd_ob
 
-    APPROACH_THRESHOLD = 0.02   # 2% → prix à 2% du mur = potentiellement en approche
-    PULLBACK_THRESHOLD = 0.005  # 0.5% → prix à 0.5% du mur = en contact direct
 
     def _clean_name(sym):
         return _re.sub(r'\d+', '', sym.replace("-USD", ""))
@@ -680,7 +676,6 @@ def main():
                 walls = get_largest_walls(symbol_mexc, price, depth_pct=0.015)
                 if ratio is not None:
                     name = _clean_name(sym)
-                    MIN_DIST = 0.001   # distance mini au mur (0.1%) — au contact du mur
                     if ratio >= 1.2:
                         buyers_list.append((ratio, name))
                         # ⚡ PULLBACK REBOND SUR MUR DES BALEINES (ACHAT AU MUR DE SUPPORT 0.3268)
@@ -930,8 +925,10 @@ def main():
             # Order Book Imbalance (OBI) Carnet d'ordres à ±1.5%
             total_wall_vol = (bid_qty + ask_qty) if (bid_qty + ask_qty) > 0 else 1.0
             obi_score = bid_qty / total_wall_vol   # 1.0 = 100% Acheteurs, 0.0 = 100% Vendeurs
-            obi_buy_ok  = (obi_score >= 0.40)      # Pas bloqué par un mur vendeur géant
-            obi_sell_ok = (obi_score <= 0.60)      # Pas bloqué par un mur acheteur géant
+            _obi_min_buy  = float(getattr(config, "OBI_MIN_FOR_BUY", 0.40))
+            _obi_max_sell = float(getattr(config, "OBI_MAX_FOR_SELL", 0.60))
+            obi_buy_ok  = (obi_score >= _obi_min_buy)    # pas bloqué par un mur vendeur géant
+            obi_sell_ok = (obi_score <= _obi_max_sell)   # pas bloqué par un mur acheteur géant
 
             # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
             valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok and fibo_buy_ok
@@ -1174,14 +1171,23 @@ def main():
                     # 1. Vérification OBI (Imbalance du haut de carnet)
                     imbalance = get_order_book_imbalance(symbol_mexc)
                     if imbalance is not None:
-                        logger.info(f"📊 Analyse Carnet d'ordres {symbol_mexc} | Imbalance (OBI): {imbalance:+.2f}")
-                        if best.signal == "BUY" and imbalance < -0.2:
-                            logger.info(f"❌ OBI trop négatif ({imbalance:+.2f} < -0.2) -> Blocage achat.")
-                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})")
+                        # get_order_book_imbalance renvoie -1..+1 (neutre 0).
+                        # On convertit sur l'échelle 0..1 de la stratégie Sniper
+                        # (neutre 0.50) pour appliquer LES MÊMES seuils config.
+                        _obi_01 = (imbalance + 1.0) / 2.0
+                        _min_buy  = float(getattr(config, "OBI_MIN_FOR_BUY", 0.40))
+                        _max_sell = float(getattr(config, "OBI_MAX_FOR_SELL", 0.60))
+                        logger.info(
+                            f"📊 Carnet d'ordres {symbol_mexc} | OBI {_obi_01:.2f} "
+                            f"(brut {imbalance:+.2f}) | seuils BUY>={_min_buy:.2f} SELL<={_max_sell:.2f}"
+                        )
+                        if best.signal == "BUY" and _obi_01 < _min_buy:
+                            logger.info(f"❌ OBI {_obi_01:.2f} < {_min_buy:.2f} → blocage achat (mur vendeur).")
+                            send_message(f"⚠️ *Signal {best.pair_name} BUY bloqué*\nCarnet d'ordres défavorable (OBI {_obi_01:.2f} < {_min_buy:.2f})")
                             signal_valid = False
-                        elif best.signal == "SELL" and imbalance > 0.2:
-                            logger.info(f"❌ OBI trop positif ({imbalance:+.2f} > 0.2) -> Blocage vente.")
-                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (Imbalance OBI: {imbalance:+.2f})")
+                        elif best.signal == "SELL" and _obi_01 > _max_sell:
+                            logger.info(f"❌ OBI {_obi_01:.2f} > {_max_sell:.2f} → blocage vente (mur acheteur).")
+                            send_message(f"⚠️ *Signal {best.pair_name} SELL bloqué*\nCarnet d'ordres défavorable (OBI {_obi_01:.2f} > {_max_sell:.2f})")
                             signal_valid = False
 
                 # 2. Vérification Funding Rate
