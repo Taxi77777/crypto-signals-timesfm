@@ -112,14 +112,11 @@ def generate_signal(
         bb_lower      = float(last["bb_lower"])
         atr           = float(last["atr"])
         adx           = float(last["adx"])
-        volume        = float(last["volume"])
-        volume_sma    = float(last["volume_sma"])
         fisher        = round(float(last["fisher"]), 2) if "fisher" in last else 0.0
         # ── SUPERTREND : direction de tendance + flip (le moteur crypto) ──
         st_dir     = int(last["supertrend_dir"]) if "supertrend_dir" in last else 0
         st_flip_up = bool(last["st_flip_up"])    if "st_flip_up" in last else False
         st_flip_dn = bool(last["st_flip_down"])  if "st_flip_down" in last else False
-        st_value   = round(float(last["supertrend"]), 6) if "supertrend" in last else current_price
         # Croisement Fisher / ligne signal (trigger = Fisher decale de 1, style TradingView)
         f1 = float(df.iloc[-1]["fisher"]) if "fisher" in last else 0.0
         f2 = float(df.iloc[-2]["fisher"]) if len(df) > 1 and "fisher" in last else f1
@@ -245,27 +242,29 @@ def generate_signal(
 
         # ── Croisement Stochastique RSI (Fin de Pullback 20/80) ──
         try:
-            if len(df_with_indicators) >= 3:
-                k1 = float(df_with_indicators.iloc[-1].get("stoch_rsi_k", 50))
-                d1 = float(df_with_indicators.iloc[-1].get("stoch_rsi_d", 50))
-                k2 = float(df_with_indicators.iloc[-2].get("stoch_rsi_k", 50))
-                d2 = float(df_with_indicators.iloc[-2].get("stoch_rsi_d", 50))
+            if len(df) >= 3:
+                k1 = float(df.iloc[-1].get("stoch_rsi_k", 50))
+                d1 = float(df.iloc[-1].get("stoch_rsi_d", 50))
+                k2 = float(df.iloc[-2].get("stoch_rsi_k", 50))
+                d2 = float(df.iloc[-2].get("stoch_rsi_d", 50))
                 if k1 > d1 and k2 <= d2 and k2 <= 25:
                     buy_score += 4
                 elif k1 < d1 and k2 >= d2 and k2 >= 75:
                     sell_score += 4
-        except Exception:
-            pass
+        except Exception as _e:
+            # Avant : "except Exception: pass" masquait un NameError permanent
+            # (df_with_indicators n'existait pas) → règle jamais appliquée, en silence.
+            logger.warning(f"{symbol}: règle Stoch RSI ignorée ({type(_e).__name__}: {_e})")
 
         # ── Bougie d'Avalement sur EMA20 (Engulfing Candle Reversal) ──
         try:
-            engulfing = df_with_indicators.iloc[-1].get("engulfing_reversal", "NONE")
+            engulfing = df.iloc[-1].get("engulfing_reversal", "NONE")
             if engulfing == "BULLISH_ENGULFING":
                 buy_score += 3
             elif engulfing == "BEARISH_ENGULFING":
                 sell_score += 3
-        except Exception:
-            pass
+        except Exception as _e:
+            logger.warning(f"{symbol}: règle Engulfing ignorée ({type(_e).__name__}: {_e})")
 
         # ── PONDERATION DYNAMIQUE : chaque IA vote selon son taux de reussite reel ──
         from src.track_record import load_track, get_weight
@@ -387,9 +386,12 @@ def generate_signal(
                 logger.info(f"✅ Filtre Multi-Timeframe valide sur {symbol} (1h EMA alignee & 1h Supertrend en phase)")
 
         tp_price = current_price * tp_mult
+        # sl_price (ATR × 3) est calculé mais NON transmis : stop_loss = "Aucun"
+        # plus bas, conformément au design sans stop loss. Conservé volontairement
+        # pour être réutilisable si un SL est réactivé un jour.
         sl_price = current_price * sl_mult
+        _ = sl_price
         tp_pct   = round(abs(tp_price - current_price) / current_price * 100, 2)
-        sl_pct   = round(abs(sl_price - current_price) / current_price * 100, 2)
         is_strong = confidence >= config.MIN_CONFIDENCE
 
         pair_name = config.PAIR_NAMES.get(symbol, symbol)

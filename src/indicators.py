@@ -118,7 +118,10 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
             df["stoch_rsi_k"] = stoch_rsi_raw.rolling(3).mean()
             df["stoch_rsi_d"] = df["stoch_rsi_k"].rolling(3).mean()
         except Exception as e:
+            # Avant : stoch_rsi_d n'était PAS posée ici → colonne absente en aval.
+            logger.warning(f"Stoch RSI indisponible ({e}) — valeurs neutres 50.0")
             df["stoch_rsi_k"] = 50.0
+            df["stoch_rsi_d"] = 50.0
             df["stoch_rsi_d"] = 50.0
 
         # ── BOUGIE D'AVALEMENT SUR EMA20 (Engulfing Candle Reversal) ──
@@ -137,6 +140,7 @@ def compute_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
                     engulf[i] = "BEARISH_ENGULFING"
             df["engulfing_reversal"] = engulf
         except Exception as e:
+            logger.warning(f"Détection Engulfing indisponible ({e}) — valeur NONE")
             df["engulfing_reversal"] = "NONE"
 
         df = df.dropna()
