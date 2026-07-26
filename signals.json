@@ -1,4 +1,19 @@
 {
-  "last_update": "2026-07-26T14:27:52.062055+00:00",
-  "signals": []
+  "last_update": "2026-07-26T15:40:53.849785+00:00",
+  "signals": [
+    {
+      "pair_name": "NEAR Protocol (NEAR)",
+      "signal": "SELL",
+      "current_price": "$1.8010",
+      "take_profit": "$1.7893",
+      "stop_loss": "Aucun",
+      "confidence": 77,
+      "rsi": 59.5,
+      "macd_trend": "Haussier 🟢",
+      "forecast_dir": "TFM:SELL/CHO:BUY/MOI:SELL/LLA:SELL/GRA:SELL",
+      "smc_zone": "Premium 🟢 (Short cher/favorable)",
+      "is_ote": false,
+      "orderbook_walls": "🟢 *Mur ACHAT (support ±1.5%) :* `634,601 USDT` à `$1.785`\n🔴 *Mur VENTE (résistance ±1.5%) :* `443,228 USDT` à `$1.813`"
+    }
+  ]
 }
