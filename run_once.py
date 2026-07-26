@@ -797,9 +797,27 @@ def main():
             target_signal = "BUY" if is_buy_impulse else "SELL"
             logger.info(f"🔥 IMPULSION MACRO DÉTECTÉE — {name} {target_signal} | RSI 15m: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
 
-            # ⚡ EXECUTION AUTO IMPULSION MACRO 80X (BUY ou SELL) : Levier 80X + Trailing
+            # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION MACRO 80X (BUY ou SELL)
+            tp_ext = (cur_price * 1.015) if target_signal == "BUY" else (cur_price * 0.985)   # TP ±1.5% (+120% Gain Net)
+            icon = "🟢" if target_signal == "BUY" else "🔴"
+            type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
+            trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
+
+            # Toujours envoyer le signal sur Telegram
+            send_message(
+                f"{icon} *SIGNAL IMPULSION RSI 80X — {name}* {icon}\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"📌 *{type_str} x80*\n"
+                f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
+                f"🏁 TP Impulsion : `{_fmt_p(tp_ext)}` (±1.5% / +120% Gain Net)\n"
+                f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}`\n"
+                f"✅ Alignement Tendance Macro : {trend_str}\n"
+                f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
+                f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
+            )
+            logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {cur_price}")
+
             if use_mexc and trade_allowed:
-                tp_ext = (cur_price * 1.015) if target_signal == "BUY" else (cur_price * 0.985)   # TP ±1.5% (+120% Gain Net)
                 result_wall = place_order(
                     api_key    = mexc_key,
                     secret_key = mexc_secret,
@@ -812,24 +830,10 @@ def main():
                 if result_wall and result_wall.get("success"):
                     trade_allowed = False
                     open_symbols.append(symbol_mexc)
-                    icon = "🟢" if target_signal == "BUY" else "🔴"
-                    type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
-                    trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
-                    send_message(
-                        f"{icon} *SIGNAL IMPULSION RSI 80X — {name}* {icon}\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📌 *{type_str} x80*\n"
-                        f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
-                        f"🏁 TP Impulsion : `{_fmt_p(tp_ext)}` (±1.5% / +120% Gain Net)\n"
-                        f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}`\n"
-                        f"✅ Alignement Tendance Macro : {trend_str}\n"
-                        f"🛑 Stop Loss Fixe : `Aucun (0.0)`\n"
-                        f"🔒 Trailing Stop Actif (+1.5% Breakeven)\n"
-                    )
-                    logger.info(f"🚀 Trade Impulsion RSI Macro 80X {target_signal} ouvert : {name} {target_signal} @ {cur_price}")
+                    logger.info(f"🚀 Trade Impulsion RSI Macro 80X {target_signal} ouvert sur MEXC : {name} {target_signal} @ {cur_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
-                    logger.error(f"❌ Échec trade Impulsion {name}: {err_w}")
+                    logger.error(f"❌ Échec auto-trading MEXC {name}: {err_w}")
         except Exception as e:
             logger.error(f"Erreur validation pullback pour {sym}: {e}")
 
