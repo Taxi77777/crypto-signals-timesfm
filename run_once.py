@@ -682,7 +682,7 @@ def main():
                         if walls and walls.get("largest_bid"):
                             wall_price = float(walls["largest_bid"]["price"])
                             dist = (price - wall_price) / price  # positif = mur de support en dessous
-                            if 0.0005 <= dist <= 0.004:  # Le prix est en plein pullback au contact du mur des baleines (<= 0.4%)
+                            if 0.0005 <= dist <= 0.015:  # Le prix est dans la zone du mur des baleines (<= 1.5%)
                                 try:
                                     tp_est = price * 1.015   # TP étendu +1.5% après le rebond sur le mur des baleines
                                     pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
@@ -691,7 +691,7 @@ def main():
                         elif walls and walls.get("largest_ask"):
                             wall_price = float(walls["largest_ask"]["price"])
                             dist = (wall_price - price) / price
-                            if 0.0005 <= dist <= 0.008:
+                            if 0.0005 <= dist <= 0.015:
                                 tp_est = wall_price * 0.999
                                 pullback_signals.append(("BUY", name, sym, symbol_mexc, ratio, price, wall_price, tp_est, dist * 100, 0.0))
                     elif ratio <= 0.8:
