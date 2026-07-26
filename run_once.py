@@ -772,10 +772,10 @@ def main():
             # Check Range
             if adx_15m < 25:
                 range_txt = f"✅ Range 15m confirmé (ADX: {adx_15m:.1f})"
-            else:
-                range_txt = f"⚠️ Hors Range 15m (ADX: {adx_15m:.1f})"
-                
-            # 🚀 Stratégie EXTRÊMEMENT AVANCÉE INSTITUTIONNELLE (VWAP + RSI Extrême + Volume Climax + Macro 1H/4H)
+            # Récupération du Carnet d'Ordres MEXC (bid_qty & ask_qty à ±1.5%)
+            bid_qty, ask_qty = get_mexc_depth(symbol_mexc)
+            
+            # 🚀 Stratégie EXTRÊMEMENT AVANCÉE INSTITUTIONNELLE (VWAP + RSI Extrême + Volume Climax + Macro 1H/4H + OBI)
             rsi_15m = float(last_15m["rsi"]) if "rsi" in last_15m else 50.0
             rsi_min_recent = float(df_15m["rsi"].tail(6).min()) if "rsi" in df_15m else rsi_15m
             rsi_max_recent = float(df_15m["rsi"].tail(6).max()) if "rsi" in df_15m else rsi_15m
