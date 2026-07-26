@@ -1,8 +1,8 @@
 """
 src/mexc_trader.py — Intégration MEXC Futures avec TimesFM
 - 1 seule position ouverte à la fois
-- Mise totale du solde USDT disponible
-- Levier x20, market order isolé
+- Mise totale du solde USDT/USDC disponible
+- Levier défini par LEVERAGE ci-dessous, market order isolé
 - TP/SL automatiques
 - Trailing Stop : 2% callback natif MEXC + protection software
 """
@@ -34,10 +34,12 @@ TRAILING_CALLBACK  = 2.0
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
-# Seuils protection software (en % de profit)
-TRAIL_BREAKEVEN_PCT = 1.5   # À +1.5% → SL déplacé au prix d'entrée (0 perte)
-TRAIL_50PCT         = 3.0   # À +3.0% → SL capture 50% des gains
-TRAIL_75PCT         = 5.0   # À +5.0% → SL capture 75% des gains
+# Seuils protection software (en % de MOUVEMENT DE PRIX, pas de PnL)
+# ⚠️ Doivent rester STRICTEMENT INFÉRIEURS au TP scalp (config.TP_SCALP_PCT = 1.2%),
+#    sinon le TP se déclenche avant le trailing et la protection ne sert jamais.
+TRAIL_BREAKEVEN_PCT = 0.5   # À +0.5% → SL déplacé au prix d'entrée (0 perte)
+TRAIL_50PCT         = 0.8   # À +0.8% → SL capture 50% des gains
+TRAIL_75PCT         = 1.0   # À +1.0% → SL capture 75% des gains
 
 # Mapping yfinance → MEXC Futures
 SYMBOL_MAP = {
@@ -761,21 +763,39 @@ def get_largest_walls(symbol_mexc: str, mark_price: float, depth_pct: float = 0.
     return None
 
 
-def get_mexc_depth(symbol_mexc: str, depth_pct: float = 0.015) -> tuple[float, float]:
+def get_mexc_depth(symbol_mexc: str, mark_price: float = 0.0,
+                   depth_pct: float = 0.015) -> tuple[float, float]:
     """
-    Retourne (bid_qty_usdt, ask_qty_usdt) cumulés dans la zone depth_pct (ex: 1.5%).
+    Retourne (bid_vol, ask_vol) cumulés en CONTRATS dans la zone ±depth_pct
+    autour de mark_price (0.015 = ±1.5%).
+
+    Fail-CLOSED : retourne (0.0, 0.0) si le carnet est indisponible ou vide.
+    L'appelant DOIT ignorer le signal dans ce cas — ne jamais renvoyer une
+    valeur neutre, sinon le filtre OBI se désactive silencieusement.
     """
     try:
+        if mark_price <= 0:
+            mark_price = get_current_price(symbol_mexc)
+        if mark_price <= 0:
+            logger.warning(f"get_mexc_depth {symbol_mexc}: prix de référence indisponible")
+            return 0.0, 0.0
+
         r = requests.get(f"{MEXC_BASE}/api/v1/contract/depth/{symbol_mexc}?limit=100", timeout=10)
         data = r.json()
         if data.get("success"):
-            depth = data.get("data", {})
-            bids = depth.get("bids", [])
-            asks = depth.get("asks", [])
-            sum_bids = sum(float(b[1]) for b in bids)
-            sum_asks = sum(float(a[1]) for a in asks)
+            depth = data.get("data", {}) or {}
+            bids  = depth.get("bids", []) or []
+            asks  = depth.get("asks", []) or []
+            if not bids or not asks:
+                return 0.0, 0.0
+
+            min_bid_price = mark_price * (1 - depth_pct)
+            max_ask_price = mark_price * (1 + depth_pct)
+
+            sum_bids = sum(float(b[1]) for b in bids if float(b[0]) >= min_bid_price)
+            sum_asks = sum(float(a[1]) for a in asks if float(a[0]) <= max_ask_price)
             return sum_bids, sum_asks
     except Exception as e:
         logger.error(f"Erreur get_mexc_depth {symbol_mexc}: {e}")
-    return 1000.0, 1000.0
+    return 0.0, 0.0
 
