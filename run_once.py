@@ -800,21 +800,27 @@ def main():
             vol_mean = float(df_15m["volume"].tail(20).mean()) if "volume" in df_15m else 1.0
             has_vol_climax = (vol_curr >= 1.3 * vol_mean) if vol_mean > 0 else True
 
-            # 1. Impulsion ACHAT (BUY) : Départ après Sur-Vente (RSI <= 42) + Fisher(9) (↑) + Vol Climax + VWAP Discount
-            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount
+            # Order Book Imbalance (OBI) Carnet d'ordres à ±1.5%
+            total_wall_vol = (bid_qty + ask_qty) if (bid_qty + ask_qty) > 0 else 1.0
+            obi_score = bid_qty / total_wall_vol   # 1.0 = 100% Acheteurs, 0.0 = 100% Vendeurs
+            obi_buy_ok  = (obi_score >= 0.40)      # Pas bloqué par un mur vendeur géant
+            obi_sell_ok = (obi_score <= 0.60)      # Pas bloqué par un mur acheteur géant
+
+            # 1. Impulsion ACHAT (BUY) : Rebond Sur-Vente + Fisher(9) (↑) + Vol Climax + VWAP Discount + OBI Acheteur
+            valid_buy_rsi  = (rsi_min_recent <= 42.0 or rsi_15m <= 42.0) and (fish_15m_curr > fish_15m_prev) and (fish_30m_curr > fish_30m_prev or fish_30m_curr >= -1.0) and has_vol_climax and vwap_discount and obi_buy_ok
             
-            # 2. Impulsion VENTE (SELL) : Départ après Sur-Achat (RSI >= 58) + Fisher(9) (↓) + Vol Climax + VWAP Premium
-            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium
+            # 2. Impulsion VENTE (SELL) : Chute Sur-Achat + Fisher(9) (↓) + Vol Climax + VWAP Premium + OBI Vendeur
+            valid_sell_rsi = (rsi_max_recent >= 58.0 or rsi_15m >= 58.0) and (fish_15m_curr < fish_15m_prev) and (fish_30m_curr < fish_30m_prev or fish_30m_curr <= 1.0) and has_vol_climax and vwap_premium and obi_sell_ok
 
             is_buy_impulse  = (direction == "BUY")  and valid_buy_rsi  and macro_trend_1h_bull
             is_sell_impulse = (direction == "SELL") and valid_sell_rsi and macro_trend_1h_bear
 
             if not (is_buy_impulse or is_sell_impulse):
-                logger.info(f"⏳ Stratégie Institutionnelle Guard | {name} {direction} non optimal (RSI: {rsi_15m:.1f}, VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x) → Attente setup parfait.")
+                logger.info(f"⏳ Stratégie Institutionnelle Guard | {name} {direction} non optimal (RSI: {rsi_15m:.1f}, VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, OBI: {obi_score:.2f}) → Attente setup parfait.")
                 continue
 
             target_signal = "BUY" if is_buy_impulse else "SELL"
-            logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, Fisher 15m: {fish_15m_curr:.2f}")
+            logger.info(f"🔥 IMPULSION INSTITUTIONNELLE DÉTECTÉE — {name} {target_signal} | VWAP: {vwap_curr:.4f}, Vol: {vol_curr/vol_mean:.1f}x, RSI: {rsi_15m:.1f}, OBI: {obi_score:.2f}")
 
             # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP 80X
             tp_ext = (cur_price * 1.012) if target_signal == "BUY" else (cur_price * 0.988)   # TP Scalp Précision ±1.2% (+96% Gain Net en 80X)
@@ -822,6 +828,7 @@ def main():
             type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
             trend_str = "Haussière 1H/4H 📈" if target_signal == "BUY" else "Baissière 1H/4H 📉"
             vwap_txt = "Discount (Achat Bon Marché) 🟢" if target_signal == "BUY" else "Premium (Vente Chère) 🔴"
+            obi_pct = f"{obi_score*100:.0f}% Acheteurs / {(1-obi_score)*100:.0f}% Vendeurs"
 
             # Toujours envoyer le signal sur Telegram
             send_message(
@@ -831,6 +838,7 @@ def main():
                 f"💰 Prix Entrée : `{_fmt_p(cur_price)}`\n"
                 f"🏁 TP Scalp Précision : `{_fmt_p(tp_ext)}` (±1.2% / +96% Gain Net)\n"
                 f"🎯 Filtre VWAP : `{vwap_curr:.4f}` ({vwap_txt})\n"
+                f"🧱 Carnet d'ordres OBI : `{obi_pct}`\n"
                 f"🔥 Volume Institutionnel : `{vol_curr/vol_mean:.1f}x` la moyenne\n"
                 f"📊 RSI 15m : `{rsi_15m:.1f}` | Fisher 15m : `{fish_15m_curr:.2f}`\n"
                 f"✅ Alignement Tendance Macro : {trend_str}\n"
