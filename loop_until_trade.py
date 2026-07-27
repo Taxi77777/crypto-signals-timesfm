@@ -27,13 +27,12 @@ while True:
                 if any(k in line for k in ["IMPULSION", "MOSTAFA", "SIGNAL", "Signal", "TRADE", "BILAN", "Orderbook", "Analyse"]):
                     logger.info(line)
         
-        # Vérifier si un ordre a été ouvert
-        if "TRADE ASPIRATION OUVERT" in output or "Ordre passé" in output or "place_order" in output or "Signal Telegram" in output:
+        # Vérifier si un ordre a été réellement ouvert sur MEXC Futures
+        if "Trade Manipulation 50X" in output or "Ordre MEXC Futures pour" in output:
             logger.info("🎉 UN ORDRE A ÉTÉ DÉTECTÉ ET OUVERT AVEC SUCCÈS sur MEXC Futures !")
             break
         elif "Slots de trading remplis" in output:
-            logger.info("ℹ️ Une position est déjà ouverte sur MEXC Futures. Fin du scan.")
-            break
+            logger.info("ℹ️ Une position est déjà ouverte sur MEXC Futures. Attente du prochain cycle.")
     except Exception as e:
         logger.error(f"Erreur durant le scan #{scan_count}: {e}")
         
