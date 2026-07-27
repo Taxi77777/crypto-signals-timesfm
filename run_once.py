@@ -973,23 +973,25 @@ def main():
                 # RÈGLE 100% MOSTAFA BELKHAYATE DUAL-DIRECTION (VICE VERSA - ENTRÉE INSTANTANÉE 0 RETARD) :
                 buy_ok  = (touches_low_line or is_retest_low)  or (touches_high_line and is_bullish_impulse)
                 sell_ok = (touches_high_line or is_retest_high) or (touches_low_line and is_bearish_impulse)
-                return buy_ok, sell_ok, tim
+                return buy_ok, sell_ok, tim, recent_low, recent_high
 
-            buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
-            buy_30, sell_30, tim_30 = _eval_belkhayate_tf(df_30m)
+            buy_15, sell_15, tim_15, r_low15, r_high15 = _eval_belkhayate_tf(df_15m)
+            buy_30, sell_30, tim_30, r_low30, r_high30 = _eval_belkhayate_tf(df_30m)
             
             # Téléchargement rapide 1H si besoin pour validation multi-tf
             try:
                 df_1h = yf.download(sym, period="10d", interval="1h", progress=False)
                 if isinstance(df_1h.columns, pd.MultiIndex): df_1h.columns = df_1h.columns.get_level_values(0)
                 df_1h = df_1h.rename(columns={"Open":"open","High":"high","Low":"low","Close":"close","Volume":"volume"})
-                buy_1h, sell_1h, tim_1h = _eval_belkhayate_tf(df_1h)
+                buy_1h, sell_1h, tim_1h, r_low1h, r_high1h = _eval_belkhayate_tf(df_1h)
             except Exception:
-                buy_1h, sell_1h, tim_1h = False, False, 0.0
+                buy_1h, sell_1h, tim_1h, r_low1h, r_high1h = False, False, 0.0, 0.0, 0.0
 
             belkhayate_buy_ok  = (buy_15 or buy_30 or buy_1h) and direction == "BUY"
             belkhayate_sell_ok = (sell_15 or sell_30 or sell_1h) and direction == "SELL"
             bary_timing = tim_15 or tim_30 or tim_1h
+            recent_low_val = r_low15 or r_low30 or r_low1h
+            recent_high_val = r_high15 or r_high30 or r_high1h
 
             candidates_seen += 1
 
@@ -998,7 +1000,7 @@ def main():
 
             target_signal = "BUY" if belkhayate_buy_ok else "SELL"
             # PRIX DE MANIPULATION EXACT (BAS DE MÈCHE RECENT_LOW POUR BUY / HAUT DE MÈCHE RECENT_HIGH POUR SELL)
-            manipulation_entry_price = recent_low if target_signal == "BUY" else recent_high
+            manipulation_entry_price = recent_low_val if target_signal == "BUY" else recent_high_val
             if manipulation_entry_price <= 0:
                 manipulation_entry_price = cur_price
 
