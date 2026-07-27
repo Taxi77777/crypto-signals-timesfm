@@ -958,11 +958,11 @@ def main():
                 is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
                 is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
 
-                # RÈGLE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
-                # - Toucher/Depasser Ligne Sommet (high >= recent_high) + Timing >= +1.0 -> VENTE (SELL)
-                # - Toucher/Depasser Ligne Creux (low <= recent_low) + Timing <= -1.0 -> ACHAT (BUY)
-                sell_ok = touches_high_line and (tim >= 1.0) and (uw >= 0.20 or _to_flt(df_tf["close"]) < _to_flt(df_tf["open"]))
-                buy_ok  = touches_low_line  and (tim <= -1.0) and (lw >= 0.20 or _to_flt(df_tf["close"]) > _to_flt(df_tf["open"]))
+                # RÈGLE DUAL-DIRECTION CRYPTO (LES 2 SENS ACHAT ET VENTE AUTORISÉS EN 50X) :
+                # 1. ACHAT (BUY) : Impulsion Verte (>=35%) touchant/cassant Ligne Bleue/Transverse OU Rejet Mèche Basse
+                # 2. VENTE (SELL) : Impulsion Rouge (>=35%) touchant/cassant Ligne Bleue/Transverse OU Rejet Mèche Haute
+                buy_ok  = (touches_high_line and is_bullish_impulse) or (touches_low_line and (lw >= 0.20 or is_bullish_impulse))
+                sell_ok = (touches_low_line and is_bearish_impulse)  or (touches_high_line and (uw >= 0.20 or is_bearish_impulse))
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
