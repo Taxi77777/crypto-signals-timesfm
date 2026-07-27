@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v6.10 : 1 Seule Flèche Unique sur Signal Actif |
+//|    Robot Expert MT4 v7.00 : Flèche Collée sur la Bougie de Rejet |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "6.10"
+#property version   "7.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -46,7 +46,7 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard Original
-input bool                  InpDrawArrows      = true;    // Dessiner 1 seule flèche unique sur le signal actif
+input bool                  InpDrawArrows      = true;    // Dessiner 1 seule flèche collée sur la bougie du signal
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
@@ -65,11 +65,9 @@ int OnInit()
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
    g_lastBarTime = 0;
-
-   // Nettoyer tous les anciens objets
    ObjectsDeleteAll(0, "BK_");
 
-   Print("👑 Belkhayate Retest EA v6.10 (1 Seule Flèche Unique) initialisé !");
+   Print("👑 Belkhayate Retest EA v7.00 (Flèche Collée Bougie) initialisé !");
 
    UpdateChartVisuals();
 
@@ -113,7 +111,7 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
-//| Update visuel : 2 Lignes Horizontales + 1 Seule Flèche Unique   |
+//| Update visuel : 2 Lignes Horizontales + 1 Flèche Collée Bougie   |
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
@@ -140,7 +138,7 @@ void UpdateChartVisuals()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── 2. DESSIN STRICT D'UNE SEULE ET UNIQUE FLÈCHE SUR LA BOUGIE 1 ACTIF ──
+   // ── 2. DESSIN DE LA FLÈCHE EXACTEMENT COLLÉE SOUS/AU-DESSUS DE LA BOUGIE ──
    if(!InpDrawArrows) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
@@ -154,7 +152,7 @@ void UpdateChartVisuals()
    double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
    double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
 
-   // Barycentre sur 1
+   // Barycentre
    double sum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
    double barycenter = sum / InpBaryPeriod;
@@ -180,10 +178,9 @@ void UpdateChartVisuals()
 
    datetime bTime = iTime(_Symbol, g_tf, 1);
 
-   double pointVal = _Point;
-   if(_Digits == 3 || _Digits == 5) pointVal *= 10;
-   double arrowOffset = 10.0 * pointVal;
-   double textOffset  = 25.0 * pointVal;
+   // Décalage minimal pour coller exactement à la pointe de la mèche
+   double arrowOffset = 3.0 * _Point; 
+   double textOffset  = 12.0 * _Point;
 
    string arrowName = "BK_Signal_Arrow";
    string textName  = "BK_Signal_Text";
@@ -194,13 +191,13 @@ void UpdateChartVisuals()
       else ObjectMove(0, arrowName, 0, bTime, lowP - arrowOffset);
       ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
-      ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+      ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
       if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
       else ObjectMove(0, textName, 0, bTime, lowP - textOffset);
       ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST ACHAT - MECHE " + DoubleToString(lowerWickPct, 1) + "%]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
-      ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+      ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
    }
    else if(isSellSignal)
@@ -209,18 +206,17 @@ void UpdateChartVisuals()
       else ObjectMove(0, arrowName, 0, bTime, highP + arrowOffset);
       ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
-      ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+      ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
       if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
       else ObjectMove(0, textName, 0, bTime, highP + textOffset);
       ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST VENTE - MECHE " + DoubleToString(upperWickPct, 1) + "%]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
-      ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+      ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
    }
    else
    {
-      // S'il n'y a pas de signal actif courant, effacer la flèche unique
       ObjectDelete(0, arrowName);
       ObjectDelete(0, textName);
    }
