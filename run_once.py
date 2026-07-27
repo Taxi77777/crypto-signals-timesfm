@@ -997,24 +997,25 @@ def main():
                 continue
 
             target_signal = "BUY" if belkhayate_buy_ok else "SELL"
-            logger.info(f"🔥 MOSTAFA BELKHAYATE & IA DÉTECTÉ — {name} {target_signal} | Timing: {bary_timing:+.2f}")
+            # PRIX DE MANIPULATION EXACT (BAS DE MÈCHE RECENT_LOW POUR BUY / HAUT DE MÈCHE RECENT_HIGH POUR SELL)
+            manipulation_entry_price = recent_low if target_signal == "BUY" else recent_high
+            if manipulation_entry_price <= 0:
+                manipulation_entry_price = cur_price
+
+            logger.info(f"🔥 MOSTAFA BELKHAYATE MANIPULATION DÉTECTÉ — {name} {target_signal} | Prix Manipulation: {manipulation_entry_price} (Actuel: {cur_price}) | Timing: {bary_timing:+.2f}")
 
             # ⚡ ENVOI TELEGRAM & EXECUTION AUTO IMPULSION SNIPER RSI VWAP
             # TP Scalp piloté par config.TP_SCALP_PCT (défaut 1.2% de mouvement de prix)
             _tp_pct = float(getattr(config, "TP_SCALP_PCT", 0.012))
-            tp_ext = cur_price * (1 + _tp_pct) if target_signal == "BUY" else cur_price * (1 - _tp_pct)
+            tp_ext = manipulation_entry_price * (1 + _tp_pct) if target_signal == "BUY" else manipulation_entry_price * (1 - _tp_pct)
 
             # Stop Loss catastrophe optionnel (config.ENABLE_CATASTROPHE_SL)
             sl_ext = 0.0
             if getattr(config, "ENABLE_CATASTROPHE_SL", False):
                 _sl_pct = float(getattr(config, "CATASTROPHE_SL_PCT", 0.009))
-                sl_ext = cur_price * (1 - _sl_pct) if target_signal == "BUY" else cur_price * (1 + _sl_pct)
+                sl_ext = manipulation_entry_price * (1 - _sl_pct) if target_signal == "BUY" else manipulation_entry_price * (1 + _sl_pct)
             sl_txt = f"`{_fmt_p(sl_ext)}`" if sl_ext > 0 else "`Aucun` ⚠️ (protégé uniquement par le trailing)"
             icon = "🟢" if target_signal == "BUY" else "🔴"
-            type_str = "BUY (LONG)" if target_signal == "BUY" else "SELL (SHORT)"
-            trend_str = "Haussière 📈" if target_signal == "BUY" else "Baissière 📉"
-            vwap_txt = "Discount (Achat Bon Marché) 🟢" if target_signal == "BUY" else "Premium (Vente Chère) 🔴"
-            obi_pct = f"{obi_score*100:.0f}% Acheteurs / {(1-obi_score)*100:.0f}% Vendeurs"
 
             # Toujours envoyer le signal sur Telegram
             time_str = datetime.now(PARIS_TZ).strftime("%d/%m/%Y %H:%M")
@@ -1023,7 +1024,8 @@ def main():
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📊 Signal      : {icon} *{target_signal}*\n"
                 f"🪙 Paire       : *{name}* [MEXC FUTURES x50]\n"
-                f"💰 Prix d'Entrée : `{_fmt_p(cur_price)}`\n"
+                f"🎯 Prix Manipulation : `{_fmt_p(manipulation_entry_price)}` (Bas/Haut de Mèche)\n"
+                f"💰 Prix Actuel       : `{_fmt_p(cur_price)}`\n"
                 f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x50)\n"
                 f"🛑 Stop Loss   : `{sl_txt}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -1037,7 +1039,7 @@ def main():
                 f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"
                 f"🕐 {time_str} (Heure de Paris)\n"
             )
-            logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {cur_price}")
+            logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {manipulation_entry_price}")
 
             if use_mexc and trade_allowed:
                 result_wall = place_order(
@@ -1045,14 +1047,14 @@ def main():
                     secret_key = mexc_secret,
                     symbol_yf  = sym,
                     signal     = target_signal,
-                    price      = cur_price,
+                    price      = manipulation_entry_price,
                     tp_price   = tp_ext,
                     sl_price   = sl_ext,
                 )
                 if result_wall and result_wall.get("success"):
                     trade_allowed = False
                     open_symbols.append(symbol_mexc)
-                    logger.info(f"🚀 Trade Impulsion RSI Macro 80X {target_signal} ouvert sur MEXC : {name} {target_signal} @ {cur_price}")
+                    logger.info(f"🚀 Trade Manipulation 50X {target_signal} ouvert sur MEXC : {name} @ {manipulation_entry_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                     logger.error(f"❌ Échec auto-trading MEXC {name}: {err_w}")
