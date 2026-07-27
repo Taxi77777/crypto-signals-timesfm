@@ -300,11 +300,12 @@ void ExecuteTradeForSymbol(string sym)
    double recentHigh = iHigh(sym, g_tf, highestIdx);
    double recentLow  = iLow(sym, g_tf, lowestIdx);
 
-   double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
-   double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
+   // FRANCHISSEMENT OU CASSURE DE LA LIGNE SOMMET / CREUX :
+   bool isLineCrossedHigh = (curPrice >= recentHigh || distHighPct <= InpMaxRetestDist);
+   bool isLineCrossedLow  = (curPrice <= recentLow  || distLowPct  <= InpMaxRetestDist);
 
-   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
-   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
+   bool isBuySignal  = isLineCrossedHigh && (timing >= 1.0) && isBullishImpulse;
+   bool isSellSignal = isLineCrossedLow  && (timing <= -1.0) && isBearishImpulse;
 
    if(!isBuySignal && !isSellSignal) return;
 
