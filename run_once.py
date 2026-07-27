@@ -18,6 +18,7 @@ except AttributeError:
 import json
 import time
 import pandas as pd
+import numpy as np
 from datetime import datetime, timezone
 
 os.makedirs("logs", exist_ok=True)
