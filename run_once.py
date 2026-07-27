@@ -944,9 +944,11 @@ def main():
                 bary_val = _to_flt(bary)
                 bary_std_val = _to_flt(bary_s)
 
-                # RÈGLE 100% EXCLUSIVE PULLBACK RE-TEST (DOUBLE TOP & DOUBLE BOTTOM) + MÈCHE DE REJET :
-                buy_ok  = is_retest_low and lw >= 0.15
-                sell_ok = is_retest_high and uw >= 0.15
+                # RÈGLE 100% BREAKOUT / CASSURE BELKHAYATE (SENS INVERSE / CONTRE-TENDANCE) :
+                # Cassure Sommet + Timing >= +1.0 -> ACHAT (BUY)
+                # Cassure Creux + Timing <= -1.0 -> VENTE (SELL)
+                buy_ok  = is_retest_high
+                sell_ok = is_retest_low
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
@@ -996,9 +998,9 @@ def main():
                 f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM* 👑\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📊 Signal      : {icon} *{target_signal}*\n"
-                f"🪙 Paire       : *{name}* [MEXC FUTURES x80]\n"
+                f"🪙 Paire       : *{name}* [MEXC FUTURES x50]\n"
                 f"💰 Prix d'Entrée : `{_fmt_p(cur_price)}`\n"
-                f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x80)\n"
+                f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x50)\n"
                 f"🛑 Stop Loss   : `{sl_txt}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE :*\n"

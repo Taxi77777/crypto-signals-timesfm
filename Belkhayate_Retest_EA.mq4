@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v7.00 : Flèche Collée sur la Bougie de Rejet |
+//|    Robot Expert MT4 v8.00 : Belkhayate Cassure & Levier 50      |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "7.00"
+#property version   "8.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -18,12 +18,11 @@ enum ENUM_CUSTOM_TIMEFRAME
    TF_H1      = 60    // 1 Heure
 };
 
-//--- Inputs Paramètres Stratégie Belkhayate
-input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE RETEST ===";
+//--- Inputs Paramètres Stratégie Belkhayate Cassure
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (50X) ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
-input double                InpMinWickPct      = 15.0;    // Mèche de Rejet Minimale (%)
-input double                InpMaxRetestDist   = 1.5;     // Écartement max du Retest (%)
+input double                InpMaxRetestDist   = 1.5;     // Écartement max de Cassure (%)
 input int                   InpRetestLookback  = 24;      // Bougies pour détecter le Sommet/Creux
 
 //--- Inputs Configuration Risque & Exécution
@@ -46,7 +45,7 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard Original
-input bool                  InpDrawArrows      = true;    // Dessiner 1 seule flèche collée sur la bougie du signal
+input bool                  InpDrawArrows      = true;    // Dessiner la flèche collée sur la bougie du signal
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
@@ -67,7 +66,7 @@ int OnInit()
    g_lastBarTime = 0;
    ObjectsDeleteAll(0, "BK_");
 
-   Print("👑 Belkhayate Retest EA v7.00 (Flèche Collée Bougie) initialisé !");
+   Print("👑 Belkhayate Breakout EA v8.00 (Levier 50x) initialisé !");
 
    UpdateChartVisuals();
 
@@ -111,7 +110,7 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
-//| Update visuel : 2 Lignes Horizontales + 1 Flèche Collée Bougie   |
+//| Update visuel : 2 Lignes Horizontales + 1 Flèche de Cassure      |
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
@@ -138,19 +137,12 @@ void UpdateChartVisuals()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── 2. DESSIN DE LA FLÈCHE EXACTEMENT COLLÉE SOUS/AU-DESSUS DE LA BOUGIE ──
+   // ── 2. DESSIN DE LA FLÈCHE DE CASSURE SUR BOUGIE 1 ──
    if(!InpDrawArrows) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
-   double openP    = iOpen(_Symbol, g_tf, 1);
    double highP    = iHigh(_Symbol, g_tf, 1);
    double lowP     = iLow(_Symbol, g_tf, 1);
-   double cRange   = MathMax(highP - lowP, 0.00001);
-
-   double bodyMin  = MathMin(openP, curPrice);
-   double bodyMax  = MathMax(openP, curPrice);
-   double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
-   double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
 
    // Barycentre
    double sum = 0;
@@ -170,15 +162,14 @@ void UpdateChartVisuals()
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
-   bool isRetestHigh = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-   bool isRetestLow  = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
-
-   bool isBuySignal  = isRetestLow  && (lowerWickPct >= InpMinWickPct);
-   bool isSellSignal = isRetestHigh && (upperWickPct >= InpMinWickPct);
+   // STRATÉGIE CASSURE / SENS INVERSE :
+   // Sommet + Timing >= +1.0 -> ACHAT (BUY)
+   // Creux + Timing <= -1.0 -> VENTE (SELL)
+   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
+   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
 
    datetime bTime = iTime(_Symbol, g_tf, 1);
 
-   // Décalage minimal pour coller exactement à la pointe de la mèche
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
 
@@ -195,7 +186,7 @@ void UpdateChartVisuals()
 
       if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
       else ObjectMove(0, textName, 0, bTime, lowP - textOffset);
-      ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST ACHAT - MECHE " + DoubleToString(lowerWickPct, 1) + "%]");
+      ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE SOMMET - ACHAT]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
@@ -210,7 +201,7 @@ void UpdateChartVisuals()
 
       if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
       else ObjectMove(0, textName, 0, bTime, highP + textOffset);
-      ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST VENTE - MECHE " + DoubleToString(upperWickPct, 1) + "%]");
+      ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE CREUX - VENTE]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
@@ -238,15 +229,6 @@ void ExecuteTradeIfSignal()
    if(openTrades >= InpMaxOpenTrades) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
-   double openP    = iOpen(_Symbol, g_tf, 1);
-   double highP    = iHigh(_Symbol, g_tf, 1);
-   double lowP     = iLow(_Symbol, g_tf, 1);
-   double cRange   = MathMax(highP - lowP, 0.00001);
-
-   double bodyMin  = MathMin(openP, curPrice);
-   double bodyMax  = MathMax(openP, curPrice);
-   double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
-   double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
 
    double sum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
@@ -270,11 +252,9 @@ void ExecuteTradeIfSignal()
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
 
-   bool isRetestHigh = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-   bool isRetestLow  = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
-
-   bool isBuySignal  = isRetestLow  && (lowerWickPct >= InpMinWickPct);
-   bool isSellSignal = isRetestHigh && (upperWickPct >= InpMinWickPct);
+   // CASSURE : Sommet = ACHAT (BUY), Creux = VENTE (SELL)
+   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
+   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
 
    if(!isBuySignal && !isSellSignal) return;
 
@@ -297,15 +277,15 @@ void ExecuteTradeIfSignal()
 
    if(isBuySignal)
    {
-      double tp = NormalizeDouble(MathMax(barycenter, askPrice + (InpATR_TP_Mult * atr)), _Digits);
+      double tp = NormalizeDouble(askPrice + (InpATR_TP_Mult * atr), _Digits);
       double sl = NormalizeDouble(askPrice - (InpATR_SL_Mult * atr), _Digits);
-      OrderSend(_Symbol, OP_BUY, lotSize, askPrice, 3, sl, tp, "Belkhayate Retest BUY", InpMagicNumber, 0, clrLime);
+      OrderSend(_Symbol, OP_BUY, lotSize, askPrice, 3, sl, tp, "Belkhayate Breakout BUY", InpMagicNumber, 0, clrLime);
    }
    else if(isSellSignal)
    {
-      double tp = NormalizeDouble(MathMin(barycenter, bidPrice - (InpATR_TP_Mult * atr)), _Digits);
+      double tp = NormalizeDouble(bidPrice - (InpATR_TP_Mult * atr), _Digits);
       double sl = NormalizeDouble(bidPrice + (InpATR_SL_Mult * atr), _Digits);
-      OrderSend(_Symbol, OP_SELL, lotSize, bidPrice, 3, sl, tp, "Belkhayate Retest SELL", InpMagicNumber, 0, clrRed);
+      OrderSend(_Symbol, OP_SELL, lotSize, bidPrice, 3, sl, tp, "Belkhayate Breakout SELL", InpMagicNumber, 0, clrRed);
    }
 }
 
@@ -375,21 +355,21 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dashboard HUD                                                    |
+//| Dashboard HUD (Belkhayate Cassure 50x)                           |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
    int x = 20;
    int y = 25;
 
-   CreateLabel("BK_HUD_TITLE", "=== MOSTAFA BELKHAYATE & IA RETEST HUD ===", x, y, clrGold, 10, true);
+   CreateLabel("BK_HUD_TITLE", "=== BELKHAYATE CASSURE & LEVIER 50X HUD ===", x, y, clrGold, 10, true);
    y += 18;
    CreateLabel("BK_HUD_SUB", "TF: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Trailing: " + (InpUseTrailingStop ? "15p" : "OFF"), x, y, clrWhite, 9);
    y += 18;
    CreateLabel("BK_HUD_SEP1", "--------------------------------------------------------", x, y, clrGray, 9);
    y += 15;
 
-   CreateLabel("BK_HUD_HDR", "PAIRE      STATUT RETEST          TIMING     MECHE", x, y, clrCyan, 9, true);
+   CreateLabel("BK_HUD_HDR", "PAIRE      STATUT CASSURE         TIMING", x, y, clrCyan, 9, true);
    y += 16;
 
    for(int i = 0; i < 12; i++)
@@ -398,15 +378,6 @@ void DrawDashboardHUD()
       if(MarketInfo(sym, MODE_BID) == 0) continue;
 
       double curP = iClose(sym, g_tf, 1);
-      double openP = iOpen(sym, g_tf, 1);
-      double highP = iHigh(sym, g_tf, 1);
-      double lowP  = iLow(sym, g_tf, 1);
-      double cRange = MathMax(highP - lowP, 0.00001);
-
-      double bodyMin = MathMin(openP, curP);
-      double bodyMax = MathMax(openP, curP);
-      double lwPct   = ((bodyMin - lowP) / cRange) * 100.0;
-      double uwPct   = ((highP - bodyMax) / cRange) * 100.0;
 
       double sum = 0;
       for(int k = 1; k <= 30; k++) sum += iClose(sym, g_tf, k);
@@ -426,39 +397,24 @@ void DrawDashboardHUD()
       double dHighPct = (MathAbs(curP - recHigh) / curP) * 100.0;
       double dLowPct  = (MathAbs(curP - recLow) / curP) * 100.0;
 
-      bool isRetHigh = (dHighPct <= InpMaxRetestDist) && (tim >= 1.0);
-      bool isRetLow  = (dLowPct <= InpMaxRetestDist) && (tim <= -1.0);
+      bool isBuySig  = (dHighPct <= InpMaxRetestDist) && (tim >= 1.0);
+      bool isSellSig = (dLowPct <= InpMaxRetestDist) && (tim <= -1.0);
 
       string statusStr = "Neutre";
       color clrStatus  = clrSilver;
-      double wickVal   = 0.0;
 
-      if(isRetHigh && uwPct >= InpMinWickPct)
+      if(isBuySig)
       {
-         statusStr = "[RETEST SELL - HAUT]";
-         clrStatus = clrRed;
-         wickVal   = uwPct;
-      }
-      else if(isRetLow && lwPct >= InpMinWickPct)
-      {
-         statusStr = "[RETEST BUY - BAS]";
+         statusStr = "[CASSURE SOMMET - ACHAT]";
          clrStatus = clrLime;
-         wickVal   = lwPct;
       }
-      else if(isRetHigh)
+      else if(isSellSig)
       {
-         statusStr = "[SOMMET - Attente]";
-         clrStatus = clrOrange;
-         wickVal   = uwPct;
-      }
-      else if(isRetLow)
-      {
-         statusStr = "[CREUX - Attente]";
-         clrStatus = clrYellow;
-         wickVal   = lwPct;
+         statusStr = "[CASSURE CREUX - VENTE]";
+         clrStatus = clrRed;
       }
 
-      string rowText = StringFormat("%-8s   %-22s   %+5.2f    %4.1f%%", sym, statusStr, tim, (wickVal > 0 ? wickVal : MathMax(uwPct, lwPct)));
+      string rowText = StringFormat("%-8s   %-22s   %+5.2f", sym, statusStr, tim);
       CreateLabel("BK_HUD_ROW_" + IntegerToString(i), rowText, x, y, clrStatus, 9);
       y += 15;
    }

@@ -113,11 +113,11 @@ def run_forex_scan():
                 is_retest_high = (abs(cur_price - recent_high) / cur_price <= 0.015) and (timing >= 1.0)
                 is_retest_low  = (abs(cur_price - recent_low) / cur_price <= 0.015) and (timing <= -1.0)
 
-                # RÈGLE 100% EXCLUSIVE PULLBACK RE-TEST + MÈCHE DE REJET :
-                # BUY  : Retest Plus Bas (Double Bottom) ET Mèche Basse >= 15%
-                is_buy  = is_retest_low and (l_wick >= 0.15)
-                # SELL : Retest Plus Haut (Double Top) ET Mèche Haute >= 15%
-                is_sell = is_retest_high and (u_wick >= 0.15)
+                # RÈGLE 100% BREAKOUT / CASSURE BELKHAYATE (SENS INVERSE / CONTRE-TENDANCE) :
+                # BUY  : Cassure Sommet (High) ET Timing >= +1.0
+                # SELL : Cassure Creux (Low) ET Timing <= -1.0
+                is_buy  = is_retest_high
+                is_sell = is_retest_low
 
                 if not (is_buy or is_sell):
                     continue
