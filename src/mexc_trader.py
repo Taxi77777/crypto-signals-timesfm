@@ -656,21 +656,25 @@ def place_order(
         logger.error(f"Solde insuffisant ({balance:.2f} USDT)")
         return None
 
-    # Prix temps réel MEXC (le prix yfinance peut avoir 15 min de retard)
-    live_price = get_current_price(symbol_mexc)
-    if live_price > 0:
-        logger.info(f"Prix live MEXC {symbol_mexc}: {live_price} (yfinance: {price})")
-        price = live_price
+    # Mode Ordre Limite vs Ordre Marché :
+    # Si un prix de manipulation spécifique est fourni (différent de 0), on conserve le prix de manipulation exact
+    # et on passe un Ordre LIMIT (type=1) au lieu de forcer le prix du marché remonté (type=5).
+    is_limit_order = order_type == "LIMIT" or (price is not None and price > 0 and order_type != "MARKET")
+    
+    if not is_limit_order:
+        live_price = get_current_price(symbol_mexc)
+        if live_price > 0:
+            logger.info(f"Prix live MEXC {symbol_mexc}: {live_price} (yfinance: {price})")
+            price = live_price
+        else:
+            logger.warning(f"Prix live indisponible — utilisation du prix yfinance: {price}")
     else:
-        logger.warning(f"Prix live indisponible — utilisation du prix yfinance: {price}")
+        logger.info(f"🎯 ORDRE LIMIT MANIPULATION sur {symbol_mexc} au prix exact de mèche : {price}")
 
     pct = margin_pct if margin_pct is not None else MARGIN_PCT
     contract_size, price_unit, price_scale = get_contract_info(symbol_mexc)
     vol = calculate_contracts(balance * pct, price, contract_size)
 
-    # calculate_contracts renvoie 0 si la marge ne finance même pas 1 contrat.
-    # On abandonne proprement au lieu d'envoyer un ordre vol=0 (rejeté par MEXC)
-    # ou sur-dimensionné (ancien comportement max(1, ...)).
     if vol <= 0:
         msg = (f"Marge insuffisante pour {symbol_mexc} : "
                f"{balance * pct:.2f} USD × x{LEVERAGE} ne finance pas 1 contrat")
@@ -681,15 +685,18 @@ def place_order(
 
     tp_rounded = round(round(tp_price / price_unit) * price_unit, price_scale)
     sl_rounded = round(round(sl_price / price_unit) * price_unit, price_scale)
+    price_rounded = round(round(price / price_unit) * price_unit, price_scale)
 
-    # Ordre Market avec TP/SL atomiques (supportés par /order/create)
+    # type=1 : Limit Order | type=5 : Market Order
+    mexc_order_type = 1 if is_limit_order else 5
+
     order = {
         "symbol":          symbol_mexc,
-        "price":           price,
+        "price":           price_rounded,
         "vol":             vol,
         "leverage":        LEVERAGE,
         "side":            side,
-        "type":            5,       # Market order
+        "type":            mexc_order_type,
         "openType":        1,       # Isolated margin
         "profitTrend":     1,       # déclenchement sur dernier prix
         "lossTrend":       1,
@@ -702,7 +709,7 @@ def place_order(
     body_str = json.dumps(order)
     headers  = _get_headers(api_key, secret_key, body_str)
 
-    logger.info(f"Ordre Market MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} — {vol} contrats")
+    logger.info(f"Ordre {'LIMIT' if is_limit_order else 'MARKET'} MEXC : {symbol_mexc} {'LONG' if side==1 else 'SHORT'} x{LEVERAGE} @ {price_rounded} — {vol} contrats")
 
     try:
         r = requests.post(
