@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 100% Autonome : Dashboard Visuel & Retests  |
+//|    Robot Expert MT4 100% Autonome : Dashboard, Visuel & Trailing|
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "3.00"
+#property version   "3.10"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -35,6 +35,14 @@ input double                InpATR_TP_Mult     = 1.5;     // Multiplicateur ATR 
 input double                InpATR_SL_Mult     = 1.2;     // Multiplicateur ATR pour Stop Loss
 input int                   InpMagicNumber     = 88888;   // Magic Number du Robot
 
+//--- Inputs Trailing Stop & Break-Even
+input string                InpGroupTrailing       = "=== 🛡️ TRAILING STOP & BREAK-EVEN ===";
+input bool                  InpUseTrailingStop     = true;    // Activer le Trailing Stop Automatique
+input int                   InpTrailingStopPips    = 15;      // Distance de Trailing Stop (Pips)
+input int                   InpTrailingStepPips    = 5;       // Pas de Trailing (Pips)
+input bool                  InpUseBreakEven        = true;    // Activer le Break-Even Automatique
+input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips pour passer en Break-Even
+
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== 📊 VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard sur le Graphique
@@ -57,8 +65,8 @@ int OnInit()
    if(InpTimeframe == TF_CURRENT) g_tf = (ENUM_TIMEFRAMES)_Period;
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
-   Print("👑 Belkhayate Retest EA v3.0 initialisé !");
-   Print("🏛️ Timeframe Actif : ", EnumToString(g_tf), " | Lot : ", InpFixedLot, " | Max Trades : ", InpMaxOpenTrades);
+   Print("👑 Belkhayate Retest EA v3.10 initialisé !");
+   Print("🏛️ Timeframe Actif : ", EnumToString(g_tf), " | Lot : ", InpFixedLot, " | Trailing Stop : ", InpUseTrailingStop ? "OUI" : "NON");
 
    if(InpShowDashboard) DrawDashboardHUD();
    return(INIT_SUCCEEDED);
@@ -78,10 +86,13 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
-   // Mise à jour du Dashboard visuel à chaque Tick
+   // 1. Application continue du Trailing Stop & Break-Even à chaque tick
+   ApplyTrailingStopAndBreakEven();
+
+   // 2. Mise à jour du Dashboard visuel à chaque Tick
    if(InpShowDashboard) DrawDashboardHUD();
 
-   // Analyse et Trading à la clôture de chaque bougie
+   // 3. Analyse et Trading à la clôture de chaque bougie
    datetime currentBarTime = iTime(_Symbol, g_tf, 0);
    if(currentBarTime == g_lastBarTime) return;
    g_lastBarTime = currentBarTime;
@@ -217,6 +228,82 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
+//| Application Automatique du Trailing Stop & Break-Even            |
+//+------------------------------------------------------------------+
+void ApplyTrailingStopAndBreakEven()
+{
+   double point = MarketInfo(_Symbol, MODE_POINT);
+   double ask   = MarketInfo(_Symbol, MODE_ASK);
+   double bid   = MarketInfo(_Symbol, MODE_BID);
+
+   double trailingDist = InpTrailingStopPips * point * 10; // Conversion pips en points
+   double trailingStep = InpTrailingStepPips * point * 10;
+   double breakEvenTrig= InpBreakEvenTriggerPips * point * 10;
+
+   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) continue;
+      if(OrderSymbol() != _Symbol || OrderMagicNumber() != InpMagicNumber) continue;
+
+      // ── TRAILING STOP ET BREAK-EVEN SUR POSITION BUY ──
+      if(OrderType() == OP_BUY)
+      {
+         // 1. Break-Even
+         if(InpUseBreakEven)
+         {
+            if((bid - OrderOpenPrice()) >= breakEvenTrig && OrderStopLoss() < OrderOpenPrice())
+            {
+               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() + (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
+               Print("🛡️ BREAK-EVEN ACTIVE SUR BUY #", OrderTicket());
+            }
+         }
+
+         // 2. Trailing Stop
+         if(InpUseTrailingStop)
+         {
+            if((bid - OrderOpenPrice()) > trailingDist)
+            {
+               double newSL = NormalizeDouble(bid - trailingDist, _Digits);
+               if(newSL > OrderStopLoss() + trailingStep)
+               {
+                  OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
+                  Print("📈 TRAILING STOP SUPPORTE BUY #", OrderTicket(), " -> Nouveau SL: ", newSL);
+               }
+            }
+         }
+      }
+
+      // ── TRAILING STOP ET BREAK-EVEN SUR POSITION SELL ──
+      else if(OrderType() == OP_SELL)
+      {
+         // 1. Break-Even
+         if(InpUseBreakEven)
+         {
+            if((OrderOpenPrice() - ask) >= breakEvenTrig && (OrderStopLoss() > OrderOpenPrice() || OrderStopLoss() == 0))
+            {
+               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() - (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
+               Print("🛡️ BREAK-EVEN ACTIVE SUR SELL #", OrderTicket());
+            }
+         }
+
+         // 2. Trailing Stop
+         if(InpUseTrailingStop)
+         {
+            if((OrderOpenPrice() - ask) > trailingDist)
+            {
+               double newSL = NormalizeDouble(ask + trailingDist, _Digits);
+               if(OrderStopLoss() == 0 || newSL < OrderStopLoss() - trailingStep)
+               {
+                  OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
+                  Print("📉 TRAILING STOP SUPPORTE SELL #", OrderTicket(), " -> Nouveau SL: ", newSL);
+               }
+            }
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Dessine le Dashboard Visuel sur le Graphique                     |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
@@ -224,12 +311,11 @@ void DrawDashboardHUD()
    int x = 20;
    int y = 30;
 
-   // Fond du Tableau Dashboard
    CreateLabel("BK_HUD_BG", "--------------------------------------------------------", x, y, clrGray, 9);
    y += 15;
    CreateLabel("BK_HUD_TITLE", "👑 MOSTAFA BELKHAYATE & IA SYSTEM — RETEST HUD", x, y, clrGold, 10, true);
    y += 18;
-   CreateLabel("BK_HUD_SUB", "Unités: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Max Trades: " + IntegerToString(InpMaxOpenTrades), x, y, clrWhite, 9);
+   CreateLabel("BK_HUD_SUB", "Unités: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Trailing: " + (InpUseTrailingStop ? "15p" : "OFF"), x, y, clrWhite, 9);
    y += 18;
    CreateLabel("BK_HUD_SEP1", "--------------------------------------------------------", x, y, clrGray, 9);
    y += 15;
