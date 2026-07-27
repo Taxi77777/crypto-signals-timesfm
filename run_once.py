@@ -944,11 +944,14 @@ def main():
                 bary_val = _to_flt(bary)
                 bary_std_val = _to_flt(bary_s)
 
-                # RÈGLE 100% BREAKOUT / CASSURE BELKHAYATE (SENS INVERSE / CONTRE-TENDANCE) :
-                # Cassure Sommet + Timing >= +1.0 -> ACHAT (BUY)
-                # Cassure Creux + Timing <= -1.0 -> VENTE (SELL)
-                buy_ok  = is_retest_high
-                sell_ok = is_retest_low
+                # FILTRE IMPULSION : Corps de bougie directionnel (≥ 35% du range total)
+                body_ratio = _to_flt(abs(df_tf["close"] - df_tf["open"]) / c_range)
+                is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
+                is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
+
+                # RÈGLE 100% BREAKOUT / CASSURE IMPULSIONNELLE BELKHAYATE :
+                buy_ok  = is_retest_high and is_bullish_impulse
+                sell_ok = is_retest_low  and is_bearish_impulse
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)

@@ -113,11 +113,15 @@ def run_forex_scan():
                 is_retest_high = (abs(cur_price - recent_high) / cur_price <= 0.015) and (timing >= 1.0)
                 is_retest_low  = (abs(cur_price - recent_low) / cur_price <= 0.015) and (timing <= -1.0)
 
-                # RÈGLE 100% BREAKOUT / CASSURE BELKHAYATE (SENS INVERSE / CONTRE-TENDANCE) :
-                # BUY  : Cassure Sommet (High) ET Timing >= +1.0
-                # SELL : Cassure Creux (Low) ET Timing <= -1.0
-                is_buy  = is_retest_high
-                is_sell = is_retest_low
+                # FILTRE IMPULSION : Corps de bougie directionnel (≥ 35% du range total)
+                c_range_f = max(float(df["high"].iloc[-1] - df["low"].iloc[-1]), 0.00001)
+                body_ratio_f = abs(cur_price - float(df["open"].iloc[-1])) / c_range_f
+                is_bullish_impulse = (cur_price > float(df["open"].iloc[-1])) and (body_ratio_f >= 0.35)
+                is_bearish_impulse = (cur_price < float(df["open"].iloc[-1])) and (body_ratio_f >= 0.35)
+
+                # RÈGLE 100% BREAKOUT / CASSURE IMPULSIONNELLE BELKHAYATE :
+                is_buy  = is_retest_high and is_bullish_impulse
+                is_sell = is_retest_low  and is_bearish_impulse
 
                 if not (is_buy or is_sell):
                     continue
