@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                               ForexAI_Academic_Master_EA.mq4     |
 //|        EXPERT ADVISOR QUANTITATIF AVANCÉ - RÉGRESSION POLYNOMIALE |
-//|        Tracé Visuel des Lignes du Barycentre sur le Graphique    |
+//|        Dashboard Clean Sans Caractères Bizarres & Canaux MQL4    |
 //+------------------------------------------------------------------+
 #property copyright "Ingénierie Quantitative & Recherche Académique"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "7.00"
+#property version   "8.00"
 #property strict
 
 // --- PARAMÈTRES PERSONNALISABLES ---
@@ -37,7 +37,7 @@ datetime last_bar_time;
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 DÉMARRÉ AVEC TRACÉ VISUEL DES CANAUX !");
+   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 DÉMARRÉ AVEC SUCCÈS !");
    CreateDashboard();
    return(INIT_SUCCEEDED);
 }
@@ -50,24 +50,24 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
-//| Crée ou Met à jour le Dashboard Visuel sur le Graphique          |
+//| Crée ou Met à jour le Dashboard Visuel Clean Sans Emoticons     |
 //+------------------------------------------------------------------+
 void UpdateDashboard(double barycentre, double timing_val, int active_trades, double atr_pips, double upper_env, double lower_env)
 {
    int x = 20;
-   int y = 30;
+   int y = 25;
 
-   SetLabel("EA_Dash_BG", "--------------------------------------------------------", x, y, clrDarkSlateGray, 12);
-   SetLabel("EA_Dash_Title", "🏆 FOREXAI ACADEMIC MASTER EA (BELKHAYATE + KIMI) 🏆", x, y + 20, clrGold, 11, "Arial Bold");
-   SetLabel("EA_Dash_Status", "🟢 STATUT : SCANNER CONTINU 24/7 ACTIF EN EMBUSCADE", x, y + 45, clrLime, 9, "Arial");
+   SetLabel("EA_Dash_BG", "==========================================================", x, y, clrDarkSlateGray, 10, "Courier New");
+   SetLabel("EA_Dash_Title", "--- FOREXAI ACADEMIC MASTER EA (BELKHAYATE + KIMI) ---", x, y + 20, clrGold, 10, "Courier New Bold");
+   SetLabel("EA_Dash_Status", "[+] STATUT: SCANNER CONTINU 24/7 ACTIF EN EMBUSCADE", x, y + 40, clrLime, 9, "Courier New Bold");
    
-   SetLabel("EA_Dash_Account", "💰 SOLDE: $" + DoubleToStr(AccountBalance(), 2) + "  |  EQUITY: $" + DoubleToStr(AccountEquity(), 2), x, y + 70, clrWhite, 9);
-   SetLabel("EA_Dash_Config", "⚙️ LOT CONFIGURÉ: " + DoubleToStr(Lots, 2) + "  |  TRADES MAX: " + IntegerToString(Max_Simultaneous_Trades), x, y + 90, clrCyan, 9);
-   SetLabel("EA_Dash_Active", "📊 TRADES ACTIFS ACTUELS: " + IntegerToString(active_trades) + " / " + IntegerToString(Max_Simultaneous_Trades), x, y + 110, (active_trades > 0 ? clrOrange : clrWhite), 9);
+   SetLabel("EA_Dash_Account", "[*] SOLDE: $" + DoubleToStr(AccountBalance(), 2) + "  |  EQUITY: $" + DoubleToStr(AccountEquity(), 2), x, y + 60, clrWhite, 9, "Courier New");
+   SetLabel("EA_Dash_Config", "[>] LOT CONFIGURAION: " + DoubleToStr(Lots, 2) + "  |  TRADES MAX: " + IntegerToString(Max_Simultaneous_Trades), x, y + 80, clrCyan, 9, "Courier New");
+   SetLabel("EA_Dash_Active", "[#] TRADES ACTIFS ACTUELS: " + IntegerToString(active_trades) + " / " + IntegerToString(Max_Simultaneous_Trades), x, y + 100, (active_trades > 0 ? clrOrange : clrWhite), 9, "Courier New");
    
-   SetLabel("EA_Dash_Bary", "📍 BARYCENTRE DEG 3: " + DoubleToStr(barycentre, Digits) + "  |  TIMING: " + DoubleToStr(timing_val, 2), x, y + 135, clrYellow, 9);
-   SetLabel("EA_Dash_ATR", "⚡ VOLATILITÉ ATR: " + DoubleToStr(atr_pips, 1) + " Pips  |  BREAKEVEN AUTO: 0.00$ RISQUE", x, y + 155, clrSpringGreen, 9);
-   SetLabel("EA_Dash_Footer", "--------------------------------------------------------", x, y + 175, clrDarkSlateGray, 12);
+   SetLabel("EA_Dash_Bary", "[~] BARYCENTRE DEG 3: " + DoubleToStr(barycentre, Digits) + "  |  TIMING: " + DoubleToStr(timing_val, 2), x, y + 120, clrYellow, 9, "Courier New");
+   SetLabel("EA_Dash_ATR", "[!] VOLATILITE ATR: " + DoubleToStr(atr_pips, 1) + " Pips  |  BREAKEVEN AUTO: $0.00 RISQUE", x, y + 140, clrSpringGreen, 9, "Courier New");
+   SetLabel("EA_Dash_Footer", "==========================================================", x, y + 160, clrDarkSlateGray, 10, "Courier New");
 
    // --- TRACÉ VISUEL DES LIGNES DU CANAL SUR LE GRAPHIQUE ---
    DrawLineOnChart("EA_Line_Upper", upper_env, clrRed, 2, STYLE_SOLID);
@@ -87,7 +87,7 @@ void DrawLineOnChart(string name, double price, color col, int width=1, int styl
    ObjectSetInteger(0, name, OBJPROP_STYLE, style);
 }
 
-void SetLabel(string name, string text, int x, int y, color col, int font_size=9, string font_name="Arial")
+void SetLabel(string name, string text, int x, int y, color col, int font_size=9, string font_name="Courier New")
 {
    if(ObjectFind(0, name) < 0)
    {
