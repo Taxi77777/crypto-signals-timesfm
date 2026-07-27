@@ -160,7 +160,7 @@ def run_forex_scan():
                     icon = "🟢" if direction == "BUY" else "🔴"
                     time_str = time.strftime("%d/%m/%Y %H:%M")
                     send_message(
-                        f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM [FOREX]* 👑\n"
+                        f"👑 *MOSTAFA BELKHAYATE CONTRE-TENDANCE [FOREX]* 👑\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📊 Signal      : {icon} *{direction}*\n"
                         f"🏛️ Paire       : *{clean_pair}* [{tf}]\n"
@@ -168,10 +168,10 @@ def run_forex_scan():
                         f"🎯 Take Profit : `{tp_price:.5f}`\n"
                         f"🛑 Stop Loss   : `{sl_price:.5f}`\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE (RETEST)* :\n"
-                        f"📍 Retest Zone     : *{'Double Bottom (Bas)' if direction == 'BUY' else 'Double Top (Haut)'}*\n"
+                        f"🏛️ *STRATÉGIE BELKHAYATE CONTRE-TENDANCE :*\n"
+                        f"📍 Cassure Impulsion : *{'Cassure Sommet (BUY)' if direction == 'BUY' else 'Cassure Creux (SELL)'}*\n"
                         f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
-                        f"🕯️ Mèche de Rejet    : *Physique {wick_val:.1f}% (≥ 15%)*\n"
+                        f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
                         f"🕐 {time_str} (Heure de Paris)\n"

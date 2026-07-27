@@ -998,7 +998,7 @@ def main():
             # Toujours envoyer le signal sur Telegram
             time_str = datetime.now(PARIS_TZ).strftime("%d/%m/%Y %H:%M")
             send_message(
-                f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM* 👑\n"
+                f"👑 *MOSTAFA BELKHAYATE CONTRE-TENDANCE (50X)* 👑\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"📊 Signal      : {icon} *{target_signal}*\n"
                 f"🪙 Paire       : *{name}* [MEXC FUTURES x50]\n"
@@ -1006,11 +1006,11 @@ def main():
                 f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x50)\n"
                 f"🛑 Stop Loss   : `{sl_txt}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE :*\n"
-                f"📍 Zone Barycentre  : *{'Zone Verte (Achat)' if target_signal == 'BUY' else 'Zone Rouge (Vente)'}*\n"
+                f"🏛️ *STRATÉGIE BELKHAYATE CONTRE-TENDANCE :*\n"
+                f"📍 Cassure Impulsion : *{'Cassure Sommet (BUY / LONG)' if target_signal == 'BUY' else 'Cassure Creux (SELL / SHORT)'}*\n"
                 f"⏱️ Timing Oscillator : `{bary_timing:+.2f}` (Extrême Validé)\n"
-                f"🕯️ Mèche de Rejet    : *Physique ≥ 15% Confirmée*\n"
-                f"📈 Croisement MA     : *MA 30/60 Valide (0-1 bougie)*\n"
+                f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
+                f"⚡ Levier Utilisé    : *50X (Impulsion Institutionnelle)*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"
                 f"🕐 {time_str} (Heure de Paris)\n"
