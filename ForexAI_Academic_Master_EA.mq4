@@ -1,14 +1,14 @@
 //+------------------------------------------------------------------+
 //|                               ForexAI_Academic_Master_EA.mq4     |
 //|        EXPERT ADVISOR QUANTITATIF AVANCÉ - RÉGRESSION POLYNOMIALE |
-//|        Scanne Toutes les Devises 24h/24 & Traide sans Arrêt      |
+//|        Dashboard Visuel Sur Graphique (OnChart Panel 24/7)       |
 //+------------------------------------------------------------------+
 #property copyright "Ingénierie Quantitative & Recherche Académique"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "5.00"
+#property version   "6.00"
 #property strict
 
-// --- PARAMÈTRES PERSONNALISABLES DE GESTION DU RISQUE ---
+// --- PARAMÈTRES PERSONNALISABLES ---
 extern string   Section_Lots       = "=== CONFIGURATION DES LOTS & TRADES MAX ===";
 extern double   Lots               = 0.10;   // Taille de lot fixe choisie par l'utilisateur (ex: 0.01, 0.10, 1.0)
 extern bool     Use_Auto_Risk      = false;  // Activer si vous voulez calculer le lot en % du solde
@@ -37,28 +37,69 @@ datetime last_bar_time;
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 (LOTS: ", Lots, " | TRADES MAX: ", Max_Simultaneous_Trades, ") INITIALISÉ !");
+   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 DÉMARRÉ AVEC DASHBOARD VISUEL !");
+   CreateDashboard();
    return(INIT_SUCCEEDED);
 }
 
 void OnDeinit(const int reason)
 {
+   ObjectsDeleteAll(0, "EA_Dash_");
    Print("🛑 EA Academic arrêté.");
 }
 
 //+------------------------------------------------------------------+
-//| Calcul de la Régression Polynomiale de Degré 3 (Barycentre Pur)|
+//| Crée ou Met à jour le Dashboard Visuel sur le Graphique          |
+//+------------------------------------------------------------------+
+void UpdateDashboard(double barycentre, double timing_val, int active_trades, double atr_pips)
+{
+   int x = 20;
+   int y = 30;
+
+   SetLabel("EA_Dash_BG", "--------------------------------------------------------", x, y, clrDarkSlateGray, 12);
+   SetLabel("EA_Dash_Title", "🏆 FOREXAI ACADEMIC MASTER EA (BELKHAYATE + KIMI) 🏆", x, y + 20, clrGold, 11, "Arial Bold");
+   SetLabel("EA_Dash_Status", "🟢 STATUT : SCANNER CONTINU 24/7 ACTIF EN EMBUSCADE", x, y + 45, clrLime, 9, "Arial");
+   
+   SetLabel("EA_Dash_Account", "💰 SOLDE: $" + DoubleToStr(AccountBalance(), 2) + "  |  EQUITY: $" + DoubleToStr(AccountEquity(), 2), x, y + 70, clrWhite, 9);
+   SetLabel("EA_Dash_Config", "⚙️ LOT CONFIGURÉ: " + DoubleToStr(Lots, 2) + "  |  TRADES MAX: " + IntegerToString(Max_Simultaneous_Trades), x, y + 90, clrCyan, 9);
+   SetLabel("EA_Dash_Active", "📊 TRADES ACTIFS ACTUELS: " + IntegerToString(active_trades) + " / " + IntegerToString(Max_Simultaneous_Trades), x, y + 110, (active_trades > 0 ? clrOrange : clrWhite), 9);
+   
+   SetLabel("EA_Dash_Bary", "📍 BARYCENTRE DEG 3: " + DoubleToStr(barycentre, Digits) + "  |  TIMING: " + DoubleToStr(timing_val, 2), x, y + 135, clrYellow, 9);
+   SetLabel("EA_Dash_ATR", "⚡ VOLATILITÉ ATR: " + DoubleToStr(atr_pips, 1) + " Pips  |  BREAKEVEN AUTO: 0.00$ RISQUE", x, y + 155, clrSpringGreen, 9);
+   SetLabel("EA_Dash_Footer", "--------------------------------------------------------", x, y + 175, clrDarkSlateGray, 12);
+}
+
+void SetLabel(string name, string text, int x, int y, color col, int font_size=9, string font_name="Arial")
+{
+   if(ObjectFind(0, name) < 0)
+   {
+      ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
+      ObjectSetInteger(0, name, OBJPROP_CORNER, CORNER_LEFT_UPPER);
+      ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
+      ObjectSetInteger(0, name, OBJPROP_YDISTANCE, y);
+   }
+   ObjectSetString(0, name, OBJPROP_TEXT, text);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, col);
+   ObjectSetInteger(0, name, OBJPROP_FONTSIZE, font_size);
+   ObjectSetString(0, name, OBJPROP_FONT, font_name);
+}
+
+void CreateDashboard()
+{
+   double dummy_std = 0;
+   double bary = CalculatePolynomialBarycenter(Poly_Period, 1, dummy_std);
+   UpdateDashboard(bary, 0.0, 0, 0.0);
+}
+
+//+------------------------------------------------------------------+
+//| Calcul de la Régression Polynomiale de Degré 3                  |
 //+------------------------------------------------------------------+
 double CalculatePolynomialBarycenter(int period, int shift, double &out_std_dev)
 {
-   double sum_x = 0, sum_x2 = 0, sum_x3 = 0;
    double sum_y = 0;
-
    for(int i = 0; i < period; i++)
    {
-      sum_x  += i;
-      sum_x2 += i * i;
-      sum_y  += Close[i + shift];
+      sum_y += Close[i + shift];
    }
 
    double poly_center = sum_y / period;
@@ -107,14 +148,7 @@ void OnTick()
    // 1. GESTION DU BREAKEVEN DYNAMIQUE PAR VOLATILITÉ ATR SUR CHAQUE TICK
    ApplyATRBreakeven();
 
-   // 2. Filtre de Spread
-   double spread = (Ask - Bid) / Point / 10.0;
-   if(spread > Max_Spread_Pips) return;
-
-   // 3. Exécution 1 fois par bougie clôturée
-   if(Time[0] == last_bar_time) return;
-
-   // 4. COMPTE DES TRADES TOTAL OUVERTS SUR LE COMPTE
+   // 2. Compter les positions actives
    int total_pos = 0;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
@@ -125,17 +159,25 @@ void OnTick()
       }
    }
 
-   // Limite stricte définie par l'utilisateur (Max_Simultaneous_Trades)
-   if(total_pos >= Max_Simultaneous_Trades) return;
-
-   // 5. CALCUL DES INDICATEURS EN TEMPS RÉEL (SCAN CONTINU 24/7)
+   // 3. CALCUL ET MISE À JOUR DU DASHBOARD VISUEL ONCHART EN TEMPS RÉEL
    double std_dev = 0;
    double barycentre = CalculatePolynomialBarycenter(Poly_Period, 1, std_dev);
    double upper_envelope = barycentre + (Dev_Multiplier * std_dev);
    double lower_envelope = barycentre - (Dev_Multiplier * std_dev);
-
+   double timing_val = (Close[1] - barycentre) / (std_dev > 0 ? std_dev : 1.0);
    double atr = iATR(Symbol(), 0, ATR_Period, 1);
-   if(atr <= 0) return;
+   double atr_pips = (atr / Point / 10.0);
+
+   UpdateDashboard(barycentre, timing_val, total_pos, atr_pips);
+
+   // 4. Filtre de Spread
+   double spread = (Ask - Bid) / Point / 10.0;
+   if(spread > Max_Spread_Pips) return;
+
+   // 5. Exécution 1 fois par bougie clôturée
+   if(Time[0] == last_bar_time) return;
+
+   if(total_pos >= Max_Simultaneous_Trades) return;
 
    double cur_close = Close[1];
    double cur_low   = Low[1];
