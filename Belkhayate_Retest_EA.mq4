@@ -236,11 +236,11 @@ void UpdateChartVisuals()
    bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE 100% MOSTAFA BELKHAYATE CONTRE-TENDANCE / ANTI-MANIPULATION :
-   // 🟢 ACHAT (BUY) : Toucher/Retest Ligne Creux (Ligne Basse / Support) -> ACHAT (BUY)
-   // 🔴 VENTE (SELL) : Toucher/Retest Ligne Sommet (Ligne Haute / Résistance) -> VENTE (SELL)
-   bool isBuySignal  = touchesLow  && (lWickPct >= 20.0 || isBullishImpulse || curPrice > openP);
-   bool isSellSignal = touchesHigh && (uWickPct >= 20.0 || isBearishImpulse || curPrice < openP);
+   // STRATÉGIE 100% MOSTAFA BELKHAYATE DUAL-DIRECTION (VICE VERSA) :
+   // 🟢 ACHAT (BUY) : Rejet Mèche Basse (>=20%) sur Creux/Transverse OU Impulsion Verte (>=35%) sur n'importe quelle ligne
+   // 🔴 VENTE (SELL) : Rejet Mèche Haute (>=20%) sur Sommet/Transverse OU Impulsion Rouge (>=35%) sur n'importe quelle ligne
+   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
+   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -332,11 +332,11 @@ void ExecuteTradeForSymbol(string sym)
    bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE 100% MOSTAFA BELKHAYATE CONTRE-TENDANCE / ANTI-MANIPULATION :
-   // 🟢 ACHAT (BUY) : Toucher/Retest Ligne Creux (Ligne Basse / Support) -> ACHAT (BUY)
-   // 🔴 VENTE (SELL) : Toucher/Retest Ligne Sommet (Ligne Haute / Résistance) -> VENTE (SELL)
-   bool isBuySignal  = touchesLow  && (lWickPct >= 20.0 || isBullishImpulse || curPrice > openP);
-   bool isSellSignal = touchesHigh && (uWickPct >= 20.0 || isBearishImpulse || curPrice < openP);
+   // STRATÉGIE 100% MOSTAFA BELKHAYATE DUAL-DIRECTION (VICE VERSA) :
+   // 🟢 ACHAT (BUY) : Rejet Mèche Basse (>=20%) sur Creux/Transverse OU Impulsion Verte (>=35%) sur n'importe quelle ligne
+   // 🔴 VENTE (SELL) : Rejet Mèche Haute (>=20%) sur Sommet/Transverse OU Impulsion Rouge (>=35%) sur n'importe quelle ligne
+   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
+   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
 
    if(!isBuySignal && !isSellSignal) return;
 
