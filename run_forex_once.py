@@ -156,30 +156,9 @@ def run_forex_scan():
                 seen_pairs.add(clean_pair)
                 logger.info(f"SIGNAL FOREX BELKHAYATE PURE [{tf}] — {clean_pair} {direction} | Prix: {cur_price:.5f} | Timing: {timing:.2f} | Mèche Rejet: {wick_val:.1f}% | TP: {tp_price:.5f}")
 
-                # Envoi direct sur Telegram
-                try:
-                    from src.telegram_bot import send_message
-                    icon = "🟢" if direction == "BUY" else "🔴"
-                    time_str = time.strftime("%d/%m/%Y %H:%M")
-                    send_message(
-                        f"👑 *MOSTAFA BELKHAYATE CONTRE-TENDANCE [FOREX]* 👑\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📊 Signal      : {icon} *{direction}*\n"
-                        f"🏛️ Paire       : *{clean_pair}* [{tf}]\n"
-                        f"💰 Prix d'Entrée : `{cur_price:.5f}`\n"
-                        f"🎯 Take Profit : `{tp_price:.5f}`\n"
-                        f"🛑 Stop Loss   : `{sl_price:.5f}`\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"🏛️ *STRATÉGIE BELKHAYATE CONTRE-TENDANCE :*\n"
-                        f"📍 Cassure Impulsion : *{'Cassure Sommet (BUY)' if direction == 'BUY' else 'Cassure Creux (SELL)'}*\n"
-                        f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
-                        f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
-                        f"🕐 {time_str} (Heure de Paris)\n"
-                    )
-                except Exception as _telegram_err:
-                    logger.error(f"Erreur envoi Telegram Forex pour {clean_pair}: {_telegram_err}")
+                # Notifications Telegram désactivées pour le Forex à la demande de l'utilisateur
+                # (Les notifications Telegram restent 100% ACTIVES pour la Crypto)
+                logger.info(f"Signal Forex {clean_pair} enregistré localement (Telegram Forex désactivé).")
 
             except Exception as e:
                 logger.error(f"Erreur traitement [{tf}] {symbol}: {e}")
