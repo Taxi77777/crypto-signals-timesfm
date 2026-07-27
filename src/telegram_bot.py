@@ -61,10 +61,10 @@ async def _send_async(text: str, chat_id: str = None) -> bool:
             text=text,
             parse_mode=ParseMode.MARKDOWN,
         )
-        logger.info("✅ Message Telegram envoyé")
+        logger.info("Message Telegram envoye avec succes")
         return True
     except Exception as e:
-        logger.error(f"❌ Erreur Telegram: {e}")
+        logger.error(f"Erreur Telegram: {e}")
         return False
 
 

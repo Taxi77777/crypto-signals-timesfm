@@ -189,11 +189,11 @@ def run_forex_scan():
                             f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
                             f"🕐 {time_str} (Heure de Paris)\n"
                         )
-                        logger.info(f"📲 Notification Telegram envoyée pour {clean_pair} {direction} [{tf}]")
+                        logger.info(f"Notification Telegram envoyee pour {clean_pair} {direction} [{tf}]")
                     except Exception as _telegram_err:
                         logger.error(f"Erreur envoi Telegram Forex pour {clean_pair}: {_telegram_err}")
                 else:
-                    logger.info(f"ℹ️ Signal Telegram pour {clean_pair} {direction} [{tf}] déjà envoyé récemment (Anti-Spam activé).")
+                    logger.info(f"Signal Telegram pour {clean_pair} {direction} [{tf}] deja envoye recemment (Anti-Spam active).")
 
             except Exception as e:
                 logger.error(f"Erreur traitement [{tf}] {symbol}: {e}")
