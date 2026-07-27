@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v9.00 : 100% NON-REPAINTING ZÉRO REPAINT      |
+//|    Robot Expert MT4 v9.10 : Scan Multi-Paires 28 Symboles MT4   |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "9.00"
+#property version   "9.10"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -19,12 +19,16 @@ enum ENUM_CUSTOM_TIMEFRAME
 };
 
 //--- Inputs Paramètres Stratégie Belkhayate Cassure Impulsionnelle
-input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (NON-REPAINT) ===";
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (MULTI-PAIRES) ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
 input double                InpMaxRetestDist   = 1.5;     // Écartement max de Cassure (%)
 input int                   InpRetestLookback  = 24;      // Bougies pour détecter le Sommet/Creux
 input double                InpMinImpulseBody  = 35.0;    // Corps d'impulsion minimal (% du range)
+
+//--- Inputs Configuration Multi-Paires
+input string                InpGroupMulti      = "=== MULTI-PAIRES BACKGROUND SCANNER ===";
+input bool                  InpScanAllWatchlist= true;    // Scanner et trader les 28 paires Forex automatiquement
 
 //--- Inputs Configuration Risque & Exécution
 input string                InpGroupRisk       = "=== GESTION CAPITAL, LOT & TRADES ===";
@@ -46,15 +50,20 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard Original
-input bool                  InpDrawArrows      = true;    // Dessiner les flèches NON-REPAINTING sur bougies clôturées
+input bool                  InpDrawArrows      = true;    // Dessiner les flèches NON-REPAINTING
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
 datetime g_lastBarTime = 0;
 ENUM_TIMEFRAMES g_tf;
 
-// Liste des 12 paires principales surveillées pour le Dashboard
-string g_watchlist[12] = {"EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURAUD", "GBPCAD"};
+// Liste complète des 28 paires Forex principales scannées automatiquement
+string g_watchlist[28] = {
+   "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD",
+   "EURGBP", "EURJPY", "GBPJPY", "EURAUD", "GBPCAD", "EURCAD", "EURCHF",
+   "GBPAUD", "GBPCHF", "GBPNZD", "AUDCAD", "AUDCHF", "CADCHF", "NZDCHF",
+   "CADJPY", "CHFJPY", "NZDCAD", "NZDJPY", "EURNZD", "AUDNZD", "USDCAD"
+};
 
 //+------------------------------------------------------------------+
 //| Expert Initialization                                            |
@@ -66,7 +75,13 @@ int OnInit()
 
    g_lastBarTime = 0;
 
-   Print("👑 Belkhayate Breakout EA v9.00 (100% NON-REPAINTING) initialisé !");
+   // Pré-chargement des paires dans le Market Watch MT4
+   for(int i = 0; i < 28; i++)
+   {
+      SymbolSelect(g_watchlist[i], true);
+   }
+
+   Print("👑 Belkhayate Breakout EA v9.10 (Multi-Paires 28 Symboles) initialisé !");
 
    UpdateChartVisuals();
 
@@ -79,7 +94,6 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-   // Conserver les flèches de signaux historiques lors de l'arrêt
    Comment("");
 }
 
@@ -106,15 +120,25 @@ void OnTick()
    if(currentBarTime == g_lastBarTime) return;
    g_lastBarTime = currentBarTime;
 
-   ExecuteTradeIfSignal();
+   // Scanner toutes les 28 paires Forex pour déclencher un trade si signal
+   if(InpScanAllWatchlist)
+   {
+      for(int i = 0; i < 28; i++)
+      {
+         ExecuteTradeForSymbol(g_watchlist[i]);
+      }
+   }
+   else
+   {
+      ExecuteTradeForSymbol(_Symbol);
+   }
 }
 
 //+------------------------------------------------------------------+
-//| Update visuel : 2 Lignes Horizontales + Flèches NON-REPAINTING   |
+//| Update visuel sur le symbole actif                               |
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
-   // ── 1. TRACÉ DES 2 LIGNES HORIZONTALES (Sommet Rouge / Creux Vert) ──
    int hIdxCurrent = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, 1);
    int lIdxCurrent = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, 1);
    double recentHighCurrent = iHigh(_Symbol, g_tf, hIdxCurrent);
@@ -137,7 +161,6 @@ void UpdateChartVisuals()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── 2. DESSIN STABILISÉ 100% NON-REPAINTING DE LA FLÈCHE (BOUGIE CLÔTURÉE 1) ──
    if(!InpDrawArrows) return;
 
    datetime bTime = iTime(_Symbol, g_tf, 1);
@@ -145,7 +168,6 @@ void UpdateChartVisuals()
    string arrowName = "BK_Arrow_Sig_" + timeID;
    string textName  = "BK_Text_Sig_"  + timeID;
 
-   // Si la flèche a DÉJÀ été créée et confirmée sur cette bougie, NE JAMAIS LA TOUCHER NI L'EFFACER !
    if(ObjectFind(0, arrowName) >= 0) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
@@ -158,7 +180,6 @@ void UpdateChartVisuals()
    bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
    bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
-   // Barycentre sur Shift 1 (Bougie Clôturée)
    double sum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
    double barycenter = sum / InpBaryPeriod;
@@ -176,7 +197,6 @@ void UpdateChartVisuals()
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
-   // STRATÉGIE CASSURE IMPULSIONNELLE SUR BOUGIE FERMÉE :
    bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
    bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
 
@@ -186,7 +206,7 @@ void UpdateChartVisuals()
    if(isBuySignal)
    {
       ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, lowP - arrowOffset);
-      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
+      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233);
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
@@ -199,7 +219,7 @@ void UpdateChartVisuals()
    else if(isSellSignal)
    {
       ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, highP + arrowOffset);
-      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
+      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234);
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
@@ -212,24 +232,26 @@ void UpdateChartVisuals()
 }
 
 //+------------------------------------------------------------------+
-//| Exécution de Trade                                               |
+//| Exécution de Trade Universelle pour n'importe quel Symbole MT4   |
 //+------------------------------------------------------------------+
-void ExecuteTradeIfSignal()
+void ExecuteTradeForSymbol(string sym)
 {
+   if(MarketInfo(sym, MODE_BID) == 0) return;
+
    int openTrades = 0;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
       if(OrderSelect(i, SELECT_BY_POS, MODE_TRADES))
       {
-         if(OrderSymbol() == _Symbol && OrderMagicNumber() == InpMagicNumber) openTrades++;
+         if(OrderMagicNumber() == InpMagicNumber) openTrades++;
       }
    }
    if(openTrades >= InpMaxOpenTrades) return;
 
-   double curPrice = iClose(_Symbol, g_tf, 1);
-   double openP    = iOpen(_Symbol, g_tf, 1);
-   double highP    = iHigh(_Symbol, g_tf, 1);
-   double lowP     = iLow(_Symbol, g_tf, 1);
+   double curPrice = iClose(sym, g_tf, 1);
+   double openP    = iOpen(sym, g_tf, 1);
+   double highP    = iHigh(sym, g_tf, 1);
+   double lowP     = iLow(sym, g_tf, 1);
    double cRange   = MathMax(highP - lowP, 0.00001);
 
    double bodyRatio = (MathAbs(curPrice - openP) / cRange) * 100.0;
@@ -237,61 +259,62 @@ void ExecuteTradeIfSignal()
    bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
    double sum = 0;
-   for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
+   for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(sym, g_tf, k);
    double barycenter = sum / InpBaryPeriod;
 
    double sqSum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++)
    {
-      double diff = iClose(_Symbol, g_tf, k) - barycenter;
+      double diff = iClose(sym, g_tf, k) - barycenter;
       sqSum += diff * diff;
    }
    double stdDev = MathSqrt(sqSum / InpBaryPeriod);
    if(stdDev == 0) stdDev = 0.00001;
    double timing = (curPrice - barycenter) / stdDev;
 
-   int highestIdx = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, 1);
-   int lowestIdx  = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, 1);
-   double recentHigh = iHigh(_Symbol, g_tf, highestIdx);
-   double recentLow  = iLow(_Symbol, g_tf, lowestIdx);
+   int highestIdx = iHighest(sym, g_tf, MODE_HIGH, InpRetestLookback, 1);
+   int lowestIdx  = iLowest(sym, g_tf, MODE_LOW, InpRetestLookback, 1);
+   double recentHigh = iHigh(sym, g_tf, highestIdx);
+   double recentLow  = iLow(sym, g_tf, lowestIdx);
 
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
 
-   // CASSURE IMPULSIONNELLE SUR BOUGIE CLÔTURÉE :
    bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
    bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
 
    if(!isBuySignal && !isSellSignal) return;
 
-   double atr = iATR(_Symbol, g_tf, 14, 1);
+   double atr = iATR(sym, g_tf, 14, 1);
    if(atr == 0) atr = curPrice * 0.002;
 
-   double askPrice = MarketInfo(_Symbol, MODE_ASK);
-   double bidPrice = MarketInfo(_Symbol, MODE_BID);
+   double askPrice = MarketInfo(sym, MODE_ASK);
+   double bidPrice = MarketInfo(sym, MODE_BID);
+   double pointVal = MarketInfo(sym, MODE_POINT);
+   int digitsVal   = (int)MarketInfo(sym, MODE_DIGITS);
 
    double lotSize = InpFixedLot;
    if(InpRiskPercent > 0)
    {
       double balance   = AccountBalance();
       double riskMoney = balance * (InpRiskPercent / 100.0);
-      double tickValue = MarketInfo(_Symbol, MODE_TICKVALUE);
-      double slPips    = (1.2 * atr) / MarketInfo(_Symbol, MODE_POINT);
+      double tickValue = MarketInfo(sym, MODE_TICKVALUE);
+      double slPips    = (1.2 * atr) / pointVal;
       if(slPips > 0 && tickValue > 0) lotSize = NormalizeDouble(riskMoney / (slPips * tickValue), 2);
    }
-   lotSize = MathMax(MarketInfo(_Symbol, MODE_MINLOT), MathMin(MarketInfo(_Symbol, MODE_MAXLOT), lotSize));
+   lotSize = MathMax(MarketInfo(sym, MODE_MINLOT), MathMin(MarketInfo(sym, MODE_MAXLOT), lotSize));
 
    if(isBuySignal)
    {
-      double tp = NormalizeDouble(askPrice + (InpATR_TP_Mult * atr), _Digits);
-      double sl = NormalizeDouble(askPrice - (InpATR_SL_Mult * atr), _Digits);
-      OrderSend(_Symbol, OP_BUY, lotSize, askPrice, 3, sl, tp, "Belkhayate Breakout BUY", InpMagicNumber, 0, clrLime);
+      double tp = NormalizeDouble(askPrice + (InpATR_TP_Mult * atr), digitsVal);
+      double sl = NormalizeDouble(askPrice - (InpATR_SL_Mult * atr), digitsVal);
+      OrderSend(sym, OP_BUY, lotSize, askPrice, 3, sl, tp, "Belkhayate Breakout BUY", InpMagicNumber, 0, clrLime);
    }
    else if(isSellSignal)
    {
-      double tp = NormalizeDouble(bidPrice - (InpATR_TP_Mult * atr), _Digits);
-      double sl = NormalizeDouble(bidPrice + (InpATR_SL_Mult * atr), _Digits);
-      OrderSend(_Symbol, OP_SELL, lotSize, bidPrice, 3, sl, tp, "Belkhayate Breakout SELL", InpMagicNumber, 0, clrRed);
+      double tp = NormalizeDouble(bidPrice - (InpATR_TP_Mult * atr), digitsVal);
+      double sl = NormalizeDouble(bidPrice + (InpATR_SL_Mult * atr), digitsVal);
+      OrderSend(sym, OP_SELL, lotSize, bidPrice, 3, sl, tp, "Belkhayate Breakout SELL", InpMagicNumber, 0, clrRed);
    }
 }
 
@@ -300,18 +323,20 @@ void ExecuteTradeIfSignal()
 //+------------------------------------------------------------------+
 void ApplyTrailingStopAndBreakEven()
 {
-   double point = MarketInfo(_Symbol, MODE_POINT);
-   double ask   = MarketInfo(_Symbol, MODE_ASK);
-   double bid   = MarketInfo(_Symbol, MODE_BID);
-
-   double trailingDist = InpTrailingStopPips * point * 10;
-   double trailingStep = InpTrailingStepPips * point * 10;
-   double breakEvenTrig= InpBreakEvenTriggerPips * point * 10;
-
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
       if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) continue;
-      if(OrderSymbol() != _Symbol || OrderMagicNumber() != InpMagicNumber) continue;
+      if(OrderMagicNumber() != InpMagicNumber) continue;
+
+      string sym = OrderSymbol();
+      double point = MarketInfo(sym, MODE_POINT);
+      double ask   = MarketInfo(sym, MODE_ASK);
+      double bid   = MarketInfo(sym, MODE_BID);
+      int digits   = (int)MarketInfo(sym, MODE_DIGITS);
+
+      double trailingDist = InpTrailingStopPips * point * 10;
+      double trailingStep = InpTrailingStepPips * point * 10;
+      double breakEvenTrig= InpBreakEvenTriggerPips * point * 10;
 
       if(OrderType() == OP_BUY)
       {
@@ -319,7 +344,7 @@ void ApplyTrailingStopAndBreakEven()
          {
             if((bid - OrderOpenPrice()) >= breakEvenTrig && OrderStopLoss() < OrderOpenPrice())
             {
-               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() + (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
+               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() + (10 * point), digits), OrderTakeProfit(), 0, clrBlue);
             }
          }
 
@@ -327,7 +352,7 @@ void ApplyTrailingStopAndBreakEven()
          {
             if((bid - OrderOpenPrice()) > trailingDist)
             {
-               double newSL = NormalizeDouble(bid - trailingDist, _Digits);
+               double newSL = NormalizeDouble(bid - trailingDist, digits);
                if(newSL > OrderStopLoss() + trailingStep)
                {
                   OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
@@ -341,7 +366,7 @@ void ApplyTrailingStopAndBreakEven()
          {
             if((OrderOpenPrice() - ask) >= breakEvenTrig && (OrderStopLoss() > OrderOpenPrice() || OrderStopLoss() == 0))
             {
-               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() - (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
+               OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() - (10 * point), digits), OrderTakeProfit(), 0, clrBlue);
             }
          }
 
@@ -349,7 +374,7 @@ void ApplyTrailingStopAndBreakEven()
          {
             if((OrderOpenPrice() - ask) > trailingDist)
             {
-               double newSL = NormalizeDouble(ask + trailingDist, _Digits);
+               double newSL = NormalizeDouble(ask + trailingDist, digits);
                if(OrderStopLoss() == 0 || newSL < OrderStopLoss() - trailingStep)
                {
                   OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
@@ -361,7 +386,7 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dashboard HUD                                                    |
+//| Dashboard HUD (28 Symboles)                                      |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
@@ -370,7 +395,7 @@ void DrawDashboardHUD()
 
    CreateLabel("BK_HUD_TITLE", "=== BELKHAYATE CASSURE & LEVIER 50X HUD ===", x, y, clrGold, 10, true);
    y += 18;
-   CreateLabel("BK_HUD_SUB", "TF: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Trailing: " + (InpUseTrailingStop ? "15p" : "OFF"), x, y, clrWhite, 9);
+   CreateLabel("BK_HUD_SUB", "TF: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Scan Multi-Paires: " + (InpScanAllWatchlist ? "28 Paires" : "1 Paire"), x, y, clrWhite, 9);
    y += 18;
    CreateLabel("BK_HUD_SEP1", "--------------------------------------------------------", x, y, clrGray, 9);
    y += 15;
