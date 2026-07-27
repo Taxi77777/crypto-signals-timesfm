@@ -43,8 +43,8 @@ def main():
         except Exception as e:
             logger.error(f"Erreur durant le scan Forex #{scan_count} : {e}")
 
-        logger.info("Pause de 15 secondes avant le prochain scan...")
-        time.sleep(15)
+        logger.info("Pause de 5 minutes (300s) avant le prochain scan...")
+        time.sleep(300)
 
 if __name__ == "__main__":
     main()
