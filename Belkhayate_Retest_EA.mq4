@@ -162,6 +162,7 @@ void OnTick()
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
+   // ── 1. TRACÉ DES 2 LIGNES BLEUES HORIZONTALES (Sommet & Creux) ──
    int hIdxCurrent = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, 1);
    int lIdxCurrent = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, 1);
    double recentHighCurrent = iHigh(_Symbol, g_tf, hIdxCurrent);
@@ -169,21 +170,38 @@ void UpdateChartVisuals()
 
    if(InpDrawRetestLines)
    {
+      // Ligne Bleue Supérieure (Sommet)
       string lineHighName = "BK_Line_High";
       if(ObjectFind(0, lineHighName) < 0) ObjectCreate(0, lineHighName, OBJ_HLINE, 0, 0, recentHighCurrent);
       else ObjectMove(0, lineHighName, 0, 0, recentHighCurrent);
-      ObjectSetInteger(0, lineHighName, OBJPROP_COLOR, clrRed);
+      ObjectSetInteger(0, lineHighName, OBJPROP_COLOR, clrDodgerBlue);
       ObjectSetInteger(0, lineHighName, OBJPROP_STYLE, STYLE_SOLID);
       ObjectSetInteger(0, lineHighName, OBJPROP_WIDTH, 2);
 
+      // Ligne Bleue Inférieure (Creux)
       string lineLowName = "BK_Line_Low";
       if(ObjectFind(0, lineLowName) < 0) ObjectCreate(0, lineLowName, OBJ_HLINE, 0, 0, recentLowCurrent);
       else ObjectMove(0, lineLowName, 0, 0, recentLowCurrent);
-      ObjectSetInteger(0, lineLowName, OBJPROP_COLOR, clrLime);
+      ObjectSetInteger(0, lineLowName, OBJPROP_COLOR, clrDodgerBlue);
       ObjectSetInteger(0, lineLowName, OBJPROP_STYLE, STYLE_SOLID);
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
+
+      // Ligne Transverse Oblique Bleue (Trendline Transverse)
+      string lineTransName = "BK_Line_Transverse";
+      datetime t1 = iTime(_Symbol, g_tf, MathMin(InpRetestLookback*2, iBars(_Symbol, g_tf)-1));
+      double   p1 = iLow(_Symbol, g_tf, iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback*2, InpRetestLookback));
+      datetime t2 = iTime(_Symbol, g_tf, lIdxCurrent);
+      double   p2 = recentLowCurrent;
+
+      if(ObjectFind(0, lineTransName) < 0) ObjectCreate(0, lineTransName, OBJ_TREND, 0, t1, p1, t2, p2);
+      else { ObjectMove(0, lineTransName, 0, t1, p1); ObjectMove(0, lineTransName, 1, t2, p2); }
+      ObjectSetInteger(0, lineTransName, OBJPROP_COLOR, clrDodgerBlue);
+      ObjectSetInteger(0, lineTransName, OBJPROP_STYLE, STYLE_SOLID);
+      ObjectSetInteger(0, lineTransName, OBJPROP_WIDTH, 3);
+      ObjectSetInteger(0, lineTransName, OBJPROP_RAY_RIGHT, true);
    }
 
+   // ── 2. DESSIN ET DÉTECTION DES DEUX SENS (BUY ET SELL SUR DÉPASSEMENT / CASSURE / REJET) ──
    if(!InpDrawArrows) return;
 
    datetime bTime = iTime(_Symbol, g_tf, 1);
@@ -203,20 +221,6 @@ void UpdateChartVisuals()
    bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
    bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
-   double sum = 0;
-   for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
-   double barycenter = sum / InpBaryPeriod;
-
-   double sqSum = 0;
-   for(int k = 1; k <= InpBaryPeriod; k++)
-   {
-      double diff = iClose(_Symbol, g_tf, k) - barycenter;
-      sqSum += diff * diff;
-   }
-   double stdDev = MathSqrt(sqSum / InpBaryPeriod);
-   if(stdDev == 0) stdDev = 0.00001;
-   double timing = (curPrice - barycenter) / stdDev;
-
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
@@ -226,11 +230,11 @@ void UpdateChartVisuals()
    bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
-   // - Toucher Ligne Rouge Sommet (high >= recentHigh) + Timing >= +1.0 -> VENTE (SELL)
-   // - Toucher Ligne Verte Creux (low <= recentLow) + Timing <= -1.0 -> ACHAT (BUY)
-   bool isSellSignal = touchesHigh && (timing >= 1.0) && (uWickPct >= 20.0 || curPrice < openP);
-   bool isBuySignal  = touchesLow  && (timing <= -1.0) && (lWickPct >= 20.0 || curPrice > openP);
+   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE :
+   // Sommet + Impulsion Verte -> ACHAT (BUY)
+   // Creux + Impulsion Rouge -> VENTE (SELL)
+   bool isBuySignal  = touchesHigh && isBullishImpulse;
+   bool isSellSignal = touchesLow  && isBearishImpulse;
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -238,12 +242,12 @@ void UpdateChartVisuals()
    if(isBuySignal)
    {
       ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, lowP - arrowOffset);
-      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233);
+      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
       ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
-      ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE SOMMET - ACHAT]");
+      ObjectSetString(0, textName, OBJPROP_TEXT, "[IMPULSION / REJET - ACHAT]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
@@ -251,12 +255,12 @@ void UpdateChartVisuals()
    else if(isSellSignal)
    {
       ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, highP + arrowOffset);
-      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234);
+      ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
       ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
-      ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE CREUX - VENTE]");
+      ObjectSetString(0, textName, OBJPROP_TEXT, "[IMPULSION / REJET - VENTE]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
@@ -318,11 +322,11 @@ void ExecuteTradeForSymbol(string sym)
    bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
-   // - Toucher Ligne Rouge Sommet (high >= recentHigh) + Timing >= +1.0 -> VENTE (SELL)
-   // - Toucher Ligne Verte Creux (low <= recentLow) + Timing <= -1.0 -> ACHAT (BUY)
-   bool isSellSignal = touchesHigh && (timing >= 1.0) && (uWickPct >= 20.0 || curPrice < openP);
-   bool isBuySignal  = touchesLow  && (timing <= -1.0) && (lWickPct >= 20.0 || curPrice > openP);
+   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE :
+   // Sommet + Impulsion Verte -> ACHAT (BUY)
+   // Creux + Impulsion Rouge -> VENTE (SELL)
+   bool isBuySignal  = touchesHigh && isBullishImpulse;
+   bool isSellSignal = touchesLow  && isBearishImpulse;
 
    if(!isBuySignal && !isSellSignal) return;
 
