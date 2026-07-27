@@ -119,9 +119,14 @@ def run_forex_scan():
                 is_bullish_impulse = (cur_price > float(df["open"].iloc[-1])) and (body_ratio_f >= 0.35)
                 is_bearish_impulse = (cur_price < float(df["open"].iloc[-1])) and (body_ratio_f >= 0.35)
 
-                # RÈGLE 100% BREAKOUT / CASSURE IMPULSIONNELLE BELKHAYATE :
-                is_buy  = is_retest_high and is_bullish_impulse
-                is_sell = is_retest_low  and is_bearish_impulse
+                # RÈGLE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
+                # - Mèche Haute touchant/dépassant la ligne Sommet (high >= recent_high) -> VENTE (SELL)
+                # - Mèche Basse touchant/dépassant la ligne Creux (low <= recent_low) -> ACHAT (BUY)
+                touches_high = (float(df["high"].iloc[-1]) >= float(recent_high)) or is_retest_high
+                touches_low  = (float(df["low"].iloc[-1])  <= float(recent_low))  or is_retest_low
+
+                is_sell = touches_high and (timing >= 1.0) and (u_wick >= 0.20 or cur_price < float(df["open"].iloc[-1]))
+                is_buy  = touches_low  and (timing <= -1.0) and (l_wick >= 0.20 or cur_price > float(df["open"].iloc[-1]))
 
                 if not (is_buy or is_sell):
                     continue

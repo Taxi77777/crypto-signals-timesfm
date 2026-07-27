@@ -220,8 +220,17 @@ void UpdateChartVisuals()
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
-   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
-   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
+   double uWickPct = ((highP - MathMax(openP, curPrice)) / cRange) * 100.0;
+   double lWickPct = ((MathMin(openP, curPrice) - lowP) / cRange) * 100.0;
+
+   bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
+   bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
+
+   // STRATÉGIE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
+   // - Toucher Ligne Rouge Sommet (high >= recentHigh) + Timing >= +1.0 -> VENTE (SELL)
+   // - Toucher Ligne Verte Creux (low <= recentLow) + Timing <= -1.0 -> ACHAT (BUY)
+   bool isSellSignal = touchesHigh && (timing >= 1.0) && (uWickPct >= 20.0 || curPrice < openP);
+   bool isBuySignal  = touchesLow  && (timing <= -1.0) && (lWickPct >= 20.0 || curPrice > openP);
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -303,12 +312,17 @@ void ExecuteTradeForSymbol(string sym)
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
 
-   // FRANCHISSEMENT OU CASSURE DE LA LIGNE SOMMET / CREUX :
-   bool isLineCrossedHigh = (curPrice >= recentHigh || distHighPct <= InpMaxRetestDist);
-   bool isLineCrossedLow  = (curPrice <= recentLow  || distLowPct  <= InpMaxRetestDist);
+   double uWickPct = ((highP - MathMax(openP, curPrice)) / cRange) * 100.0;
+   double lWickPct = ((MathMin(openP, curPrice) - lowP) / cRange) * 100.0;
 
-   bool isBuySignal  = isLineCrossedHigh && (timing >= 1.0) && isBullishImpulse;
-   bool isSellSignal = isLineCrossedLow  && (timing <= -1.0) && isBearishImpulse;
+   bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
+   bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
+
+   // STRATÉGIE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
+   // - Toucher Ligne Rouge Sommet (high >= recentHigh) + Timing >= +1.0 -> VENTE (SELL)
+   // - Toucher Ligne Verte Creux (low <= recentLow) + Timing <= -1.0 -> ACHAT (BUY)
+   bool isSellSignal = touchesHigh && (timing >= 1.0) && (uWickPct >= 20.0 || curPrice < openP);
+   bool isBuySignal  = touchesLow  && (timing <= -1.0) && (lWickPct >= 20.0 || curPrice > openP);
 
    if(!isBuySignal && !isSellSignal) return;
 

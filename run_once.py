@@ -926,6 +926,14 @@ def main():
                 bary  = df_tf["close"].rolling(window=30).mean()
                 bary_s = df_tf["close"].rolling(window=30).std()
                 
+                # RÈGLE 100% REJET PUR BELKHAYATE SUR TOUCHER/CASSURE DE LIGNE :
+                # - La mèche HAUTE doit TOUCHER ou DÉPASSER la ligne du Sommet (high >= recent_high) -> VENTE (SELL)
+                # - La mèche BASSE doit TOUCHER ou DÉPASSER la ligne du Creux (low <= recent_low) -> ACHAT (BUY)
+                recent_high = _to_flt(df_tf["high"].tail(24).max())
+                recent_low  = _to_flt(df_tf["low"].tail(24).min())
+                touches_high_line = (_to_flt(df_tf["high"]) >= recent_high) or (abs(cur_p - recent_high)/cur_p <= 0.005)
+                touches_low_line  = (_to_flt(df_tf["low"])  <= recent_low)  or (abs(cur_p - recent_low)/cur_p <= 0.005)
+                
                 t_series = (df_tf["close"] - bary) / bary_s.replace(0, 1e-6)
                 tim   = _to_flt(t_series)
                 
@@ -950,9 +958,11 @@ def main():
                 is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
                 is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
 
-                # RÈGLE 100% BREAKOUT / CASSURE IMPULSIONNELLE BELKHAYATE :
-                buy_ok  = is_retest_high and is_bullish_impulse
-                sell_ok = is_retest_low  and is_bearish_impulse
+                # RÈGLE 100% REJET PUR BELKHAYATE SUR TOUCHER DE LIGNE :
+                # - Toucher/Depasser Ligne Sommet (high >= recent_high) + Timing >= +1.0 -> VENTE (SELL)
+                # - Toucher/Depasser Ligne Creux (low <= recent_low) + Timing <= -1.0 -> ACHAT (BUY)
+                sell_ok = touches_high_line and (tim >= 1.0) and (uw >= 0.20 or _to_flt(df_tf["close"]) < _to_flt(df_tf["open"]))
+                buy_ok  = touches_low_line  and (tim <= -1.0) and (lw >= 0.20 or _to_flt(df_tf["close"]) > _to_flt(df_tf["open"]))
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
