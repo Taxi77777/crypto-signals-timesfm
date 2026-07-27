@@ -300,6 +300,9 @@ void ExecuteTradeForSymbol(string sym)
    double recentHigh = iHigh(sym, g_tf, highestIdx);
    double recentLow  = iLow(sym, g_tf, lowestIdx);
 
+   double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
+   double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
+
    // FRANCHISSEMENT OU CASSURE DE LA LIGNE SOMMET / CREUX :
    bool isLineCrossedHigh = (curPrice >= recentHigh || distHighPct <= InpMaxRetestDist);
    bool isLineCrossedLow  = (curPrice <= recentLow  || distLowPct  <= InpMaxRetestDist);
