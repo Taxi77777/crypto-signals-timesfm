@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 100% Autonome : Dashboard, Visuel & Trailing|
+//|    Robot Expert MT4 v3.20 : Ultra Visuel Chart & Dashboard Sans ? |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "3.10"
+#property version   "3.20"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -19,7 +19,7 @@ enum ENUM_CUSTOM_TIMEFRAME
 };
 
 //--- Inputs Paramètres Stratégie Belkhayate
-input string                InpGroupStrategy   = "=== 🏛️ STRATÉGIE BELKHAYATE RETEST ===";
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE RETEST ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
 input double                InpMinWickPct      = 15.0;    // Mèche de Rejet Minimale (%)
@@ -27,7 +27,7 @@ input double                InpMaxRetestDist   = 1.5;     // Écartement max du 
 input int                   InpRetestLookback  = 24;      // Bougies pour détecter le Sommet/Creux
 
 //--- Inputs Configuration Risque & Exécution
-input string                InpGroupRisk       = "=== 💰 GESTION CAPITAL, LOT & TRADES ===";
+input string                InpGroupRisk       = "=== GESTION CAPITAL, LOT & TRADES ===";
 input double                InpFixedLot        = 0.01;    // Taille du Lot (ex: 0.01, 0.10, 1.00)
 input double                InpRiskPercent     = 0.0;     // Risque % par trade (0.0 = utilise le Lot Fixe)
 input int                   InpMaxOpenTrades   = 3;       // Nombre Max de trades autorisés
@@ -36,7 +36,7 @@ input double                InpATR_SL_Mult     = 1.2;     // Multiplicateur ATR 
 input int                   InpMagicNumber     = 88888;   // Magic Number du Robot
 
 //--- Inputs Trailing Stop & Break-Even
-input string                InpGroupTrailing       = "=== 🛡️ TRAILING STOP & BREAK-EVEN ===";
+input string                InpGroupTrailing       = "=== TRAILING STOP & BREAK-EVEN ===";
 input bool                  InpUseTrailingStop     = true;    // Activer le Trailing Stop Automatique
 input int                   InpTrailingStopPips    = 15;      // Distance de Trailing Stop (Pips)
 input int                   InpTrailingStepPips    = 5;       // Pas de Trailing (Pips)
@@ -44,9 +44,9 @@ input bool                  InpUseBreakEven        = true;    // Activer le Brea
 input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips pour passer en Break-Even
 
 //--- Inputs Visuels & Graphique
-input string                InpGroupVisual     = "=== 📊 VISUEL CHART & DASHBOARD ===";
+input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard sur le Graphique
-input bool                  InpDrawArrows      = true;    // Dessiner les flèches de Rejet (Achat/Vente)
+input bool                  InpDrawArrows      = true;    // Dessiner les flèches et textes de Rejet (Achat/Vente)
 input bool                  InpDrawRetestLines = true;    // Dessiner les lignes de Retest (Plus Haut/Bas)
 
 //--- Variables Globales
@@ -61,13 +61,10 @@ string g_watchlist[12] = {"EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USD
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   // Conversion du Timeframe
    if(InpTimeframe == TF_CURRENT) g_tf = (ENUM_TIMEFRAMES)_Period;
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
-   Print("👑 Belkhayate Retest EA v3.10 initialisé !");
-   Print("🏛️ Timeframe Actif : ", EnumToString(g_tf), " | Lot : ", InpFixedLot, " | Trailing Stop : ", InpUseTrailingStop ? "OUI" : "NON");
-
+   Print("👑 Belkhayate Retest EA v3.20 initialisé avec succès !");
    if(InpShowDashboard) DrawDashboardHUD();
    return(INIT_SUCCEEDED);
 }
@@ -86,18 +83,18 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
-   // 1. Application continue du Trailing Stop & Break-Even à chaque tick
+   // 1. Application continue du Trailing Stop & Break-Even
    ApplyTrailingStopAndBreakEven();
 
    // 2. Mise à jour du Dashboard visuel à chaque Tick
    if(InpShowDashboard) DrawDashboardHUD();
 
-   // 3. Analyse et Trading à la clôture de chaque bougie
+   // 3. Analyse et Dessin à la clôture de chaque bougie
    datetime currentBarTime = iTime(_Symbol, g_tf, 0);
    if(currentBarTime == g_lastBarTime) return;
    g_lastBarTime = currentBarTime;
 
-   // Vérification du nombre de trades ouverts
+   // Compter le nombre de trades ouverts
    int openTrades = 0;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
@@ -152,25 +149,24 @@ void OnTick()
 
    datetime candleTime = iTime(_Symbol, g_tf, 1);
 
-   // ── TRACÉ VISUEL DES DESSINS SUR LE GRAPHIC ──
+   // ── TRACÉ ULTRA-VISUEL DES LIGNES ET DESSINS DE RETEST SUR LE GRAPHIC ──
    if(InpDrawRetestLines)
    {
-      string hlineName = "BK_Line_Retest";
-      ObjectDelete(0, hlineName);
-      if(isRetestHigh)
-      {
-         ObjectCreate(0, hlineName, OBJ_HLINE, 0, 0, recentHigh);
-         ObjectSetInteger(0, hlineName, OBJPROP_COLOR, clrRed);
-         ObjectSetInteger(0, hlineName, OBJPROP_STYLE, STYLE_SOLID);
-         ObjectSetInteger(0, hlineName, OBJPROP_WIDTH, 2);
-      }
-      else if(isRetestLow)
-      {
-         ObjectCreate(0, hlineName, OBJ_HLINE, 0, 0, recentLow);
-         ObjectSetInteger(0, hlineName, OBJPROP_COLOR, clrLime);
-         ObjectSetInteger(0, hlineName, OBJPROP_STYLE, STYLE_SOLID);
-         ObjectSetInteger(0, hlineName, OBJPROP_WIDTH, 2);
-      }
+      // Ligne Horizontale Permanente du Plus Haut Récent (Ligne Rouge Tracée)
+      string lineHighName = "BK_Line_High";
+      if(ObjectFind(0, lineHighName) < 0) ObjectCreate(0, lineHighName, OBJ_HLINE, 0, 0, recentHigh);
+      else ObjectMove(0, lineHighName, 0, 0, recentHigh);
+      ObjectSetInteger(0, lineHighName, OBJPROP_COLOR, clrRed);
+      ObjectSetInteger(0, lineHighName, OBJPROP_STYLE, STYLE_SOLID);
+      ObjectSetInteger(0, lineHighName, OBJPROP_WIDTH, 2);
+
+      // Ligne Horizontale Permanente du Plus Bas Récent (Ligne Verte Tracée)
+      string lineLowName = "BK_Line_Low";
+      if(ObjectFind(0, lineLowName) < 0) ObjectCreate(0, lineLowName, OBJ_HLINE, 0, 0, recentLow);
+      else ObjectMove(0, lineLowName, 0, 0, recentLow);
+      ObjectSetInteger(0, lineLowName, OBJPROP_COLOR, clrLime);
+      ObjectSetInteger(0, lineLowName, OBJPROP_STYLE, STYLE_SOLID);
+      ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
    if(InpDrawArrows)
@@ -178,16 +174,32 @@ void OnTick()
       if(isBuySignal)
       {
          string arrowName = "BK_Arrow_Buy_" + IntegerToString((long)candleTime);
-         ObjectCreate(0, arrowName, OBJ_ARROW_BUY, 0, candleTime, lowP - (10 * _Point));
+         ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, lowP - (15 * _Point));
+         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche vers le Haut Wingdings
          ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
-         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 3);
+         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+
+         string textName = "BK_Text_Buy_" + IntegerToString((long)candleTime);
+         ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, lowP - (35 * _Point));
+         ObjectSetString(0, textName, OBJPROP_TEXT, "  [RETEST ACHAT - MECHE " + DoubleToString(lowerWickPct, 1) + "%]");
+         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
+         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
       }
       else if(isSellSignal)
       {
          string arrowName = "BK_Arrow_Sell_" + IntegerToString((long)candleTime);
-         ObjectCreate(0, arrowName, OBJ_ARROW_SELL, 0, candleTime, highP + (10 * _Point));
+         ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, highP + (15 * _Point));
+         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche vers le Bas Wingdings
          ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
-         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 3);
+         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+
+         string textName = "BK_Text_Sell_" + IntegerToString((long)candleTime);
+         ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, highP + (35 * _Point));
+         ObjectSetString(0, textName, OBJPROP_TEXT, "  [RETEST VENTE - MECHE " + DoubleToString(upperWickPct, 1) + "%]");
+         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
+         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
       }
    }
 
@@ -236,7 +248,7 @@ void ApplyTrailingStopAndBreakEven()
    double ask   = MarketInfo(_Symbol, MODE_ASK);
    double bid   = MarketInfo(_Symbol, MODE_BID);
 
-   double trailingDist = InpTrailingStopPips * point * 10; // Conversion pips en points
+   double trailingDist = InpTrailingStopPips * point * 10;
    double trailingStep = InpTrailingStepPips * point * 10;
    double breakEvenTrig= InpBreakEvenTriggerPips * point * 10;
 
@@ -245,20 +257,16 @@ void ApplyTrailingStopAndBreakEven()
       if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) continue;
       if(OrderSymbol() != _Symbol || OrderMagicNumber() != InpMagicNumber) continue;
 
-      // ── TRAILING STOP ET BREAK-EVEN SUR POSITION BUY ──
       if(OrderType() == OP_BUY)
       {
-         // 1. Break-Even
          if(InpUseBreakEven)
          {
             if((bid - OrderOpenPrice()) >= breakEvenTrig && OrderStopLoss() < OrderOpenPrice())
             {
                OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() + (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
-               Print("🛡️ BREAK-EVEN ACTIVE SUR BUY #", OrderTicket());
             }
          }
 
-         // 2. Trailing Stop
          if(InpUseTrailingStop)
          {
             if((bid - OrderOpenPrice()) > trailingDist)
@@ -267,26 +275,20 @@ void ApplyTrailingStopAndBreakEven()
                if(newSL > OrderStopLoss() + trailingStep)
                {
                   OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
-                  Print("📈 TRAILING STOP SUPPORTE BUY #", OrderTicket(), " -> Nouveau SL: ", newSL);
                }
             }
          }
       }
-
-      // ── TRAILING STOP ET BREAK-EVEN SUR POSITION SELL ──
       else if(OrderType() == OP_SELL)
       {
-         // 1. Break-Even
          if(InpUseBreakEven)
          {
             if((OrderOpenPrice() - ask) >= breakEvenTrig && (OrderStopLoss() > OrderOpenPrice() || OrderStopLoss() == 0))
             {
                OrderModify(OrderTicket(), OrderOpenPrice(), NormalizeDouble(OrderOpenPrice() - (10 * point), _Digits), OrderTakeProfit(), 0, clrBlue);
-               Print("🛡️ BREAK-EVEN ACTIVE SUR SELL #", OrderTicket());
             }
          }
 
-         // 2. Trailing Stop
          if(InpUseTrailingStop)
          {
             if((OrderOpenPrice() - ask) > trailingDist)
@@ -295,7 +297,6 @@ void ApplyTrailingStopAndBreakEven()
                if(OrderStopLoss() == 0 || newSL < OrderStopLoss() - trailingStep)
                {
                   OrderModify(OrderTicket(), OrderOpenPrice(), newSL, OrderTakeProfit(), 0, clrBlue);
-                  Print("📉 TRAILING STOP SUPPORTE SELL #", OrderTicket(), " -> Nouveau SL: ", newSL);
                }
             }
          }
@@ -304,23 +305,21 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dessine le Dashboard Visuel sur le Graphique                     |
+//| Dessine le Dashboard Visuel Propre (Sans caractères ?)           |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
    int x = 20;
-   int y = 30;
+   int y = 25;
 
-   CreateLabel("BK_HUD_BG", "--------------------------------------------------------", x, y, clrGray, 9);
-   y += 15;
-   CreateLabel("BK_HUD_TITLE", "👑 MOSTAFA BELKHAYATE & IA SYSTEM — RETEST HUD", x, y, clrGold, 10, true);
+   CreateLabel("BK_HUD_TITLE", "=== MOSTAFA BELKHAYATE & IA RETEST HUD ===", x, y, clrGold, 10, true);
    y += 18;
-   CreateLabel("BK_HUD_SUB", "Unités: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Trailing: " + (InpUseTrailingStop ? "15p" : "OFF"), x, y, clrWhite, 9);
+   CreateLabel("BK_HUD_SUB", "TF: " + EnumToString(g_tf) + " | Lot: " + DoubleToString(InpFixedLot, 2) + " | Trailing: " + (InpUseTrailingStop ? "15p" : "OFF"), x, y, clrWhite, 9);
    y += 18;
    CreateLabel("BK_HUD_SEP1", "--------------------------------------------------------", x, y, clrGray, 9);
    y += 15;
 
-   CreateLabel("BK_HUD_HDR", "PAIRE      STATUS RETEST          TIMING     MÈCHE", x, y, clrCyan, 9, true);
+   CreateLabel("BK_HUD_HDR", "PAIRE      STATUT RETEST          TIMING     MECHE", x, y, clrCyan, 9, true);
    y += 16;
 
    for(int i = 0; i < 12; i++)
@@ -366,25 +365,25 @@ void DrawDashboardHUD()
 
       if(isRetHigh && uwPct >= InpMinWickPct)
       {
-         statusStr = "🔴 RETEST SELL (Haut)";
+         statusStr = "[RETEST SELL - HAUT]";
          clrStatus = clrRed;
          wickVal   = uwPct;
       }
       else if(isRetLow && lwPct >= InpMinWickPct)
       {
-         statusStr = "🟢 RETEST BUY (Bas)";
+         statusStr = "[RETEST BUY - BAS]";
          clrStatus = clrLime;
          wickVal   = lwPct;
       }
       else if(isRetHigh)
       {
-         statusStr = "⚠️ Sommet (Attente Mèche)";
+         statusStr = "[SOMMET - Attente]";
          clrStatus = clrOrange;
          wickVal   = uwPct;
       }
       else if(isRetLow)
       {
-         statusStr = "⚠️ Creux (Attente Mèche)";
+         statusStr = "[CREUX - Attente]";
          clrStatus = clrYellow;
          wickVal   = lwPct;
       }
@@ -395,7 +394,7 @@ void DrawDashboardHUD()
    }
 }
 
-// Helper de création de Label Graphique
+// Helper de création de Label Graphique Sans Caractères ?
 void CreateLabel(string name, string text, int x, int y, color clr, int fontSize, bool isBold = false)
 {
    if(ObjectFind(0, name) < 0)
@@ -408,5 +407,5 @@ void CreateLabel(string name, string text, int x, int y, color clr, int fontSize
    ObjectSetString(0, name, OBJPROP_TEXT, text);
    ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
    ObjectSetInteger(0, name, OBJPROP_FONTSIZE, fontSize);
-   ObjectSetString(0, name, OBJPROP_FONT, isBold ? "Consolas Bold" : "Consolas");
+   ObjectSetString(0, name, OBJPROP_FONT, isBold ? "Arial Bold" : "Arial");
 }
