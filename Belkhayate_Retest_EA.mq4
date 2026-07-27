@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v8.10 : Belkhayate Cassure Impulsion & 50x   |
+//|    Robot Expert MT4 v9.00 : 100% NON-REPAINTING ZÉRO REPAINT      |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "8.10"
+#property version   "9.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -19,7 +19,7 @@ enum ENUM_CUSTOM_TIMEFRAME
 };
 
 //--- Inputs Paramètres Stratégie Belkhayate Cassure Impulsionnelle
-input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE IMPULSION (50X) ===";
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (NON-REPAINT) ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
 input double                InpMaxRetestDist   = 1.5;     // Écartement max de Cassure (%)
@@ -46,7 +46,7 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard Original
-input bool                  InpDrawArrows      = true;    // Dessiner la flèche collée sur la bougie du signal
+input bool                  InpDrawArrows      = true;    // Dessiner les flèches NON-REPAINTING sur bougies clôturées
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
@@ -65,9 +65,8 @@ int OnInit()
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
    g_lastBarTime = 0;
-   ObjectsDeleteAll(0, "BK_");
 
-   Print("👑 Belkhayate Breakout EA v8.10 (Impulsion & Levier 50x) initialisé !");
+   Print("👑 Belkhayate Breakout EA v9.00 (100% NON-REPAINTING) initialisé !");
 
    UpdateChartVisuals();
 
@@ -80,7 +79,7 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-   ObjectsDeleteAll(0, "BK_");
+   // Conserver les flèches de signaux historiques lors de l'arrêt
    Comment("");
 }
 
@@ -111,7 +110,7 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
-//| Update visuel : 2 Lignes Horizontales + 1 Flèche de Cassure      |
+//| Update visuel : 2 Lignes Horizontales + Flèches NON-REPAINTING   |
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
@@ -138,8 +137,16 @@ void UpdateChartVisuals()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── 2. DESSIN DE LA FLÈCHE DE CASSURE SUR BOUGIE 1 AVEC IMPULSION ──
+   // ── 2. DESSIN STABILISÉ 100% NON-REPAINTING DE LA FLÈCHE (BOUGIE CLÔTURÉE 1) ──
    if(!InpDrawArrows) return;
+
+   datetime bTime = iTime(_Symbol, g_tf, 1);
+   string timeID  = IntegerToString((long)bTime);
+   string arrowName = "BK_Arrow_Sig_" + timeID;
+   string textName  = "BK_Text_Sig_"  + timeID;
+
+   // Si la flèche a DÉJÀ été créée et confirmée sur cette bougie, NE JAMAIS LA TOUCHER NI L'EFFACER !
+   if(ObjectFind(0, arrowName) >= 0) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
    double openP    = iOpen(_Symbol, g_tf, 1);
@@ -151,7 +158,7 @@ void UpdateChartVisuals()
    bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
    bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
-   // Barycentre
+   // Barycentre sur Shift 1 (Bougie Clôturée)
    double sum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
    double barycenter = sum / InpBaryPeriod;
@@ -169,30 +176,21 @@ void UpdateChartVisuals()
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
-   // STRATÉGIE CASSURE IMPULSIONNELLE :
-   // Sommet + Timing >= +1.0 + Impulsion Verte -> ACHAT (BUY)
-   // Creux + Timing <= -1.0 + Impulsion Rouge -> VENTE (SELL)
+   // STRATÉGIE CASSURE IMPULSIONNELLE SUR BOUGIE FERMÉE :
    bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
    bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
-
-   datetime bTime = iTime(_Symbol, g_tf, 1);
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
 
-   string arrowName = "BK_Signal_Arrow";
-   string textName  = "BK_Signal_Text";
-
    if(isBuySignal)
    {
-      if(ObjectFind(0, arrowName) < 0) ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, lowP - arrowOffset);
-      else ObjectMove(0, arrowName, 0, bTime, lowP - arrowOffset);
+      ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, lowP - arrowOffset);
       ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
-      if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
-      else ObjectMove(0, textName, 0, bTime, lowP - textOffset);
+      ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
       ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE SOMMET - ACHAT]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
@@ -200,23 +198,16 @@ void UpdateChartVisuals()
    }
    else if(isSellSignal)
    {
-      if(ObjectFind(0, arrowName) < 0) ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, highP + arrowOffset);
-      else ObjectMove(0, arrowName, 0, bTime, highP + arrowOffset);
+      ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, highP + arrowOffset);
       ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
       ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
 
-      if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
-      else ObjectMove(0, textName, 0, bTime, highP + textOffset);
+      ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
       ObjectSetString(0, textName, OBJPROP_TEXT, "[CASSURE CREUX - VENTE]");
       ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
       ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
-   }
-   else
-   {
-      ObjectDelete(0, arrowName);
-      ObjectDelete(0, textName);
    }
 }
 
@@ -267,7 +258,7 @@ void ExecuteTradeIfSignal()
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
 
-   // CASSURE IMPULSIONNELLE : Sommet = ACHAT (BUY), Creux = VENTE (SELL)
+   // CASSURE IMPULSIONNELLE SUR BOUGIE CLÔTURÉE :
    bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
    bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
 
@@ -370,7 +361,7 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dashboard HUD (Belkhayate Cassure Impulsion 50x)                 |
+//| Dashboard HUD                                                    |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
