@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v4.00 : Dashboard Visuel, Lignes & Flèches  |
+//|    Robot Expert MT4 v5.00 : Style Photo 1 Épuré, Flèche & Lines  |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "4.00"
+#property version   "5.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -45,10 +45,9 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
-input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard sur le Graphique
-input bool                  InpDrawArrows      = true;    // Dessiner les flèches et textes de Rejet (Achat/Vente)
-input bool                  InpDrawRetestLines = true;    // Dessiner les lignes Horizontales (Sommet/Creux)
-input bool                  InpDrawVertLines   = true;    // Dessiner les Lignes Verticales sur la bougie du Rejet !
+input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard (Style Photo 1)
+input bool                  InpDrawArrows      = true;    // Dessiner la flèche et le texte du signal actif
+input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
 datetime g_lastBarTime = 0;
@@ -65,11 +64,7 @@ int OnInit()
    if(InpTimeframe == TF_CURRENT) g_tf = (ENUM_TIMEFRAMES)_Period;
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
-   Print("👑 Belkhayate Retest EA v4.00 initialisé !");
-
-   // Scan historique pour tracer toutes les bougies de rejet passées
-   ScanHistoricalRejections();
-
+   Print("👑 Belkhayate Retest EA v5.00 Style Photo 1 initialisé !");
    if(InpShowDashboard) DrawDashboardHUD();
    return(INIT_SUCCEEDED);
 }
@@ -84,149 +79,22 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
-//| Scan Historique des bougies passées pour tracer les Rejets       |
-//+------------------------------------------------------------------+
-void ScanHistoricalRejections()
-{
-   int totalBars = iBars(_Symbol, g_tf);
-   int lookback  = MathMin(100, totalBars - InpBaryPeriod - 1);
-
-   for(int i = lookback; i >= 1; i--)
-   {
-      double curPrice = iClose(_Symbol, g_tf, i);
-      double openP    = iOpen(_Symbol, g_tf, i);
-      double highP    = iHigh(_Symbol, g_tf, i);
-      double lowP     = iLow(_Symbol, g_tf, i);
-      double cRange   = MathMax(highP - lowP, 0.00001);
-
-      double bodyMin  = MathMin(openP, curPrice);
-      double bodyMax  = MathMax(openP, curPrice);
-      double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
-      double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
-
-      // Barycentre
-      double sum = 0;
-      for(int k = i; k < i + InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
-      double barycenter = sum / InpBaryPeriod;
-
-      double sqSum = 0;
-      for(int k = i; k < i + InpBaryPeriod; k++)
-      {
-         double diff = iClose(_Symbol, g_tf, k) - barycenter;
-         sqSum += diff * diff;
-      }
-      double stdDev = MathSqrt(sqSum / InpBaryPeriod);
-      if(stdDev == 0) stdDev = 0.00001;
-      double timing = (curPrice - barycenter) / stdDev;
-
-      // Sommet et Creux Récents à partir de i+1
-      int highestIdx = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, i + 1);
-      int lowestIdx  = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, i + 1);
-      double recentHigh = iHigh(_Symbol, g_tf, highestIdx);
-      double recentLow  = iLow(_Symbol, g_tf, lowestIdx);
-
-      double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
-      double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
-
-      bool isRetestHigh = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-      bool isRetestLow  = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
-
-      bool isBuy  = isRetestLow  && (lowerWickPct >= InpMinWickPct);
-      bool isSell = isRetestHigh && (upperWickPct >= InpMinWickPct);
-
-      if(isBuy || isSell)
-      {
-         datetime bTime = iTime(_Symbol, g_tf, i);
-         DrawRejectionMarker(bTime, isBuy, isBuy ? lowerWickPct : upperWickPct, highP, lowP);
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Traceur Universel de Marqueurs de Rejet (Ligne Vert. + Flèche)  |
-//+------------------------------------------------------------------+
-void DrawRejectionMarker(datetime time, bool isBuy, double wickPct, double highP, double lowP)
-{
-   string timeID = IntegerToString((long)time);
-   double pointVal = _Point;
-   if(_Digits == 3 || _Digits == 5) pointVal *= 10; // Valeur 1 Pip en points
-
-   double arrowOffset = 15.0 * pointVal; // 15 Pips de distance de la bougie
-   double textOffset  = 35.0 * pointVal; // 35 Pips de distance de la bougie
-
-   // 1. Ligne Verticale traversant la bougie de Rejet exacte (OBJ_VLINE)
-   if(InpDrawVertLines)
-   {
-      string vlineName = "BK_VLine_" + timeID;
-      if(ObjectFind(0, vlineName) < 0)
-      {
-         ObjectCreate(0, vlineName, OBJ_VLINE, 0, time, 0);
-         ObjectSetInteger(0, vlineName, OBJPROP_COLOR, isBuy ? clrLime : clrRed);
-         ObjectSetInteger(0, vlineName, OBJPROP_STYLE, STYLE_DOT);
-         ObjectSetInteger(0, vlineName, OBJPROP_WIDTH, 2);
-         ObjectSetInteger(0, vlineName, OBJPROP_BACK, true);
-      }
-   }
-
-   // 2. Flèches et Textes explicites Haute Visibilité (OBJ_ARROW_BUY / OBJ_ARROW_SELL & OBJ_TEXT)
-   if(InpDrawArrows)
-   {
-      if(isBuy)
-      {
-         string arrowName = "BK_Arrow_Buy_" + timeID;
-         if(ObjectFind(0, arrowName) < 0)
-         {
-            ObjectCreate(0, arrowName, OBJ_ARROW_BUY, 0, time, lowP - arrowOffset);
-            ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
-            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
-         }
-
-         string textName = "BK_Text_Buy_" + timeID;
-         if(ObjectFind(0, textName) < 0)
-         {
-            ObjectCreate(0, textName, OBJ_TEXT, 0, time, lowP - textOffset);
-            ObjectSetString(0, textName, OBJPROP_TEXT, "🟢 RETEST ACHAT (" + DoubleToString(wickPct, 1) + "%)");
-            ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
-            ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
-            ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
-         }
-      }
-      else
-      {
-         string arrowName = "BK_Arrow_Sell_" + timeID;
-         if(ObjectFind(0, arrowName) < 0)
-         {
-            ObjectCreate(0, arrowName, OBJ_ARROW_SELL, 0, time, highP + arrowOffset);
-            ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
-            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
-         }
-
-         string textName = "BK_Text_Sell_" + timeID;
-         if(ObjectFind(0, textName) < 0)
-         {
-            ObjectCreate(0, textName, OBJ_TEXT, 0, time, highP + textOffset);
-            ObjectSetString(0, textName, OBJPROP_TEXT, "🔴 RETEST VENTE (" + DoubleToString(wickPct, 1) + "%)");
-            ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
-            ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
-            ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
 //| Expert Tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
 {
+   // 1. Application continue du Trailing Stop & Break-Even
    ApplyTrailingStopAndBreakEven();
 
+   // 2. Mise à jour du Dashboard visuel à chaque Tick
    if(InpShowDashboard) DrawDashboardHUD();
 
+   // 3. Analyse et Dessin à la clôture de chaque bougie
    datetime currentBarTime = iTime(_Symbol, g_tf, 0);
    if(currentBarTime == g_lastBarTime) return;
    g_lastBarTime = currentBarTime;
 
+   // Compter le nombre de trades ouverts
    int openTrades = 0;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
@@ -280,9 +148,10 @@ void OnTick()
 
    datetime candleTime = iTime(_Symbol, g_tf, 1);
 
-   // ── TRACÉ VISUEL DU LEVEL HORIZONTAL DE RETEST ──
+   // ── TRACÉ VISUEL ÉPURÉ STYLE PHOTO 1 (SEULEMENT 2 LIGNES PROPRES) ──
    if(InpDrawRetestLines)
    {
+      // 1 Ligne Rouge Horizontale au Sommet
       string lineHighName = "BK_Line_High";
       if(ObjectFind(0, lineHighName) < 0) ObjectCreate(0, lineHighName, OBJ_HLINE, 0, 0, recentHigh);
       else ObjectMove(0, lineHighName, 0, 0, recentHigh);
@@ -290,6 +159,7 @@ void OnTick()
       ObjectSetInteger(0, lineHighName, OBJPROP_STYLE, STYLE_SOLID);
       ObjectSetInteger(0, lineHighName, OBJPROP_WIDTH, 2);
 
+      // 1 Ligne Verte Horizontale au Creux
       string lineLowName = "BK_Line_Low";
       if(ObjectFind(0, lineLowName) < 0) ObjectCreate(0, lineLowName, OBJ_HLINE, 0, 0, recentLow);
       else ObjectMove(0, lineLowName, 0, 0, recentLow);
@@ -298,10 +168,49 @@ void OnTick()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // Tracer le marqueur sur la bougie en cours si valide
-   if(isBuySignal || isSellSignal)
+   // ── DESSIN ÉPURÉ DE LA FLÈCHE SUR LE SIGNAL ACTIF ──
+   if(InpDrawArrows && (isBuySignal || isSellSignal))
    {
-      DrawRejectionMarker(candleTime, isBuySignal, isBuySignal ? lowerWickPct : upperWickPct, highP, lowP);
+      double pointVal = _Point;
+      if(_Digits == 3 || _Digits == 5) pointVal *= 10;
+
+      double arrowOffset = 10.0 * pointVal;
+      double textOffset  = 25.0 * pointVal;
+
+      if(isBuySignal)
+      {
+         string arrowName = "BK_Signal_Arrow";
+         ObjectDelete(0, arrowName);
+         ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, lowP - arrowOffset);
+         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
+         ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
+         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+
+         string textName = "BK_Signal_Text";
+         ObjectDelete(0, textName);
+         ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, lowP - textOffset);
+         ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST ACHAT - MECHE " + DoubleToString(lowerWickPct, 1) + "%]");
+         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
+         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
+      }
+      else if(isSellSignal)
+      {
+         string arrowName = "BK_Signal_Arrow";
+         ObjectDelete(0, arrowName);
+         ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, highP + arrowOffset);
+         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
+         ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
+         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+
+         string textName = "BK_Signal_Text";
+         ObjectDelete(0, textName);
+         ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, highP + textOffset);
+         ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST VENTE - MECHE " + DoubleToString(upperWickPct, 1) + "%]");
+         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
+         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
+         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
+      }
    }
 
    if(openTrades >= InpMaxOpenTrades) return;
@@ -405,7 +314,7 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dashboard HUD                                                    |
+//| Dashboard HUD (Propre Style Photo 1 sans ?)                     |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
