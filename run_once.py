@@ -906,28 +906,46 @@ def main():
             ma60_p2   = float(df_15m["ma60"].iloc[-3]) if len(df_15m) >= 3 and "ma60" in df_15m.columns else ma60_p1
 
             # ── EVALUATION MULTI-TIMEFRAME (15m, 30m, 1h) MOSTAFA BELKHAYATE & PULLBACK RE-TEST ──
+            def _to_flt(val):
+                try:
+                    if hasattr(val, "iloc"):
+                        val = val.iloc[-1]
+                    if hasattr(val, "item"):
+                        return float(val.item())
+                    return float(val)
+                except Exception:
+                    return 0.0
+
             def _eval_belkhayate_tf(df_tf):
                 if df_tf.empty or len(df_tf) < 30: return False, False, 0.0
-                cur_p = float(df_tf["close"].iloc[-1])
+                if isinstance(df_tf.columns, pd.MultiIndex):
+                    df_tf.columns = df_tf.columns.get_level_values(0)
+                
+                cur_p = _to_flt(df_tf["close"])
                 bary  = df_tf["close"].rolling(window=30).mean()
                 bary_s = df_tf["close"].rolling(window=30).std()
-                tim   = float((df_tf["close"] - bary) / bary_s.replace(0, 1e-6)).iloc[-1] if len(df_tf) >= 30 else 0.0
+                
+                t_series = (df_tf["close"] - bary) / bary_s.replace(0, 1e-6)
+                tim   = _to_flt(t_series)
                 
                 # Mèches
                 c_range = (df_tf["high"] - df_tf["low"]).replace(0, 1e-6)
                 b_min = np.minimum(df_tf["open"], df_tf["close"])
                 b_max = np.maximum(df_tf["open"], df_tf["close"])
-                lw = float((b_min - df_tf["low"]) / c_range).iloc[-1]
-                uw = float((df_tf["high"] - b_max) / c_range).iloc[-1]
+                lw = _to_flt((b_min - df_tf["low"]) / c_range)
+                uw = _to_flt((df_tf["high"] - b_max) / c_range)
                 
                 # Retest de Plus Haut / Plus Bas (Pullback / Double Top & Double Bottom)
-                recent_high = float(df_tf["high"].tail(24).max())
-                recent_low  = float(df_tf["low"].tail(24).min())
-                is_retest_high = (abs(cur_p - recent_high) / cur_p <= 0.015) and (tim >= 1.0)
-                is_retest_low  = (abs(cur_p - recent_low) / cur_p <= 0.015) and (tim <= -1.0)
+                recent_high = _to_flt(df_tf["high"].tail(24).max())
+                recent_low  = _to_flt(df_tf["low"].tail(24).min())
+                is_retest_high = (cur_p > 0) and (abs(cur_p - recent_high) / cur_p <= 0.015) and (tim >= 1.0)
+                is_retest_low  = (cur_p > 0) and (abs(cur_p - recent_low) / cur_p <= 0.015) and (tim <= -1.0)
 
-                buy_ok  = (tim <= -1.50 or (cur_price <= float(bary.iloc[-1] - 1.618*1.8*bary_s.iloc[-1])) or is_retest_low) and lw >= 0.15
-                sell_ok = (tim >= 1.50  or (cur_price >= float(bary.iloc[-1] + 1.618*1.8*bary_s.iloc[-1])) or is_retest_high) and uw >= 0.15
+                bary_val = _to_flt(bary)
+                bary_std_val = _to_flt(bary_s)
+
+                buy_ok  = (tim <= -1.50 or (cur_price <= (bary_val - 1.618*1.8*bary_std_val)) or is_retest_low) and lw >= 0.15
+                sell_ok = (tim >= 1.50  or (cur_price >= (bary_val + 1.618*1.8*bary_std_val)) or is_retest_high) and uw >= 0.15
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
