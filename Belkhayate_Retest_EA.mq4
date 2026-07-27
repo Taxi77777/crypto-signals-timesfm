@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v8.00 : Belkhayate Cassure & Levier 50      |
+//|    Robot Expert MT4 v8.10 : Belkhayate Cassure Impulsion & 50x   |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "8.00"
+#property version   "8.10"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -18,12 +18,13 @@ enum ENUM_CUSTOM_TIMEFRAME
    TF_H1      = 60    // 1 Heure
 };
 
-//--- Inputs Paramètres Stratégie Belkhayate Cassure
-input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (50X) ===";
+//--- Inputs Paramètres Stratégie Belkhayate Cassure Impulsionnelle
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE IMPULSION (50X) ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
 input double                InpMaxRetestDist   = 1.5;     // Écartement max de Cassure (%)
 input int                   InpRetestLookback  = 24;      // Bougies pour détecter le Sommet/Creux
+input double                InpMinImpulseBody  = 35.0;    // Corps d'impulsion minimal (% du range)
 
 //--- Inputs Configuration Risque & Exécution
 input string                InpGroupRisk       = "=== GESTION CAPITAL, LOT & TRADES ===";
@@ -66,7 +67,7 @@ int OnInit()
    g_lastBarTime = 0;
    ObjectsDeleteAll(0, "BK_");
 
-   Print("👑 Belkhayate Breakout EA v8.00 (Levier 50x) initialisé !");
+   Print("👑 Belkhayate Breakout EA v8.10 (Impulsion & Levier 50x) initialisé !");
 
    UpdateChartVisuals();
 
@@ -137,12 +138,18 @@ void UpdateChartVisuals()
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── 2. DESSIN DE LA FLÈCHE DE CASSURE SUR BOUGIE 1 ──
+   // ── 2. DESSIN DE LA FLÈCHE DE CASSURE SUR BOUGIE 1 AVEC IMPULSION ──
    if(!InpDrawArrows) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
+   double openP    = iOpen(_Symbol, g_tf, 1);
    double highP    = iHigh(_Symbol, g_tf, 1);
    double lowP     = iLow(_Symbol, g_tf, 1);
+   double cRange   = MathMax(highP - lowP, 0.00001);
+
+   double bodyRatio = (MathAbs(curPrice - openP) / cRange) * 100.0;
+   bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
+   bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
    // Barycentre
    double sum = 0;
@@ -162,11 +169,11 @@ void UpdateChartVisuals()
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
-   // STRATÉGIE CASSURE / SENS INVERSE :
-   // Sommet + Timing >= +1.0 -> ACHAT (BUY)
-   // Creux + Timing <= -1.0 -> VENTE (SELL)
-   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
+   // STRATÉGIE CASSURE IMPULSIONNELLE :
+   // Sommet + Timing >= +1.0 + Impulsion Verte -> ACHAT (BUY)
+   // Creux + Timing <= -1.0 + Impulsion Rouge -> VENTE (SELL)
+   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
+   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
 
    datetime bTime = iTime(_Symbol, g_tf, 1);
 
@@ -229,6 +236,14 @@ void ExecuteTradeIfSignal()
    if(openTrades >= InpMaxOpenTrades) return;
 
    double curPrice = iClose(_Symbol, g_tf, 1);
+   double openP    = iOpen(_Symbol, g_tf, 1);
+   double highP    = iHigh(_Symbol, g_tf, 1);
+   double lowP     = iLow(_Symbol, g_tf, 1);
+   double cRange   = MathMax(highP - lowP, 0.00001);
+
+   double bodyRatio = (MathAbs(curPrice - openP) / cRange) * 100.0;
+   bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
+   bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
    double sum = 0;
    for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
@@ -252,9 +267,9 @@ void ExecuteTradeIfSignal()
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
 
-   // CASSURE : Sommet = ACHAT (BUY), Creux = VENTE (SELL)
-   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
+   // CASSURE IMPULSIONNELLE : Sommet = ACHAT (BUY), Creux = VENTE (SELL)
+   bool isBuySignal  = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0) && isBullishImpulse;
+   bool isSellSignal = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0) && isBearishImpulse;
 
    if(!isBuySignal && !isSellSignal) return;
 
@@ -355,7 +370,7 @@ void ApplyTrailingStopAndBreakEven()
 }
 
 //+------------------------------------------------------------------+
-//| Dashboard HUD (Belkhayate Cassure 50x)                           |
+//| Dashboard HUD (Belkhayate Cassure Impulsion 50x)                 |
 //+------------------------------------------------------------------+
 void DrawDashboardHUD()
 {
@@ -378,6 +393,14 @@ void DrawDashboardHUD()
       if(MarketInfo(sym, MODE_BID) == 0) continue;
 
       double curP = iClose(sym, g_tf, 1);
+      double openP = iOpen(sym, g_tf, 1);
+      double highP = iHigh(sym, g_tf, 1);
+      double lowP  = iLow(sym, g_tf, 1);
+      double cRange = MathMax(highP - lowP, 0.00001);
+
+      double bodyRatio = (MathAbs(curP - openP) / cRange) * 100.0;
+      bool isBullImp = (curP > openP) && (bodyRatio >= InpMinImpulseBody);
+      bool isBearImp = (curP < openP) && (bodyRatio >= InpMinImpulseBody);
 
       double sum = 0;
       for(int k = 1; k <= 30; k++) sum += iClose(sym, g_tf, k);
@@ -397,8 +420,8 @@ void DrawDashboardHUD()
       double dHighPct = (MathAbs(curP - recHigh) / curP) * 100.0;
       double dLowPct  = (MathAbs(curP - recLow) / curP) * 100.0;
 
-      bool isBuySig  = (dHighPct <= InpMaxRetestDist) && (tim >= 1.0);
-      bool isSellSig = (dLowPct <= InpMaxRetestDist) && (tim <= -1.0);
+      bool isBuySig  = (dHighPct <= InpMaxRetestDist) && (tim >= 1.0) && isBullImp;
+      bool isSellSig = (dLowPct <= InpMaxRetestDist) && (tim <= -1.0) && isBearImp;
 
       string statusStr = "Neutre";
       color clrStatus  = clrSilver;
