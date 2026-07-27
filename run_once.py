@@ -17,6 +17,7 @@ except AttributeError:
 
 import json
 import time
+import pandas as pd
 from datetime import datetime, timezone
 
 os.makedirs("logs", exist_ok=True)
