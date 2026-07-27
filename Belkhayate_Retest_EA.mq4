@@ -148,6 +148,11 @@ void ScanHistoricalRejections()
 void DrawRejectionMarker(datetime time, bool isBuy, double wickPct, double highP, double lowP)
 {
    string timeID = IntegerToString((long)time);
+   double pointVal = _Point;
+   if(_Digits == 3 || _Digits == 5) pointVal *= 10; // Valeur 1 Pip en points
+
+   double arrowOffset = 15.0 * pointVal; // 15 Pips de distance de la bougie
+   double textOffset  = 35.0 * pointVal; // 35 Pips de distance de la bougie
 
    // 1. Ligne Verticale traversant la bougie de Rejet exacte (OBJ_VLINE)
    if(InpDrawVertLines)
@@ -163,7 +168,7 @@ void DrawRejectionMarker(datetime time, bool isBuy, double wickPct, double highP
       }
    }
 
-   // 2. Flèches et Textes explicites (OBJ_ARROW & OBJ_TEXT)
+   // 2. Flèches et Textes explicites Haute Visibilité (OBJ_ARROW_BUY / OBJ_ARROW_SELL & OBJ_TEXT)
    if(InpDrawArrows)
    {
       if(isBuy)
@@ -171,17 +176,16 @@ void DrawRejectionMarker(datetime time, bool isBuy, double wickPct, double highP
          string arrowName = "BK_Arrow_Buy_" + timeID;
          if(ObjectFind(0, arrowName) < 0)
          {
-            ObjectCreate(0, arrowName, OBJ_ARROW, 0, time, lowP - (20 * _Point));
-            ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut
+            ObjectCreate(0, arrowName, OBJ_ARROW_BUY, 0, time, lowP - arrowOffset);
             ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
-            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
          }
 
          string textName = "BK_Text_Buy_" + timeID;
          if(ObjectFind(0, textName) < 0)
          {
-            ObjectCreate(0, textName, OBJ_TEXT, 0, time, lowP - (45 * _Point));
-            ObjectSetString(0, textName, OBJPROP_TEXT, "  [RETEST ACHAT " + DoubleToString(wickPct, 1) + "%]");
+            ObjectCreate(0, textName, OBJ_TEXT, 0, time, lowP - textOffset);
+            ObjectSetString(0, textName, OBJPROP_TEXT, "🟢 RETEST ACHAT (" + DoubleToString(wickPct, 1) + "%)");
             ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
             ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
             ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
@@ -192,17 +196,16 @@ void DrawRejectionMarker(datetime time, bool isBuy, double wickPct, double highP
          string arrowName = "BK_Arrow_Sell_" + timeID;
          if(ObjectFind(0, arrowName) < 0)
          {
-            ObjectCreate(0, arrowName, OBJ_ARROW, 0, time, highP + (20 * _Point));
-            ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas
+            ObjectCreate(0, arrowName, OBJ_ARROW_SELL, 0, time, highP + arrowOffset);
             ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
-            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 5);
          }
 
          string textName = "BK_Text_Sell_" + timeID;
          if(ObjectFind(0, textName) < 0)
          {
-            ObjectCreate(0, textName, OBJ_TEXT, 0, time, highP + (45 * _Point));
-            ObjectSetString(0, textName, OBJPROP_TEXT, "  [RETEST VENTE " + DoubleToString(wickPct, 1) + "%]");
+            ObjectCreate(0, textName, OBJ_TEXT, 0, time, highP + textOffset);
+            ObjectSetString(0, textName, OBJPROP_TEXT, "🔴 RETEST VENTE (" + DoubleToString(wickPct, 1) + "%)");
             ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
             ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
             ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
