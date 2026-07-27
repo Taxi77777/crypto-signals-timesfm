@@ -148,7 +148,32 @@ def run_forex_scan():
 
                 signals_found.append(signal_data)
                 seen_pairs.add(clean_pair)
-                logger.info(f"🟢 SIGNAL FOREX BELKHAYATE PURE [{tf}] — {clean_pair} {direction} | Prix: {cur_price:.5f} | Timing: {timing:.2f} | Mèche Rejet: {wick_val:.1f}% | TP: {tp_price:.5f}")
+                logger.info(f"SIGNAL FOREX BELKHAYATE PURE [{tf}] — {clean_pair} {direction} | Prix: {cur_price:.5f} | Timing: {timing:.2f} | Mèche Rejet: {wick_val:.1f}% | TP: {tp_price:.5f}")
+
+                # Envoi direct sur Telegram
+                try:
+                    from src.telegram_bot import send_message
+                    icon = "🟢" if direction == "BUY" else "🔴"
+                    time_str = time.strftime("%d/%m/%Y %H:%M")
+                    send_message(
+                        f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM [FOREX]* 👑\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📊 Signal      : {icon} *{direction}*\n"
+                        f"🏛️ Paire       : *{clean_pair}* [{tf}]\n"
+                        f"💰 Prix d'Entrée : `{cur_price:.5f}`\n"
+                        f"🎯 Take Profit : `{tp_price:.5f}`\n"
+                        f"🛑 Stop Loss   : `{sl_price:.5f}`\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE (RETEST)* :\n"
+                        f"📍 Retest Zone     : *{'Double Bottom (Bas)' if direction == 'BUY' else 'Double Top (Haut)'}*\n"
+                        f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
+                        f"🕯️ Mèche de Rejet    : *Physique {wick_val:.1f}% (≥ 15%)*\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
+                        f"🕐 {time_str} (Heure de Paris)\n"
+                    )
+                except Exception as _telegram_err:
+                    logger.error(f"Erreur envoi Telegram Forex pour {clean_pair}: {_telegram_err}")
 
             except Exception as e:
                 logger.error(f"Erreur traitement [{tf}] {symbol}: {e}")
