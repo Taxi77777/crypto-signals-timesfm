@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                               ForexAI_Academic_Master_EA.mq4     |
 //|        EXPERT ADVISOR QUANTITATIF AVANCÉ - RÉGRESSION POLYNOMIALE |
-//|        Dashboard Visuel Sur Graphique (OnChart Panel 24/7)       |
+//|        Tracé Visuel des Lignes du Barycentre sur le Graphique    |
 //+------------------------------------------------------------------+
 #property copyright "Ingénierie Quantitative & Recherche Académique"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "6.00"
+#property version   "7.00"
 #property strict
 
 // --- PARAMÈTRES PERSONNALISABLES ---
@@ -37,7 +37,7 @@ datetime last_bar_time;
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 DÉMARRÉ AVEC DASHBOARD VISUEL !");
+   Print("🚀 EA FOREX ACADEMIC MASTER 24/7 DÉMARRÉ AVEC TRACÉ VISUEL DES CANAUX !");
    CreateDashboard();
    return(INIT_SUCCEEDED);
 }
@@ -45,13 +45,14 @@ int OnInit()
 void OnDeinit(const int reason)
 {
    ObjectsDeleteAll(0, "EA_Dash_");
+   ObjectsDeleteAll(0, "EA_Line_");
    Print("🛑 EA Academic arrêté.");
 }
 
 //+------------------------------------------------------------------+
 //| Crée ou Met à jour le Dashboard Visuel sur le Graphique          |
 //+------------------------------------------------------------------+
-void UpdateDashboard(double barycentre, double timing_val, int active_trades, double atr_pips)
+void UpdateDashboard(double barycentre, double timing_val, int active_trades, double atr_pips, double upper_env, double lower_env)
 {
    int x = 20;
    int y = 30;
@@ -67,6 +68,23 @@ void UpdateDashboard(double barycentre, double timing_val, int active_trades, do
    SetLabel("EA_Dash_Bary", "📍 BARYCENTRE DEG 3: " + DoubleToStr(barycentre, Digits) + "  |  TIMING: " + DoubleToStr(timing_val, 2), x, y + 135, clrYellow, 9);
    SetLabel("EA_Dash_ATR", "⚡ VOLATILITÉ ATR: " + DoubleToStr(atr_pips, 1) + " Pips  |  BREAKEVEN AUTO: 0.00$ RISQUE", x, y + 155, clrSpringGreen, 9);
    SetLabel("EA_Dash_Footer", "--------------------------------------------------------", x, y + 175, clrDarkSlateGray, 12);
+
+   // --- TRACÉ VISUEL DES LIGNES DU CANAL SUR LE GRAPHIQUE ---
+   DrawLineOnChart("EA_Line_Upper", upper_env, clrRed, 2, STYLE_SOLID);
+   DrawLineOnChart("EA_Line_Center", barycentre, clrGold, 2, STYLE_DOT);
+   DrawLineOnChart("EA_Line_Lower", lower_env, clrLime, 2, STYLE_SOLID);
+}
+
+void DrawLineOnChart(string name, double price, color col, int width=1, int style=STYLE_SOLID)
+{
+   if(ObjectFind(0, name) < 0)
+   {
+      ObjectCreate(0, name, OBJ_HLINE, 0, 0, price);
+   }
+   ObjectSetDouble(0, name, OBJPROP_PRICE, price);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, col);
+   ObjectSetInteger(0, name, OBJPROP_WIDTH, width);
+   ObjectSetInteger(0, name, OBJPROP_STYLE, style);
 }
 
 void SetLabel(string name, string text, int x, int y, color col, int font_size=9, string font_name="Arial")
@@ -88,7 +106,7 @@ void CreateDashboard()
 {
    double dummy_std = 0;
    double bary = CalculatePolynomialBarycenter(Poly_Period, 1, dummy_std);
-   UpdateDashboard(bary, 0.0, 0, 0.0);
+   UpdateDashboard(bary, 0.0, 0, 0.0, bary + (Dev_Multiplier*dummy_std), bary - (Dev_Multiplier*dummy_std));
 }
 
 //+------------------------------------------------------------------+
@@ -159,7 +177,7 @@ void OnTick()
       }
    }
 
-   // 3. CALCUL ET MISE À JOUR DU DASHBOARD VISUEL ONCHART EN TEMPS RÉEL
+   // 3. CALCUL ET MISE À JOUR DU DASHBOARD VISUEL ET DES LIGNES EN TEMPS RÉEL
    double std_dev = 0;
    double barycentre = CalculatePolynomialBarycenter(Poly_Period, 1, std_dev);
    double upper_envelope = barycentre + (Dev_Multiplier * std_dev);
@@ -168,7 +186,7 @@ void OnTick()
    double atr = iATR(Symbol(), 0, ATR_Period, 1);
    double atr_pips = (atr / Point / 10.0);
 
-   UpdateDashboard(barycentre, timing_val, total_pos, atr_pips);
+   UpdateDashboard(barycentre, timing_val, total_pos, atr_pips, upper_envelope, lower_envelope);
 
    // 4. Filtre de Spread
    double spread = (Ask - Bid) / Point / 10.0;
