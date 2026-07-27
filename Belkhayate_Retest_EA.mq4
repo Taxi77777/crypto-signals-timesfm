@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v5.10 : Instant Refresh on Symbol Change    |
+//|    Robot Expert MT4 v6.00 : Flèches sur Bougies de Rejet Exactes |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "5.10"
+#property version   "6.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -46,7 +46,7 @@ input int                   InpBreakEvenTriggerPips= 10;      // Gains en Pips p
 //--- Inputs Visuels & Graphique
 input string                InpGroupVisual     = "=== VISUEL CHART & DASHBOARD ===";
 input bool                  InpShowDashboard   = true;    // Afficher le Tableau Dashboard sur le Graphique
-input bool                  InpDrawArrows      = true;    // Dessiner la flèche et le texte du signal actif
+input bool                  InpDrawArrows      = true;    // Dessiner les flèches sur les bougies de rejet exactes
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
@@ -64,11 +64,11 @@ int OnInit()
    if(InpTimeframe == TF_CURRENT) g_tf = (ENUM_TIMEFRAMES)_Period;
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
-   g_lastBarTime = 0; // Réinitialiser pour forcer la mise à jour immédiate
+   g_lastBarTime = 0;
 
-   Print("👑 Belkhayate Retest EA v5.10 initialisé !");
+   Print("👑 Belkhayate Retest EA v6.00 initialisé !");
 
-   // Mise à jour visuelle instantanée lors du chargement ou changement de paire
+   // Mise à jour visuelle immédiate + scan historique des bougies de rejet
    UpdateChartVisuals();
 
    if(InpShowDashboard) DrawDashboardHUD();
@@ -85,7 +85,7 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
-//| Sur événement de modification de graphique (Changement de symbole)|
+//| Sur changement de graphique ou de symbole                        |
 //+------------------------------------------------------------------+
 void OnChartEvent(const int id, const long& lparam, const double& dparam, const string& sparam)
 {
@@ -98,14 +98,11 @@ void OnChartEvent(const int id, const long& lparam, const double& dparam, const 
 //+------------------------------------------------------------------+
 void OnTick()
 {
-   // 1. Trailing Stop & Break-Even
    ApplyTrailingStopAndBreakEven();
 
-   // 2. Mise à jour instantanée des lignes et du Dashboard sur CHAQUE TICK
    UpdateChartVisuals();
    if(InpShowDashboard) DrawDashboardHUD();
 
-   // 3. Exécution d'ordre uniquement à la clôture de la bougie
    datetime currentBarTime = iTime(_Symbol, g_tf, 0);
    if(currentBarTime == g_lastBarTime) return;
    g_lastBarTime = currentBarTime;
@@ -114,118 +111,132 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
-//| Mise à jour instantanée des Lignes de Retest & Flèches sur le Chart|
+//| Traceur des 2 Lignes Horizontales & Flèches sur Bougies de Rejet |
 //+------------------------------------------------------------------+
 void UpdateChartVisuals()
 {
-   double curPrice = iClose(_Symbol, g_tf, 1);
-   double openP    = iOpen(_Symbol, g_tf, 1);
-   double highP    = iHigh(_Symbol, g_tf, 1);
-   double lowP     = iLow(_Symbol, g_tf, 1);
-   double cRange   = MathMax(highP - lowP, 0.00001);
+   int totalBars = iBars(_Symbol, g_tf);
+   if(totalBars < InpBaryPeriod + InpRetestLookback + 5) return;
 
-   double bodyMin  = MathMin(openP, curPrice);
-   double bodyMax  = MathMax(openP, curPrice);
-   double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
-   double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
+   // ── 1. TRACÉ DES 2 LIGNES HORIZONTALES (Sommet Rouge / Creux Vert) ──
+   int hIdxCurrent = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, 1);
+   int lIdxCurrent = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, 1);
+   double recentHighCurrent = iHigh(_Symbol, g_tf, hIdxCurrent);
+   double recentLowCurrent  = iLow(_Symbol, g_tf, lIdxCurrent);
 
-   // Barycentre
-   double sum = 0;
-   for(int k = 1; k <= InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
-   double barycenter = sum / InpBaryPeriod;
-
-   double sqSum = 0;
-   for(int k = 1; k <= InpBaryPeriod; k++)
-   {
-      double diff = iClose(_Symbol, g_tf, k) - barycenter;
-      sqSum += diff * diff;
-   }
-   double stdDev = MathSqrt(sqSum / InpBaryPeriod);
-   if(stdDev == 0) stdDev = 0.00001;
-   double timing = (curPrice - barycenter) / stdDev;
-
-   // Retest Sommet et Creux Récents
-   int highestIdx = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, 1);
-   int lowestIdx  = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, 1);
-   double recentHigh = iHigh(_Symbol, g_tf, highestIdx);
-   double recentLow  = iLow(_Symbol, g_tf, lowestIdx);
-
-   double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
-   double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
-
-   bool isRetestHigh = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
-   bool isRetestLow  = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
-
-   bool isBuySignal  = isRetestLow  && (lowerWickPct >= InpMinWickPct);
-   bool isSellSignal = isRetestHigh && (upperWickPct >= InpMinWickPct);
-
-   datetime candleTime = iTime(_Symbol, g_tf, 1);
-
-   // ── TRACÉ DES 2 LIGNES HORIZONTALES DE RETEST ──
    if(InpDrawRetestLines)
    {
       string lineHighName = "BK_Line_High";
-      if(ObjectFind(0, lineHighName) < 0) ObjectCreate(0, lineHighName, OBJ_HLINE, 0, 0, recentHigh);
-      else ObjectMove(0, lineHighName, 0, 0, recentHigh);
+      if(ObjectFind(0, lineHighName) < 0) ObjectCreate(0, lineHighName, OBJ_HLINE, 0, 0, recentHighCurrent);
+      else ObjectMove(0, lineHighName, 0, 0, recentHighCurrent);
       ObjectSetInteger(0, lineHighName, OBJPROP_COLOR, clrRed);
       ObjectSetInteger(0, lineHighName, OBJPROP_STYLE, STYLE_SOLID);
       ObjectSetInteger(0, lineHighName, OBJPROP_WIDTH, 2);
 
       string lineLowName = "BK_Line_Low";
-      if(ObjectFind(0, lineLowName) < 0) ObjectCreate(0, lineLowName, OBJ_HLINE, 0, 0, recentLow);
-      else ObjectMove(0, lineLowName, 0, 0, recentLow);
+      if(ObjectFind(0, lineLowName) < 0) ObjectCreate(0, lineLowName, OBJ_HLINE, 0, 0, recentLowCurrent);
+      else ObjectMove(0, lineLowName, 0, 0, recentLowCurrent);
       ObjectSetInteger(0, lineLowName, OBJPROP_COLOR, clrLime);
       ObjectSetInteger(0, lineLowName, OBJPROP_STYLE, STYLE_SOLID);
       ObjectSetInteger(0, lineLowName, OBJPROP_WIDTH, 2);
    }
 
-   // ── DESSIN FLÈCHE & TEXTE DU SIGNAL DU SYMBOLE EN COURS ──
-   if(InpDrawArrows)
-   {
-      double pointVal = _Point;
-      if(_Digits == 3 || _Digits == 5) pointVal *= 10;
+   // ── 2. SCAN ET DESSIN DES FLÈCHES SUR LES BOUGIES DE REJET EXACTES ──
+   if(!InpDrawArrows) return;
 
-      double arrowOffset = 10.0 * pointVal;
-      double textOffset  = 25.0 * pointVal;
+   double pointVal = _Point;
+   if(_Digits == 3 || _Digits == 5) pointVal *= 10;
+   double arrowOffset = 10.0 * pointVal;
+   double textOffset  = 25.0 * pointVal;
+
+   int lookbackBars = MathMin(150, totalBars - InpBaryPeriod - 2);
+
+   for(int i = 1; i <= lookbackBars; i++)
+   {
+      double curPrice = iClose(_Symbol, g_tf, i);
+      double openP    = iOpen(_Symbol, g_tf, i);
+      double highP    = iHigh(_Symbol, g_tf, i);
+      double lowP     = iLow(_Symbol, g_tf, i);
+      double cRange   = MathMax(highP - lowP, 0.00001);
+
+      double bodyMin  = MathMin(openP, curPrice);
+      double bodyMax  = MathMax(openP, curPrice);
+      double lowerWickPct = ((bodyMin - lowP) / cRange) * 100.0;
+      double upperWickPct = ((highP - bodyMax) / cRange) * 100.0;
+
+      // Barycentre sur i
+      double sum = 0;
+      for(int k = i; k < i + InpBaryPeriod; k++) sum += iClose(_Symbol, g_tf, k);
+      double barycenter = sum / InpBaryPeriod;
+
+      double sqSum = 0;
+      for(int k = i; k < i + InpBaryPeriod; k++)
+      {
+         double diff = iClose(_Symbol, g_tf, k) - barycenter;
+         sqSum += diff * diff;
+      }
+      double stdDev = MathSqrt(sqSum / InpBaryPeriod);
+      if(stdDev == 0) stdDev = 0.00001;
+      double timing = (curPrice - barycenter) / stdDev;
+
+      int hIdx = iHighest(_Symbol, g_tf, MODE_HIGH, InpRetestLookback, i + 1);
+      int lIdx = iLowest(_Symbol, g_tf, MODE_LOW, InpRetestLookback, i + 1);
+      double recentHigh = iHigh(_Symbol, g_tf, hIdx);
+      double recentLow  = iLow(_Symbol, g_tf, lIdx);
+
+      double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
+      double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
+
+      bool isRetestHigh = (distHighPct <= InpMaxRetestDist) && (timing >= 1.0);
+      bool isRetestLow  = (distLowPct <= InpMaxRetestDist) && (timing <= -1.0);
+
+      bool isBuySignal  = isRetestLow  && (lowerWickPct >= InpMinWickPct);
+      bool isSellSignal = isRetestHigh && (upperWickPct >= InpMinWickPct);
+
+      datetime bTime = iTime(_Symbol, g_tf, i);
+      string timeID = IntegerToString((long)bTime);
 
       if(isBuySignal)
       {
-         string arrowName = "BK_Signal_Arrow";
-         if(ObjectFind(0, arrowName) < 0) ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, lowP - arrowOffset);
-         else ObjectMove(0, arrowName, 0, candleTime, lowP - arrowOffset);
-         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233);
-         ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
-         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+         string arrowName = "BK_Arrow_Buy_" + timeID;
+         if(ObjectFind(0, arrowName) < 0)
+         {
+            ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, lowP - arrowOffset);
+            ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 233); // Flèche Haut Wingdings
+            ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrLime);
+            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+         }
 
-         string textName = "BK_Signal_Text";
-         if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, lowP - textOffset);
-         else ObjectMove(0, textName, 0, candleTime, lowP - textOffset);
-         ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST ACHAT - MECHE " + DoubleToString(lowerWickPct, 1) + "%]");
-         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
-         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
-         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
+         string textName = "BK_Text_Buy_" + timeID;
+         if(ObjectFind(0, textName) < 0)
+         {
+            ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, lowP - textOffset);
+            ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST ACHAT (" + DoubleToString(lowerWickPct, 1) + "%)]");
+            ObjectSetInteger(0, textName, OBJPROP_COLOR, clrLime);
+            ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
+            ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
+         }
       }
       else if(isSellSignal)
       {
-         string arrowName = "BK_Signal_Arrow";
-         if(ObjectFind(0, arrowName) < 0) ObjectCreate(0, arrowName, OBJ_ARROW, 0, candleTime, highP + arrowOffset);
-         else ObjectMove(0, arrowName, 0, candleTime, highP + arrowOffset);
-         ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234);
-         ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
-         ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+         string arrowName = "BK_Arrow_Sell_" + timeID;
+         if(ObjectFind(0, arrowName) < 0)
+         {
+            ObjectCreate(0, arrowName, OBJ_ARROW, 0, bTime, highP + arrowOffset);
+            ObjectSetInteger(0, arrowName, OBJPROP_ARROWCODE, 234); // Flèche Bas Wingdings
+            ObjectSetInteger(0, arrowName, OBJPROP_COLOR, clrRed);
+            ObjectSetInteger(0, arrowName, OBJPROP_WIDTH, 4);
+         }
 
-         string textName = "BK_Signal_Text";
-         if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, candleTime, highP + textOffset);
-         else ObjectMove(0, textName, 0, candleTime, highP + textOffset);
-         ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST VENTE - MECHE " + DoubleToString(upperWickPct, 1) + "%]");
-         ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
-         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 10);
-         ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
-      }
-      else
-      {
-         ObjectDelete(0, "BK_Signal_Arrow");
-         ObjectDelete(0, "BK_Signal_Text");
+         string textName = "BK_Text_Sell_" + timeID;
+         if(ObjectFind(0, textName) < 0)
+         {
+            ObjectCreate(0, textName, OBJ_TEXT, 0, bTime, highP + textOffset);
+            ObjectSetString(0, textName, OBJPROP_TEXT, "[RETEST VENTE (" + DoubleToString(upperWickPct, 1) + "%)]");
+            ObjectSetInteger(0, textName, OBJPROP_COLOR, clrRed);
+            ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
+            ObjectSetString(0, textName, OBJPROP_FONT, "Arial Bold");
+         }
       }
    }
 }
