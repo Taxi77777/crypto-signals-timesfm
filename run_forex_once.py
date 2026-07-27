@@ -172,6 +172,17 @@ def run_forex_scan():
                         from src.telegram_bot import send_message
                         icon = "🟢" if direction == "BUY" else "🔴"
                         time_str = time.strftime("%d/%m/%Y %H:%M")
+
+                        # Extraction de l'heure de la bougie du premier rejet
+                        last_ts = df.index[-1]
+                        try:
+                            if hasattr(last_ts, "tz_convert") and last_ts.tzinfo is not None:
+                                rej_time_str = last_ts.tz_convert("Europe/Paris").strftime("%H:%M")
+                            else:
+                                rej_time_str = pd.Timestamp(last_ts, tz="UTC").tz_convert("Europe/Paris").strftime("%H:%M")
+                        except Exception:
+                            rej_time_str = time.strftime("%H:%M")
+
                         send_message(
                             f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM [FOREX]* 👑\n"
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -185,6 +196,7 @@ def run_forex_scan():
                             f"📍 Retest Zone     : *{'Double Bottom (Bas)' if direction == 'BUY' else 'Double Top (Haut)'}*\n"
                             f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
                             f"🕯️ Mèche de Rejet    : *Physique {wick_val:.1f}% (≥ 15%)*\n"
+                            f"🕒 *Heure 1er Rejet*  : *Bougie de {rej_time_str} (Heure de Paris)*\n"
                             f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                             f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
                             f"🕐 {time_str} (Heure de Paris)\n"
