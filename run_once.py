@@ -178,40 +178,25 @@ def main():
     # ── Phase B : 5 passes IA séquentielles (chargement → prédictions → libération RAM) ──
     ai_preds = {"tfm": {}, "cho": {}, "moi": {}, "lla": {}, "gra": {}}
 
-    logger.info("── Passe 1/5 : Google TimesFM 2.5 ──")
+    logger.info("── Passe 1/2 : Google TimesFM 2.5 (Modèle #1 Ultra-Précis) ──")
     from src.timesfm_predictor import unload_timesfm
     for sym, series in series_map.items():
         ai_preds["tfm"][sym] = predict_timesfm(series)
     unload_timesfm()
     gc.collect()
 
-    logger.info("── Passe 2/5 : Amazon Chronos ──")
+    logger.info("── Passe 2/2 : Amazon Chronos (Modèle #2 Haut-Débit) ──")
     from src.chronos_predictor import predict_chronos, unload_chronos
     for sym, series in series_map.items():
         ai_preds["cho"][sym] = predict_chronos(series)
     unload_chronos()
     gc.collect()
 
-    logger.info("── Passe 3/5 : Salesforce Moirai 2.0 ──")
-    from src.moirai_predictor import predict_moirai, unload_moirai
-    for sym, series in series_map.items():
-        ai_preds["moi"][sym] = predict_moirai(series)
-    unload_moirai()
-    gc.collect()
-
-    logger.info("── Passe 4/5 : Lag-Llama ──")
-    from src.lagllama_predictor import predict_lagllama, unload_lagllama
-    for sym, series in series_map.items():
-        ai_preds["lla"][sym] = predict_lagllama(series)
-    unload_lagllama()
-    gc.collect()
-
-    logger.info("── Passe 5/5 : IBM Granite TTM ──")
-    from src.granite_predictor import predict_granite, unload_granite
-    for sym, series in series_map.items():
-        ai_preds["gra"][sym] = predict_granite(series)
-    unload_granite()
-    gc.collect()
+    # Désactivation des modèles lents/sous-performants (Moirai, Lag-Llama, Granite) pour vitesse maximale
+    for sym in series_map:
+        ai_preds["moi"][sym] = None
+        ai_preds["lla"][sym] = None
+        ai_preds["gra"][sym] = None
 
     # ── Phase C : génération des signaux (consensus strict 5 IA) ─────────────
     signals = []
