@@ -113,11 +113,11 @@ def run_forex_scan():
                 is_retest_high = (abs(cur_price - recent_high) / cur_price <= 0.015) and (timing >= 1.0)
                 is_retest_low  = (abs(cur_price - recent_low) / cur_price <= 0.015) and (timing <= -1.0)
 
-                # RÈGLE PURE BELKHAYATE + PULLBACK RE-TEST + MÈCHE DE REJET :
-                # BUY  : (Prix <= Zone Verte OU Timing <= -1.5 OU Retest Plus Bas) ET Mèche Basse >= 15%
-                is_buy  = (cur_price <= low_zone or timing <= -1.5 or is_retest_low) and (l_wick >= 0.15)
-                # SELL : (Prix >= Zone Rouge OU Timing >= 1.5 OU Retest Plus Haut) ET Mèche Haute >= 15%
-                is_sell = (cur_price >= up_zone  or timing >= 1.5  or is_retest_high) and (u_wick >= 0.15)
+                # RÈGLE 100% EXCLUSIVE PULLBACK RE-TEST + MÈCHE DE REJET :
+                # BUY  : Retest Plus Bas (Double Bottom) ET Mèche Basse >= 15%
+                is_buy  = is_retest_low and (l_wick >= 0.15)
+                # SELL : Retest Plus Haut (Double Top) ET Mèche Haute >= 15%
+                is_sell = is_retest_high and (u_wick >= 0.15)
 
                 if not (is_buy or is_sell):
                     continue

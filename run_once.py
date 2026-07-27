@@ -944,8 +944,9 @@ def main():
                 bary_val = _to_flt(bary)
                 bary_std_val = _to_flt(bary_s)
 
-                buy_ok  = (tim <= -1.50 or (cur_price <= (bary_val - 1.618*1.8*bary_std_val)) or is_retest_low) and lw >= 0.15
-                sell_ok = (tim >= 1.50  or (cur_price >= (bary_val + 1.618*1.8*bary_std_val)) or is_retest_high) and uw >= 0.15
+                # RÈGLE 100% EXCLUSIVE PULLBACK RE-TEST (DOUBLE TOP & DOUBLE BOTTOM) + MÈCHE DE REJET :
+                buy_ok  = is_retest_low and lw >= 0.15
+                sell_ok = is_retest_high and uw >= 0.15
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
