@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                     Belkhayate_Retest_EA.mq4    |
 //|               Copyright 2026, Mostafa Belkhayate & IA System     |
-//|    Robot Expert MT4 v9.10 : Scan Multi-Paires 28 Symboles MT4   |
+//|    Robot Expert MT4 v10.00 : Rescan Instantané Fermeture Trade  |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Belkhayate AI"
 #property link      "https://github.com/Taxi77777/crypto-signals-timesfm"
-#property version   "9.10"
+#property version   "10.00"
 #property strict
 
 //--- ENUM DES TIMEFRAMES SELECTIONNABLES
@@ -19,7 +19,7 @@ enum ENUM_CUSTOM_TIMEFRAME
 };
 
 //--- Inputs Paramètres Stratégie Belkhayate Cassure Impulsionnelle
-input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (MULTI-PAIRES) ===";
+input string                InpGroupStrategy   = "=== STRATÉGIE BELKHAYATE CASSURE (RESCAN INSTANTANÉ) ===";
 input ENUM_CUSTOM_TIMEFRAME InpTimeframe       = TF_M15;   // Unité de temps choisie pour le Robot
 input int                   InpBaryPeriod      = 30;      // Période du Barycentre Belkhayate
 input double                InpMaxRetestDist   = 1.5;     // Écartement max de Cassure (%)
@@ -54,7 +54,8 @@ input bool                  InpDrawArrows      = true;    // Dessiner les flèch
 input bool                  InpDrawRetestLines = true;    // Dessiner les 2 lignes Horizontales (Rouge Haut / Vert Bas)
 
 //--- Variables Globales
-datetime g_lastBarTime = 0;
+datetime g_lastBarTime    = 0;
+int      g_lastOpenTrades = 0;
 ENUM_TIMEFRAMES g_tf;
 
 // Liste complète des 28 paires Forex principales scannées automatiquement
@@ -73,7 +74,8 @@ int OnInit()
    if(InpTimeframe == TF_CURRENT) g_tf = (ENUM_TIMEFRAMES)_Period;
    else g_tf = (ENUM_TIMEFRAMES)InpTimeframe;
 
-   g_lastBarTime = 0;
+   g_lastBarTime    = 0;
+   g_lastOpenTrades = 0;
 
    // Pré-chargement des paires dans le Market Watch MT4
    for(int i = 0; i < 28; i++)
@@ -81,7 +83,7 @@ int OnInit()
       SymbolSelect(g_watchlist[i], true);
    }
 
-   Print("👑 Belkhayate Breakout EA v9.10 (Multi-Paires 28 Symboles) initialisé !");
+   Print("👑 Belkhayate Breakout EA v10.00 (Rescan Instantané Fermeture Trade) initialisé !");
 
    UpdateChartVisuals();
 
@@ -116,11 +118,32 @@ void OnTick()
    UpdateChartVisuals();
    if(InpShowDashboard) DrawDashboardHUD();
 
+   // Compter le nombre de trades ouverts actuellement
+   int currentOpenTrades = 0;
+   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if(OrderSelect(i, SELECT_BY_POS, MODE_TRADES))
+      {
+         if(OrderMagicNumber() == InpMagicNumber) currentOpenTrades++;
+      }
+   }
+
+   // DETECTER SI UN TRADE VIENT D'ETRE FERME MANUELLEMENT OU PAR TP/SL
+   bool tradeJustClosed = (currentOpenTrades < g_lastOpenTrades);
+   g_lastOpenTrades = currentOpenTrades;
+
    datetime currentBarTime = iTime(_Symbol, g_tf, 0);
-   if(currentBarTime == g_lastBarTime) return;
+
+   // SI AUCUN TRADE N'A ÉTÉ FERMÉ ET QUE C'EST LA MÊME BOUGIE, PASSER LE TICK
+   if(currentBarTime == g_lastBarTime && !tradeJustClosed) return;
    g_lastBarTime = currentBarTime;
 
-   // Scanner toutes les 28 paires Forex pour déclencher un trade si signal
+   if(tradeJustClosed)
+   {
+      Print("⚡ Trade fermé détecté ! Rescan instantané de l'ensemble des 28 paires Forex...");
+   }
+
+   // Scanner toutes les 28 paires Forex immédiatement
    if(InpScanAllWatchlist)
    {
       for(int i = 0; i < 28; i++)
