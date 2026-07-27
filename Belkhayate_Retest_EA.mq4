@@ -236,11 +236,11 @@ void UpdateChartVisuals()
    bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE + VOLUME SMA 9 :
-   // Sommet + Impulsion Verte + Volume >= SMA9 -> ACHAT (BUY)
-   // Creux + Impulsion Rouge + Volume >= SMA9 -> VENTE (SELL)
-   bool isBuySignal  = touchesHigh && isBullishImpulse && isVolOK;
-   bool isSellSignal = touchesLow  && isBearishImpulse && isVolOK;
+   // STRATÉGIE MOSTAFA BELKHAYATE (CASSURE IMPULSION + REJET MÈCHE DE LIGNE) :
+   // 🟢 ACHAT (BUY) : Retest/Cassure Sommet OU Rejet Mèche Basse (>=20%) / Impulsion Verte sur Ligne Creux
+   // 🔴 VENTE (SELL) : Retest/Cassure Creux OU Rejet Mèche Haute (>=20%) / Impulsion Rouge sur Ligne Sommet
+   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
+   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -332,11 +332,11 @@ void ExecuteTradeForSymbol(string sym)
    bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE + VOLUME SMA 9 :
-   // Sommet + Impulsion Verte + Volume >= SMA9 -> ACHAT (BUY)
-   // Creux + Impulsion Rouge + Volume >= SMA9 -> VENTE (SELL)
-   bool isBuySignal  = touchesHigh && isBullishImpulse && isVolOK;
-   bool isSellSignal = touchesLow  && isBearishImpulse && isVolOK;
+   // STRATÉGIE MOSTAFA BELKHAYATE (CASSURE IMPULSION + REJET MÈCHE DE LIGNE) :
+   // 🟢 ACHAT (BUY) : Retest/Cassure Sommet OU Rejet Mèche Basse (>=20%) / Impulsion Verte sur Ligne Creux
+   // 🔴 VENTE (SELL) : Retest/Cassure Creux OU Rejet Mèche Haute (>=20%) / Impulsion Rouge sur Ligne Sommet
+   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
+   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
 
    if(!isBuySignal && !isSellSignal) return;
 
