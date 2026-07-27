@@ -953,14 +953,23 @@ def main():
                 bary_val = _to_flt(bary)
                 bary_std_val = _to_flt(bary_s)
 
-                # FILTRE IMPULSION : Corps de bougie directionnel (≥ 35% du range total)
+                # FILTRE VOLUME SMA 9 (Volume de la bougie >= Moyenne 9 périodes)
+                if "volume" in df_tf.columns and len(df_tf["volume"]) >= 9:
+                    vol_sma9 = df_tf["volume"].rolling(window=9).mean()
+                    vol_curr = _to_flt(df_tf["volume"])
+                    vol_sma9_val = _to_flt(vol_sma9)
+                    is_volume_confirmed = (vol_curr >= vol_sma9_val * 0.85)
+                else:
+                    is_volume_confirmed = True
+
+                # FILTRE IMPULSION : Corps de bougie directionnel (≥ 35% du range total) + Volume SMA 9
                 body_ratio = _to_flt(abs(df_tf["close"] - df_tf["open"]) / c_range)
-                is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
-                is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35)
+                is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35) and is_volume_confirmed
+                is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35) and is_volume_confirmed
 
                 # RÈGLE 100% BREAKOUT / CASSURE IMPULSIONNELLE BELKHAYATE :
-                # - Cassure/Retest Sommet + Impulsion Verte (>=35%) -> ACHAT (BUY / LONG)
-                # - Cassure/Retest Creux + Impulsion Rouge (>=35%) -> VENTE (SELL / SHORT)
+                # - Cassure/Retest Sommet + Impulsion Verte (>=35%) + Volume SMA9 -> ACHAT (BUY / LONG)
+                # - Cassure/Retest Creux + Impulsion Rouge (>=35%) + Volume SMA9 -> VENTE (SELL / SHORT)
                 buy_ok  = is_retest_high and is_bullish_impulse
                 sell_ok = is_retest_low  and is_bearish_impulse
                 return buy_ok, sell_ok, tim
@@ -1021,6 +1030,7 @@ def main():
                 f"📍 Cassure Impulsion : *{'Cassure Sommet (BUY / LONG)' if target_signal == 'BUY' else 'Cassure Creux (SELL / SHORT)'}*\n"
                 f"⏱️ Timing Oscillator : `{bary_timing:+.2f}` (Extrême Validé)\n"
                 f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
+                f"📊 Volume SMA 9      : *Volume Institutionnel ≥ SMA 9*\n"
                 f"⚡ Levier Utilisé    : *50X (Impulsion Institutionnelle)*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"

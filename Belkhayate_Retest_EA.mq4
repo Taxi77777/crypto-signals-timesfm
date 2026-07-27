@@ -221,6 +221,12 @@ void UpdateChartVisuals()
    bool isBullishImpulse = (curPrice > openP) && (bodyRatio >= InpMinImpulseBody);
    bool isBearishImpulse = (curPrice < openP) && (bodyRatio >= InpMinImpulseBody);
 
+   // Volume SMA 9 Filter (Moyenne 9 périodes du volume)
+   double volSum = 0;
+   for(int v = 1; v <= 9; v++) volSum += (double)iVolume(_Symbol, g_tf, v);
+   double volSMA9 = volSum / 9.0;
+   bool isVolOK = ((double)iVolume(_Symbol, g_tf, 1) >= volSMA9 * 0.85);
+
    double distHighPct = (MathAbs(curPrice - recentHighCurrent) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLowCurrent) / curPrice) * 100.0;
 
@@ -230,11 +236,11 @@ void UpdateChartVisuals()
    bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE :
-   // Sommet + Impulsion Verte -> ACHAT (BUY)
-   // Creux + Impulsion Rouge -> VENTE (SELL)
-   bool isBuySignal  = touchesHigh && isBullishImpulse;
-   bool isSellSignal = touchesLow  && isBearishImpulse;
+   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE + VOLUME SMA 9 :
+   // Sommet + Impulsion Verte + Volume >= SMA9 -> ACHAT (BUY)
+   // Creux + Impulsion Rouge + Volume >= SMA9 -> VENTE (SELL)
+   bool isBuySignal  = touchesHigh && isBullishImpulse && isVolOK;
+   bool isSellSignal = touchesLow  && isBearishImpulse && isVolOK;
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -311,7 +317,11 @@ void ExecuteTradeForSymbol(string sym)
    int highestIdx = iHighest(sym, g_tf, MODE_HIGH, InpRetestLookback, 1);
    int lowestIdx  = iLowest(sym, g_tf, MODE_LOW, InpRetestLookback, 1);
    double recentHigh = iHigh(sym, g_tf, highestIdx);
-   double recentLow  = iLow(sym, g_tf, lowestIdx);
+   // Volume SMA 9 Filter (Moyenne 9 périodes du volume)
+   double volSum = 0;
+   for(int v = 1; v <= 9; v++) volSum += (double)iVolume(sym, g_tf, v);
+   double volSMA9 = volSum / 9.0;
+   bool isVolOK = ((double)iVolume(sym, g_tf, 1) >= volSMA9 * 0.85);
 
    double distHighPct = (MathAbs(curPrice - recentHigh) / curPrice) * 100.0;
    double distLowPct  = (MathAbs(curPrice - recentLow) / curPrice) * 100.0;
@@ -322,11 +332,11 @@ void ExecuteTradeForSymbol(string sym)
    bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE :
-   // Sommet + Impulsion Verte -> ACHAT (BUY)
-   // Creux + Impulsion Rouge -> VENTE (SELL)
-   bool isBuySignal  = touchesHigh && isBullishImpulse;
-   bool isSellSignal = touchesLow  && isBearishImpulse;
+   // STRATÉGIE BREAKOUT CASSURE IMPULSIONNELLE + VOLUME SMA 9 :
+   // Sommet + Impulsion Verte + Volume >= SMA9 -> ACHAT (BUY)
+   // Creux + Impulsion Rouge + Volume >= SMA9 -> VENTE (SELL)
+   bool isBuySignal  = touchesHigh && isBullishImpulse && isVolOK;
+   bool isSellSignal = touchesLow  && isBearishImpulse && isVolOK;
 
    if(!isBuySignal && !isSellSignal) return;
 
