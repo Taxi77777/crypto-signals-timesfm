@@ -1019,30 +1019,7 @@ def main():
             sl_txt = f"`{_fmt_p(sl_ext)}`" if sl_ext > 0 else "`Aucun` ⚠️ (protégé uniquement par le trailing)"
             icon = "🟢" if target_signal == "BUY" else "🔴"
 
-            # Toujours envoyer le signal sur Telegram
             time_str = datetime.now(PARIS_TZ).strftime("%d/%m/%Y %H:%M")
-            send_message(
-                f"🚨 *SIGNAL CRYPTO BELKHAYATE MANIPULATION (50X)* 🚨\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📊 Signal      : {icon} *{target_signal}*\n"
-                f"🪙 Paire       : *{name}* [MEXC FUTURES x50]\n"
-                f"🎯 Prix Manipulation : `{_fmt_p(manipulation_entry_price)}` (Bas/Haut de Mèche)\n"
-                f"💰 Prix Actuel       : `{_fmt_p(cur_price)}`\n"
-                f"🏁 Take Profit : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x50)\n"
-                f"🛑 Stop Loss   : `{sl_txt}`\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"🏛️ *STRATÉGIE BELKHAYATE MANIPULATION :*\n"
-                f"📍 Configuration    : *{'Rejet Support / Cassure Sommet (BUY)' if target_signal == 'BUY' else 'Rejet Résistance / Cassure Creux (SELL)'}*\n"
-                f"⏱️ Timing Oscillator : `{bary_timing:+.2f}` (Extrême Validé)\n"
-                f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
-                f"📊 Volume SMA 9      : *Volume Institutionnel ≥ SMA 9*\n"
-                f"⚡ Levier Utilisé    : *50X (Impulsion Institutionnelle)*\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"
-                f"🕐 {time_str} (Heure de Paris)\n"
-            )
-            logger.info(f"📲 Signal Telegram envoyé pour {name} {target_signal} @ {manipulation_entry_price}")
-
             if use_mexc and trade_allowed:
                 result_wall = place_order(
                     api_key    = mexc_key,
@@ -1056,7 +1033,27 @@ def main():
                 if result_wall and result_wall.get("success"):
                     trade_allowed = False
                     open_symbols.append(symbol_mexc)
-                    logger.info(f"🚀 Trade Manipulation 50X {target_signal} ouvert sur MEXC : {name} @ {manipulation_entry_price}")
+                    send_message(
+                        f"🚨 *SIGNAL CRYPTO BELKHAYATE MANIPULATION (50X)* 🚨\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📊 Signal            : {icon} *{target_signal}*\n"
+                        f"🪙 Paire             : *{name}* [MEXC FUTURES x50]\n"
+                        f"🎯 Prix Manipulation : `{_fmt_p(manipulation_entry_price)}` (Bas/Haut de Mèche)\n"
+                        f"💰 Prix Actuel       : `{_fmt_p(cur_price)}`\n"
+                        f"🏁 Take Profit       : `{_fmt_p(tp_ext)}` (±{_tp_pct*100:.1f}% / ~+{_tp_pct*100*LEVERAGE:.0f}% en x50)\n"
+                        f"🛑 Stop Loss         : `{sl_txt}`\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🏛️ *STRATÉGIE BELKHAYATE MANIPULATION :*\n"
+                        f"📍 Configuration    : *{'Rejet Support / Cassure Sommet (BUY)' if target_signal == 'BUY' else 'Rejet Résistance / Cassure Creux (SELL)'}*\n"
+                        f"⏱️ Timing Oscillator : `{bary_timing:+.2f}` (Extrême Validé)\n"
+                        f"🕯️ Impulsion Bougie  : *Corps Directionnel ≥ 35%*\n"
+                        f"📊 Volume SMA 9      : *Volume Institutionnel ≥ SMA 9*\n"
+                        f"⚡ Levier Utilisé    : *50X (Impulsion Institutionnelle)*\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🤖 Consensus IA : *100% Validé (Google TimesFM & Chronos)*\n"
+                        f"🕐 {time_str} (Heure de Paris)\n"
+                    )
+                    logger.info(f"🚀 Trade Manipulation 50X {target_signal} OUVERT ET NOTIFIÉ SUR MEXC : {name} @ {manipulation_entry_price}")
                 else:
                     err_w = result_wall.get("error", "?") if result_wall else "réponse vide"
                     logger.error(f"❌ Échec auto-trading MEXC {name}: {err_w}")

@@ -41,7 +41,13 @@ OBI_MAX_FOR_SELL         = 0.50   # Exige au moins 50% de Vendeurs (domination v
 # pouvait être tradée avec un notionnel de plus de 1 000 USD → slippage énorme.
 # Ce plancher exclut réellement les paires trop illiquides.
 ENABLE_VOLUME_FLOOR      = True
-MIN_VOLUME_24H_USDT      = 1_000_000   # 1M$ USDT volume floor (permits all major liquid altcoins)
+MIN_VOLUME_24H_USDT      = 1_000_000   # 1M$ USDT volume floor
+
+# ── Guards Macro / BTC (Désactivés pour autoriser le trading pur Belkhayate sur les 54 paires) ──
+ENABLE_BTC_GUARD         = False
+ENABLE_ETH_BTC_GUARD     = False
+ENABLE_DXY_GUARD         = False
+ENABLE_NASDAQ_GUARD      = False
 
 # ── Volume Climax : bougie clôturée ou bougie en cours ? ─────────────────────
 # yfinance renvoie la bougie 15m EN FORMATION comme dernière ligne. Comparer son
