@@ -236,11 +236,11 @@ void UpdateChartVisuals()
    bool touchesHigh = (highP >= recentHighCurrent) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLowCurrent)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE MOSTAFA BELKHAYATE (CASSURE IMPULSION + REJET MÈCHE DE LIGNE) :
-   // 🟢 ACHAT (BUY) : Retest/Cassure Sommet OU Rejet Mèche Basse (>=20%) / Impulsion Verte sur Ligne Creux
-   // 🔴 VENTE (SELL) : Retest/Cassure Creux OU Rejet Mèche Haute (>=20%) / Impulsion Rouge sur Ligne Sommet
-   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
-   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
+   // STRATÉGIE 100% MOSTAFA BELKHAYATE CONTRE-TENDANCE / ANTI-MANIPULATION :
+   // 🟢 ACHAT (BUY) : Toucher/Retest Ligne Creux (Ligne Basse / Support) -> ACHAT (BUY)
+   // 🔴 VENTE (SELL) : Toucher/Retest Ligne Sommet (Ligne Haute / Résistance) -> VENTE (SELL)
+   bool isBuySignal  = touchesLow  && (lWickPct >= 20.0 || isBullishImpulse || curPrice > openP);
+   bool isSellSignal = touchesHigh && (uWickPct >= 20.0 || isBearishImpulse || curPrice < openP);
 
    double arrowOffset = 3.0 * _Point; 
    double textOffset  = 12.0 * _Point;
@@ -332,11 +332,11 @@ void ExecuteTradeForSymbol(string sym)
    bool touchesHigh = (highP >= recentHigh) || (distHighPct <= InpMaxRetestDist);
    bool touchesLow  = (lowP  <= recentLow)  || (distLowPct  <= InpMaxRetestDist);
 
-   // STRATÉGIE MOSTAFA BELKHAYATE (CASSURE IMPULSION + REJET MÈCHE DE LIGNE) :
-   // 🟢 ACHAT (BUY) : Retest/Cassure Sommet OU Rejet Mèche Basse (>=20%) / Impulsion Verte sur Ligne Creux
-   // 🔴 VENTE (SELL) : Retest/Cassure Creux OU Rejet Mèche Haute (>=20%) / Impulsion Rouge sur Ligne Sommet
-   bool isBuySignal  = (touchesLow && (lWickPct >= 20.0 || isBullishImpulse)) || (touchesHigh && isBullishImpulse);
-   bool isSellSignal = (touchesHigh && (uWickPct >= 20.0 || isBearishImpulse)) || (touchesLow && isBearishImpulse);
+   // STRATÉGIE 100% MOSTAFA BELKHAYATE CONTRE-TENDANCE / ANTI-MANIPULATION :
+   // 🟢 ACHAT (BUY) : Toucher/Retest Ligne Creux (Ligne Basse / Support) -> ACHAT (BUY)
+   // 🔴 VENTE (SELL) : Toucher/Retest Ligne Sommet (Ligne Haute / Résistance) -> VENTE (SELL)
+   bool isBuySignal  = touchesLow  && (lWickPct >= 20.0 || isBullishImpulse || curPrice > openP);
+   bool isSellSignal = touchesHigh && (uWickPct >= 20.0 || isBearishImpulse || curPrice < openP);
 
    if(!isBuySignal && !isSellSignal) return;
 

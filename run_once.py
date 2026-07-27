@@ -968,15 +968,11 @@ def main():
                 is_bullish_impulse = (_to_flt(df_tf["close"]) > _to_flt(df_tf["open"])) and (body_ratio >= 0.35) and is_volume_confirmed
                 is_bearish_impulse = (_to_flt(df_tf["close"]) < _to_flt(df_tf["open"])) and (body_ratio >= 0.35) and is_volume_confirmed
 
-                # RÈGLE COMPLÈTE MOSTAFA BELKHAYATE (CASSURE IMPULSION + REJET MÈCHE DE LIGNE) :
-                # 🟢 ACHAT (BUY / LONG) : 
-                #    1. Cassure/Retest Sommet + Impulsion Verte (>=35%) + Volume SMA9
-                #    2. OU Toucher Creux/Ligne Transverse + Mèche Basse de Rejet (lw >= 20%) OU Impulsion Verte
-                # 🔴 VENTE (SELL / SHORT) : 
-                #    1. Cassure/Retest Creux + Impulsion Rouge (>=35%) + Volume SMA9
-                #    2. OU Toucher Sommet/Ligne Transverse + Mèche Haute de Rejet (uw >= 20%) OU Impulsion Rouge
-                buy_ok  = (touches_low_line and (lw >= 0.20 or is_bullish_impulse)) or (touches_high_line and is_bullish_impulse) or (is_retest_high and is_bullish_impulse)
-                sell_ok = (touches_high_line and (uw >= 0.20 or is_bearish_impulse)) or (touches_low_line and is_bearish_impulse) or (is_retest_low and is_bearish_impulse)
+                # RÈGLE 100% MOSTAFA BELKHAYATE CONTRE-TENDANCE / ANTI-MANIPULATION :
+                # - Toucher/Retest Sommet (Ligne Haute / Timing >= +1.0) -> VENTE (SELL / SHORT 50X)
+                # - Toucher/Retest Creux (Ligne Basse / Timing <= -1.0) -> ACHAT (BUY / LONG 50X)
+                buy_ok  = (touches_low_line or is_retest_low)  and (lw >= 0.20 or is_bullish_impulse or _to_flt(df_tf["close"]) > _to_flt(df_tf["open"]))
+                sell_ok = (touches_high_line or is_retest_high) and (uw >= 0.20 or is_bearish_impulse or _to_flt(df_tf["close"]) < _to_flt(df_tf["open"]))
                 return buy_ok, sell_ok, tim
 
             buy_15, sell_15, tim_15 = _eval_belkhayate_tf(df_15m)
