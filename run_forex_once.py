@@ -82,6 +82,20 @@ def run_forex_scan():
     logger.info("DEMARRAGE SCANNER FOREX PURE METHODE BELKHAYATE & MECHES (5m, 15m, 30m, 1h)")
     logger.info("==================================================")
 
+    # Chargement du cache anti-répétition des signaux Telegram Forex (cooldown 2h)
+    sent_cache_file = "sent_forex_cache.json"
+    sent_cache = {}
+    if os.path.exists(sent_cache_file):
+        try:
+            with open(sent_cache_file, "r", encoding="utf-8") as f:
+                sent_cache = json.load(f)
+        except Exception:
+            sent_cache = {}
+
+    now_ts = time.time()
+    # Nettoyer les entrées de plus de 2h (7200 sec)
+    sent_cache = {k: v for k, v in sent_cache.items() if (now_ts - v) < 7200}
+
     signals_found = []
     seen_pairs = set()
 
@@ -150,33 +164,45 @@ def run_forex_scan():
                 seen_pairs.add(clean_pair)
                 logger.info(f"SIGNAL FOREX BELKHAYATE PURE [{tf}] — {clean_pair} {direction} | Prix: {cur_price:.5f} | Timing: {timing:.2f} | Mèche Rejet: {wick_val:.1f}% | TP: {tp_price:.5f}")
 
-                # Envoi direct sur Telegram
-                try:
-                    from src.telegram_bot import send_message
-                    icon = "🟢" if direction == "BUY" else "🔴"
-                    time_str = time.strftime("%d/%m/%Y %H:%M")
-                    send_message(
-                        f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM [FOREX]* 👑\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📊 Signal      : {icon} *{direction}*\n"
-                        f"🏛️ Paire       : *{clean_pair}* [{tf}]\n"
-                        f"💰 Prix d'Entrée : `{cur_price:.5f}`\n"
-                        f"🎯 Take Profit : `{tp_price:.5f}`\n"
-                        f"🛑 Stop Loss   : `{sl_price:.5f}`\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE (RETEST)* :\n"
-                        f"📍 Retest Zone     : *{'Double Bottom (Bas)' if direction == 'BUY' else 'Double Top (Haut)'}*\n"
-                        f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
-                        f"🕯️ Mèche de Rejet    : *Physique {wick_val:.1f}% (≥ 15%)*\n"
-                        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
-                        f"🕐 {time_str} (Heure de Paris)\n"
-                    )
-                except Exception as _telegram_err:
-                    logger.error(f"Erreur envoi Telegram Forex pour {clean_pair}: {_telegram_err}")
+                # Envoi direct sur Telegram (si pas déjà envoyé dans les 2 dernières heures)
+                cache_key = f"{clean_pair}_{direction}_{tf}"
+                if cache_key not in sent_cache:
+                    sent_cache[cache_key] = now_ts
+                    try:
+                        from src.telegram_bot import send_message
+                        icon = "🟢" if direction == "BUY" else "🔴"
+                        time_str = time.strftime("%d/%m/%Y %H:%M")
+                        send_message(
+                            f"👑 *MOSTAFA BELKHAYATE & IA SYSTEM [FOREX]* 👑\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"📊 Signal      : {icon} *{direction}*\n"
+                            f"🏛️ Paire       : *{clean_pair}* [{tf}]\n"
+                            f"💰 Prix d'Entrée : `{cur_price:.5f}`\n"
+                            f"🎯 Take Profit : `{tp_price:.5f}`\n"
+                            f"🛑 Stop Loss   : `{sl_price:.5f}`\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"🏛️ *STRATÉGIE MOSTAFA BELKHAYATE (RETEST)* :\n"
+                            f"📍 Retest Zone     : *{'Double Bottom (Bas)' if direction == 'BUY' else 'Double Top (Haut)'}*\n"
+                            f"⏱️ Timing Oscillator : `{timing:+.2f}` (Extrême Validé)\n"
+                            f"🕯️ Mèche de Rejet    : *Physique {wick_val:.1f}% (≥ 15%)*\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"🤖 Diffusion MT4/MT5 & Telegram Validée 🚀\n"
+                            f"🕐 {time_str} (Heure de Paris)\n"
+                        )
+                        logger.info(f"📲 Notification Telegram envoyée pour {clean_pair} {direction} [{tf}]")
+                    except Exception as _telegram_err:
+                        logger.error(f"Erreur envoi Telegram Forex pour {clean_pair}: {_telegram_err}")
+                else:
+                    logger.info(f"ℹ️ Signal Telegram pour {clean_pair} {direction} [{tf}] déjà envoyé récemment (Anti-Spam activé).")
 
             except Exception as e:
                 logger.error(f"Erreur traitement [{tf}] {symbol}: {e}")
+
+    try:
+        with open(sent_cache_file, "w", encoding="utf-8") as f:
+            json.dump(sent_cache, f)
+    except Exception:
+        pass
 
     with open("forex_signals.json", "w", encoding="utf-8") as f:
         json.dump(signals_found, f, indent=2, ensure_ascii=False)
