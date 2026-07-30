@@ -1,82 +1,101 @@
 """
-╔══════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO — MEXC BOT CONFIG          ║
-║     Stratégie : 15m LVN ACCELERATION & REJECTION        ║
-╚══════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════╗
+║     INSTITUTIONAL HUNTER PRO — MEXC BOT CONFIG                  ║
+║     Stratégie : 15m LVN ACCELERATION & REJECTION                ║
+║     Mode      : TOUS LES FUTURES PAR VOLUME — Levier x40        ║
+╚══════════════════════════════════════════════════════════════════╝
 """
 
 # ──────────────────────────────────────────────
 #  🔑 MEXC API CREDENTIALS
-#  Créer sur : https://www.mexc.com/user/openapi
 # ──────────────────────────────────────────────
-MEXC_API_KEY    = ""   # Coller votre clé API MEXC ici
-MEXC_SECRET_KEY = ""   # Coller votre clé secrète MEXC ici
-MEXC_BASE_URL   = "https://contract.mexc.com"   # Futures Perpetual
-MEXC_SPOT_URL   = "https://api.mexc.com"        # Spot
+MEXC_API_KEY    = ""
+MEXC_SECRET_KEY = ""
+MEXC_BASE_URL   = "https://contract.mexc.com"
+MEXC_SPOT_URL   = "https://api.mexc.com"
 
 # ──────────────────────────────────────────────
-#  📊 PAIRES À TRADER — Sélection par volume
-#  (Bot tourne sur TOUTES ces paires en parallèle)
+#  📊 MODE PAIRES — DYNAMIQUE PAR VOLUME
 # ──────────────────────────────────────────────
-TRADING_PAIRS = [
-    # Paires Tier 1 — Volume extrême (>500M USDT/24h)
-    "BTC_USDT",       # Bitcoin
-    "ETH_USDT",       # Ethereum
+# Si AUTO_SCAN = True  → le bot scanne TOUS les futures MEXC
+#                        et prend les TOP N par volume 24h
+# Si AUTO_SCAN = False → utilise MANUAL_PAIRS ci-dessous
+AUTO_SCAN           = True
+AUTO_SCAN_TOP_N     = 40        # Prendre les 40 meilleures par volume
+AUTO_SCAN_MIN_VOL   = 5_000_000 # Volume min 24h en USDT (5M minimum)
+AUTO_SCAN_INTERVAL  = 3600      # Re-scanner toutes les heures
 
-    # Paires Tier 2 — Très liquides (>100M USDT/24h)
-    "OIL_USDT",       # WTI Crude Oil  ← IDENTIFIÉ SUR TON GRAPHIQUE
-    "SOL_USDT",       # Solana
-    "BNB_USDT",       # BNB
-    "XRP_USDT",       # XRP
-
-    # Paires Tier 3 — Liquides (>50M USDT/24h)
-    "DOGE_USDT",      # Dogecoin
-    "ADA_USDT",       # Cardano
-    "AVAX_USDT",      # Avalanche
-    "LINK_USDT",      # Chainlink
-    "MATIC_USDT",     # Polygon
-
-    # Matières premières (haute volatilité strategy-friendly)
-    "GOLD_USDT",      # Or
-    "SILVER_USDT",    # Argent
+# Paires manuelles (utilisées si AUTO_SCAN = False)
+MANUAL_PAIRS = [
+    # ── Crypto Majeurs ──────────────────────
+    "BTC_USDT", "ETH_USDT", "BNB_USDT", "SOL_USDT",
+    "XRP_USDT", "ADA_USDT", "DOGE_USDT", "AVAX_USDT",
+    "LINK_USDT", "MATIC_USDT", "DOT_USDT", "UNI_USDT",
+    "LTC_USDT", "BCH_USDT", "ATOM_USDT", "FIL_USDT",
+    "NEAR_USDT", "ARB_USDT", "OP_USDT", "SUI_USDT",
+    "APT_USDT", "INJ_USDT", "TIA_USDT", "SEI_USDT",
+    # ── Matières Premières ───────────────────
+    "OIL_USDT",     # WTI Crude Oil     ← TON GRAPHIQUE
+    "GOLD_USDT",    # Or
+    "SILVER_USDT",  # Argent
+    "NATGAS_USDT",  # Gaz Naturel
+    # ── Meme Coins (haute volatilité) ────────
+    "PEPE_USDT", "FLOKI_USDT", "SHIB_USDT", "WIF_USDT",
+    "BONK_USDT", "MEME_USDT",
+    # ── DeFi / Layer2 ────────────────────────
+    "AAVE_USDT", "CRV_USDT", "SNX_USDT", "GMX_USDT",
+    "JUP_USDT", "PYTH_USDT", "JTO_USDT", "STRK_USDT",
+    # ── AI Tokens ────────────────────────────
+    "FET_USDT", "RNDR_USDT", "WLD_USDT", "TAO_USDT",
 ]
 
 # ──────────────────────────────────────────────
 #  ⚙️ PARAMÈTRES STRATÉGIE LVN M15
 # ──────────────────────────────────────────────
-TIMEFRAME           = "Min15"   # M15 obligatoire
-KLINE_LIMIT         = 200       # Bougies analysées (≈ 50h)
-VP_BINS             = 100       # Tranches du volume profile
-LVN_THRESHOLD       = 0.35      # < 35% du max = LVN
-HVN_THRESHOLD       = 0.70      # > 70% du max = HVN
-MIN_RR              = 1.5       # Ratio Risk/Reward minimum
-MA_FAST             = 30        # MA rapide (comme sur ton graphique)
-MA_SLOW             = 60        # MA lente
-FISHER_PERIOD       = 9         # Période Fisher
-VWAP_SESSION_ONLY   = True      # VWAP depuis l'ouverture de session
+TIMEFRAME           = "Min15"
+KLINE_LIMIT         = 200
+VP_BINS             = 100
+LVN_THRESHOLD       = 0.35
+HVN_THRESHOLD       = 0.70
+MIN_RR              = 1.5
+MA_FAST             = 30
+MA_SLOW             = 60
+FISHER_PERIOD       = 9
+VWAP_SESSION_ONLY   = True
 
 # ──────────────────────────────────────────────
-#  💰 GESTION DU RISQUE
+#  💰 GESTION DU RISQUE — LEVIER x40
 # ──────────────────────────────────────────────
-RISK_PER_TRADE_PCT  = 1.0       # % du capital par trade (1%)
-MAX_CONCURRENT      = 3         # Max 3 trades simultanés
-MAX_DAILY_LOSS_PCT  = 5.0       # Stop journalier à -5%
-LEVERAGE            = 5         # Levier x5 (conservateur)
-USE_TRAILING_SL     = True      # Trailing stop actif
-TRAILING_TRIGGER    = 0.5       # Activer trailing après +0.5% de profit
+LEVERAGE            = 40       # ⚡ Levier x40
+
+# ⚠️  AVERTISSEMENT LEVIER x40 :
+# Un mouvement de 2.5% contre vous = liquidation totale.
+# Le risque par trade EST VOLONTAIREMENT BAS pour compenser.
+RISK_PER_TRADE_PCT  = 0.25     # 0.25% du capital par trade
+                                # Avec x40, exposition réelle = 10%
+
+# Sécurités
+MAX_CONCURRENT      = 5        # Max 5 trades simultanés
+MAX_DAILY_LOSS_PCT  = 10.0     # Stop journalier -10%
+MAX_DRAWDOWN_PCT    = 20.0     # Stop absolu si -20% du capital initial
+
+# Trailing Stop
+USE_TRAILING_SL     = True
+TRAILING_TRIGGER    = 0.3      # Activer trailing après +0.3% (x40 = +12% effectif)
+TRAILING_STEP       = 0.15     # Déplacer le SL de 0.15% à chaque pas
 
 # ──────────────────────────────────────────────
 #  🔄 FRÉQUENCES DE MISE À JOUR
 # ──────────────────────────────────────────────
-UPDATE_INTERVAL_SEC = 30        # Vérification toutes les 30s
-SIGNAL_COOLDOWN_SEC = 900       # 15 min entre 2 signaux sur la même paire
+UPDATE_INTERVAL_SEC = 15       # Vérification toutes les 15s (plus rapide pour x40)
+SIGNAL_COOLDOWN_SEC = 900      # 15 min entre 2 signaux sur la même paire
 
 # ──────────────────────────────────────────────
 #  📱 TELEGRAM ALERTES
 # ──────────────────────────────────────────────
-TG_ENABLED          = False     # Mettre True après config
-TG_BOT_TOKEN        = ""        # Token @BotFather
-TG_CHAT_ID          = ""        # Votre Chat ID
+TG_ENABLED          = False
+TG_BOT_TOKEN        = ""
+TG_CHAT_ID          = ""
 
 # ──────────────────────────────────────────────
 #  🪵 LOGS

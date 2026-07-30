@@ -19,12 +19,15 @@ from threading import Lock
 
 import mexc_api as api
 from strategy import LVNStrategy, Signal
+from scanner import get_active_pairs, print_market_overview, scan_all_futures
 from config import (
-    TRADING_PAIRS, TIMEFRAME, KLINE_LIMIT, UPDATE_INTERVAL_SEC,
+    TIMEFRAME, KLINE_LIMIT, UPDATE_INTERVAL_SEC,
     SIGNAL_COOLDOWN_SEC, RISK_PER_TRADE_PCT, MAX_CONCURRENT,
-    MAX_DAILY_LOSS_PCT, LEVERAGE, USE_TRAILING_SL, TRAILING_TRIGGER,
+    MAX_DAILY_LOSS_PCT, MAX_DRAWDOWN_PCT, LEVERAGE,
+    USE_TRAILING_SL, TRAILING_TRIGGER,
     LOG_TRADES, LOG_FILE, LOG_SIGNALS, SIGNAL_LOG_FILE,
     TG_ENABLED, TG_BOT_TOKEN, TG_CHAT_ID,
+    AUTO_SCAN, AUTO_SCAN_TOP_N, AUTO_SCAN_INTERVAL,
 )
 
 # ══════════════════════════════════════════════════════════════════
@@ -312,28 +315,47 @@ def run():
     log.info("═" * 60)
     log.info("  INSTITUTIONAL HUNTER PRO — MEXC BOT démarré")
     log.info("  Stratégie : 15m LVN ACCELERATION & REJECTION")
-    log.info(f"  Paires    : {len(TRADING_PAIRS)}")
-    log.info(f"  Risque/Trade : {RISK_PER_TRADE_PCT}% | Levier : x{LEVERAGE}")
+    log.info(f"  Mode      : {'AUTO-SCAN TOP ' + str(AUTO_SCAN_TOP_N) + ' par volume' if AUTO_SCAN else 'Paires manuelles'}")
+    log.info(f"  Levier    : x{LEVERAGE}  |  Risque/Trade : {RISK_PER_TRADE_PCT}%")
     log.info("═" * 60)
+
+    # Scan initial des paires
+    active_pairs = get_active_pairs(AUTO_SCAN)
+    log.info(f"📋 {len(active_pairs)} paires actives au démarrage")
 
     # Balance initiale
     try:
         account = api.get_account()
         _start_balance = account.get('balance', 0)
         log.info(f"💰 Balance MEXC : {_start_balance:.2f} USDT")
-        tg_send(f"🤖 <b>IHP MEXC Bot démarré</b>\n"
-                f"Balance: {_start_balance:.2f} USDT\n"
-                f"Paires: {len(TRADING_PAIRS)}\n"
-                f"Risque: {RISK_PER_TRADE_PCT}%/trade | x{LEVERAGE}")
+        tg_send(
+            f"🤖 <b>IHP MEXC Bot démarré — x{LEVERAGE}</b>\n"
+            f"Balance : {_start_balance:.2f} USDT\n"
+            f"Mode    : {'Auto-scan TOP ' + str(AUTO_SCAN_TOP_N) if AUTO_SCAN else 'Manuel'}\n"
+            f"Risque  : {RISK_PER_TRADE_PCT}%/trade | x{LEVERAGE}\n"
+            f"Paires  : {len(active_pairs)}"
+        )
     except Exception as e:
-        log.warning(f"Balance non disponible (mode sans clé API) : {e}")
-        _start_balance = 1000.0   # Fallback pour tests
+        log.warning(f"Balance non disponible (sans clé API) : {e}")
+        _start_balance = 1000.0
 
-    cycle = 0
+    # Aperçu du marché au démarrage
+    print_market_overview()
+
+    cycle        = 0
+    last_rescan  = time.time()
+
     while True:
         try:
             cycle += 1
-            log.info(f"\n── Cycle #{cycle} — {datetime.now().strftime('%H:%M:%S')} ──")
+            log.info(f"\n── Cycle #{cycle} — {datetime.now().strftime('%H:%M:%S')} "
+                     f"| {len(active_pairs)} paires | x{LEVERAGE} ──")
+
+            # Re-scanner les paires toutes les AUTO_SCAN_INTERVAL secondes
+            if AUTO_SCAN and (time.time() - last_rescan) > AUTO_SCAN_INTERVAL:
+                active_pairs = get_active_pairs(AUTO_SCAN)
+                last_rescan  = time.time()
+                log.info(f"🔄 Re-scan : {len(active_pairs)} paires actives")
 
             # Rafraîchir le solde
             try:
@@ -342,44 +364,60 @@ def run():
             except Exception:
                 balance = _start_balance
 
-            # Stop journalier
+            # ── Stop journalier ──────────────────────────────────
             if check_daily_loss(balance):
                 log.info("Trading suspendu jusqu'à demain.")
                 time.sleep(3600)
                 continue
+
+            # ── Stop drawdown absolu ─────────────────────────────
+            if _start_balance > 0:
+                dd = (_start_balance - balance) / _start_balance * 100
+                if dd >= MAX_DRAWDOWN_PCT:
+                    log.critical(f"🛑 DRAWDOWN MAX {dd:.1f}% — Bot arrêté !")
+                    tg_send(f"🛑 DRAWDOWN {dd:.1f}% — Bot arrêté !")
+                    break
 
             # Surveiller les positions existantes
             monitor_positions()
 
             # Scanner toutes les paires en parallèle
             signals = []
-            with ThreadPoolExecutor(max_workers=6) as executor:
-                futures = {
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures_map = {
                     executor.submit(scan_pair, sym, balance): sym
-                    for sym in TRADING_PAIRS
+                    for sym in active_pairs
                 }
-                for fut in as_completed(futures, timeout=60):
+                for fut in as_completed(futures_map, timeout=120):
                     sig = fut.result()
                     if sig:
                         signals.append(sig)
 
-            # Trier par force + RR
+            # Trier : STRONG d'abord, puis par RR décroissant
             signals.sort(key=lambda s: (
                 0 if s.strength == 'STRONG' else 1 if s.strength == 'NORMAL' else 2,
                 -s.rr
             ))
 
+            # Log des signaux trouvés
+            if signals:
+                log.info(f"🎯 {len(signals)} signal(s) valide(s) trouvé(s)")
+                for s in signals[:5]:
+                    log.info(f"   {'🟢' if s.direction=='BUY' else '🔴'} "
+                             f"{s.direction} {s.symbol} | RR:1:{s.rr:.1f} | {s.strength}")
+
             # Exécuter les meilleurs signaux
             for sig in signals:
                 if count_active_positions() >= MAX_CONCURRENT:
+                    log.info(f"Max {MAX_CONCURRENT} positions atteint")
                     break
                 open_trade(sig, balance)
 
-            # Rapport court
+            # Rapport
             wr = (_win_count / _trade_count * 100) if _trade_count > 0 else 0
-            log.info(f"📊 Positions: {count_active_positions()}/{MAX_CONCURRENT} | "
-                     f"Trades: {_trade_count} | WR: {wr:.0f}% | "
-                     f"PnL Jour: {_daily_pnl:+.2f}$")
+            log.info(f"📊 Pos:{count_active_positions()}/{MAX_CONCURRENT} | "
+                     f"Trades:{_trade_count} | WR:{wr:.0f}% | "
+                     f"PnL Jour:{_daily_pnl:+.2f}$ | Balance:{balance:.2f}$")
 
             time.sleep(UPDATE_INTERVAL_SEC)
 
