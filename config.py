@@ -15,6 +15,13 @@ MEXC_BASE_URL   = "https://contract.mexc.com"
 MEXC_SPOT_URL   = "https://api.mexc.com"
 
 # ──────────────────────────────────────────────
+#  🤖 KIMI AI FILTER (Moonshot AI)
+# ──────────────────────────────────────────────
+USE_KIMI_FILTER     = True      # Activer la validation par l'IA Kimi
+KIMI_API_KEY        = ""        # Clé API Moonshot/Kimi (ex: sk-...)
+KIMI_MIN_CONFIDENCE = 70        # Score de confiance minimum (0 à 100) pour exécuter le trade
+
+# ──────────────────────────────────────────────
 #  📊 MODE PAIRES — DYNAMIQUE PAR VOLUME
 # ──────────────────────────────────────────────
 # Si AUTO_SCAN = True  → le bot scanne TOUS les futures MEXC

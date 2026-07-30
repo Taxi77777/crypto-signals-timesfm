@@ -127,6 +127,30 @@ def open_trade(signal: Signal, balance: float) -> bool:
     if not signal.is_valid():
         return False
 
+    # ── VALIDATION PAR L'IA KIMI ──
+    from kimi_filter import analyze_with_kimi
+    step1_d = signal.step1.description if signal.step1 else "N/A"
+    step2_d = signal.step2.description if signal.step2 else "N/A"
+    step3_d = signal.step3.description if signal.step3 else "N/A"
+
+    kimi_res = analyze_with_kimi(
+        symbol=signal.symbol,
+        direction=signal.direction,
+        entry=signal.entry,
+        sl=signal.sl,
+        tp=signal.tp,
+        rr=signal.rr,
+        fisher_val=signal.fisher,
+        vwap=signal.vwap,
+        step1_desc=step1_d,
+        step2_desc=step2_d,
+        step3_desc=step3_d
+    )
+
+    if not kimi_res['approved']:
+        log.warning(f"⛔ [{signal.symbol}] Trade {signal.direction} REJETÉ par l'IA Kimi (Confiance: {kimi_res['confidence']}%) — Raison: {kimi_res['reason']}")
+        return False
+
     with _lock:
         # Vérifier les limites
         if count_active_positions() >= MAX_CONCURRENT:
