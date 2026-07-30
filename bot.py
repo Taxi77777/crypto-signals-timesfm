@@ -20,6 +20,8 @@ from threading import Lock
 import mexc_api as api
 from strategy import LVNStrategy, Signal
 from scanner import get_active_pairs, print_market_overview, scan_all_futures
+from timing import M15Timer, seconds_to_next_close, is_candle_just_closed
+from pre_alert import PreAlertManager
 from config import (
     TIMEFRAME, KLINE_LIMIT, UPDATE_INTERVAL_SEC,
     SIGNAL_COOLDOWN_SEC, RISK_PER_TRADE_PCT, MAX_CONCURRENT,
@@ -53,6 +55,10 @@ _daily_pnl       = 0.0
 _start_balance   = 0.0
 _trade_count     = 0
 _win_count       = 0
+
+# ── Moteur anticipation d'entrée ──────────────────────────────
+_pre_alert_mgr = PreAlertManager()
+_m15_timer     = M15Timer()
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -271,16 +277,22 @@ def _update_trailing_stops():
 
 
 # ══════════════════════════════════════════════════════════════════
-#  SCAN UNE PAIRE
+#  SCAN UNE PAIRE — AVEC PRÉ-ALERTE ANTICIPÉE
 # ══════════════════════════════════════════════════════════════════
 def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
-    """Analyse une paire et retourne un signal si valide."""
-    # Cooldown entre 2 signaux sur la même paire
+    """
+    Analyse une paire avec 2 niveaux de détection :
+
+    1. PRÉ-ALERTE (Steps 1+2 détectés) :
+       → Ordre LIMITE placé au LVN immédiatement
+       → Entré AVANT la clôture Step 3
+
+    2. CONFIRMATION (Step 3 clôturé) :
+       → Ordre MARCHÉ si le signal est fort et pas déjà en position
+    """
     last = _last_signal_time.get(symbol, 0)
     if time.time() - last < SIGNAL_COOLDOWN_SEC:
         return None
-
-    # Déjà en position
     if symbol in _active_positions:
         return None
 
@@ -289,6 +301,38 @@ def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
         if df is None or len(df) < 70:
             return None
 
+        timing = _m15_timer.tick()
+
+        # ── MODE 1 : PRÉ-ALERTE (Steps 1+2) ─────────────────────
+        # Actif dans les 45 dernières secondes AVANT la clôture M15
+        # → Placer un ordre limite au LVN pour entrer en premier
+        if timing['pre_entry_window'] and symbol not in _pre_alert_mgr.get_active():
+            pre = _pre_alert_mgr.scan_pre_setup(symbol, df)
+            if pre:
+                pre_balance = balance
+                # Calculer le volume pour la pré-alerte
+                sl_dist = abs(pre.lvn_level - pre.sl_price)
+                if sl_dist > 0:
+                    risk_usd = pre_balance * (RISK_PER_TRADE_PCT / 100.0)
+                    pre_vol  = round((risk_usd / sl_dist) * LEVERAGE, 3)
+                    pre_vol  = max(pre_vol, 0.001)
+                    # Mettre à jour le volume dans l'alerte avant envoi
+                    pre.candle_slot = timing['slot']
+                    _pre_alert_mgr.add_alert(pre)
+                    _last_signal_time[symbol] = time.time()
+                    # Telegram pré-alerte
+                    arr = "🔴⚡" if pre.direction == 'SELL' else "🟢⚡"
+                    tg_send(
+                        f"{arr} <b>PRÉ-ALERTE {pre.direction} {symbol}</b>\n"
+                        f"  Ordre limite @ {pre.lvn_level:.4f} (LVN)\n"
+                        f"  TP : {pre.hvn_target:.4f} | SL : {pre.sl_price:.4f}\n"
+                        f"  R/R : 1:{pre.rr_est:.2f}\n"
+                        f"  Clôture M15 dans {seconds_to_next_close():.0f}s"
+                    )
+
+        # ── MODE 2 : CONFIRMATION (Step 3 clôturé) ───────────────
+        # Actif dans les 2 premières secondes APRÈS la clôture M15
+        # → Signal complet 3 étapes → Market order si pas déjà dedans
         strategy = LVNStrategy(symbol)
         signal   = strategy.analyze(df)
 
@@ -298,6 +342,8 @@ def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
                 log.warning(f"  {'|'.join(signal.warnings)}")
             if LOG_SIGNALS:
                 _log_signal(signal)
+            # Annuler la pré-alerte si on passe en market (éviter doublon)
+            _pre_alert_mgr.remove(symbol)
 
         return signal if signal.is_valid() else None
 
