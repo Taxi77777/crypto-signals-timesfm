@@ -1,129 +1,112 @@
-# 📊 MEXC LVN Trading Bot — 15m LVN Acceleration & Rejection
+# 🌐 INSTITUTIONAL HUNTER PRO v3.0 — Multi-Exchange OBI & Trend Consensus
 
-> **Stratégie séquentielle en 3 étapes** sur Volume Profile M15 pour MEXC Futures
-
----
-
-## 🧠 Stratégie : 15m LVN ACCELERATION & REJECTION
-
-### Principe
-Exploiter les **creux de volume (LVN — Low Volume Node)** sur le graphique M15.
-Les zones LVN sont des zones vides où le prix accélère rapidement.
-Les zones HVN sont des zones denses où le prix s'arrête (cibles TP).
-
-### Logique Séquentielle en 3 Étapes
-
-```
-Étape 1 (Bougie T-2) ── Identification du LVN
-   └── Prix arrive près d'un creux de volume
-
-Étape 2 (Bougie T-1) ── Test du niveau
-   └── Mèche de rejet / volume faible / hésitation
-
-Étape 3 (Bougie T)   ── CONFIRMATION → Entrée
-   └── BUY  : bougie haussière clôture AU-DESSUS du LVN
-   └── SELL : bougie baissière clôture EN-DESSOUS du LVN
-```
-
-### Filtres de Confirmation
-| Indicateur | Rôle |
-|---|---|
-| **Fisher Transform 9** | Déclencheur principal — croisement depuis zone extrême (>±1.5) |
-| **VPVR / Volume Profile** | Détection LVN (creux) et HVN (pics) |
-| **VWAP Session** | Biais directionnel (au-dessus = bull, en-dessous = bear) |
-| **MA 30 / MA 60** | Confirmation de tendance |
-| **Order Book Imbalance** | Pression acheteur/vendeur temps réel |
-
-### Gestion du Risque
-- **Risque par trade** : 1% du capital
-- **Levier** : x5 (conservateur)
-- **RR minimum** : 1:1.5
-- **Max positions** : 3 simultanées
-- **Stop journalier** : -5%
-- **Trailing Stop** : actif après +0.5% de profit
+> **Stratégie d'Analyse Institutionnelle Multi-Échange & Tendance Long Terme**
+> Interroge le carnet d'ordres (Order Book Imbalance) en temps réel sur **6 grands échanges mondiaux (MEXC, Bitget, Bybit, OKX, Binance, Kraken)** et exécute les trades sur **MEXC Futures** uniquement lorsque tous les échanges confirment la même direction !
 
 ---
 
-## 📁 Structure du Projet
+## 🎯 Concept & Stratégie Institutionnelle
+
+### 1. Le Déséquilibre du Carnet d'Ordres (Order Book Imbalance - OBI)
+L'**OBI** mesure la pression nette réelle entre acheteurs et vendeurs dans la profondeur du carnet d'ordres (depth 20) :
+
+$$\text{OBI} = \frac{\sum \text{Volume Bids (Acheteurs)}}{\sum \text{Volume Bids} + \sum \text{Volume Asks (Vendeurs)}}$$
+
+- **$\text{OBI} \ge 0.58$ (58%)** $\rightarrow$ Domination nette des **Acheteurs** (Buy Pressure).
+- **$\text{OBI} \le 0.42$ (42%)** $\rightarrow$ Domination nette des **Vendeurs** (Sell Pressure).
+
+### 2. Consensus Multi-Échange (6 APIs 100% Gratuites)
+Au lieu de se fier au carnet d'un seul échange, le bot analyse simultanément :
+1. **MEXC** (`api.mexc.com`)
+2. **Bitget** (`api.bitget.com`)
+3. **Bybit** (`api.bybit.com`)
+4. **OKX** (`www.okx.com`)
+5. **Binance** (`data-api.binance.vision`)
+6. **Kraken** (`api.kraken.com`)
+
+Un trade est déclenché sur **MEXC Futures** **UNIQUEMENT SI au moins 70% des échanges** (ex: 4/5 ou 5/6) affichent un déséquilibre dans le même sens !
+
+### 3. Filtre de Tendance Long Terme (Trend Filter)
+Pour du trading long terme/tendance, le bot vérifie que la tendance globale (1H/4H) est alignée :
+- **Condition BUY** : Consensus Multi-Échange ACHAT + Prix $\ge$ VWAP + EMA 50 $\ge$ EMA 200.
+- **Condition SELL** : Consensus Multi-Échange VENTE + Prix $\le$ VWAP + EMA 50 $\le$ EMA 200.
+
+---
+
+## 📁 Architecture du Projet
 
 ```
-├── bot.py           # Bot principal — orchestrateur multi-paires
-├── strategy.py      # Moteur stratégie 3 étapes LVN
-├── indicators.py    # Fisher, VWAP, MA, Volume Profile
-├── mexc_api.py      # Wrapper API MEXC Futures v1
-├── config.py        # Configuration (paires, risque, clés)
+├── bot.py           # Orchestrateur principal & boucle de trading
+├── strategy.py      # Moteur de décision Consensus OBI + Tendance
+├── exchanges.py     # Connecteur multi-échange (MEXC, Bitget, Bybit, OKX, Binance, Kraken)
+├── indicators.py    # Tendance Long Terme (EMA 50/200, VWAP, ATR, RSI)
+├── mexc_api.py      # Client API MEXC Futures pour l'exécution des ordres
+├── scanner.py       # Scanner automatique des plus gros volumes USDT
+├── doh_patch.py     # Patch DNS Over HTTPS (1.1.1.1) pour 100% de fiabilité API
+├── config.py        # Configuration centralisée (Levier, Risque, Seuil %)
 ├── requirements.txt # Dépendances Python
-└── LANCER_BOT.bat   # Démarrage Windows (double-clic)
+└── LANCER_BOT.bat   # Script de démarrage rapide pour Windows
 ```
 
 ---
 
-## 🚀 Installation
+## ⚙️ Configuration (`config.py`)
 
-### 1. Prérequis
+```python
+# Levier et Gestion du Risque
+LEVERAGE            = 10      # Levier conseillé (5x à 20x)
+RISK_PER_TRADE_PCT  = 1.0     # 1% du capital risqué par trade
+MIN_RR              = 1.5     # Ratio Risque/Rendement minimum (1:1.5)
+MIN_CONSENSUS_PCT   = 70.0    # 70% de consensus minimum entre les échanges
+
+# Clés API MEXC (pour passer les ordres)
+MEXC_API_KEY        = "votre_clé_api"
+MEXC_SECRET_KEY     = "votre_clé_secrète"
+```
+
+---
+
+## 🚀 Lancement du Bot
+
+### Étape 1 : Dépendances
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configuration
-Ouvrir `config.py` et renseigner :
-```python
-MEXC_API_KEY    = "votre_clé_api"
-MEXC_SECRET_KEY = "votre_clé_secrète"
-```
-> 🔑 Créer vos clés sur : https://www.mexc.com/user/openapi
-
-### 3. Lancement
+### Étape 2 : Lancer
 ```bash
-# Windows
-double-clic sur LANCER_BOT.bat
-
-# Linux / Mac
+# Sur Windows : Double-cliquer sur LANCER_BOT.bat
+# Ou en ligne de commande :
 python bot.py
 ```
 
 ---
 
-## 📊 Paires Tradées (par volume décroissant)
-
-| Tier | Paires |
-|---|---|
-| 🔥 Tier 1 (>500M/24h) | BTC_USDT, ETH_USDT |
-| ⭐ Tier 2 (>100M/24h) | OIL_USDT, SOL_USDT, BNB_USDT, XRP_USDT |
-| ✅ Tier 3 (>50M/24h) | DOGE_USDT, ADA_USDT, AVAX_USDT, LINK_USDT, MATIC_USDT |
-| 🏅 Matières premières | GOLD_USDT, SILVER_USDT |
-
----
-
 ## 📱 Alertes Telegram
 
-Le bot envoie pour chaque signal la **rétrospective complète des 3 étapes** :
+Pour chaque opportunité validée par le consensus institutionnel, une alerte est émise :
 
 ```
-🔴 VENTE OIL_USDT
-─────────────────────────────────────────────
-1️⃣ Étape 1 : Prix proche LVN 85.20 | Fisher 2.04
-2️⃣ Étape 2 : Mèche haute dominante → rejet | Volume faible
-3️⃣ Étape 3 : ✅ Bougie BAISSIÈRE | clôture=85.04 sous LVN
-─────────────────────────────────────────────
-  Entrée : 85.04
-  TP     : 84.40  (HVN cible)
-  SL     : 85.45
-  R/R    : 1:1.6
-  LVN ↯  : 85.20
-  Fisher : 1.08
-  ✗ BUY invalidé → clôture E3 sous LVN + rejet E2
+🟢 ACHAT ⭐⭐⭐ — BTC_USDT (Multi-Exchange OBI & Trend)
+───────────────────────────────────────────────────────
+  Consensus Multi-Échange : 83% (5/6 échanges)
+  OBI Moyen Global       : 0.684 (Domination Acheteurs)
+  Tendance Long Terme    : BULLISH (Prix:65420.00 | VWAP:65100.00)
+───────────────────────────────────────────────────────
+   • MEXC     | OBI: 0.710 | BUY
+   • Bitget   | OBI: 0.650 | BUY
+   • Bybit    | OBI: 0.690 | BUY
+   • OKX      | OBI: 0.640 | BUY
+   • Binance  | OBI: 0.730 | BUY
+   • Kraken   | OBI: 0.490 | NEUTRE
+───────────────────────────────────────────────────────
+  Prix Entrée : 65420.00
+  Take Profit : 66800.00 (TP)
+  Stop Loss   : 64500.00 (SL)
+  Ratio R/R   : 1:1.52
 ```
 
 ---
 
-## ⚠️ Avertissement
-
-Ce bot est fourni à des fins éducatives.
-Le trading de cryptomonnaies comporte des risques importants.
-Ne jamais investir plus que ce que vous pouvez vous permettre de perdre.
-
----
-
-## 📜 Licence
-MIT License
+## ⚖️ Licence
+MIT License — Institutional Hunter Pro v3.0

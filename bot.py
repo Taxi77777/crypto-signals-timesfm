@@ -1,11 +1,7 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║          INSTITUTIONAL HUNTER PRO — MEXC BOT PRINCIPAL          ║
-║          bot.py — Orchestrateur multi-paires                     ║
-║                                                                  ║
-║  Lance le scan de toutes les paires configurées en parallèle,   ║
-║  gère l'exécution des ordres, le suivi des positions et les     ║
-║  alertes Telegram.                                               ║
+║          INSTITUTIONAL HUNTER PRO — MULTI-EXCHANGE BOT          ║
+║          bot.py — Orchestrateur Multi-Échange & Tendance         ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
 import time
@@ -14,19 +10,18 @@ import csv
 import os
 import requests
 from datetime import datetime
+from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 
 import mexc_api as api
-from strategy import LVNStrategy, Signal
-from scanner import get_active_pairs, print_market_overview, scan_all_futures
-from timing import M15Timer, seconds_to_next_close, is_candle_just_closed
-from pre_alert import PreAlertManager
+from strategy import MultiExchangeOBIStrategy, Signal
+from scanner import get_active_pairs, scan_all_futures
 from config import (
     TIMEFRAME, KLINE_LIMIT, UPDATE_INTERVAL_SEC,
     SIGNAL_COOLDOWN_SEC, RISK_PER_TRADE_PCT, MAX_CONCURRENT,
     MAX_DAILY_LOSS_PCT, MAX_DRAWDOWN_PCT, LEVERAGE,
-    USE_TRAILING_SL, TRAILING_TRIGGER,
+    USE_TRAILING_SL, TRAILING_TRIGGER, TRAILING_STEP,
     LOG_TRADES, LOG_FILE, LOG_SIGNALS, SIGNAL_LOG_FILE,
     TG_ENABLED, TG_BOT_TOKEN, TG_CHAT_ID,
     AUTO_SCAN, AUTO_SCAN_TOP_N, AUTO_SCAN_INTERVAL,
@@ -46,19 +41,15 @@ logging.basicConfig(
 log = logging.getLogger('IHP-BOT')
 
 # ══════════════════════════════════════════════════════════════════
-#  ÉTAT GLOBAL DU BOT
+#  ÉTAT GLOBAL
 # ══════════════════════════════════════════════════════════════════
 _lock            = Lock()
-_active_positions: dict = {}    # symbol → {side, entry, sl, tp, vol, order_id}
+_active_positions: dict = {}    # symbol → {direction, side, entry, sl, tp, vol, order_id}
 _last_signal_time: dict = {}    # symbol → timestamp
 _daily_pnl       = 0.0
 _start_balance   = 0.0
 _trade_count     = 0
 _win_count       = 0
-
-# ── Moteur anticipation d'entrée ──────────────────────────────
-_pre_alert_mgr = PreAlertManager()
-_m15_timer     = M15Timer()
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -78,26 +69,18 @@ def tg_send(msg: str):
 
 
 # ══════════════════════════════════════════════════════════════════
-#  GESTION DU RISQUE
+#  RISK MANAGEMENT
 # ══════════════════════════════════════════════════════════════════
 def calc_lot_size(balance: float, entry: float, sl: float) -> float:
-    """
-    Calcule la taille de position basée sur le % de risque.
-    Risque $ = balance × RISK_PCT
-    Vol (contrats) = Risque $ / |entry - sl|
-    """
     if entry <= 0 or sl <= 0 or abs(entry - sl) < 1e-10:
         return 0.0
     risk_usd  = balance * (RISK_PER_TRADE_PCT / 100.0)
     risk_per_contract = abs(entry - sl)
-    vol = risk_usd / risk_per_contract
-    # Adapter au levier
-    vol = vol * LEVERAGE
+    vol = (risk_usd / risk_per_contract) * LEVERAGE
     return round(max(vol, 0.001), 3)
 
 
 def check_daily_loss(balance: float) -> bool:
-    """Retourne True si la limite de perte journalière est atteinte."""
     if _start_balance <= 0:
         return False
     daily_loss_pct = (_start_balance - balance) / _start_balance * 100
@@ -109,7 +92,6 @@ def check_daily_loss(balance: float) -> bool:
 
 
 def count_active_positions() -> int:
-    """Compte les positions actuellement ouvertes (API + cache)."""
     try:
         open_pos = api.get_open_positions()
         return len(open_pos)
@@ -118,41 +100,15 @@ def count_active_positions() -> int:
 
 
 # ══════════════════════════════════════════════════════════════════
-#  GESTION DES POSITIONS
+#  EXECUTION & TRADE MANAGEMENT
 # ══════════════════════════════════════════════════════════════════
 def open_trade(signal: Signal, balance: float) -> bool:
-    """Ouvre un trade sur MEXC selon le signal."""
     global _trade_count
 
     if not signal.is_valid():
         return False
 
-    # ── VALIDATION PAR L'IA KIMI ──
-    from kimi_filter import analyze_with_kimi
-    step1_d = signal.step1.description if signal.step1 else "N/A"
-    step2_d = signal.step2.description if signal.step2 else "N/A"
-    step3_d = signal.step3.description if signal.step3 else "N/A"
-
-    kimi_res = analyze_with_kimi(
-        symbol=signal.symbol,
-        direction=signal.direction,
-        entry=signal.entry,
-        sl=signal.sl,
-        tp=signal.tp,
-        rr=signal.rr,
-        fisher_val=signal.fisher,
-        vwap=signal.vwap,
-        step1_desc=step1_d,
-        step2_desc=step2_d,
-        step3_desc=step3_d
-    )
-
-    if not kimi_res['approved']:
-        log.warning(f"⛔ [{signal.symbol}] Trade {signal.direction} REJETÉ par l'IA Kimi (Confiance: {kimi_res['confidence']}%) — Raison: {kimi_res['reason']}")
-        return False
-
     with _lock:
-        # Vérifier les limites
         if count_active_positions() >= MAX_CONCURRENT:
             log.info(f"[{signal.symbol}] Max positions atteint ({MAX_CONCURRENT})")
             return False
@@ -160,31 +116,30 @@ def open_trade(signal: Signal, balance: float) -> bool:
             log.info(f"[{signal.symbol}] Position déjà ouverte")
             return False
 
-        # Calculer la taille
         vol = calc_lot_size(balance, signal.entry, signal.sl)
         if vol <= 0:
             log.warning(f"[{signal.symbol}] Volume invalide : {vol}")
             return False
 
-        # Définir le sens MEXC
         # side: 1=BUY Long, 3=SELL Short
         side = 1 if signal.direction == 'BUY' else 3
 
-        # Régler le levier
+        # Configurer levier sur MEXC
         api.set_leverage(signal.symbol, LEVERAGE)
 
-        # Passer l'ordre Market avec SL/TP
+        # Exécution de l'ordre Market avec SL/TP
         result = api.place_order(
             symbol     = signal.symbol,
             side       = side,
             vol        = vol,
-            order_type = 5,          # Market
+            order_type = 5,
             sl_price   = signal.sl,
             tp_price   = signal.tp,
+            leverage   = LEVERAGE
         )
 
         if not result or result.get('code') != 200:
-            err = result.get('message', 'Inconnu') if result else 'Pas de réponse'
+            err = result.get('message', 'Inconnu') if result else 'Pas de réponse API'
             log.error(f"[{signal.symbol}] Ordre refusé : {err}")
             return False
 
@@ -203,12 +158,20 @@ def open_trade(signal: Signal, balance: float) -> bool:
         _trade_count += 1
         _last_signal_time[signal.symbol] = time.time()
 
-    log.info(f"✅ [{signal.symbol}] {signal.direction} ouvert | "
+    log.info(f"[OK] [{signal.symbol}] {signal.direction} exécuté | "
              f"Entry:{signal.entry:.4f} SL:{signal.sl:.4f} TP:{signal.tp:.4f} "
              f"RR:1:{signal.rr:.1f} Vol:{vol}")
 
-    # Alerte Telegram avec rétrospective 3 étapes
-    tg_send(signal.retrospective())
+    tg_send(
+        f"{'[BUY]' if signal.direction == 'BUY' else '[SELL]'} <b>{signal.direction} {signal.symbol} (Multi-OBI)</b>\n"
+        f"  Consensus : {signal.consensus_pct:.0f}% ({signal.exchanges_buy if signal.direction=='BUY' else signal.exchanges_sell}/{signal.exchanges_total} échanges)\n"
+        f"  Entrée    : {signal.entry:.4f}\n"
+        f"  TP        : {signal.tp:.4f}\n"
+        f"  SL        : {signal.sl:.4f}\n"
+        f"  R/R       : 1:{signal.rr:.2f}\n"
+        f"  Tendance  : {signal.trend_bias}\n"
+        f"  Raison    : {signal.reason}"
+    )
 
     if LOG_TRADES:
         _log_trade(signal, vol, 'OPEN')
@@ -217,7 +180,6 @@ def open_trade(signal: Signal, balance: float) -> bool:
 
 
 def monitor_positions():
-    """Surveille les positions ouvertes : trailing stop, fermeture."""
     global _daily_pnl, _win_count
 
     try:
@@ -248,30 +210,27 @@ def monitor_positions():
 
         duration_min = int((time.time() - pos['open_time']) / 60)
         result_emoji = "✅" if pnl_usd > 0 else "❌"
-        log.info(f"{result_emoji} [{sym}] {pos['direction']} fermé | "
-                 f"PnL: {pnl_usd:+.2f}$ | Durée: {duration_min}min")
+        log.info(f"{result_emoji} [{sym}] {pos['direction']} fermé | PnL: {pnl_usd:+.2f}$ | Durée: {duration_min}min")
 
         tg_send(
             f"{result_emoji} Trade fermé: <b>{pos['direction']} {sym}</b>\n"
-            f"  PnL    : {pnl_usd:+.2f} USDT\n"
-            f"  Durée  : {duration_min} min\n"
+            f"  PnL     : {pnl_usd:+.2f} USDT\n"
+            f"  Durée   : {duration_min} min\n"
             f"  PnL Jour: {_daily_pnl:+.2f} USDT"
         )
         if LOG_TRADES:
             _log_close(sym, pos, pnl_usd, duration_min)
 
-    # Trailing Stop
     if USE_TRAILING_SL:
         _update_trailing_stops()
 
 
 def _update_trailing_stops():
-    """Met à jour les trailing stops."""
     with _lock:
         for sym, pos in list(_active_positions.items()):
             try:
                 ticker = api.get_ticker(sym)
-                cur    = ticker.get('last', 0)
+                cur = ticker.get('last', 0)
                 if cur <= 0:
                     continue
 
@@ -281,39 +240,29 @@ def _update_trailing_stops():
                 if pos['direction'] == 'BUY':
                     profit_pct = (cur - entry) / entry * 100
                     if profit_pct >= TRAILING_TRIGGER:
-                        new_sl = cur - (cur - entry) * 0.4
+                        new_sl = cur - (cur - entry) * TRAILING_STEP
                         if new_sl > sl:
                             api._set_sl_tp(sym, new_sl)
                             _active_positions[sym]['sl'] = new_sl
                             pos['trailing'] = True
-                            log.info(f"[{sym}] Trailing SL → {new_sl:.4f}")
+                            log.info(f"[{sym}] Trailing SL mis à jour → {new_sl:.4f}")
                 else:
                     profit_pct = (entry - cur) / entry * 100
                     if profit_pct >= TRAILING_TRIGGER:
-                        new_sl = cur + (entry - cur) * 0.4
+                        new_sl = cur + (entry - cur) * TRAILING_STEP
                         if new_sl < sl:
                             api._set_sl_tp(sym, new_sl)
                             _active_positions[sym]['sl'] = new_sl
                             pos['trailing'] = True
-                            log.info(f"[{sym}] Trailing SL → {new_sl:.4f}")
+                            log.info(f"[{sym}] Trailing SL mis à jour → {new_sl:.4f}")
             except Exception:
                 pass
 
 
 # ══════════════════════════════════════════════════════════════════
-#  SCAN UNE PAIRE — AVEC PRÉ-ALERTE ANTICIPÉE
+#  SCANNER UNE PAIRE
 # ══════════════════════════════════════════════════════════════════
 def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
-    """
-    Analyse une paire avec 2 niveaux de détection :
-
-    1. PRÉ-ALERTE (Steps 1+2 détectés) :
-       → Ordre LIMITE placé au LVN immédiatement
-       → Entré AVANT la clôture Step 3
-
-    2. CONFIRMATION (Step 3 clôturé) :
-       → Ordre MARCHÉ si le signal est fort et pas déjà en position
-    """
     last = _last_signal_time.get(symbol, 0)
     if time.time() - last < SIGNAL_COOLDOWN_SEC:
         return None
@@ -321,53 +270,17 @@ def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
         return None
 
     try:
-        df = api.get_klines(symbol, TIMEFRAME, KLINE_LIMIT)
-        if df is None or len(df) < 70:
+        df_klines = api.get_klines(symbol, TIMEFRAME, KLINE_LIMIT)
+        if df_klines is None or len(df_klines) < 30:
             return None
 
-        timing = _m15_timer.tick()
-
-        # ── MODE 1 : PRÉ-ALERTE (Steps 1+2) ─────────────────────
-        # Actif dans les 45 dernières secondes AVANT la clôture M15
-        # → Placer un ordre limite au LVN pour entrer en premier
-        if timing['pre_entry_window'] and symbol not in _pre_alert_mgr.get_active():
-            pre = _pre_alert_mgr.scan_pre_setup(symbol, df)
-            if pre:
-                pre_balance = balance
-                # Calculer le volume pour la pré-alerte
-                sl_dist = abs(pre.lvn_level - pre.sl_price)
-                if sl_dist > 0:
-                    risk_usd = pre_balance * (RISK_PER_TRADE_PCT / 100.0)
-                    pre_vol  = round((risk_usd / sl_dist) * LEVERAGE, 3)
-                    pre_vol  = max(pre_vol, 0.001)
-                    # Mettre à jour le volume dans l'alerte avant envoi
-                    pre.candle_slot = timing['slot']
-                    _pre_alert_mgr.add_alert(pre)
-                    _last_signal_time[symbol] = time.time()
-                    # Telegram pré-alerte
-                    arr = "🔴⚡" if pre.direction == 'SELL' else "🟢⚡"
-                    tg_send(
-                        f"{arr} <b>PRÉ-ALERTE {pre.direction} {symbol}</b>\n"
-                        f"  Ordre limite @ {pre.lvn_level:.4f} (LVN)\n"
-                        f"  TP : {pre.hvn_target:.4f} | SL : {pre.sl_price:.4f}\n"
-                        f"  R/R : 1:{pre.rr_est:.2f}\n"
-                        f"  Clôture M15 dans {seconds_to_next_close():.0f}s"
-                    )
-
-        # ── MODE 2 : CONFIRMATION (Step 3 clôturé) ───────────────
-        # Actif dans les 2 premières secondes APRÈS la clôture M15
-        # → Signal complet 3 étapes → Market order si pas déjà dedans
-        strategy = LVNStrategy(symbol)
-        signal   = strategy.analyze(df)
+        strategy = MultiExchangeOBIStrategy(symbol)
+        signal   = strategy.analyze(df_klines)
 
         if signal.direction != 'NEUTRAL':
             log.info(f"\n{signal.summary()}")
-            if signal.warnings:
-                log.warning(f"  {'|'.join(signal.warnings)}")
             if LOG_SIGNALS:
                 _log_signal(signal)
-            # Annuler la pré-alerte si on passe en market (éviter doublon)
-            _pre_alert_mgr.remove(symbol)
 
         return signal if signal.is_valid() else None
 
@@ -382,65 +295,54 @@ def scan_pair(symbol: str, balance: float) -> Optional[Signal]:
 def run():
     global _start_balance
 
-    log.info("═" * 60)
-    log.info("  INSTITUTIONAL HUNTER PRO — MEXC BOT démarré")
-    log.info("  Stratégie : 15m LVN ACCELERATION & REJECTION")
+    log.info("═" * 65)
+    log.info("  INSTITUTIONAL HUNTER PRO v3.0 — MULTI-EXCHANGE OBI & TREND")
+    log.info("  Échanges surveillés : MEXC, Bitget, Bybit, OKX, Binance, Kraken")
     log.info(f"  Mode      : {'AUTO-SCAN TOP ' + str(AUTO_SCAN_TOP_N) + ' par volume' if AUTO_SCAN else 'Paires manuelles'}")
     log.info(f"  Levier    : x{LEVERAGE}  |  Risque/Trade : {RISK_PER_TRADE_PCT}%")
-    log.info("═" * 60)
+    log.info("═" * 65)
 
-    # Scan initial des paires
     active_pairs = get_active_pairs(AUTO_SCAN)
     log.info(f"📋 {len(active_pairs)} paires actives au démarrage")
 
-    # Balance initiale
     try:
         account = api.get_account()
         _start_balance = account.get('balance', 0)
         log.info(f"💰 Balance MEXC : {_start_balance:.2f} USDT")
         tg_send(
-            f"🤖 <b>IHP MEXC Bot démarré — x{LEVERAGE}</b>\n"
+            f"🤖 <b>IHP Multi-Exchange OBI Bot démarré</b>\n"
             f"Balance : {_start_balance:.2f} USDT\n"
-            f"Mode    : {'Auto-scan TOP ' + str(AUTO_SCAN_TOP_N) if AUTO_SCAN else 'Manuel'}\n"
-            f"Risque  : {RISK_PER_TRADE_PCT}%/trade | x{LEVERAGE}\n"
-            f"Paires  : {len(active_pairs)}"
+            f"Échanges: MEXC, Bitget, Bybit, OKX, Binance, Kraken\n"
+            f"Paires  : {len(active_pairs)} | Levier: x{LEVERAGE}"
         )
     except Exception as e:
-        log.warning(f"Balance non disponible (sans clé API) : {e}")
+        log.warning(f"Balance non disponible (mode simulation) : {e}")
         _start_balance = 1000.0
 
-    # Aperçu du marché au démarrage
-    print_market_overview()
-
-    cycle        = 0
-    last_rescan  = time.time()
+    cycle       = 0
+    last_rescan = time.time()
 
     while True:
         try:
             cycle += 1
-            log.info(f"\n── Cycle #{cycle} — {datetime.now().strftime('%H:%M:%S')} "
-                     f"| {len(active_pairs)} paires | x{LEVERAGE} ──")
+            log.info(f"\n── Cycle #{cycle} — {datetime.now().strftime('%H:%M:%S')} | {len(active_pairs)} paires | x{LEVERAGE} ──")
 
-            # Re-scanner les paires toutes les AUTO_SCAN_INTERVAL secondes
             if AUTO_SCAN and (time.time() - last_rescan) > AUTO_SCAN_INTERVAL:
                 active_pairs = get_active_pairs(AUTO_SCAN)
                 last_rescan  = time.time()
-                log.info(f"🔄 Re-scan : {len(active_pairs)} paires actives")
+                log.info(f"🔄 Re-scan des volumes : {len(active_pairs)} paires sélectionnées")
 
-            # Rafraîchir le solde
             try:
                 account = api.get_account()
                 balance = account.get('balance', _start_balance)
             except Exception:
                 balance = _start_balance
 
-            # ── Stop journalier ──────────────────────────────────
             if check_daily_loss(balance):
                 log.info("Trading suspendu jusqu'à demain.")
                 time.sleep(3600)
                 continue
 
-            # ── Stop drawdown absolu ─────────────────────────────
             if _start_balance > 0:
                 dd = (_start_balance - balance) / _start_balance * 100
                 if dd >= MAX_DRAWDOWN_PCT:
@@ -448,56 +350,45 @@ def run():
                     tg_send(f"🛑 DRAWDOWN {dd:.1f}% — Bot arrêté !")
                     break
 
-            # Surveiller les positions existantes
             monitor_positions()
 
-            # Scanner toutes les paires en parallèle
             signals = []
-            with ThreadPoolExecutor(max_workers=10) as executor:
+            with ThreadPoolExecutor(max_workers=8) as executor:
                 futures_map = {
                     executor.submit(scan_pair, sym, balance): sym
                     for sym in active_pairs
                 }
-                for fut in as_completed(futures_map, timeout=120):
+                for fut in as_completed(futures_map, timeout=60):
                     sig = fut.result()
                     if sig:
                         signals.append(sig)
 
-            # Trier : STRONG d'abord, puis par RR décroissant
             signals.sort(key=lambda s: (
-                0 if s.strength == 'STRONG' else 1 if s.strength == 'NORMAL' else 2,
+                0 if s.strength == 'STRONG' else 1,
+                -s.consensus_pct,
                 -s.rr
             ))
 
-            # Log des signaux trouvés
             if signals:
-                log.info(f"🎯 {len(signals)} signal(s) valide(s) trouvé(s)")
-                for s in signals[:5]:
-                    log.info(f"   {'🟢' if s.direction=='BUY' else '🔴'} "
-                             f"{s.direction} {s.symbol} | RR:1:{s.rr:.1f} | {s.strength}")
+                log.info(f"🎯 {len(signals)} signal(s) validé(s) par le Consensus Multi-Échange !")
 
-            # Exécuter les meilleurs signaux
             for sig in signals:
                 if count_active_positions() >= MAX_CONCURRENT:
-                    log.info(f"Max {MAX_CONCURRENT} positions atteint")
                     break
                 open_trade(sig, balance)
 
-            # Rapport
             wr = (_win_count / _trade_count * 100) if _trade_count > 0 else 0
-            log.info(f"📊 Pos:{count_active_positions()}/{MAX_CONCURRENT} | "
-                     f"Trades:{_trade_count} | WR:{wr:.0f}% | "
-                     f"PnL Jour:{_daily_pnl:+.2f}$ | Balance:{balance:.2f}$")
+            log.info(f"📊 Pos:{count_active_positions()}/{MAX_CONCURRENT} | Trades:{_trade_count} | WR:{wr:.0f}% | PnL Jour:{_daily_pnl:+.2f}$")
 
             time.sleep(UPDATE_INTERVAL_SEC)
 
         except KeyboardInterrupt:
             log.info("Bot arrêté par l'utilisateur.")
-            tg_send("⛔ Bot IHP arrêté manuellement.")
+            tg_send("⛔ Bot arrêté manuellement.")
             break
         except Exception as e:
             log.error(f"Erreur boucle principale : {e}", exc_info=True)
-            time.sleep(30)
+            time.sleep(20)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -508,13 +399,12 @@ def _log_trade(signal: Signal, vol: float, action: str):
     with open(LOG_FILE, 'a', newline='', encoding='utf-8') as f:
         w = csv.writer(f)
         if not exists:
-            w.writerow(['datetime','symbol','action','direction','entry',
-                        'sl','tp','rr','vol','fisher','reason'])
+            w.writerow(['datetime','symbol','action','direction','entry','sl','tp','rr','vol','consensus_pct','reason'])
         w.writerow([
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             signal.symbol, action, signal.direction,
             signal.entry, signal.sl, signal.tp, signal.rr,
-            vol, signal.fisher_val, signal.reason
+            vol, signal.consensus_pct, signal.reason
         ])
 
 def _log_close(sym, pos, pnl, duration):
@@ -531,13 +421,12 @@ def _log_signal(signal: Signal):
     with open(SIGNAL_LOG_FILE, 'a', newline='', encoding='utf-8') as f:
         w = csv.writer(f)
         if not exists:
-            w.writerow(['datetime','symbol','direction','strength',
-                        'rr','fisher','entry','sl','tp','reason'])
+            w.writerow(['datetime','symbol','direction','consensus_pct','avg_obi','trend_bias','rr','entry','sl','tp'])
         w.writerow([
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            signal.symbol, signal.direction, signal.strength,
-            signal.rr, signal.fisher_val,
-            signal.entry, signal.sl, signal.tp, signal.reason
+            signal.symbol, signal.direction, signal.consensus_pct,
+            signal.avg_obi, signal.trend_bias, signal.rr,
+            signal.entry, signal.sl, signal.tp
         ])
 
 

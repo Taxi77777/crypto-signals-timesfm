@@ -1,8 +1,8 @@
 @echo off
-echo ╔══════════════════════════════════════════════╗
-echo ║   INSTITUTIONAL HUNTER PRO — MEXC BOT       ║
-echo ║   Stratégie : 15m LVN + Fisher Crossover    ║
-echo ╚══════════════════════════════════════════════╝
+echo ╔══════════════════════════════════════════════════════════════╗
+echo ║   INSTITUTIONAL HUNTER PRO v3.0 — MULTI-EXCHANGE OBI BOT    ║
+║   Échanges : MEXC, Bitget, Bybit, OKX, Binance, Kraken       ║
+echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 
 :: Vérifier Python
@@ -22,17 +22,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Vérifier les clés API
-python -c "from config import MEXC_API_KEY, MEXC_SECRET_KEY; print('CLE OK' if MEXC_API_KEY and MEXC_SECRET_KEY else 'MODE LECTURE SEULE (sans clé API)')"
+echo.
+echo [2/3] Test des APIs des 6 échanges...
+python -c "from exchanges import get_multi_exchange_obi; res=get_multi_exchange_obi('BTC'); print(f'Consensus BTC: {res[\"consensus_pct\"]}% | {res[\"exchanges_ok\"]}/6 échanges connectés')"
 
 echo.
-echo [2/3] Vérification de la connexion MEXC...
-python -c "import mexc_api as api; t=api.get_ticker('BTC_USDT'); print(f'BTC: {t.get(\"last\",\"?\")}'  if t else 'Connexion OK (pas de data)')"
-
+echo [3/3] Démarrage du bot Multi-Échange...
 echo.
-echo [3/3] Démarrage du bot...
-echo.
-echo  Appuyez sur CTRL+C pour arrêter proprement.
+echo  Appuyez sur CTRL+C pour arrêter le bot.
 echo.
 
 python bot.py

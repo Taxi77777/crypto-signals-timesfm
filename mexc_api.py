@@ -9,15 +9,16 @@ import hmac
 import time
 import requests
 import pandas as pd
+from doh_patch import apply_doh_patch
 from config import MEXC_API_KEY, MEXC_SECRET_KEY, MEXC_BASE_URL, MEXC_SPOT_URL
 
-# ══════════════════════════════════════════════════════════════════
-#  SESSION HTTP — Réutilisation des connexions pour la rapidité
-# ══════════════════════════════════════════════════════════════════
+# Appliquer le patch DoH
+apply_doh_patch()
+
 _session = requests.Session()
 _session.headers.update({
     'Content-Type': 'application/json',
-    'User-Agent':   'IHP-MEXC-Bot/2.0',
+    'User-Agent':   'IHP-MEXC-Bot/3.0',
 })
 
 
@@ -36,7 +37,6 @@ def _sign(params: dict) -> str:
 
 
 def _get_public(endpoint: str, params: dict = None, futures: bool = True) -> dict:
-    """Requête publique (pas d'authentification)."""
     base = MEXC_BASE_URL if futures else MEXC_SPOT_URL
     try:
         r = _session.get(base + endpoint, params=params, timeout=8)
@@ -48,9 +48,8 @@ def _get_public(endpoint: str, params: dict = None, futures: bool = True) -> dic
 
 
 def _get_private(endpoint: str, params: dict = None, futures: bool = True) -> dict:
-    """Requête privée avec signature MEXC."""
     if not MEXC_API_KEY or not MEXC_SECRET_KEY:
-        print("[API] ⚠️  Clés API manquantes — mode lecture seule")
+        print("[API] ⚠️ Clés API manquantes — mode simulation")
         return {}
     base = MEXC_BASE_URL if futures else MEXC_SPOT_URL
     p = params or {}
@@ -67,9 +66,8 @@ def _get_private(endpoint: str, params: dict = None, futures: bool = True) -> di
 
 
 def _post_private(endpoint: str, body: dict, futures: bool = True) -> dict:
-    """POST signé pour créer/gérer des ordres."""
     if not MEXC_API_KEY or not MEXC_SECRET_KEY:
-        print("[API] ⚠️  Clés API manquantes — ordre non envoyé")
+        print("[API] ⚠️ Clés API manquantes — ordre non envoyé")
         return {}
     base = MEXC_BASE_URL if futures else MEXC_SPOT_URL
     body['timestamp'] = _timestamp()
@@ -85,18 +83,16 @@ def _post_private(endpoint: str, body: dict, futures: bool = True) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════
-#  DONNÉES DE MARCHÉ — PUBLIQUES
+#  DONNÉES DE MARCHÉ
 # ══════════════════════════════════════════════════════════════════
 
-def get_klines(symbol: str, interval: str = "Min15", limit: int = 200) -> pd.DataFrame:
-    """
-    Récupère les bougies OHLCV depuis MEXC Futures.
-    Endpoint : GET /api/v1/contract/kline/{symbol}
-    Retourne un DataFrame pandas.
-    """
+def get_klines(symbol: str, interval: str = "60m", limit: int = 200) -> pd.DataFrame:
+    """Récupère les bougies OHLCV depuis MEXC Futures (1h par défaut)."""
+    # Conversion format intervalle
+    tf = "Min60" if interval in ("1h", "60m") else ("Min15" if interval == "15m" else "Min240")
     data = _get_public(
         f"/api/v1/contract/kline/{symbol}",
-        params={'interval': interval, 'limit': limit}
+        params={'interval': tf, 'limit': limit}
     )
     if not data or 'data' not in data:
         return pd.DataFrame()
@@ -120,16 +116,11 @@ def get_klines(symbol: str, interval: str = "Min15", limit: int = 200) -> pd.Dat
 
 
 def get_ticker(symbol: str) -> dict:
-    """
-    Ticker temps réel : lastPrice, bid, ask, volume 24h.
-    Endpoint : GET /api/v1/contract/ticker?symbol={symbol}
-    """
     data = _get_public("/api/v1/contract/ticker", params={'symbol': symbol})
     if not data or 'data' not in data:
         return {}
     d = data['data']
     if isinstance(d, list):
-        # Si plusieurs symbols retournés
         for item in d:
             if item.get('symbol') == symbol:
                 d = item
@@ -142,45 +133,14 @@ def get_ticker(symbol: str) -> dict:
             'ask':         float(d.get('ask1',      0)),
             'high24':      float(d.get('high24Price', 0)),
             'low24':       float(d.get('lower24Price', 0)),
-            'volume24':    float(d.get('volume24',   0)),
+            'volume24':    float(d.get('amount24', d.get('volume24', 0))),
             'change_pct':  float(d.get('riseFallRate', 0)),
-            'funding_rate':float(d.get('fundingRate', 0)),
         }
     except Exception as e:
-        print(f"[API] Ticker parse erreur ({symbol}): {e}")
         return {}
-
-
-def get_order_book(symbol: str, limit: int = 20) -> dict:
-    """
-    Order book : meilleur bid/ask + murs d'ordres.
-    Endpoint : GET /api/v1/contract/depth/{symbol}
-    """
-    data = _get_public(f"/api/v1/contract/depth/{symbol}", params={'limit': limit})
-    if not data or 'data' not in data:
-        return {}
-    d = data['data']
-    bids = [(float(b[0]), float(b[1])) for b in d.get('bids', [])[:limit]]
-    asks = [(float(a[0]), float(a[1])) for a in d.get('asks', [])[:limit]]
-
-    total_bid = sum(q for _, q in bids)
-    total_ask = sum(q for _, q in asks)
-    imbalance = total_bid / total_ask if total_ask > 0 else 1.0
-
-    bid_wall = max(bids, key=lambda x: x[1])[0] if bids else 0
-    ask_wall = min(asks, key=lambda x: x[1])[0] if asks else 0
-
-    return {
-        'best_bid':  bids[0][0] if bids else 0,
-        'best_ask':  asks[0][0] if asks else 0,
-        'bid_wall':  bid_wall,
-        'ask_wall':  ask_wall,
-        'imbalance': imbalance,   # >1.2 = pression achat, <0.8 = pression vente
-    }
 
 
 def get_all_tickers() -> list:
-    """Tous les tickers MEXC Futures pour scanner les volumes."""
     data = _get_public("/api/v1/contract/ticker")
     if not data or 'data' not in data:
         return []
@@ -188,11 +148,10 @@ def get_all_tickers() -> list:
 
 
 # ══════════════════════════════════════════════════════════════════
-#  COMPTE — AUTHENTIFIÉ
+#  COMPTE & ORDRES
 # ══════════════════════════════════════════════════════════════════
 
 def get_account() -> dict:
-    """Solde et infos du compte MEXC Futures."""
     data = _get_private("/api/v1/private/account/assets")
     if not data or 'data' not in data:
         return {}
@@ -202,54 +161,23 @@ def get_account() -> dict:
         'balance':        float(usdt.get('availableBalance', 0)),
         'equity':         float(usdt.get('equity', 0)),
         'unrealized_pnl': float(usdt.get('unrealisedPnl', 0)),
-        'margin_used':    float(usdt.get('positionMargin', 0)),
     }
 
 
 def get_open_positions() -> list:
-    """Positions ouvertes sur tous les symboles."""
     data = _get_private("/api/v1/private/position/open_positions")
     if not data or 'data' not in data:
         return []
     return data['data'] or []
 
 
-def get_open_orders(symbol: str = None) -> list:
-    """Ordres ouverts (optionnellement filtrés par symbole)."""
-    params = {}
-    if symbol:
-        params['symbol'] = symbol
-    data = _get_private("/api/v1/private/order/list/open_orders", params)
-    if not data or 'data' not in data:
-        return []
-    return data['data'].get('resultList', [])
-
-
-# ══════════════════════════════════════════════════════════════════
-#  ORDRES — AUTHENTIFIÉ
-# ══════════════════════════════════════════════════════════════════
-
 def place_order(symbol: str, side: int, vol: float,
                 order_type: int = 5,
                 price: float = None,
                 open_type: int = 1,
-                leverage: int = 5,
+                leverage: int = 10,
                 sl_price: float = None,
                 tp_price: float = None) -> dict:
-    """
-    Crée un ordre MEXC Futures.
-
-    Paramètres :
-        symbol      : "BTC_USDT"
-        side        : 1=BUY Long, 2=CLOSE Long, 3=SELL Short, 4=CLOSE Short
-        vol         : Quantité (contrats)
-        order_type  : 1=Limit, 5=Market
-        price       : Prix limite (None pour Market)
-        open_type   : 1=Isolated, 2=Cross margin
-        leverage    : Levier (1-125)
-        sl_price    : Stop Loss automatique
-        tp_price    : Take Profit automatique
-    """
     body = {
         'symbol':    symbol,
         'side':      side,
@@ -263,7 +191,6 @@ def place_order(symbol: str, side: int, vol: float,
 
     result = _post_private("/api/v1/private/order/submit", body)
 
-    # Si l'ordre principal réussit, placer SL/TP
     if result and sl_price:
         _set_sl_tp(symbol, sl_price, tp_price)
 
@@ -271,26 +198,13 @@ def place_order(symbol: str, side: int, vol: float,
 
 
 def _set_sl_tp(symbol: str, sl_price: float, tp_price: float = None):
-    """Définit le Stop Loss et Take Profit sur une position."""
     body = {'symbol': symbol, 'stopLossPrice': sl_price}
     if tp_price:
         body['takeProfitPrice'] = tp_price
     _post_private("/api/v1/private/position/change_sl_tp", body)
 
 
-def close_position(symbol: str, side: int, vol: float) -> dict:
-    """Ferme une position (side 2=close long, 4=close short)."""
-    return place_order(symbol=symbol, side=side, vol=vol, order_type=5)
-
-
-def cancel_order(order_id: str) -> dict:
-    """Annule un ordre ouvert."""
-    return _post_private("/api/v1/private/order/cancel",
-                         {'orderId': order_id})
-
-
 def set_leverage(symbol: str, leverage: int, open_type: int = 1) -> dict:
-    """Définit le levier pour un symbole."""
     return _post_private("/api/v1/private/position/change_margin",
                          {'symbol': symbol, 'leverage': leverage,
                           'openType': open_type})

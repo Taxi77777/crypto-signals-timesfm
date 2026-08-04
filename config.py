@@ -1,111 +1,93 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO — MEXC BOT CONFIG                  ║
-║     Stratégie : 15m LVN ACCELERATION & REJECTION                ║
-║     Mode      : TOUS LES FUTURES PAR VOLUME — Levier x40        ║
+║     INSTITUTIONAL HUNTER PRO — MULTI-EXCHANGE OBI CONFIG        ║
+║     Stratégie : Multi-Exchange Order Book Imbalance & Trend     ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
 
 # ──────────────────────────────────────────────
-#  🔑 MEXC API CREDENTIALS
+#  🔑 MEXC API CREDENTIALS (Exécution des ordres)
 # ──────────────────────────────────────────────
-MEXC_API_KEY    = ""
+MEXC_API_KEY    = ""   # Vos clés API MEXC Futures
 MEXC_SECRET_KEY = ""
 MEXC_BASE_URL   = "https://contract.mexc.com"
 MEXC_SPOT_URL   = "https://api.mexc.com"
 
 # ──────────────────────────────────────────────
-#  🤖 KIMI AI FILTER (Moonshot AI)
+#  🌐 EXCHANGES POUR CONSENSUS (100% Gratuit — Pas de clé API requise)
 # ──────────────────────────────────────────────
-USE_KIMI_FILTER     = True      # Activer la validation par l'IA Kimi
-KIMI_API_KEY        = ""        # Clé API Moonshot/Kimi (ex: sk-...)
-KIMI_MIN_CONFIDENCE = 70        # Score de confiance minimum (0 à 100) pour exécuter le trade
-
-# ──────────────────────────────────────────────
-#  📊 MODE PAIRES — DYNAMIQUE PAR VOLUME
-# ──────────────────────────────────────────────
-# Si AUTO_SCAN = True  → le bot scanne TOUS les futures MEXC
-#                        et prend les TOP N par volume 24h
-# Si AUTO_SCAN = False → utilise MANUAL_PAIRS ci-dessous
-AUTO_SCAN           = True
-AUTO_SCAN_TOP_N     = 40        # Prendre les 40 meilleures par volume
-AUTO_SCAN_MIN_VOL   = 5_000_000 # Volume min 24h en USDT (5M minimum)
-AUTO_SCAN_INTERVAL  = 3600      # Re-scanner toutes les heures
-
-# Paires manuelles (utilisées si AUTO_SCAN = False)
-MANUAL_PAIRS = [
-    # ── Crypto Majeurs ──────────────────────
-    "BTC_USDT", "ETH_USDT", "BNB_USDT", "SOL_USDT",
-    "XRP_USDT", "ADA_USDT", "DOGE_USDT", "AVAX_USDT",
-    "LINK_USDT", "MATIC_USDT", "DOT_USDT", "UNI_USDT",
-    "LTC_USDT", "BCH_USDT", "ATOM_USDT", "FIL_USDT",
-    "NEAR_USDT", "ARB_USDT", "OP_USDT", "SUI_USDT",
-    "APT_USDT", "INJ_USDT", "TIA_USDT", "SEI_USDT",
-    # ── Matières Premières ───────────────────
-    "OIL_USDT",     # WTI Crude Oil     ← TON GRAPHIQUE
-    "GOLD_USDT",    # Or
-    "SILVER_USDT",  # Argent
-    "NATGAS_USDT",  # Gaz Naturel
-    # ── Meme Coins (haute volatilité) ────────
-    "PEPE_USDT", "FLOKI_USDT", "SHIB_USDT", "WIF_USDT",
-    "BONK_USDT", "MEME_USDT",
-    # ── DeFi / Layer2 ────────────────────────
-    "AAVE_USDT", "CRV_USDT", "SNX_USDT", "GMX_USDT",
-    "JUP_USDT", "PYTH_USDT", "JTO_USDT", "STRK_USDT",
-    # ── AI Tokens ────────────────────────────
-    "FET_USDT", "RNDR_USDT", "WLD_USDT", "TAO_USDT",
+# Le bot va interroger ces 6 échanges majeurs en parallèle
+EXCHANGES_TO_CHECK = [
+    "MEXC",
+    "Bitget",
+    "Bybit",
+    "OKX",
+    "Binance",
+    "Kraken"
 ]
 
 # ──────────────────────────────────────────────
-#  ⚙️ PARAMÈTRES STRATÉGIE LVN M15
+#  ⚖️ SEUILS DE CONSENSUS & CARNET D'ORDRES (OBI)
 # ──────────────────────────────────────────────
-TIMEFRAME           = "Min15"
-KLINE_LIMIT         = 200
-VP_BINS             = 100
-LVN_THRESHOLD       = 0.35
-HVN_THRESHOLD       = 0.70
-MIN_RR              = 1.5
-MA_FAST             = 30
-MA_SLOW             = 60
-FISHER_PERIOD       = 9
-VWAP_SESSION_ONLY   = True
+ORDERBOOK_DEPTH     = 20      # Profondeur du carnet (20 niveaux d'ordres)
+OBI_BUY_THRESHOLD   = 0.58    # OBI > 58% = Domination nette des acheteurs
+OBI_SELL_THRESHOLD  = 0.42    # OBI < 42% = Domination nette des vendeurs
+MIN_CONSENSUS_PCT   = 70.0    # 70% minimum des échanges doivent s'accorder (ex: 4/5 ou 5/6)
 
 # ──────────────────────────────────────────────
-#  💰 GESTION DU RISQUE — LEVIER x40
+#  📈 FILTRE DE TENDANCE LONG TERME
 # ──────────────────────────────────────────────
-LEVERAGE            = 40       # ⚡ Levier x40
+TIMEFRAME           = "1h"    # Unité de temps principale pour la tendance (1H / 4H)
+KLINE_LIMIT         = 200     # Nombre de bougies analysées
+USE_TREND_FILTER    = True    # Exiger que la tendance Long Terme soit alignée avec l'OBI
+MA_TREND_FAST       = 50      # Moyenne mobile rapide 50
+MA_TREND_SLOW       = 200     # Moyenne mobile lente 200 (Long Terme)
+USE_VWAP_FILTER     = True    # Exiger d'être du bon côté du VWAP
 
-# ⚠️  AVERTISSEMENT LEVIER x40 :
-# Un mouvement de 2.5% contre vous = liquidation totale.
-# Le risque par trade EST VOLONTAIREMENT BAS pour compenser.
-RISK_PER_TRADE_PCT  = 0.25     # 0.25% du capital par trade
-                                # Avec x40, exposition réelle = 10%
+# ──────────────────────────────────────────────
+#  📊 MODE PAIRES (Auto-Scan ou Manuel)
+# ──────────────────────────────────────────────
+AUTO_SCAN           = True
+AUTO_SCAN_TOP_N     = 30       # Sélectionner les 30 plus gros volumes 24h
+AUTO_SCAN_MIN_VOL   = 5_000_000 # Minimum 5 Millions USDT/24h
+AUTO_SCAN_INTERVAL  = 1800     # Re-scanner le marché toutes les 30 min
 
-# Sécurités
-MAX_CONCURRENT      = 5        # Max 5 trades simultanés
-MAX_DAILY_LOSS_PCT  = 10.0     # Stop journalier -10%
-MAX_DRAWDOWN_PCT    = 20.0     # Stop absolu si -20% du capital initial
+MANUAL_PAIRS = [
+    "BTC_USDT", "ETH_USDT", "SOL_USDT", "BNB_USDT", "XRP_USDT",
+    "ADA_USDT", "DOGE_USDT", "AVAX_USDT", "LINK_USDT", "DOT_USDT",
+    "OIL_USDT", "GOLD_USDT", "PEPE_USDT", "SUI_USDT", "NEAR_USDT"
+]
+
+# ──────────────────────────────────────────────
+#  💰 GESTION DU RISQUE & LEVIER
+# ──────────────────────────────────────────────
+LEVERAGE            = 10       # Levier conseillé pour du trend/long terme (ex: 5x à 20x)
+RISK_PER_TRADE_PCT  = 1.0      # 1% du capital risqué par trade
+MIN_RR              = 1.5      # Ratio Risque/Rendement minimum (1:1.5)
+MAX_CONCURRENT      = 4        # Max 4 positions ouvertes simultanément
+MAX_DAILY_LOSS_PCT  = 5.0      # Stop journalier à -5% du capital
+MAX_DRAWDOWN_PCT    = 15.0     # Stop absolu si drawdown -15%
 
 # Trailing Stop
 USE_TRAILING_SL     = True
-TRAILING_TRIGGER    = 0.3      # Activer trailing après +0.3% (x40 = +12% effectif)
-TRAILING_STEP       = 0.15     # Déplacer le SL de 0.15% à chaque pas
+TRAILING_TRIGGER    = 0.8      # Déclencher le Trailing SL après +0.8% de profit
+TRAILING_STEP       = 0.4      # Trailing step %
 
 # ──────────────────────────────────────────────
-#  🔄 FRÉQUENCES DE MISE À JOUR
+#  🔄 FRÉQUENCE D'ANALYSE
 # ──────────────────────────────────────────────
-UPDATE_INTERVAL_SEC = 15       # Vérification toutes les 15s (plus rapide pour x40)
-SIGNAL_COOLDOWN_SEC = 900      # 15 min entre 2 signaux sur la même paire
+UPDATE_INTERVAL_SEC = 20       # Scan du carnet toutes les 20 secondes
+SIGNAL_COOLDOWN_SEC = 600      # 10 minutes de pause par paire entre 2 signaux
 
 # ──────────────────────────────────────────────
 #  📱 TELEGRAM ALERTES
 # ──────────────────────────────────────────────
-TG_ENABLED          = False
+TG_ENABLED          = False    # Passer à True avec vos identifiants
 TG_BOT_TOKEN        = ""
 TG_CHAT_ID          = ""
 
 # ──────────────────────────────────────────────
-#  🪵 LOGS
+#  🪵 LOGS CSV
 # ──────────────────────────────────────────────
 LOG_TRADES          = True
 LOG_FILE            = "trades_log.csv"
