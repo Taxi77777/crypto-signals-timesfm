@@ -8,8 +8,8 @@
 # ──────────────────────────────────────────────
 #  🔑 MEXC API CREDENTIALS (Exécution des ordres)
 # ──────────────────────────────────────────────
-MEXC_API_KEY    = ""   # Vos clés API MEXC Futures
-MEXC_SECRET_KEY = ""
+MEXC_API_KEY    = "mx0vgliPQVUSuDsTAx"
+MEXC_SECRET_KEY = "64ee4910041642a2a0d37de4b49ebde6"
 MEXC_BASE_URL   = "https://contract.mexc.com"
 MEXC_SPOT_URL   = "https://api.mexc.com"
 
@@ -82,9 +82,9 @@ SIGNAL_COOLDOWN_SEC = 600      # 10 minutes de pause par paire entre 2 signaux
 # ──────────────────────────────────────────────
 #  📱 TELEGRAM ALERTES
 # ──────────────────────────────────────────────
-TG_ENABLED          = False    # Passer à True avec vos identifiants
-TG_BOT_TOKEN        = ""
-TG_CHAT_ID          = ""
+TG_ENABLED          = True
+TG_BOT_TOKEN        = "8347280600:AAGY6UJKbLULT58j1rJpC9TQm_kR0mJsQew"
+TG_CHAT_ID          = "375129602"
 
 # ──────────────────────────────────────────────
 #  🪵 LOGS CSV

@@ -53,9 +53,15 @@ def _get_private(endpoint: str, params: dict = None, futures: bool = True) -> di
         return {}
     base = MEXC_BASE_URL if futures else MEXC_SPOT_URL
     p = params or {}
-    p['timestamp'] = _timestamp()
-    p['signature'] = _sign(p)
-    headers = {'Apikey': MEXC_API_KEY}
+    ts = str(int(time.time() * 1000))
+    req_str = MEXC_API_KEY + ts
+    sig = hmac.new(MEXC_SECRET_KEY.encode('utf-8'), req_str.encode('utf-8'), hashlib.sha256).hexdigest()
+    headers = {
+        'ApiKey': MEXC_API_KEY,
+        'Request-Time': ts,
+        'Signature': sig,
+        'Content-Type': 'application/json'
+    }
     try:
         r = _session.get(base + endpoint, params=p, headers=headers, timeout=8)
         r.raise_for_status()
@@ -70,9 +76,15 @@ def _post_private(endpoint: str, body: dict, futures: bool = True) -> dict:
         print("[API] ⚠️ Clés API manquantes — ordre non envoyé")
         return {}
     base = MEXC_BASE_URL if futures else MEXC_SPOT_URL
-    body['timestamp'] = _timestamp()
-    body['signature'] = _sign(body)
-    headers = {'Apikey': MEXC_API_KEY, 'Content-Type': 'application/json'}
+    ts = str(int(time.time() * 1000))
+    req_str = MEXC_API_KEY + ts
+    sig = hmac.new(MEXC_SECRET_KEY.encode('utf-8'), req_str.encode('utf-8'), hashlib.sha256).hexdigest()
+    headers = {
+        'ApiKey': MEXC_API_KEY,
+        'Request-Time': ts,
+        'Signature': sig,
+        'Content-Type': 'application/json'
+    }
     try:
         r = _session.post(base + endpoint, json=body, headers=headers, timeout=8)
         r.raise_for_status()
