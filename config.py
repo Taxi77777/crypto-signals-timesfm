@@ -141,6 +141,50 @@ UPDATE_INTERVAL_SEC = 300
 SIGNAL_COOLDOWN_SEC = 3600
 
 # ──────────────────────────────────────────────
+#  🧪 PAPER TRADING — MESURE AVANT ARGENT RÉEL
+#
+#  Tant que PAPER_MODE est True, AUCUN ordre n'est envoyé à MEXC.
+#  Les signaux sont enregistrés, l'exécution est simulée sur les
+#  bougies qui suivent, et les statistiques réelles sont calculées.
+#
+#  Pourquoi c'est nécessaire : la stratégie repose sur le carnet
+#  d'ordres et le CVD. Ces données n'existent pas en historique,
+#  donc un backtest classique est impossible. Le forward test est
+#  la seule mesure honnête disponible.
+#
+#  Pour passer en réel : mettre PAPER_MODE = False, ou définir
+#  la variable d'environnement PAPER_MODE=false.
+# ──────────────────────────────────────────────
+PAPER_MODE = os.environ.get("PAPER_MODE", "true").strip().lower() not in ("false", "0", "no", "off")
+
+MAX_HOLD_HOURS    = 24.0   # Fermeture forcée d'une position simulée après ce délai
+TAKER_FEE_PCT     = 0.06   # Frais taker MEXC Futures, appliqués à l'entrée ET à la sortie
+LIQUIDATION_BUFFER = 0.90  # Liquidation simulée à 90 % de 100/levier % (frais + marge de maintenance)
+
+PAPER_STATE_FILE  = "paper_state.json"
+PAPER_TRADES_FILE = "paper_trades.csv"
+
+# ──────────────────────────────────────────────
+#  🧠 TIMESFM — SÉVÉRITÉ DU JUGE
+#
+#  False : TimesFM NEUTRAL laisse passer le trade (comportement
+#          historique — l'IA ne bloque qu'en cas de contradiction).
+#  True  : seul un accord explicite de TimesFM autorise le trade,
+#          conforme à la description "accord obligatoire de l'IA".
+# ──────────────────────────────────────────────
+TIMESFM_STRICT = True
+
+# Confiance minimale exigée de TimesFM pour valider un trade.
+# C'est ce seuil qui donne enfin un POIDS RÉEL aux données des 6 exchanges :
+# le bonus de confiance calculé à partir du consensus, des Stacked Imbalances
+# et du CVD était auparavant calculé puis jamais utilisé nulle part.
+TIMESFM_MIN_CONFIDENCE = 0.55
+
+# Exiger que les métriques des 6 exchanges aient bien été transmises au modèle.
+# Si elles manquent, le signal est refusé plutôt que validé à l'aveugle.
+TIMESFM_REQUIRE_EXCHANGE_DATA = True
+
+# ──────────────────────────────────────────────
 #  🪵 LOGS & ÉTAT PERSISTANT
 # ──────────────────────────────────────────────
 LOG_TRADES      = True

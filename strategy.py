@@ -1,28 +1,39 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO v5.0 — strategy.py                ║
+║     INSTITUTIONAL HUNTER PRO v5.1 — strategy.py                 ║
 ║                                                                  ║
-║  PIPELINE COMPLET (dans l'ordre) :                              ║
+║  PIPELINE — L'ORDRE EST STRICT :                                ║
 ║                                                                  ║
-║  ÉTAPE 1 — CARNET D'ORDRES MULTI-EXCHANGE                       ║
-║    6 exchanges × 50 niveaux → qui achète/vend vraiment ?        ║
-║    Stacked Imbalances : niveaux consécutifs du même côté        ║
-║    CVD : acheteurs ou vendeurs agressifs ?                       ║
+║  ETAPE 1 — DESEQUILIBRE PRIX + VOLUME SUR LES 6 EXCHANGES       ║
+║    6 exchanges x 50 niveaux de carnet.                          ║
+║    Desequilibre de VOLUME niveau par niveau (ratio bid/ask).    ║
+║    Stacked Imbalances : blocs consecutifs du meme cote.         ║
+║    CVD : volume des acheteurs vs vendeurs agressifs.            ║
 ║                                                                  ║
-║  ÉTAPE 2 — CONSENSUS 80%+ OBLIGATOIRE                           ║
-║    Au moins 5/6 exchanges dans la MÊME direction                ║
-║    Si 1 exchange fortement opposé → MANIPULATION détectée       ║
+║  ETAPE 2 — CONSENSUS OBLIGATOIRE                                ║
+║    Si le consensus est insuffisant : ARRET IMMEDIAT.            ║
+║    TimesFM n'est meme pas appele. On ne derange pas l'IA         ║
+║    tant que le marche n'a pas parle.                            ║
 ║                                                                  ║
-║  ÉTAPE 3 — GOOGLE TIMESFM : JUGE FINAL                         ║
-║    Reçoit : prix historiques + données carnet d'ordres          ║
-║    Prédit les 10 prochaines bougies 4H (~40 heures)             ║
-║    → Si TimesFM CONFIRME la direction du consensus : TRADE      ║
-║    → Si TimesFM contredit : PAS DE TRADE (trop risqué)         ║
-║    → Si TimesFM non disponible : trade si consensus >=90%       ║
+║  ETAPE 3 — DETECTION DE MANIPULATION                            ║
+║    Un exchange fortement oppose au consensus = piege.           ║
 ║                                                                  ║
-║  RÉSULTAT : Seulement les trades où IA + marché = ACCORD        ║
+║  ETAPE 4 — SL / TP / RATIO R/R                                  ║
+║                                                                  ║
+║  ETAPE 5 — GOOGLE TIMESFM, JUGE FINAL                           ║
+║    Recoit les prix 4H ET toutes les metriques des 6 exchanges.  ║
+║    Doit CONFIRMER la direction ET atteindre une confiance       ║
+║    minimale, sinon le trade est refuse.                         ║
+║                                                                  ║
+║  CORRECTIFS v5.1 :                                              ║
+║  • TIMESFM_STRICT : NEUTRAL ne vaut plus approbation tacite.    ║
+║  • La confiance de TimesFM est enfin VERIFIEE. Le bonus issu    ║
+║    du consensus / Stacked / CVD etait calcule puis ignore :     ║
+║    les donnees des 6 exchanges n'avaient aucun effet reel.      ║
+║  • Refus si les metriques exchanges n'ont pas ete transmises.   ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
+import logging
 import pandas as pd
 from dataclasses import dataclass, field
 from exchanges import get_multi_exchange_orderflow
@@ -32,7 +43,11 @@ from config import (
     EXCHANGES_TO_CHECK, MIN_CONSENSUS_PCT, ANTI_MANIP_THRESHOLD,
     MIN_RR, ORDERBOOK_DEPTH, ATR_SL_MULT, ATR_TP_MULT,
     USE_TREND_FILTER, MIN_STACKED_LEVELS, USE_SL,
+    MIN_EXCHANGES_OK, TIMESFM_STRICT, TIMESFM_MIN_CONFIDENCE,
+    TIMESFM_REQUIRE_EXCHANGE_DATA,
 )
+
+log = logging.getLogger("IHP-STRATEGY")
 
 
 @dataclass
@@ -63,7 +78,8 @@ class Signal:
     timesfm_confidence:  float = 0.0
     timesfm_change_pct:  float = 0.0
     timesfm_available:   bool  = False
-    timesfm_approved:    bool  = False   # True = TimesFM a donné le feu vert
+    timesfm_approved:    bool  = False
+    timesfm_used_book:   bool  = False   # métriques exchanges bien transmises ?
 
     # Tendance 4H (informatif)
     trend_bias:          str   = 'NEUTRAL'
@@ -79,12 +95,15 @@ class Signal:
 
     def is_valid(self) -> bool:
         """
-        Trade valide si :
-        - Direction claire (BUY ou SELL)
-        - Pas de manipulation détectée
-        - Consensus >= seuil (80%)
-        - R/R minimum respecté
-        - Google TimesFM a donné le feu vert (ou consensus >= 90% si TimesFM indisponible)
+        Trade valide si TOUTES ces conditions sont réunies :
+          - direction claire (BUY ou SELL)
+          - aucune manipulation détectée
+          - consensus >= seuil
+          - R/R minimum respecté
+          - SL présent si USE_SL
+          - TP présent
+          - TimesFM a donné son feu vert
+          - les métriques des 6 exchanges ont bien été transmises à TimesFM
         """
         return (
             self.direction in ('BUY', 'SELL')
@@ -94,20 +113,25 @@ class Signal:
             and self.entry > 0
             and (not USE_SL or self.sl > 0)
             and self.tp > 0
-            and self.timesfm_approved      # ← TimesFM doit avoir approuvé
+            and self.timesfm_approved
+            and (not TIMESFM_REQUIRE_EXCHANGE_DATA or self.timesfm_used_book)
         )
 
     def summary(self) -> str:
-        arrow = "[BUY ✅]" if self.direction == 'BUY' else "[SELL ✅]" if self.direction == 'SELL' else "[NEUTRE]"
-        tfm_status = "FEU VERT" if self.timesfm_approved else "EN ATTENTE"
+        arrow = "[BUY]" if self.direction == 'BUY' else "[SELL]" if self.direction == 'SELL' else "[NEUTRE]"
+        tfm_status = "FEU VERT" if self.timesfm_approved else "REFUS"
+        sl_str = f"{self.sl:.6f}" if self.sl > 0 else "aucun"
         return (
             f"\n{'='*65}\n"
             f"  {arrow} {self.symbol}\n"
-            f"  Consensus : {self.consensus_pct:.0f}% ({self.exchanges_buy}B/{self.exchanges_sell}S/{self.exchanges_ok} exchanges)\n"
-            f"  TimesFM   : {self.timesfm_direction} ({self.timesfm_change_pct:+.2f}%) → {tfm_status}\n"
-            f"  Tendance  : {self.trend_bias} | RSI:{self.rsi:.0f} | ATR:{self.atr:.4f}\n"
-            f"  Entry:{self.entry:.4f}  SL:{self.sl:.4f}  TP:{self.tp:.4f}  R/R:1:{self.rr:.2f}\n"
-            f"  Valide: {'OUI - TRADE LANCE' if self.is_valid() else 'NON'}\n"
+            f"  Consensus : {self.consensus_pct:.0f}% ({self.exchanges_buy}B/{self.exchanges_sell}S sur {self.exchanges_ok} exchanges)\n"
+            f"  Stacked   : BUY {self.avg_stacked_buy:.1f} / SELL {self.avg_stacked_sell:.1f} niveaux\n"
+            f"  TimesFM   : {self.timesfm_direction} ({self.timesfm_change_pct:+.2f}%) "
+            f"conf={self.timesfm_confidence:.0%} -> {tfm_status}\n"
+            f"  Donnees exchanges transmises a l'IA : {'OUI' if self.timesfm_used_book else 'NON'}\n"
+            f"  Tendance  : {self.trend_bias} | RSI:{self.rsi:.0f} | ATR:{self.atr:.6f}\n"
+            f"  Entry:{self.entry:.6f}  SL:{sl_str}  TP:{self.tp:.6f}  R/R:1:{self.rr:.2f}\n"
+            f"  Valide: {'OUI' if self.is_valid() else 'NON'}\n"
             f"  {self.reason}\n"
             f"{'='*65}"
         )
@@ -115,8 +139,7 @@ class Signal:
 
 class OrderFlowStrategy:
     """
-    Stratégie institutionnelle :
-    Carnet d'ordres 80%+ consensus → Google TimesFM juge final → TRADE
+    Déséquilibre prix + volume sur 6 exchanges -> consensus -> Google TimesFM -> trade.
     """
 
     def __init__(self, symbol: str):
@@ -126,7 +149,7 @@ class OrderFlowStrategy:
         signal = Signal(symbol=self.symbol)
 
         # ══════════════════════════════════════════════════════════
-        # ÉTAPE 1 : CARNET D'ORDRES — 6 EXCHANGES EN PARALLÈLE
+        # ÉTAPE 1 : DÉSÉQUILIBRE PRIX + VOLUME — 6 EXCHANGES
         # ══════════════════════════════════════════════════════════
         of = get_multi_exchange_orderflow(
             self.symbol, EXCHANGES_TO_CHECK, ORDERBOOK_DEPTH
@@ -141,28 +164,31 @@ class OrderFlowStrategy:
         signal.exchanges_sell      = of['book_sell']
         signal.details             = of['details']
 
-        # Minimum 3 exchanges connectés pour analyser
-        if of['exchanges_ok'] < 3:
-            signal.reason = f"Pas assez d'exchanges ({of['exchanges_ok']}/6)"
-            return signal
-
-        # ══════════════════════════════════════════════════════════
-        # ÉTAPE 2 : CONSENSUS 80%+ SUR TOUTES LES PLATEFORMES
-        # ══════════════════════════════════════════════════════════
-        consensus_dir = of['consensus_direction']
-        consensus_pct = of['consensus_pct']
-
-        if consensus_pct < MIN_CONSENSUS_PCT:
+        if of['exchanges_ok'] < MIN_EXCHANGES_OK:
             signal.reason = (
-                f"[NEUTRE] Consensus insuffisant : {consensus_pct:.0f}% "
-                f"(requis {MIN_CONSENSUS_PCT:.0f}%) | "
-                f"Carnet: {of['book_buy']}B/{of['book_sell']}S | "
-                f"CVD: {of['cvd_buy']}B/{of['cvd_sell']}S"
+                f"[STOP] Pas assez d'exchanges joignables : "
+                f"{of['exchanges_ok']}/{len(EXCHANGES_TO_CHECK)} (minimum {MIN_EXCHANGES_OK})"
             )
             return signal
 
         # ══════════════════════════════════════════════════════════
-        # DÉTECTION MANIPULATION : 1 exchange fortement opposé ?
+        # ÉTAPE 2 : CONSENSUS — TimesFM N'EST PAS APPELÉ AVANT
+        # ══════════════════════════════════════════════════════════
+        consensus_dir = of['consensus_direction']
+        consensus_pct = of['consensus_pct']
+
+        if consensus_dir == 'NEUTRAL' or consensus_pct < MIN_CONSENSUS_PCT:
+            signal.reason = (
+                f"[NEUTRE] Desequilibre insuffisant : {consensus_pct:.0f}% "
+                f"(requis {MIN_CONSENSUS_PCT:.0f}%) | "
+                f"Carnet: {of['book_buy']}B/{of['book_sell']}S sur {of['exchanges_ok']} | "
+                f"CVD: {of['cvd_buy']}B/{of['cvd_sell']}S | "
+                f"score={of['avg_direction_score']:+.0f}"
+            )
+            return signal
+
+        # ══════════════════════════════════════════════════════════
+        # ÉTAPE 3 : DÉTECTION DE MANIPULATION
         # ══════════════════════════════════════════════════════════
         for ex, d in of['details'].items():
             if not d.get('ok'):
@@ -187,12 +213,12 @@ class OrderFlowStrategy:
             return signal
 
         # ══════════════════════════════════════════════════════════
-        # ÉTAPE 3 : TENDANCE 4H (informatif pour les logs)
+        # ÉTAPE 4 : TENDANCE 4H + SL / TP / R/R
         # ══════════════════════════════════════════════════════════
-        df      = calc_trend_indicators(df_klines)
-        ti      = get_trend_bias(df)
-        price   = ti['price']
-        atr     = ti['atr'] if ti['atr'] > 0 else price * 0.015
+        df    = calc_trend_indicators(df_klines)
+        ti    = get_trend_bias(df)
+        price = ti['price']
+        atr   = ti['atr'] if ti['atr'] > 0 else price * 0.015
 
         signal.trend_bias = ti['bias']
         signal.entry      = price
@@ -202,13 +228,10 @@ class OrderFlowStrategy:
         signal.atr        = atr
         signal.rsi        = ti['rsi']
 
-        # ══════════════════════════════════════════════════════════
-        # ÉTAPE 4 : CALCUL SL / TP / R/R
-        # ══════════════════════════════════════════════════════════
         if consensus_dir == 'BUY':
             sl_price = price - (atr * ATR_SL_MULT)
             tp_price = price + (atr * ATR_TP_MULT)
-        else:  # SELL
+        else:
             sl_price = price + (atr * ATR_SL_MULT)
             tp_price = price - (atr * ATR_TP_MULT)
 
@@ -218,8 +241,7 @@ class OrderFlowStrategy:
 
         if rr < MIN_RR:
             signal.reason = (
-                f"[STOP] R/R insuffisant : 1:{rr:.2f} (requis 1:{MIN_RR}) | "
-                f"ATR:{atr:.4f} | Consensus:{consensus_pct:.0f}%"
+                f"[STOP] R/R insuffisant : 1:{rr:.2f} (requis 1:{MIN_RR}) | ATR:{atr:.6f}"
             )
             return signal
 
@@ -230,86 +252,100 @@ class OrderFlowStrategy:
 
         # ══════════════════════════════════════════════════════════
         # ÉTAPE 5 : GOOGLE TIMESFM — JUGE FINAL
-        # ══════════════════════════════════════════════════════════
         #
-        # TimesFM reçoit les données de prix historiques et prédit
-        # les 10 prochaines bougies. Si sa prédiction CONFIRME
-        # la direction du consensus → FEU VERT → TRADE LANCÉ
-        #
-        # Règles :
-        #  a) TimesFM disponible + confirme direction → APPROUVÉ ✅
-        #  b) TimesFM disponible + neutre             → APPROUVÉ ✅ (pas d'opposition)
-        #  c) TimesFM disponible + contredit          → REFUSÉ ❌
-        #  d) TimesFM non disponible + consensus ≥90% → APPROUVÉ ✅ (signal très fort)
-        #  e) TimesFM non disponible + consensus <90% → REFUSÉ ❌ (trop incertain)
+        # Le dict `of` complet est transmis : consensus, direction,
+        # Stacked Imbalances moyens, CVD, score directionnel, nombre
+        # d'exchanges valides. TimesFM combine ces métriques avec sa
+        # prédiction de prix pour produire sa confiance finale.
         # ══════════════════════════════════════════════════════════
-        # ── COMMUNICATION EXCHANGES → TIMESFM ──────────────────────
-        # On transmet TOUTES les données des 6 plateformes à TimesFM
-        # pour qu'il les combine avec sa prédiction de prix
+        log.info(
+            f"[{self.symbol}] Desequilibre confirme ({consensus_dir} {consensus_pct:.0f}%) "
+            f"-> transmission des metriques des {of['exchanges_ok']} exchanges a Google TimesFM"
+        )
+
         timesfm = get_timesfm_verdict(df_klines, self.symbol, exchange_data=of)
 
         signal.timesfm_direction  = timesfm['direction']
         signal.timesfm_confidence = timesfm['confidence']
         signal.timesfm_change_pct = timesfm.get('predicted_change_pct', 0.0)
         signal.timesfm_available  = timesfm['available']
+        signal.timesfm_used_book  = timesfm.get('exchange_data_used', False)
 
         tfm_dir  = timesfm['direction']
         tfm_conf = timesfm['confidence']
         tfm_ok   = timesfm['available']
 
-        if tfm_ok:
-            # TimesFM est disponible
-            if tfm_dir == consensus_dir:
-                # ✅ CAS A : TimesFM CONFIRME — feu vert
-                signal.timesfm_approved = True
-                signal.strength = 'STRONG'
-                signal.reason = (
-                    f"[APPROUVE] Consensus {consensus_dir} {consensus_pct:.0f}% "
-                    f"({of['book_buy' if consensus_dir == 'BUY' else 'book_sell']}/{of['exchanges_ok']} exchanges) | "
-                    f"TimesFM CONFIRME {tfm_dir} (Δ{signal.timesfm_change_pct:+.2f}%, conf={tfm_conf:.0%}) | "
-                    f"Tendance 4H: {ti['bias']} | RSI:{ti['rsi']:.0f} | "
-                    f"Stacked: {of['avg_stacked_buy' if consensus_dir=='BUY' else 'avg_stacked_sell']:.1f} niveaux"
-                )
+        # Les métriques exchanges doivent avoir atteint le modèle
+        if TIMESFM_REQUIRE_EXCHANGE_DATA and not signal.timesfm_used_book:
+            signal.timesfm_approved = False
+            signal.direction = 'NEUTRAL'
+            signal.reason = (
+                "[REFUSE] Les metriques des 6 exchanges n'ont pas ete transmises a TimesFM — "
+                "decision a l'aveugle refusee"
+            )
+            return signal
 
-            elif tfm_dir == 'NEUTRAL':
-                # ✅ CAS B : TimesFM neutre — pas d'opposition, on trade
-                signal.timesfm_approved = True
-                signal.strength = 'NORMAL'
-                signal.reason = (
-                    f"[APPROUVE] Consensus {consensus_dir} {consensus_pct:.0f}% "
-                    f"({of['book_buy' if consensus_dir=='BUY' else 'book_sell']}/{of['exchanges_ok']} exchanges) | "
-                    f"TimesFM: NEUTRE (pas d'opposition) | "
-                    f"Tendance 4H: {ti['bias']} | ATR:{atr:.4f}"
-                )
+        if not tfm_ok:
+            # ❌ TimesFM indisponible. En mode strict, aucun trade sans IA.
+            signal.timesfm_approved = False
+            signal.direction = 'NEUTRAL'
+            signal.reason = (
+                f"[REFUSE] Google TimesFM indisponible — accord de l'IA obligatoire "
+                f"(consensus {consensus_dir} {consensus_pct:.0f}% ignore)"
+            )
+            return signal
 
-            else:
-                # ❌ CAS C : TimesFM CONTREDIT — on ne trade pas
+        if tfm_dir == consensus_dir:
+            # ✅ L'IA confirme la direction du desequilibre
+            if tfm_conf < TIMESFM_MIN_CONFIDENCE:
                 signal.timesfm_approved = False
-                signal.direction = 'NEUTRAL'   # annule le signal
+                signal.direction = 'NEUTRAL'
                 signal.reason = (
-                    f"[REFUSE PAR TIMESFM] Carnet: {consensus_dir} {consensus_pct:.0f}% MAIS "
-                    f"TimesFM predit {tfm_dir} (Δ{signal.timesfm_change_pct:+.2f}%, conf={tfm_conf:.0%}) — "
-                    f"Contradiction IA vs Carnet — PAS DE TRADE"
+                    f"[REFUSE] TimesFM confirme {tfm_dir} mais confiance trop faible : "
+                    f"{tfm_conf:.0%} < {TIMESFM_MIN_CONFIDENCE:.0%} "
+                    f"(Δ{signal.timesfm_change_pct:+.2f}%)"
                 )
-        else:
-            # TimesFM non disponible (en cours de telechargement)
-            if consensus_pct >= 90.0:
-                # ✅ CAS D : Signal très fort (90%+) → on trade même sans TimesFM
-                signal.timesfm_approved = True
-                signal.strength = 'STRONG'
-                signal.reason = (
-                    f"[APPROUVE] Consensus TRES FORT {consensus_dir} {consensus_pct:.0f}% "
-                    f"({of['book_buy' if consensus_dir=='BUY' else 'book_sell']}/{of['exchanges_ok']} exchanges) | "
-                    f"TimesFM: en cours de chargement | "
-                    f"Tendance 4H: {ti['bias']}"
-                )
-            else:
-                # ❌ CAS E : Consensus pas assez fort sans TimesFM → on attend
-                signal.timesfm_approved = False
-                signal.reason = (
-                    f"[EN ATTENTE TIMESFM] Consensus {consensus_dir} {consensus_pct:.0f}% ok MAIS "
-                    f"TimesFM pas encore disponible — besoin de {90.0:.0f}%+ pour trader sans IA "
-                    f"(actuellement {consensus_pct:.0f}%)"
-                )
+                return signal
 
+            signal.timesfm_approved = True
+            signal.strength = 'STRONG'
+            signal.reason = (
+                f"[APPROUVE] Desequilibre {consensus_dir} {consensus_pct:.0f}% sur "
+                f"{of['exchanges_ok']} exchanges | "
+                f"Stacked {of['avg_stacked_buy' if consensus_dir=='BUY' else 'avg_stacked_sell']:.1f} niveaux | "
+                f"CVD {of['cvd_buy']}B/{of['cvd_sell']}S | "
+                f"TimesFM CONFIRME {tfm_dir} (Δ{signal.timesfm_change_pct:+.2f}%, conf={tfm_conf:.0%}) | "
+                f"Tendance 4H: {ti['bias']} | RSI:{ti['rsi']:.0f}"
+            )
+            return signal
+
+        if tfm_dir == 'NEUTRAL':
+            if TIMESFM_STRICT:
+                # ❌ Mode strict : pas d'accord explicite = pas de trade
+                signal.timesfm_approved = False
+                signal.direction = 'NEUTRAL'
+                signal.reason = (
+                    f"[REFUSE PAR TIMESFM] Desequilibre {consensus_dir} {consensus_pct:.0f}% "
+                    f"mais l'IA reste NEUTRE (Δ{signal.timesfm_change_pct:+.2f}%) — "
+                    f"accord explicite obligatoire"
+                )
+                return signal
+
+            # Mode permissif (historique) : neutre = pas d'opposition
+            signal.timesfm_approved = True
+            signal.strength = 'NORMAL'
+            signal.reason = (
+                f"[APPROUVE] Desequilibre {consensus_dir} {consensus_pct:.0f}% | "
+                f"TimesFM NEUTRE (pas d'opposition) | Tendance 4H: {ti['bias']}"
+            )
+            return signal
+
+        # ❌ Contradiction franche entre l'IA et le carnet
+        signal.timesfm_approved = False
+        signal.direction = 'NEUTRAL'
+        signal.reason = (
+            f"[REFUSE PAR TIMESFM] Carnet: {consensus_dir} {consensus_pct:.0f}% MAIS "
+            f"TimesFM predit {tfm_dir} (Δ{signal.timesfm_change_pct:+.2f}%, conf={tfm_conf:.0%}) — "
+            f"contradiction IA vs marche"
+        )
         return signal
