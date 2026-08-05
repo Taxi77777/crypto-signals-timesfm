@@ -1,0 +1,72 @@
+"""Diagnostic live — données reçues de chaque plateforme"""
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
+from exchanges import get_multi_exchange_orderflow
+from config import EXCHANGES_TO_CHECK, ORDERBOOK_DEPTH
+
+of = get_multi_exchange_orderflow('BTC_USDT', EXCHANGES_TO_CHECK, ORDERBOOK_DEPTH)
+
+print('=' * 70)
+print('  DONNEES RECUES DE CHAQUE PLATEFORME - BTC/USDT EN DIRECT')
+print('=' * 70)
+
+for ex, d in of['details'].items():
+    ok = d.get('ok', False)
+    if ok:
+        n_levels   = d.get('n_levels', 0)
+        bid_vol    = d.get('total_bid_vol', 0)
+        ask_vol    = d.get('total_ask_vol', 0)
+        obi        = d.get('obi', 0.5)
+        buyer_dom  = d.get('buyer_dominated', 0)
+        seller_dom = d.get('seller_dominated', 0)
+        stack_b    = d.get('stacked_buy', 0)
+        stack_s    = d.get('stacked_sell', 0)
+        score      = d.get('direction_score', 0)
+        side       = d.get('dominant_side', '?')
+        cvd        = d.get('cvd', {})
+        cvd_val    = cvd.get('cvd', 0)
+        cvd_dir    = cvd.get('cvd_direction', '?')
+        cvd_pct    = cvd.get('delta_pct', 0)
+        buy_vol    = cvd.get('buy_vol', 0)
+        sell_vol   = cvd.get('sell_vol', 0)
+
+        print(f'\n  [{ex}] CONNECTE')
+        print(f'    Niveaux analyses   : {n_levels} bid/ask')
+        print(f'    Volume total BID   : {bid_vol:,.0f}')
+        print(f'    Volume total ASK   : {ask_vol:,.0f}')
+        print(f'    OBI (ratio bids)   : {obi:.3f}')
+        print(f'    Niveaux acheteurs  : {buyer_dom}')
+        print(f'    Niveaux vendeurs   : {seller_dom}')
+        print(f'    Stacked BUY        : {stack_b} blocs consecutifs')
+        print(f'    Stacked SELL       : {stack_s} blocs consecutifs')
+        print(f'    Score directionnel : {score:+d}')
+        print(f'    Dominant side      : {side}')
+        print(f'    CVD (50 trades)    : {cvd_val:+.2f} ({cvd_dir})')
+        print(f'    CVD delta%         : {cvd_pct:+.1f}%')
+        print(f'    Volume achats agg. : {buy_vol:.2f}')
+        print(f'    Volume ventes agg. : {sell_vol:.2f}')
+    else:
+        err = d.get('error', '?')
+        print(f'\n  [{ex}] ERREUR : {err}')
+
+print()
+print('=' * 70)
+print('  SYNTHESE FINALE - CE QUE TIMESFM RECOIT')
+print('=' * 70)
+print(f'  Exchanges OK         : {of["exchanges_ok"]}/6')
+print(f'  Consensus direction  : {of["consensus_direction"]}')
+print(f'  Consensus pct        : {of["consensus_pct"]}%')
+print(f'  Score moyen          : {of["avg_direction_score"]:+.1f}')
+print(f'  Stacked BUY moyen    : {of["avg_stacked_buy"]:.1f} blocs institutionnels')
+print(f'  Stacked SELL moyen   : {of["avg_stacked_sell"]:.1f} blocs institutionnels')
+print(f'  CVD exchanges BUY    : {of["cvd_buy"]}')
+print(f'  CVD exchanges SELL   : {of["cvd_sell"]}')
+print(f'  Double confirm BUY   : {of["double_confirm_buy"]} (carnet+CVD aligne)')
+print(f'  Double confirm SELL  : {of["double_confirm_sell"]} (carnet+CVD aligne)')
+print()
+print('  TOTAL INFOS TRANSMISES A TIMESFM :')
+print(f'  - {of["exchanges_ok"]} exchanges x 50 niveaux = {of["exchanges_ok"]*50} prix analyses')
+print(f'  - {of["exchanges_ok"]} exchanges x 50 trades = {of["exchanges_ok"]*50} flux CVD')
+print(f'  - {of["exchanges_ok"]*12} metriques institutionnelles aggregees')
+print('=' * 70)

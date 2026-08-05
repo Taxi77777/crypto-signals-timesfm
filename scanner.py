@@ -12,10 +12,30 @@ from config import AUTO_SCAN_TOP_N, AUTO_SCAN_MIN_VOL, AUTO_SCAN_INTERVAL, MANUA
 
 log = logging.getLogger('IHP-SCANNER')
 
-BLACKLIST = {
-    "BTCUP_USDT", "BTCDOWN_USDT", "ETHUP_USDT", "ETHDOWN_USDT",
-    "USDC_USDT", "BUSD_USDT", "TUSD_USDT", "LUNA_USDT", "LUNC_USDT"
+BLACKLIST_KEYWORDS = ['STOCK', 'UP_', 'DOWN_', '3L_', '3S_', 'BEAR_', 'BULL_', '1000']
+EXCLUDE_EXPLICIT = {
+    # Stablecoins
+    "USDC_USDT", "BUSD_USDT", "TUSD_USDT", "USDD_USDT", "FDUSD_USDT", "USDP_USDT",
+    # Tokens morts / problematiques
+    "LUNA_USDT", "LUNC_USDT", "USTC_USDT", "PUMPFUN_USDT",
+    # Contrats uniques / pas sur Spot MEXC
+    "DRAM_USDT", "SNXX_USDT", "NICKEL_USDT", "MUU_USDT", "TRUMPOFFICIAL_USDT",
+    "MVLL_USDT", "LAB_USDT", "CAP_USDT", "NIL_USDT", "LIT_USDT",
+    # Synthetiques / Actions / Commodities non dispo sur MEXC Spot
+    "NVIDIA_USDT", "TESLA_USDT", "SPY_USDT", "QQQ_USDT", "EWY_USDT", "SOXS_USDT", "SOXL_USDT",
+    "XAU_USDT", "XAUT_USDT", "SILVER_USDT", "USOIL_USDT", "UKOIL_USDT", "NGAS_USDT", "XPT_USDT",
+    "COPPER_USDT", "ALUMINUM_USDT", "ZINC_USDT", "LEAD_USDT", "PALLADIUM_USDT", "PLATINUM_USDT",
+    "UNITREE_USDT", "SPX500_USDT", "NAS100_USDT", "US30_USDT", "NDX_USDT", "KORU_USDT"
 }
+
+def is_valid_crypto(symbol: str) -> bool:
+    if symbol in EXCLUDE_EXPLICIT:
+        return False
+    for kw in BLACKLIST_KEYWORDS:
+        if kw in symbol:
+            return False
+    return True
+
 
 _cached_pairs: List[str] = []
 _last_scan_time: float = 0
@@ -44,7 +64,7 @@ def scan_all_futures(force: bool = False) -> List[str]:
     for t in all_tickers:
         try:
             symbol = str(t.get('symbol', ''))
-            if not symbol.endswith('_USDT') or symbol in BLACKLIST:
+            if not symbol.endswith('_USDT') or not is_valid_crypto(symbol):
                 continue
 
             vol24 = float(t.get('amount24', t.get('volume24', 0)) or 0)

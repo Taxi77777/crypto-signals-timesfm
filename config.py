@@ -6,12 +6,29 @@
 """
 
 # ──────────────────────────────────────────────
-#  🔑 MEXC API CREDENTIALS (Exécution des ordres)
+#  🔑 MEXC API CREDENTIALS
 # ──────────────────────────────────────────────
 MEXC_API_KEY    = "mx0vgliPQVUSuDsTAx"
 MEXC_SECRET_KEY = "64ee4910041642a2a0d37de4b49ebde6"
 MEXC_BASE_URL   = "https://contract.mexc.com"
 MEXC_SPOT_URL   = "https://api.mexc.com"
+
+# ──────────────────────────────────────────────
+#  🤖 CLÉS API DES IAS (GRATUIT)
+#
+#  GEMINI (100% GRATUIT, sans CB) :
+#    1. Va sur https://aistudio.google.com
+#    2. Clique "Get API Key" → créer une clé
+#    3. Colle la clé ici (format: AIzaSy...)
+#
+#  KIMI (crédits gratuits offerts) :
+#    1. Va sur https://platform.moonshot.cn/console/api-keys
+#    2. Crée un compte → clé API gratuite
+#    3. Colle la clé ici (format: sk-...)
+# ──────────────────────────────────────────────
+GEMINI_API_KEY  = ""   # ← Colle ta clé Gemini ici (aistudio.google.com)
+KIMI_API_KEY    = ""   # ← Colle ta clé Kimi ici (platform.moonshot.cn)
+
 
 # ──────────────────────────────────────────────
 #  🌐 EXCHANGES POUR CONSENSUS (100% Gratuit — Pas de clé API requise)
@@ -27,30 +44,31 @@ EXCHANGES_TO_CHECK = [
 ]
 
 # ──────────────────────────────────────────────
-#  ⚖️ SEUILS DE CONSENSUS & CARNET D'ORDRES (OBI)
+#  ⚖️ CARNET D'ORDRES — ANALYSE INSTITUTIONNELLE
 # ──────────────────────────────────────────────
-ORDERBOOK_DEPTH     = 20      # Profondeur du carnet (20 niveaux d'ordres)
-OBI_BUY_THRESHOLD   = 0.58    # OBI > 58% = Domination nette des acheteurs
-OBI_SELL_THRESHOLD  = 0.42    # OBI < 42% = Domination nette des vendeurs
-MIN_CONSENSUS_PCT   = 70.0    # 70% minimum des échanges doivent s'accorder (ex: 4/5 ou 5/6)
+ORDERBOOK_DEPTH         = 50      # 50 niveaux de profondeur par exchange
+IMBALANCE_RATIO         = 2.0     # Ratio bid/ask par niveau
+MIN_STACKED_LEVELS      = 2       # 2 blocs consécutifs minimum
+MIN_CONSENSUS_PCT       = 80.0    # 80%+ = 5/6 exchanges dans la MEME direction
+ANTI_MANIP_THRESHOLD    = 35.0    # Anti-manipulation seuil
 
 # ──────────────────────────────────────────────
-#  📈 FILTRE DE TENDANCE LONG TERME
+#  📈 TENDANCE LONG TERME (4H)
 # ──────────────────────────────────────────────
-TIMEFRAME           = "1h"    # Unité de temps principale pour la tendance (1H / 4H)
+TIMEFRAME           = "4h"    # 4H pour setup long terme
 KLINE_LIMIT         = 200     # Nombre de bougies analysées
-USE_TREND_FILTER    = True    # Exiger que la tendance Long Terme soit alignée avec l'OBI
-MA_TREND_FAST       = 50      # Moyenne mobile rapide 50
-MA_TREND_SLOW       = 200     # Moyenne mobile lente 200 (Long Terme)
-USE_VWAP_FILTER     = True    # Exiger d'être du bon côté du VWAP
+USE_TREND_FILTER    = False   # Désactivé — le carnet d'ordres suffit
+MA_TREND_FAST       = 21
+MA_TREND_SLOW       = 55
+USE_VWAP_FILTER     = False   # Désactivé
 
 # ──────────────────────────────────────────────
 #  📊 MODE PAIRES (Auto-Scan ou Manuel)
 # ──────────────────────────────────────────────
 AUTO_SCAN           = True
-AUTO_SCAN_TOP_N     = 30       # Sélectionner les 30 plus gros volumes 24h
-AUTO_SCAN_MIN_VOL   = 5_000_000 # Minimum 5 Millions USDT/24h
-AUTO_SCAN_INTERVAL  = 1800     # Re-scanner le marché toutes les 30 min
+AUTO_SCAN_TOP_N     = 75       # Sélectionner les 75 plus gros volumes 24h crypto
+AUTO_SCAN_MIN_VOL   = 1_500_000 # Minimum 1.5 Million USDT/24h
+AUTO_SCAN_INTERVAL  = 300      # Re-scanner le marché toutes les 5 min
 
 MANUAL_PAIRS = [
     "BTC_USDT", "ETH_USDT", "SOL_USDT", "BNB_USDT", "XRP_USDT",
@@ -59,25 +77,28 @@ MANUAL_PAIRS = [
 ]
 
 # ──────────────────────────────────────────────
-#  💰 GESTION DU RISQUE & LEVIER
+#  💰 GESTION DU RISQUE & LEVIER (LONG TERME)
 # ──────────────────────────────────────────────
-LEVERAGE            = 10       # Levier conseillé pour du trend/long terme (ex: 5x à 20x)
+LEVERAGE            = 40       # Levier x40 (setup long terme)
 RISK_PER_TRADE_PCT  = 1.0      # 1% du capital risqué par trade
-MIN_RR              = 1.5      # Ratio Risque/Rendement minimum (1:1.5)
-MAX_CONCURRENT      = 4        # Max 4 positions ouvertes simultanément
+USE_SL              = False    # SL Désactivé selon demande utilisateur
+ATR_SL_MULT         = 2.0      # SL = ATR x 2.0 (si réactivé)
+ATR_TP_MULT         = 5.0      # TP = ATR x 5.0 (ratio R/R 1:2.5)
+MIN_RR              = 2.0      # Ratio minimum 1:2.0
+MAX_CONCURRENT      = 1        # 1 SEUL trade à la fois — dès que terminé, prochain scan
 MAX_DAILY_LOSS_PCT  = 5.0      # Stop journalier à -5% du capital
 MAX_DRAWDOWN_PCT    = 15.0     # Stop absolu si drawdown -15%
 
 # Trailing Stop
 USE_TRAILING_SL     = True
-TRAILING_TRIGGER    = 0.8      # Déclencher le Trailing SL après +0.8% de profit
-TRAILING_STEP       = 0.4      # Trailing step %
+TRAILING_TRIGGER    = 1.5      # Déclencher après +1.5% de profit
+TRAILING_STEP       = 0.5      # Trailing step %
 
 # ──────────────────────────────────────────────
 #  🔄 FRÉQUENCE D'ANALYSE
 # ──────────────────────────────────────────────
-UPDATE_INTERVAL_SEC = 20       # Scan du carnet toutes les 20 secondes
-SIGNAL_COOLDOWN_SEC = 600      # 10 minutes de pause par paire entre 2 signaux
+UPDATE_INTERVAL_SEC = 30       # Scan toutes les 30 secondes (setup long terme)
+SIGNAL_COOLDOWN_SEC = 3600     # 1 heure de pause entre 2 signaux sur la même paire
 
 # ──────────────────────────────────────────────
 #  📱 TELEGRAM ALERTES
