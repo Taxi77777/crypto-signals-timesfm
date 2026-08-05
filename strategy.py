@@ -45,7 +45,33 @@ from config import (
     USE_TREND_FILTER, MIN_STACKED_LEVELS, USE_SL,
     MIN_EXCHANGES_OK, TIMESFM_STRICT, TIMESFM_MIN_CONFIDENCE,
     TIMESFM_REQUIRE_EXCHANGE_DATA,
+    USE_VOLUME_CONFIRMATION, MIN_VOLUME_RATIO, VOLUME_MA_PERIOD,
 )
+
+
+def compute_volume_ratio(df: pd.DataFrame) -> float:
+    """
+    Volume de la bougie en cours rapporté à sa moyenne.
+
+    Le carnet dit QUI pousse maintenant ; ce ratio dit si le mouvement
+    a du CORPS. Un déséquilibre de carnet sur une bougie à volume
+    famélique est le plus souvent du bruit.
+
+    Retourne 0.0 si le volume est indisponible (le filtre est alors
+    neutralisé plutôt que de bloquer tous les signaux).
+    """
+    try:
+        if df is None or 'volume' not in df.columns or len(df) < VOLUME_MA_PERIOD:
+            return 0.0
+        vols = pd.to_numeric(df['volume'], errors='coerce').dropna()
+        if len(vols) < VOLUME_MA_PERIOD:
+            return 0.0
+        avg = float(vols.tail(VOLUME_MA_PERIOD).mean())
+        if avg <= 0:
+            return 0.0
+        return round(float(vols.iloc[-1]) / avg, 3)
+    except Exception:
+        return 0.0
 
 log = logging.getLogger("IHP-STRATEGY")
 
@@ -88,6 +114,7 @@ class Signal:
     ema_slow:            float = 0.0
     atr:                 float = 0.0
     rsi:                 float = 50.0
+    volume_ratio:        float = 0.0   # volume bougie / moyenne
 
     reason:              str   = ''
     details:             dict  = field(default_factory=dict)
@@ -129,6 +156,7 @@ class Signal:
             f"  TimesFM   : {self.timesfm_direction} ({self.timesfm_change_pct:+.2f}%) "
             f"conf={self.timesfm_confidence:.0%} -> {tfm_status}\n"
             f"  Donnees exchanges transmises a l'IA : {'OUI' if self.timesfm_used_book else 'NON'}\n"
+            f"  Volume    : bougie a {self.volume_ratio:.2f}x sa moyenne\n"
             f"  Tendance  : {self.trend_bias} | RSI:{self.rsi:.0f} | ATR:{self.atr:.6f}\n"
             f"  Entry:{self.entry:.6f}  SL:{sl_str}  TP:{self.tp:.6f}  R/R:1:{self.rr:.2f}\n"
             f"  Valide: {'OUI' if self.is_valid() else 'NON'}\n"
@@ -184,6 +212,26 @@ class OrderFlowStrategy:
                 f"Carnet: {of['book_buy']}B/{of['book_sell']}S sur {of['exchanges_ok']} | "
                 f"CVD: {of['cvd_buy']}B/{of['cvd_sell']}S | "
                 f"score={of['avg_direction_score']:+.0f}"
+            )
+            return signal
+
+        # ══════════════════════════════════════════════════════════
+        # ÉTAPE 2b : CONFIRMATION PAR LE VOLUME DES BOUGIES
+        #
+        # Le carnet dit qui pousse maintenant. Le volume 4H dit si le
+        # mouvement a du corps. Le ratio est TOUJOURS calculé et
+        # journalisé, même quand le filtre est désactivé, pour pouvoir
+        # mesurer après coup s'il apporte quelque chose.
+        # ══════════════════════════════════════════════════════════
+        signal.volume_ratio = compute_volume_ratio(df_klines)
+
+        if (USE_VOLUME_CONFIRMATION
+                and signal.volume_ratio > 0
+                and signal.volume_ratio < MIN_VOLUME_RATIO):
+            signal.reason = (
+                f"[STOP] Volume insuffisant : bougie a {signal.volume_ratio:.2f}x "
+                f"sa moyenne {VOLUME_MA_PERIOD} periodes (requis {MIN_VOLUME_RATIO:.2f}x) | "
+                f"Desequilibre {consensus_dir} {consensus_pct:.0f}% ignore — mouvement sans corps"
             )
             return signal
 

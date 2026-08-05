@@ -73,6 +73,14 @@ MIN_EXCHANGES_OK = 3
 ORDERBOOK_DEPTH      = 50     # Niveaux de profondeur demandés par exchange
 IMBALANCE_RATIO      = 3.0    # Ratio bid/ask par niveau pour marquer un déséquilibre
 MIN_STACKED_LEVELS   = 3      # Niveaux consécutifs requis pour une dominance
+
+# Décote des ordres éloignés du prix moyen.
+# poids = 1 / (1 + DISTANCE_DECAY × distance_relative)
+#   collé au mid -> 1.00 | 0.5 % -> 0.44 | 1 % -> 0.29 | 3 % -> 0.12
+# Sans cette pondération, un mur posé à 3 % du marché pesait autant
+# qu'un ordre collé au prix. Les gros murs lointains sont le plus
+# souvent décoratifs et retirés avant d'être touchés.
+DISTANCE_DECAY       = 250.0
 # Seuil de consensus multi-exchange.
 #
 # Remis à 80 % (valeur d'origine) pour deux raisons :
@@ -85,6 +93,26 @@ MIN_STACKED_LEVELS   = 3      # Niveaux consécutifs requis pour une dominance
 #     rester alignées.
 MIN_CONSENSUS_PCT    = 80.0
 ANTI_MANIP_THRESHOLD = 35.0   # Un exchange opposé au-delà de ce score = manipulation
+
+# ──────────────────────────────────────────────
+#  📊 CONFIRMATION PAR LE VOLUME DES BOUGIES
+#
+#  Le carnet d'ordres dit QUI pousse en ce moment.
+#  Le volume des bougies dit si le mouvement a du CORPS.
+#  Ce sont deux informations différentes, et les deux comptent.
+#
+#  Un déséquilibre de carnet sur une bougie à volume famélique
+#  est très souvent du bruit : peu de participants, spread large,
+#  mouvement qui se retourne. On exige donc que le volume de la
+#  bougie en cours atteigne au moins MIN_VOLUME_RATIO fois sa
+#  moyenne sur VOLUME_MA_PERIOD bougies.
+#
+#  Le ratio est TOUJOURS calculé et journalisé, même si le filtre
+#  est désactivé — pour pouvoir mesurer après coup s'il aide.
+# ──────────────────────────────────────────────
+USE_VOLUME_CONFIRMATION = True
+MIN_VOLUME_RATIO        = 1.0    # 1.0 = volume au moins égal à sa moyenne
+VOLUME_MA_PERIOD        = 20
 
 # ──────────────────────────────────────────────
 #  📈 TENDANCE (informatif — filtres désactivés)

@@ -1,15 +1,26 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO v4.0 — ORDER FLOW ENGINE           ║
-║     exchanges.py — Analyse Order Flow Multi-Exchange Profonde    ║
+║     INSTITUTIONAL HUNTER PRO v5.1 — ORDER FLOW ENGINE           ║
+║     exchanges.py — Desequilibre PRIX + VOLUME multi-exchange     ║
 ║                                                                  ║
-║  STRATÉGIE RÉELLE :                                              ║
-║  1. Carnet d'ordres niveau par niveau (50 niveaux)               ║
-║  2. Détection de déséquilibre de PRIX par niveau                 ║
-║     → Bid/Ask ratio > 3.0 par niveau = zone d'absorption         ║
-║  3. Stacked Imbalances : blocs consécutifs acheteurs/vendeurs    ║
-║  4. CVD (Cumulative Volume Delta) via le flux de trades récents  ║
-║  5. Consensus cross-exchange sur 6 bourses mondiales             ║
+║  CHANGEMENT MAJEUR v5.1 :                                        ║
+║                                                                  ║
+║  L'ancienne version ne comparait que les QUANTITES (bid_vol      ║
+║  contre ask_vol). Le prix de chaque niveau etait recupere puis   ║
+║  jete. Consequence : 1 BTC pose a 3 % du prix moyen pesait       ║
+║  autant que 1 BTC colle au marche. Ce n'etait pas un             ║
+║  desequilibre prix+volume, mais un desequilibre de volume seul.  ║
+║                                                                  ║
+║  Desormais :                                                     ║
+║   1. NOTIONNEL — chaque niveau vaut prix x volume. C'est de      ║
+║      l'argent reel engage, pas un nombre d'unites.               ║
+║   2. PONDERATION PAR LA DISTANCE — un ordre colle au mid compte  ║
+║      plein pot ; un ordre lointain est fortement decote. Les     ║
+║      gros murs poses loin sont le plus souvent decoratifs et     ║
+║      retires avant d'etre touches.                               ║
+║   3. Le ratio de desequilibre et le nombre de niveaux empiles    ║
+║      viennent maintenant de config.py (ils etaient codes en dur  ║
+║      et les valeurs du fichier de config n'etaient jamais lues). ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
 import requests
@@ -17,100 +28,147 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from doh_patch import apply_doh_patch
 
+try:
+    from config import IMBALANCE_RATIO, MIN_STACKED_LEVELS, DISTANCE_DECAY
+except Exception:      # garde-fou si config est incomplet
+    IMBALANCE_RATIO   = 3.0
+    MIN_STACKED_LEVELS = 3
+    DISTANCE_DECAY     = 250.0
+
 apply_doh_patch()
 
 log = logging.getLogger('IHP-EXCHANGES')
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
+
 # ──────────────────────────────────────────────────────────────
-#  OUTILS D'ANALYSE DE FLUX D'ORDRES
+#  ANALYSE DU CARNET — PRIX x VOLUME, PONDERE PAR LA DISTANCE
 # ──────────────────────────────────────────────────────────────
 
-def analyze_orderbook_levels(bids: list, asks: list, imbalance_threshold: float = 3.0) -> dict:
+def _distance_weight(price: float, mid: float) -> float:
     """
-    Analyse le carnet d'ordres niveau par niveau.
-    
-    Détecte :
-    - Les zones d'absorption : niveaux où bid_vol/ask_vol > seuil (acheteurs dominent)
-    - Les stacked imbalances : blocs de niveaux consécutifs dominés par un seul côté
-    - L'OBI global (somme totale)
-    - Le score directionnel : positif = acheteurs, négatif = vendeurs
-    
+    Poids d'un niveau selon son eloignement du prix moyen.
+
+    poids = 1 / (1 + DISTANCE_DECAY x distance_relative)
+
+    Avec DISTANCE_DECAY = 250 :
+       colle au mid  (0.00 %) -> 1.00
+       a 0.10 %               -> 0.80
+       a 0.50 %               -> 0.44
+       a 1.00 %               -> 0.29
+       a 3.00 %               -> 0.12
+
+    Un mur de liquidite pose loin du marche ne vaut donc presque
+    rien : il est rarement touche, et souvent retire avant.
+    """
+    if mid <= 0:
+        return 1.0
+    dist = abs(price - mid) / mid
+    return 1.0 / (1.0 + DISTANCE_DECAY * dist)
+
+
+def analyze_orderbook_levels(bids: list, asks: list,
+                             imbalance_threshold: float = None) -> dict:
+    """
+    Analyse le carnet niveau par niveau en PRIX x VOLUME.
+
     Args:
-        bids: Liste de [prix, volume] triée DESC (meilleur bid en premier)
-        asks: Liste de [prix, volume] triée ASC (meilleur ask en premier)
-        imbalance_threshold: Ratio minimum pour considérer un niveau "déséquilibré"
-    
-    Returns dict avec score, stacked_buy, stacked_sell, obi, dominant_side
+        bids: [[prix, volume], ...] tries DESC (meilleur bid en premier)
+        asks: [[prix, volume], ...] tries ASC  (meilleur ask en premier)
+        imbalance_threshold: ratio mini pour marquer un niveau desequilibre
+                             (defaut : IMBALANCE_RATIO de config.py)
+
+    Returns dict : obi, obi_qty, direction_score, stacked_buy/sell,
+                   dominant_side, notionnels et spread.
     """
     if not bids or not asks:
         return _neutral_result()
 
-    total_bid = sum(float(b[1]) for b in bids)
-    total_ask = sum(float(a[1]) for a in asks)
-    obi = total_bid / (total_bid + total_ask) if (total_bid + total_ask) > 0 else 0.5
+    threshold = imbalance_threshold if imbalance_threshold is not None else IMBALANCE_RATIO
 
-    # Aligner les niveaux par index pour comparaison niveau par niveau
-    n_levels = min(len(bids), len(asks))
-    
-    # Score par niveau : positif = acheteur domine ce niveau, négatif = vendeur
+    best_bid = float(bids[0][0])
+    best_ask = float(asks[0][0])
+    mid      = (best_bid + best_ask) / 2.0
+    spread_pct = ((best_ask - best_bid) / mid * 100.0) if mid > 0 else 0.0
+
+    # ── Notionnel pondere par la distance ────────────────────────
+    bid_vals, ask_vals = [], []
+    total_bid_qty = total_ask_qty = 0.0
+
+    for p, v in ((float(b[0]), float(b[1])) for b in bids):
+        total_bid_qty += v
+        bid_vals.append(p * v * _distance_weight(p, mid))
+
+    for p, v in ((float(a[0]), float(a[1])) for a in asks):
+        total_ask_qty += v
+        ask_vals.append(p * v * _distance_weight(p, mid))
+
+    total_bid_notional = sum(bid_vals)
+    total_ask_notional = sum(ask_vals)
+    denom = total_bid_notional + total_ask_notional
+    obi   = (total_bid_notional / denom) if denom > 0 else 0.5
+
+    # OBI historique en quantite pure — conserve pour comparaison
+    denom_qty = total_bid_qty + total_ask_qty
+    obi_qty   = (total_bid_qty / denom_qty) if denom_qty > 0 else 0.5
+
+    # ── Comparaison niveau par niveau, en valeur ─────────────────
+    n_levels = min(len(bid_vals), len(ask_vals))
     level_scores = []
-    buyer_dominated = 0   # niveaux où acheteur domine clairement
-    seller_dominated = 0  # niveaux où vendeur domine clairement
-    
+    buyer_dominated = seller_dominated = 0
+
     for i in range(n_levels):
-        bid_vol = float(bids[i][1])
-        ask_vol = float(asks[i][1])
-        
-        if ask_vol > 0 and bid_vol / ask_vol >= imbalance_threshold:
-            level_scores.append(1)    # acheteur domine ce niveau
+        b_val = bid_vals[i]
+        a_val = ask_vals[i]
+
+        if a_val > 0 and b_val / a_val >= threshold:
+            level_scores.append(1)
             buyer_dominated += 1
-        elif bid_vol > 0 and ask_vol / bid_vol >= imbalance_threshold:
-            level_scores.append(-1)   # vendeur domine ce niveau
+        elif b_val > 0 and a_val / b_val >= threshold:
+            level_scores.append(-1)
             seller_dominated += 1
         else:
-            level_scores.append(0)    # équilibré
-    
-    # Détecter les "stacked imbalances" = blocs consécutifs de même côté (institutionnel)
+            level_scores.append(0)
+
     stacked_buy  = _count_max_consecutive(level_scores, 1)
     stacked_sell = _count_max_consecutive(level_scores, -1)
-    
-    # Score directionnel global (pondéré par les volumes)
-    total_buy_pressure  = sum(float(b[1]) for i, b in enumerate(bids[:n_levels])  if i < len(level_scores) and level_scores[i] == 1)
-    total_sell_pressure = sum(float(a[1]) for i, a in enumerate(asks[:n_levels]) if i < len(level_scores) and level_scores[i] == -1)
-    
-    # Direction dominante
+
+    # ── Direction dominante ──────────────────────────────────────
     dominant_side = 'NEUTRAL'
-    if stacked_buy >= 3 and buyer_dominated > seller_dominated:
+    if stacked_buy >= MIN_STACKED_LEVELS and buyer_dominated > seller_dominated:
         dominant_side = 'BUY'
-    elif stacked_sell >= 3 and seller_dominated > buyer_dominated:
+    elif stacked_sell >= MIN_STACKED_LEVELS and seller_dominated > buyer_dominated:
         dominant_side = 'SELL'
-    
-    # Score composite (-100 à +100)
-    total_dominated = buyer_dominated + seller_dominated
-    if total_dominated > 0:
-        direction_score = int(((buyer_dominated - seller_dominated) / n_levels) * 100)
-    else:
-        direction_score = 0
+
+    # ── Score composite (-100 a +100) ────────────────────────────
+    # Moyenne du desequilibre de niveaux et du desequilibre notionnel,
+    # pour que le score reflete a la fois la structure et la valeur.
+    level_score    = ((buyer_dominated - seller_dominated) / n_levels * 100.0) if n_levels else 0.0
+    notional_score = (obi - 0.5) * 200.0
+    direction_score = int(round((level_score + notional_score) / 2.0))
 
     return {
-        'obi':             round(obi, 4),
-        'n_levels':        n_levels,
-        'buyer_dominated': buyer_dominated,
-        'seller_dominated':seller_dominated,
-        'stacked_buy':     stacked_buy,
-        'stacked_sell':    stacked_sell,
-        'direction_score': direction_score,  # -100 (pure sell) à +100 (pure buy)
-        'dominant_side':   dominant_side,
-        'total_bid_vol':   round(total_bid, 2),
-        'total_ask_vol':   round(total_ask, 2),
+        'obi':               round(obi, 4),
+        'obi_qty':           round(obi_qty, 4),
+        'n_levels':          n_levels,
+        'buyer_dominated':   buyer_dominated,
+        'seller_dominated':  seller_dominated,
+        'stacked_buy':       stacked_buy,
+        'stacked_sell':      stacked_sell,
+        'direction_score':   direction_score,
+        'dominant_side':     dominant_side,
+        'total_bid_vol':     round(total_bid_qty, 2),
+        'total_ask_vol':     round(total_ask_qty, 2),
+        'bid_notional':      round(total_bid_notional, 2),
+        'ask_notional':      round(total_ask_notional, 2),
+        'mid_price':         round(mid, 8),
+        'spread_pct':        round(spread_pct, 5),
     }
 
 
 def _count_max_consecutive(sequence: list, target: int) -> int:
-    """Compte le maximum de valeurs consécutives égales à target dans la liste."""
-    max_streak = 0
-    streak = 0
+    """Nombre maximum de valeurs consecutives egales a target."""
+    max_streak = streak = 0
     for v in sequence:
         if v == target:
             streak += 1
@@ -122,44 +180,55 @@ def _count_max_consecutive(sequence: list, target: int) -> int:
 
 def _neutral_result() -> dict:
     return {
-        'obi': 0.5, 'n_levels': 0, 'buyer_dominated': 0, 'seller_dominated': 0,
+        'obi': 0.5, 'obi_qty': 0.5, 'n_levels': 0,
+        'buyer_dominated': 0, 'seller_dominated': 0,
         'stacked_buy': 0, 'stacked_sell': 0, 'direction_score': 0,
-        'dominant_side': 'NEUTRAL', 'total_bid_vol': 0, 'total_ask_vol': 0
+        'dominant_side': 'NEUTRAL', 'total_bid_vol': 0, 'total_ask_vol': 0,
+        'bid_notional': 0, 'ask_notional': 0, 'mid_price': 0, 'spread_pct': 0,
     }
 
 
+# ──────────────────────────────────────────────────────────────
+#  FLUX DE TRADES — CVD EN VALEUR
+# ──────────────────────────────────────────────────────────────
+
 def analyze_trade_flow(trades: list) -> dict:
     """
-    Analyse le flux de trades récents pour calculer le CVD.
-    
-    CVD (Cumulative Volume Delta) = volume des achats agressifs - volume des ventes agressives.
-    Un achat agressif = un acheteur frappe l'ask (market buy).
-    Une vente agressive = un vendeur frappe le bid (market sell).
-    
-    Args:
-        trades: Liste de trades [{'side':'buy'|'sell', 'vol':float, 'price':float}]
-    
-    Returns:
-        dict avec cvd, buy_vol, sell_vol, delta_pct, cvd_direction
+    CVD (Cumulative Volume Delta) : agressifs acheteurs - agressifs vendeurs.
+
+    v5.1 : pondere par le PRIX quand il est disponible. Un achat
+    agressif de 10 000 USDT et un achat de 10 USDT ne portent pas
+    la meme information ; l'ancienne version les comptait pareil
+    des lors qu'ils portaient sur la meme quantite.
     """
     if not trades:
         return {'cvd': 0, 'buy_vol': 0, 'sell_vol': 0, 'delta_pct': 0, 'cvd_direction': 'NEUTRAL'}
-    
-    buy_vol  = sum(float(t.get('vol', t.get('qty', 0))) for t in trades if t.get('side', '').lower() in ('buy', 'b', '1', 1))
-    sell_vol = sum(float(t.get('vol', t.get('qty', 0))) for t in trades if t.get('side', '').lower() in ('sell', 's', '2', 2))
-    
-    cvd = buy_vol - sell_vol
-    total = buy_vol + sell_vol
-    delta_pct = (cvd / total * 100) if total > 0 else 0
-    
+
+    buy_val = sell_val = 0.0
+    for t in trades:
+        try:
+            qty   = float(t.get('vol', t.get('qty', 0)) or 0)
+            price = float(t.get('price', 0) or 0)
+            val   = qty * price if price > 0 else qty
+            side  = str(t.get('side', '')).lower()
+            if side in ('buy', 'b', '1'):
+                buy_val += val
+            elif side in ('sell', 's', '2'):
+                sell_val += val
+        except (TypeError, ValueError):
+            continue
+
+    cvd   = buy_val - sell_val
+    total = buy_val + sell_val
+    delta_pct = (cvd / total * 100.0) if total > 0 else 0.0
     cvd_direction = 'BUY' if delta_pct > 20 else ('SELL' if delta_pct < -20 else 'NEUTRAL')
-    
+
     return {
         'cvd':           round(cvd, 4),
-        'buy_vol':       round(buy_vol, 4),
-        'sell_vol':      round(sell_vol, 4),
+        'buy_vol':       round(buy_val, 4),
+        'sell_vol':      round(sell_val, 4),
         'delta_pct':     round(delta_pct, 2),
-        'cvd_direction': cvd_direction
+        'cvd_direction': cvd_direction,
     }
 
 
@@ -169,29 +238,30 @@ def clean_symbol(symbol: str) -> str:
 
 
 # ──────────────────────────────────────────────────────────────
-#  FONCTIONS DE RÉCUPÉRATION PAR ÉCHANGE (50 NIVEAUX)
+#  RECUPERATION PAR EXCHANGE
 # ──────────────────────────────────────────────────────────────
 
 def fetch_mexc_orderflow(base: str, depth: int = 50) -> dict:
-    """MEXC : Carnet + trades récents"""
     depth_url  = f"https://api.mexc.com/api/v3/depth?symbol={base}USDT&limit={depth}"
     trades_url = f"https://api.mexc.com/api/v3/trades?symbol={base}USDT&limit=50"
-    
+
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
     bids = [[float(b[0]), float(b[1])] for b in r.get('bids', [])]
     asks = [[float(a[0]), float(a[1])] for a in r.get('asks', [])]
     book_analysis = analyze_orderbook_levels(bids, asks)
-    
-    # Trades récents
+
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades = [{'side': 'buy' if not t.get('isBuyerMaker') else 'sell', 'vol': float(t.get('qty', 0))} for t in (trades_raw if isinstance(trades_raw, list) else [])]
+    trades = [
+        {'side': 'buy' if not t.get('isBuyerMaker') else 'sell',
+         'vol': float(t.get('qty', 0)), 'price': float(t.get('price', 0) or 0)}
+        for t in (trades_raw if isinstance(trades_raw, list) else [])
+    ]
     cvd = analyze_trade_flow(trades)
-    
     return {'exchange': 'MEXC', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
 def fetch_bitget_orderflow(base: str, depth: int = 50) -> dict:
-    depth_url  = f"https://api.bitget.com/api/v2/spot/market/orderbook?symbol={base}USDT&limit={depth}"
+    depth_url = f"https://api.bitget.com/api/v2/spot/market/orderbook?symbol={base}USDT&limit={depth}"
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
     data = r.get('data', {})
     bids = [[float(b[0]), float(b[1])] for b in data.get('bids', [])]
@@ -200,15 +270,18 @@ def fetch_bitget_orderflow(base: str, depth: int = 50) -> dict:
 
     trades_url = f"https://api.bitget.com/api/v2/spot/market/fills?symbol={base}USDT&limit=50"
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades_list = trades_raw.get('data', [])
-    trades = [{'side': t.get('side', '').lower(), 'vol': float(t.get('baseVolume', t.get('size', 0)))} for t in trades_list]
+    trades = [
+        {'side': str(t.get('side', '')).lower(),
+         'vol': float(t.get('baseVolume', t.get('size', 0)) or 0),
+         'price': float(t.get('price', 0) or 0)}
+        for t in trades_raw.get('data', []) or []
+    ]
     cvd = analyze_trade_flow(trades)
-
     return {'exchange': 'Bitget', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
 def fetch_bybit_orderflow(base: str, depth: int = 50) -> dict:
-    depth_url  = f"https://api.bybit.com/v5/market/orderbook?category=linear&symbol={base}USDT&limit={depth}"
+    depth_url = f"https://api.bybit.com/v5/market/orderbook?category=linear&symbol={base}USDT&limit={depth}"
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
     res = r.get('result', {})
     bids = [[float(b[0]), float(b[1])] for b in res.get('b', [])]
@@ -217,32 +290,39 @@ def fetch_bybit_orderflow(base: str, depth: int = 50) -> dict:
 
     trades_url = f"https://api.bybit.com/v5/market/recent-trade?category=linear&symbol={base}USDT&limit=50"
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades_list = trades_raw.get('result', {}).get('list', [])
-    trades = [{'side': t.get('side', '').lower(), 'vol': float(t.get('size', 0))} for t in trades_list]
+    trades = [
+        {'side': str(t.get('side', '')).lower(),
+         'vol': float(t.get('size', 0) or 0),
+         'price': float(t.get('price', 0) or 0)}
+        for t in trades_raw.get('result', {}).get('list', []) or []
+    ]
     cvd = analyze_trade_flow(trades)
-
     return {'exchange': 'Bybit', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
 def fetch_okx_orderflow(base: str, depth: int = 50) -> dict:
-    depth_url  = f"https://www.okx.com/api/v5/market/books?instId={base}-USDT-SWAP&sz={depth}"
+    depth_url = f"https://www.okx.com/api/v5/market/books?instId={base}-USDT-SWAP&sz={depth}"
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
-    data = r.get('data', [{}])[0]
+    rows = r.get('data') or []
+    data = rows[0] if rows else {}
     bids = [[float(b[0]), float(b[1])] for b in data.get('bids', [])]
     asks = [[float(a[0]), float(a[1])] for a in data.get('asks', [])]
     book_analysis = analyze_orderbook_levels(bids, asks)
 
     trades_url = f"https://www.okx.com/api/v5/market/trades?instId={base}-USDT-SWAP&limit=50"
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades_list = trades_raw.get('data', [])
-    trades = [{'side': t.get('side', '').lower(), 'vol': float(t.get('sz', 0))} for t in trades_list]
+    trades = [
+        {'side': str(t.get('side', '')).lower(),
+         'vol': float(t.get('sz', 0) or 0),
+         'price': float(t.get('px', 0) or 0)}
+        for t in trades_raw.get('data', []) or []
+    ]
     cvd = analyze_trade_flow(trades)
-
     return {'exchange': 'OKX', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
 def fetch_binance_orderflow(base: str, depth: int = 50) -> dict:
-    depth_url  = f"https://data-api.binance.vision/api/v3/depth?symbol={base}USDT&limit={depth}"
+    depth_url = f"https://data-api.binance.vision/api/v3/depth?symbol={base}USDT&limit={depth}"
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
     bids = [[float(b[0]), float(b[1])] for b in r.get('bids', [])]
     asks = [[float(a[0]), float(a[1])] for a in r.get('asks', [])]
@@ -250,30 +330,39 @@ def fetch_binance_orderflow(base: str, depth: int = 50) -> dict:
 
     trades_url = f"https://data-api.binance.vision/api/v3/trades?symbol={base}USDT&limit=50"
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades = [{'side': 'buy' if not t.get('isBuyerMaker') else 'sell', 'vol': float(t.get('qty', 0))} for t in (trades_raw if isinstance(trades_raw, list) else [])]
+    trades = [
+        {'side': 'buy' if not t.get('isBuyerMaker') else 'sell',
+         'vol': float(t.get('qty', 0) or 0),
+         'price': float(t.get('price', 0) or 0)}
+        for t in (trades_raw if isinstance(trades_raw, list) else [])
+    ]
     cvd = analyze_trade_flow(trades)
-
     return {'exchange': 'Binance', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
 def fetch_kraken_orderflow(base: str, depth: int = 50) -> dict:
     pair = "XBTUSDT" if base == "BTC" else f"{base}USDT"
-    depth_url  = f"https://api.kraken.com/0/public/Depth?pair={pair}&count={depth}"
+    depth_url = f"https://api.kraken.com/0/public/Depth?pair={pair}&count={depth}"
     r = requests.get(depth_url, headers=HEADERS, timeout=4).json()
-    res = r.get('result', {})
-    pair_data = list(res.values())[0] if res else {}
+    res = r.get('result') or {}
+    if not res:
+        raise ValueError(f"Kraken : paire {pair} inconnue")
+    pair_data = list(res.values())[0]
     bids = [[float(b[0]), float(b[1])] for b in pair_data.get('bids', [])]
     asks = [[float(a[0]), float(a[1])] for a in pair_data.get('asks', [])]
     book_analysis = analyze_orderbook_levels(bids, asks)
 
     trades_url = f"https://api.kraken.com/0/public/Trades?pair={pair}&count=50"
     trades_raw = requests.get(trades_url, headers=HEADERS, timeout=4).json()
-    trades_res = trades_raw.get('result', {})
+    trades_res = trades_raw.get('result') or {}
     trades_list = list(trades_res.values())[0] if trades_res else []
-    # Kraken trade format: [price, volume, time, side('b'/'s'), type, misc, id]
-    trades = [{'side': 'buy' if t[3] == 'b' else 'sell', 'vol': float(t[1])} for t in trades_list if isinstance(t, list) and len(t) >= 4]
+    # Format Kraken : [prix, volume, temps, cote('b'/'s'), type, misc, id]
+    trades = [
+        {'side': 'buy' if t[3] == 'b' else 'sell',
+         'vol': float(t[1]), 'price': float(t[0])}
+        for t in trades_list if isinstance(t, list) and len(t) >= 4
+    ]
     cvd = analyze_trade_flow(trades)
-
     return {'exchange': 'Kraken', 'ok': True, **book_analysis, 'cvd': cvd}
 
 
@@ -288,19 +377,14 @@ EXCHANGE_FETCHERS = {
 
 
 # ──────────────────────────────────────────────────────────────
-#  MOTEUR MULTI-EXCHANGE ORDER FLOW CONSENSUS
+#  CONSENSUS MULTI-EXCHANGE
 # ──────────────────────────────────────────────────────────────
 
-def get_multi_exchange_orderflow(symbol: str, target_exchanges: list = None, depth: int = 50) -> dict:
+def get_multi_exchange_orderflow(symbol: str, target_exchanges: list = None,
+                                 depth: int = 50) -> dict:
     """
-    Analyse le flux d'ordres en parallèle sur tous les exchanges cibles.
-    
-    Calcule le CONSENSUS basé sur :
-    1. Dominant side (BUY/SELL) par carnet d'ordres niveau par niveau
-    2. CVD direction (flux de trades récents)
-    3. Stacked imbalances (blocs institutionnels)
-    
-    Returns dict complet avec consensus, scores, et détails par exchange.
+    Interroge en parallele tous les exchanges cibles et calcule le consensus
+    sur le desequilibre PRIX x VOLUME du carnet et sur le CVD.
     """
     base = clean_symbol(symbol)
     exchanges = target_exchanges or list(EXCHANGE_FETCHERS.keys())
@@ -319,9 +403,9 @@ def get_multi_exchange_orderflow(symbol: str, target_exchanges: list = None, dep
                 details[ex_name] = fut.result()
             except Exception as e:
                 details[ex_name] = {
-                    'exchange': ex_name, 'ok': False, 'error': str(e),
+                    'exchange': ex_name, 'ok': False, 'error': str(e)[:120],
                     'dominant_side': 'NEUTRAL', 'stacked_buy': 0, 'stacked_sell': 0,
-                    'direction_score': 0, 'cvd': {'cvd_direction': 'NEUTRAL', 'delta_pct': 0}
+                    'direction_score': 0, 'cvd': {'cvd_direction': 'NEUTRAL', 'delta_pct': 0},
                 }
 
     valid = [d for d in details.values() if d.get('ok')]
@@ -331,37 +415,36 @@ def get_multi_exchange_orderflow(symbol: str, target_exchanges: list = None, dep
             'consensus_direction': 'NEUTRAL', 'consensus_pct': 0.0,
             'avg_direction_score': 0, 'avg_stacked_buy': 0, 'avg_stacked_sell': 0,
             'book_buy': 0, 'book_sell': 0, 'cvd_buy': 0, 'cvd_sell': 0,
-            'details': details
+            'avg_obi': 0.5, 'details': details,
         }
 
     total_ok = len(valid)
 
-    # Comptage : combien d'échanges disent BUY ou SELL via le carnet
     book_buy  = sum(1 for d in valid if d.get('dominant_side') == 'BUY')
     book_sell = sum(1 for d in valid if d.get('dominant_side') == 'SELL')
+    cvd_buy   = sum(1 for d in valid if d.get('cvd', {}).get('cvd_direction') == 'BUY')
+    cvd_sell  = sum(1 for d in valid if d.get('cvd', {}).get('cvd_direction') == 'SELL')
 
-    # Comptage : combien d'échanges disent BUY ou SELL via le CVD (flux de trades)
-    cvd_buy  = sum(1 for d in valid if d.get('cvd', {}).get('cvd_direction') == 'BUY')
-    cvd_sell = sum(1 for d in valid if d.get('cvd', {}).get('cvd_direction') == 'SELL')
+    double_buy  = sum(1 for d in valid
+                      if d.get('dominant_side') == 'BUY'
+                      and d.get('cvd', {}).get('cvd_direction') == 'BUY')
+    double_sell = sum(1 for d in valid
+                      if d.get('dominant_side') == 'SELL'
+                      and d.get('cvd', {}).get('cvd_direction') == 'SELL')
 
-    # Double confirmation : carnet + CVD doivent s'accorder
-    double_buy  = sum(1 for d in valid if d.get('dominant_side') == 'BUY'  and d.get('cvd', {}).get('cvd_direction') == 'BUY')
-    double_sell = sum(1 for d in valid if d.get('dominant_side') == 'SELL' and d.get('cvd', {}).get('cvd_direction') == 'SELL')
-
-    avg_score       = sum(d.get('direction_score', 0) for d in valid) / total_ok
+    avg_score        = sum(d.get('direction_score', 0) for d in valid) / total_ok
     avg_stacked_buy  = sum(d.get('stacked_buy', 0) for d in valid) / total_ok
     avg_stacked_sell = sum(d.get('stacked_sell', 0) for d in valid) / total_ok
+    avg_obi          = sum(d.get('obi', 0.5) for d in valid) / total_ok
 
-    # CONSENSUS FINAL
-    pct_book_buy  = book_buy  / total_ok * 100
-    pct_book_sell = book_sell / total_ok * 100
-    pct_cvd_buy   = cvd_buy   / total_ok * 100
-    pct_cvd_sell  = cvd_sell  / total_ok * 100
+    pct_book_buy  = book_buy  / total_ok * 100.0
+    pct_book_sell = book_sell / total_ok * 100.0
+    pct_cvd_buy   = cvd_buy   / total_ok * 100.0
+    pct_cvd_sell  = cvd_sell  / total_ok * 100.0
 
     consensus_direction = 'NEUTRAL'
     consensus_pct       = 0.0
 
-    # Critère d'entrée : >= 60% du carnet ET >= 50% du CVD dans le même sens
     if pct_book_buy >= 60.0 and pct_cvd_buy >= 40.0 and avg_score >= 20:
         consensus_direction = 'BUY'
         consensus_pct       = (pct_book_buy + pct_cvd_buy) / 2.0
@@ -378,11 +461,12 @@ def get_multi_exchange_orderflow(symbol: str, target_exchanges: list = None, dep
         'avg_direction_score': round(avg_score, 1),
         'avg_stacked_buy':     round(avg_stacked_buy, 1),
         'avg_stacked_sell':    round(avg_stacked_sell, 1),
+        'avg_obi':             round(avg_obi, 4),
         'book_buy':            book_buy,
         'book_sell':           book_sell,
         'cvd_buy':             cvd_buy,
         'cvd_sell':            cvd_sell,
         'double_confirm_buy':  double_buy,
         'double_confirm_sell': double_sell,
-        'details':             details
+        'details':             details,
     }
