@@ -202,6 +202,18 @@ LIQUIDATION_BUFFER = 0.90  # Liquidation simulée à 90 % de 100/levier % (frais
 PAPER_STATE_FILE  = "paper_state.json"
 PAPER_TRADES_FILE = "paper_trades.csv"
 
+# Positions simulées simultanées.
+#
+# En réel, MAX_CONCURRENT = 1 : un seul trade à la fois, c'est prudent.
+# Mais appliquer cette limite en simulation rend la mesure inutilisable :
+# avec 1 position à la fois et 24 h de durée maximale, on récolterait
+# environ 1 trade par jour. Il faudrait des mois pour atteindre les
+# ~30 trades nécessaires à une statistique qui veut dire quelque chose.
+#
+# Aucun capital n'est engagé en simulation : on peut donc suivre
+# plusieurs positions en parallèle et récolter les données bien plus vite.
+PAPER_MAX_CONCURRENT = 8
+
 # ──────────────────────────────────────────────
 #  🧠 TIMESFM — SÉVÉRITÉ DU JUGE
 #

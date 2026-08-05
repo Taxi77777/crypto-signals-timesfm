@@ -51,25 +51,36 @@ from config import (
 
 def compute_volume_ratio(df: pd.DataFrame) -> float:
     """
-    Volume de la bougie en cours rapporté à sa moyenne.
+    Volume de la DERNIÈRE BOUGIE CLÔTURÉE rapporté à sa moyenne.
 
     Le carnet dit QUI pousse maintenant ; ce ratio dit si le mouvement
-    a du CORPS. Un déséquilibre de carnet sur une bougie à volume
-    famélique est le plus souvent du bruit.
+    a du CORPS.
 
-    Retourne 0.0 si le volume est indisponible (le filtre est alors
-    neutralisé plutôt que de bloquer tous les signaux).
+    ⚠️ PIÈGE CORRIGÉ : la première version utilisait `vols.iloc[-1]`,
+    c'est-à-dire la bougie EN COURS DE FORMATION. Sur une unité 4H
+    scannée toutes les 15 min, cette bougie n'a en moyenne accumulé
+    que la moitié de son volume final — et parfois 5 % si elle vient
+    de s'ouvrir. Comparée à la moyenne de bougies complètes, elle
+    donnait un ratio structurellement écrasé et le filtre rejetait
+    la quasi-totalité des signaux.
+
+    On compare donc bougie clôturée contre bougies clôturées.
+
+    Retourne 0.0 si indisponible (filtre neutralisé plutôt que
+    bloquant).
     """
     try:
-        if df is None or 'volume' not in df.columns or len(df) < VOLUME_MA_PERIOD:
+        if df is None or 'volume' not in df.columns:
             return 0.0
         vols = pd.to_numeric(df['volume'], errors='coerce').dropna()
-        if len(vols) < VOLUME_MA_PERIOD:
+        # Il faut la bougie close (-2) + VOLUME_MA_PERIOD bougies avant elle
+        if len(vols) < VOLUME_MA_PERIOD + 2:
             return 0.0
-        avg = float(vols.tail(VOLUME_MA_PERIOD).mean())
+        closed_vol = float(vols.iloc[-2])                       # dernière clôturée
+        avg = float(vols.iloc[-(VOLUME_MA_PERIOD + 2):-2].mean())  # les précédentes
         if avg <= 0:
             return 0.0
-        return round(float(vols.iloc[-1]) / avg, 3)
+        return round(closed_vol / avg, 3)
     except Exception:
         return 0.0
 
@@ -265,8 +276,24 @@ class OrderFlowStrategy:
         # ══════════════════════════════════════════════════════════
         df    = calc_trend_indicators(df_klines)
         ti    = get_trend_bias(df)
-        price = ti['price']
-        atr   = ti['atr'] if ti['atr'] > 0 else price * 0.015
+
+        # ⚠️ get_trend_bias() lit df.iloc[-2] — la dernière bougie CLÔTURÉE.
+        # C'est le bon choix pour EMA / ATR / RSI / VWAP (on ne veut pas
+        # d'indicateurs calculés sur une bougie incomplète), mais c'est
+        # FAUX comme prix d'entrée : sur une unité 4H, ce prix peut avoir
+        # jusqu'à 8 heures de retard. Le SL, le TP et le dimensionnement
+        # étaient donc calculés autour d'un prix périmé.
+        #
+        # Le prix d'entrée doit être le dernier prix traité, c'est-à-dire
+        # la clôture courante de la bougie en formation.
+        try:
+            price = float(df_klines.iloc[-1]['close'])
+        except Exception:
+            price = ti['price']
+        if price <= 0:
+            price = ti['price']
+
+        atr = ti['atr'] if ti['atr'] > 0 else price * 0.015
 
         signal.trend_bias = ti['bias']
         signal.entry      = price

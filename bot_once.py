@@ -30,10 +30,46 @@ from config import (
     AUTO_SCAN, MAX_CONCURRENT, LEVERAGE, USE_SL,
     POSITION_MARGIN_PCT, MAX_MARGIN_USDT, validate_env,
     PAPER_MODE, TIMESFM_STRICT, TIMESFM_MIN_CONFIDENCE,
-    MIN_CONSENSUS_PCT, MAX_HOLD_HOURS,
+    MIN_CONSENSUS_PCT, MAX_HOLD_HOURS, PAPER_MAX_CONCURRENT,
+    SIGNAL_COOLDOWN_SEC,
 )
 import mexc_api as api
 import paper_engine as paper
+import bot as bot_mod
+
+# Nombre de positions simultanées selon le mode
+CONCURRENT_LIMIT = PAPER_MAX_CONCURRENT if PAPER_MODE else MAX_CONCURRENT
+
+
+def _sync_paper_into_scanner(paper_state: dict):
+    """
+    Reporte les positions simulées dans l'état de bot.py.
+
+    scan_pair() filtre sur bot._active_positions et bot._last_signal_time.
+    En mode paper, ces deux structures n'étaient jamais alimentées :
+    aucun cooldown n'était appliqué et la même paire pouvait être
+    re-signalée à chaque run, créant des doublons qui auraient fausse
+    les statistiques.
+    """
+    for t in paper_state.get('open', []):
+        sym = t.get('symbol')
+        if not sym:
+            continue
+        bot_mod._active_positions[sym] = {
+            'direction': t.get('direction'),
+            'entry':     t.get('entry'),
+            'sl':        t.get('sl', 0.0),
+            'tp':        t.get('tp'),
+            'vol':       0.0,
+            'open_time': t.get('open_time_ms', 0) / 1000.0,
+        }
+
+    # Cooldown : dernière ouverture connue sur chaque symbole, ouverte ou fermée
+    for t in list(paper_state.get('open', [])) + list(paper_state.get('closed', [])):
+        sym = t.get('symbol')
+        ts  = t.get('open_time_ms', 0) / 1000.0
+        if sym and ts > bot_mod._last_signal_time.get(sym, 0):
+            bot_mod._last_signal_time[sym] = ts
 
 logging.basicConfig(
     level=logging.INFO,
@@ -87,6 +123,7 @@ def run_single_cycle() -> int:
                     f"  Duree   : {c['duration_min']} min"
                 )
         paper.save_paper_state(paper_state)
+        _sync_paper_into_scanner(paper_state)
     else:
         monitor_positions()
 
@@ -131,8 +168,8 @@ def run_single_cycle() -> int:
 
     # ── 5. Limite de positions ───────────────────────────────────
     n_open = len(paper_state['open']) if PAPER_MODE else count_active_positions()
-    if n_open >= MAX_CONCURRENT:
-        log.info(f"{n_open} position(s) deja ouverte(s) — pas de nouveau trade ce cycle.")
+    if n_open >= CONCURRENT_LIMIT:
+        log.info(f"{n_open}/{CONCURRENT_LIMIT} position(s) deja ouverte(s) — pas de nouveau trade ce cycle.")
         _report(paper_state)
         paper.save_paper_state(paper_state)
         save_state()
