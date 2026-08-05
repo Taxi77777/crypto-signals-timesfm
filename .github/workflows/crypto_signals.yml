@@ -1,103 +1,53 @@
-name: Crypto Signals Bot (50 Cryptos) — Auto 15m
+name: Institutional Hunter Pro v5.0 — 24/7 Cloud (75 Cryptos, 5m)
 
 on:
   schedule:
-    # Toutes les 15 minutes, aligné sur la clôture des bougies 15m (timeframe de trading).
-    # GitHub Actions peut retarder les runs planifiés de quelques minutes en heure de pointe.
-    - cron: '*/15 * * * *'
-  workflow_dispatch:            # Bouton manuel toujours disponible
+    # Analyse automatique toutes les 5 minutes 24h/24, 7j/7 dans le Cloud
+    - cron: '*/5 * * * *'
+  workflow_dispatch:            # Bouton de lancement manuel
 
-# Empêche deux runs de trader en parallèle (un run dure 7-9 min, le cron est à 15 min :
-# en cas de retard GitHub, deux runs pourraient se chevaucher et ouvrir des doublons).
-# cancel-in-progress: false → on ne tue JAMAIS un run qui a peut-être déjà ouvert une position.
 concurrency:
   group: crypto-signals-live
   cancel-in-progress: false
 
 jobs:
-  send-signals:
+  run-analysis:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Installation Python 3.11
+      - name: Installation Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: 'pip'
 
       - name: Installation des dépendances
-        run: pip install -r requirements.txt
-
-      - name: Installation des modeles IA additionnels
         run: |
-          pip install uni2ts
-          pip install scikit-learn deprecated
-          pip install granite-tsfm --no-deps
-          pip install git+https://github.com/time-series-foundation-models/lag-llama.git
-          pip install "transformers<4.50"  # compat torch 2.4 (uni2ts) - evite l'erreur DTensor
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Vérification des contrats MEXC
-        run: python verify_mexc_futures.py
-
-      - name: Lancement de l'analyse Crypto
+      - name: Lancement de l'analyse 75 Cryptos + TimesFM 2.5 (5 min)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
           MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
-          # Filtre IA — ajouter les secrets dans
-          # Settings > Secrets and variables > Actions > New repository secret
-          # Les 3 premiers sont GRATUITS ; il suffit d'en avoir UN.
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
-          USE_KIMI_FILTER: 'true'
-          AI_PROVIDER: 'auto'         # gratuits d'abord, bascule si panne
-          KIMI_FAIL_OPEN: 'false'     # pas de trade si aucune IA ne répond
-          USE_TIMESFM: 'true'
-          # NE PAS passer à 15m : run_once.py calcule le volume 24h avec tail(288),
-          # ce qui suppose des bougies 5m. La stratégie Sniper télécharge de toute
-          # façon ses propres bougies 15m/30m indépendamment de ce réglage.
-          DATA_INTERVAL: '5m'
-          SIGNAL_FREQUENCY_HOURS: '1'
-          LOG_LEVEL: 'INFO'
-        run: python run_once.py
+          PYTHONUNBUFFERED: "1"
+        run: python bot_once.py
 
-      - name: Commit et Push de signals.json
+      - name: Commit et Push des logs
         if: always()
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          for i in 1 2 3 4 5; do
-            git fetch origin main
-            git reset --soft origin/main
-            git add signals.json track_record.json pending_predictions.json pending_pullbacks.json 2>/dev/null || true
-            if git diff --cached --quiet; then
-              echo "Aucune modification à commit."
-              break
-            fi
-            git commit -m "chore: update crypto signals.json [skip ci]" || true
-            if git push origin main; then
-              echo "✅ Push réussi avec succès à la tentative $i !"
-              break
-            fi
-            echo "⚠️ Push tentative $i échouée, nouvel essai dans 3s..."
-            sleep 3
-          done
-
-      - name: Sauvegarde des logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: crypto-logs-${{ github.run_number }}
-          path: logs/signals.log
-          retention-days: 7
+          git add bot.log signals_log.csv trades_log.csv 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto log update [skip ci]" || true
+            git push origin main || true
+          fi

@@ -97,7 +97,7 @@ TRAILING_STEP       = 0.5      # Trailing step %
 # ──────────────────────────────────────────────
 #  🔄 FRÉQUENCE D'ANALYSE
 # ──────────────────────────────────────────────
-UPDATE_INTERVAL_SEC = 30       # Scan toutes les 30 secondes (setup long terme)
+UPDATE_INTERVAL_SEC = 300      # Scan toutes les 5 minutes selon demande utilisateur
 SIGNAL_COOLDOWN_SEC = 3600     # 1 heure de pause entre 2 signaux sur la même paire
 
 # ──────────────────────────────────────────────
