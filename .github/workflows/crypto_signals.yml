@@ -86,7 +86,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add -f state.json bot.log signals_log.csv trades_log.csv 2>/dev/null || true
+          git add -f state.json paper_state.json paper_trades.csv bot.log signals_log.csv trades_log.csv 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "chore: auto state/log update [skip ci]" || true
             git pull --rebase --autostash origin main || true
@@ -101,6 +101,8 @@ jobs:
           path: |
             bot.log
             state.json
+            paper_state.json
+            paper_trades.csv
             signals_log.csv
             trades_log.csv
           if-no-files-found: ignore
