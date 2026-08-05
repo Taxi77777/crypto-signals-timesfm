@@ -86,7 +86,18 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add -f state.json paper_state.json paper_trades.csv bot.log signals_log.csv trades_log.csv 2>/dev/null || true
+          # ATTENTION : `git add a b c` echoue ENTIEREMENT si un seul des
+          # chemins n'existe pas ("pathspec did not match any files"), et
+          # rien n'est alors indexe. Comme paper_trades.csv et les CSV de
+          # logs n'existent qu'apres le premier trade, l'ancienne commande
+          # ne commitait JAMAIS rien. On ajoute donc fichier par fichier.
+          for f in state.json paper_state.json paper_trades.csv bot.log signals_log.csv trades_log.csv; do
+            if [ -f "$f" ]; then
+              git add -f "$f" && echo "  indexe : $f"
+            else
+              echo "  absent  : $f (ignore)"
+            fi
+          done
           if ! git diff --cached --quiet; then
             git commit -m "chore: auto state/log update [skip ci]" || true
             git pull --rebase --autostash origin main || true
