@@ -73,7 +73,17 @@ MIN_EXCHANGES_OK = 3
 ORDERBOOK_DEPTH      = 50     # Niveaux de profondeur demandés par exchange
 IMBALANCE_RATIO      = 3.0    # Ratio bid/ask par niveau pour marquer un déséquilibre
 MIN_STACKED_LEVELS   = 3      # Niveaux consécutifs requis pour une dominance
-MIN_CONSENSUS_PCT    = 65.0   # Seuil de consensus multi-exchange
+# Seuil de consensus multi-exchange.
+#
+# Remis à 80 % (valeur d'origine) pour deux raisons :
+#  1. signals_log.csv prouve que 83,3 % a déjà été atteint sur BTC_USDT
+#     le 4 août — le seuil est donc bel et bien franchissable.
+#  2. timesfm_predictor.py n'accorde son bonus de confiance "Carnet ALIGNE"
+#     (+0.12) QUE si cons_pct >= 80. Avec un seuil à 65, les signaux entre
+#     65 et 79 % passaient la porte mais perdaient ce bonus, et échouaient
+#     ensuite au seuil de confiance de TimesFM. Les deux valeurs doivent
+#     rester alignées.
+MIN_CONSENSUS_PCT    = 80.0
 ANTI_MANIP_THRESHOLD = 35.0   # Un exchange opposé au-delà de ce score = manipulation
 
 # ──────────────────────────────────────────────
