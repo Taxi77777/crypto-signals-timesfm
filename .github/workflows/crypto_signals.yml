@@ -1,10 +1,13 @@
-name: Institutional Hunter Pro v5.0 — 24/7 Cloud (75 Cryptos, 5m)
+name: Institutional Hunter Pro v5.1 — 24/7 Cloud
 
 on:
   schedule:
-    # Analyse automatique toutes les 5 minutes 24h/24, 7j/7 dans le Cloud
-    - cron: '*/5 * * * *'
-  workflow_dispatch:            # Bouton de lancement manuel
+    # GitHub ne garantit AUCUNE ponctualite sur les crons courts et
+    # throttle agressivement '*/5'. Les runs observes etaient espaces
+    # de 1 a 3 heures. '*/15' est plus proche de ce qui est reellement
+    # execute. Pour du vrai 24/7 a la minute, il faut un VPS.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 concurrency:
   group: crypto-signals-live
@@ -15,24 +18,58 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installation Python 3.10
+      - name: Installation Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
 
-      - name: Installation des dépendances
+      - name: Installation des dependances
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lancement de l'analyse 75 Cryptos + TimesFM 2.5 (5 min)
+      # Le modele TimesFM 2.5 fait ~200M de parametres. Sans ce cache il
+      # etait retelecharge a chaque run (1 a 2 minutes), et tout echec
+      # reseau desactivait silencieusement l'IA.
+      - name: Cache du modele Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-timesfm-2p5-200m-v1
+          restore-keys: |
+            hf-timesfm-
+
+      - name: Verification des variables d'environnement
+        env:
+          MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
+          MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os, sys
+          required = ["MEXC_API_KEY", "MEXC_SECRET_KEY",
+                      "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"]
+          missing = [k for k in required if not os.environ.get(k, "").strip()]
+          for k in required:
+              v = os.environ.get(k, "")
+              status = f"OK ({len(v)} caracteres)" if v.strip() else "MANQUANT"
+              print(f"  {k:22s} : {status}")
+          if missing:
+              print("\nSecrets manquants : " + ", ".join(missing))
+              print("A definir dans Settings > Secrets and variables > Actions")
+              sys.exit(1)
+          print("\nTous les secrets sont presents.")
+          PY
+
+      - name: Lancement de l'analyse (75 cryptos + TimesFM 2.5)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -41,13 +78,30 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python bot_once.py
 
-      - name: Commit et Push des logs
+      # state.json porte les positions suivies, le cooldown et le PnL
+      # journalier. Sans ce commit, chaque run repart de zero et aucune
+      # cloture de trade n'est jamais notifiee.
+      - name: Commit de l'etat et des logs
         if: always()
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add bot.log signals_log.csv trades_log.csv 2>/dev/null || true
+          git add -f state.json bot.log signals_log.csv trades_log.csv 2>/dev/null || true
           if ! git diff --cached --quiet; then
-            git commit -m "chore: auto log update [skip ci]" || true
+            git commit -m "chore: auto state/log update [skip ci]" || true
+            git pull --rebase --autostash origin main || true
             git push origin main || true
           fi
+
+      - name: Upload des logs en artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ihp-logs-${{ github.run_number }}
+          path: |
+            bot.log
+            state.json
+            signals_log.csv
+            trades_log.csv
+          if-no-files-found: ignore
+          retention-days: 7
