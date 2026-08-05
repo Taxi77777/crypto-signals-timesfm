@@ -1,20 +1,29 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO v5.0 — BOT ONCE (CLOUD 24/7)        ║
-║     bot_once.py — Exécution 1 cycle complet pour GitHub Actions   ║
+║     INSTITUTIONAL HUNTER PRO v5.1 — BOT ONCE (CLOUD 24/7)        ║
+║     bot_once.py — Execution d'un cycle complet pour GitHub Actions║
+║                                                                  ║
+║  CORRECTIFS v5.1 :                                               ║
+║  • open_trade() au lieu de execute_trade() (fonction inexistante) ║
+║  • Verification des variables d'environnement au demarrage        ║
+║  • Chargement / sauvegarde de l'etat entre les runs               ║
+║  • Sortie en erreur explicite si les credentials manquent         ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
-import os
 import sys
-import time
 import logging
-from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Importer les modules du bot
-from bot import scan_pair, monitor_positions, count_active_positions, _start_balance
+from bot import (
+    scan_pair, monitor_positions, count_active_positions,
+    open_trade, load_state, save_state, tg_send,
+)
 from scanner import get_active_pairs
 from timesfm_predictor import preload_model
-from config import AUTO_SCAN, MAX_CONCURRENT, LEVERAGE, RISK_PER_TRADE_PCT, USE_SL
+from config import (
+    AUTO_SCAN, MAX_CONCURRENT, LEVERAGE, USE_SL,
+    POSITION_MARGIN_PCT, MAX_MARGIN_USDT, validate_env,
+)
 import mexc_api as api
 
 logging.basicConfig(
@@ -27,67 +36,113 @@ logging.basicConfig(
 )
 log = logging.getLogger('IHP-CLOUD')
 
-def run_single_cycle():
+
+def run_single_cycle() -> int:
     log.info("=" * 65)
-    log.info("  IHP v5.0 CLOUD EXECUTION — CYCLE UNIQUE 5 MIN")
-    log.info(f"  Levier: x{LEVERAGE} | Risque: {RISK_PER_TRADE_PCT}% | SL: {'ACTIF' if USE_SL else 'DESACTIVE'}")
+    log.info("  IHP v5.1 CLOUD EXECUTION — CYCLE UNIQUE")
+    log.info(f"  Levier: x{LEVERAGE} | SL: {'ACTIF' if USE_SL else 'DESACTIVE'}")
+    log.info(f"  Marge par trade: {POSITION_MARGIN_PCT}% (plafond {MAX_MARGIN_USDT} USDT)")
     log.info("=" * 65)
 
-    # 1. Charger TimesFM
+    # ── 0. Verification des credentials ──────────────────────────
+    missing = validate_env(require_trading=True)
+    if missing:
+        log.error("=" * 65)
+        log.error(f"  VARIABLES D'ENVIRONNEMENT MANQUANTES : {', '.join(missing)}")
+        log.error("  Verifie les repository secrets GitHub et le bloc 'env:'")
+        log.error("  de .github/workflows/crypto_signals.yml")
+        log.error("=" * 65)
+        return 1
+
+    # ── 1. Etat des runs precedents ──────────────────────────────
+    load_state()
+
+    # ── 2. Chargement TimesFM ────────────────────────────────────
     log.info("[TimesFM] Chargement du modele Google TimesFM 2.5...")
     model = preload_model()
     if model is None:
-        log.warning("[TimesFM] Non disponible — mode consensus 90%+")
+        log.warning("[TimesFM] Non disponible — consensus >=90% requis pour trader")
+    else:
+        log.info("[TimesFM] Modele pret.")
 
-    # 2. Récupérer les paires actives
+    # ── 3. Paires actives ────────────────────────────────────────
     active_pairs = get_active_pairs(AUTO_SCAN)
     log.info(f"Paires actives a scanner : {len(active_pairs)}")
+    if not active_pairs:
+        log.error("Aucune paire active — scanner MEXC injoignable ?")
+        save_state()
+        return 1
 
-    # 3. Vérifier solde MEXC
+    # ── 4. Solde MEXC ────────────────────────────────────────────
     try:
         acc = api.get_account()
-        balance = acc.get('balance', 100.0)
-        log.info(f"Balance MEXC : {balance:.2f} USDT | Equity: {acc.get('equity', 0):.2f}")
+        if not acc:
+            log.error("get_account() vide — cles API invalides ou refusees par MEXC.")
+            balance = 0.0
+        else:
+            balance = acc.get('balance', 0.0)
+            log.info(f"Balance MEXC : {balance:.2f} USDT | Equity: {acc.get('equity', 0):.2f}")
     except Exception as e:
-        log.warning(f"Impossible de lire le solde MEXC : {e}")
-        balance = 100.0
+        log.error(f"Impossible de lire le solde MEXC : {e}")
+        balance = 0.0
 
-    # 4. Monitoring positions existantes
+    if balance <= 0:
+        log.error("Solde nul ou illisible — aucun trade ne sera tente ce cycle.")
+        monitor_positions()
+        save_state()
+        return 0
+
+    # ── 5. Monitoring des positions existantes ───────────────────
     monitor_positions()
 
-    # 5. Si déjà 1 position ouverte -> arrêt du scan
+    # ── 6. Limite de positions simultanees ───────────────────────
     if count_active_positions() >= MAX_CONCURRENT:
-        log.info("1 position active deja en cours sur MEXC. Pas de nouveau trade.")
-        return
+        log.info(f"{MAX_CONCURRENT} position(s) deja active(s) sur MEXC. Pas de nouveau trade.")
+        save_state()
+        return 0
 
-    # 6. Scan des paires en parallèle
-    log.info(f"🚀 Scan en cours sur les {len(active_pairs)} paires crypto...")
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-
+    # ── 7. Scan parallele ────────────────────────────────────────
+    log.info(f"Scan en cours sur {len(active_pairs)} paires...")
     signals = []
     with ThreadPoolExecutor(max_workers=15) as executor:
         futures = {executor.submit(scan_pair, sym, balance): sym for sym in active_pairs}
-        for fut in as_completed(futures, timeout=120):
-            try:
-                sig = fut.result()
-                if sig:
-                    signals.append(sig)
-            except Exception:
-                pass
+        try:
+            for fut in as_completed(futures, timeout=300):
+                try:
+                    sig = fut.result()
+                    if sig:
+                        signals.append(sig)
+                except Exception:
+                    pass
+        except Exception as e:
+            log.warning(f"Scan interrompu (timeout global) : {e}")
 
     if not signals:
         log.info("Aucun signal valide trouve sur ce cycle.")
-        return
+        save_state()
+        return 0
 
-    # Trier par force et consensus
+    # ── 8. Meilleur signal ───────────────────────────────────────
     signals.sort(key=lambda s: (0 if s.strength == 'STRONG' else 1, -s.consensus_pct, -s.rr))
     best = signals[0]
+    log.info(f"MEILLEUR SIGNAL : {best.symbol} {best.direction} ({best.consensus_pct:.0f}%)")
 
-    log.info(f"🎯 MEILLEUR SIGNAL DETECTE: {best.symbol} {best.direction} ({best.consensus_pct:.0f}%)")
+    # ── 9. Execution ─────────────────────────────────────────────
+    ok = open_trade(best, balance)
+    if not ok:
+        log.warning("Le trade n'a pas ete ouvert (voir les lignes precedentes).")
 
-    # Exécution du trade via bot.py
-    from bot import execute_trade
-    execute_trade(best, balance)
+    save_state()
+    return 0
+
 
 if __name__ == '__main__':
-    run_single_cycle()
+    try:
+        sys.exit(run_single_cycle())
+    except Exception as e:
+        log.critical(f"Erreur fatale du cycle : {e}", exc_info=True)
+        try:
+            tg_send(f"⛔ IHP cycle en erreur : {str(e)[:200]}")
+        except Exception:
+            pass
+        sys.exit(1)

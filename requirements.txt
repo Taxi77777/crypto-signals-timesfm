@@ -1,4 +1,13 @@
 requests>=2.31.0
 pandas>=2.0.0
-numpy>=1.24.0
-timesfm[cpu]>=1.2.0
+numpy>=1.26.4
+
+# TimesFM 2.5 (google/timesfm-2.5-200m-pytorch)
+# L'extra [cpu] n'existe PAS dans le package timesfm : les extras publies
+# sont [torch], [flax] et [xreg]. Avec timesfm[cpu], pip installait le
+# package de base SANS torch, donc `from timesfm import timesfm_2p5_torch`
+# echouait silencieusement et TimesFM etait toujours desactive.
+timesfm[torch]==2.0.0
+torch>=2.0.0
+huggingface_hub>=0.23.0
+safetensors>=0.5.3

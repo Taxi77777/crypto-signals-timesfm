@@ -1,116 +1,154 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     INSTITUTIONAL HUNTER PRO — MULTI-EXCHANGE OBI CONFIG        ║
-║     Stratégie : Multi-Exchange Order Book Imbalance & Trend     ║
+║     INSTITUTIONAL HUNTER PRO — CONFIG                            ║
+║     Stratégie : Multi-Exchange Order Book Imbalance & Trend      ║
+║                                                                  ║
+║  ⚠️  AUCUNE CLÉ EN DUR DANS CE FICHIER.                          ║
+║      Tout est lu depuis les variables d'environnement.           ║
+║      En local : définis-les dans ton shell avant de lancer.      ║
+║      Sur GitHub Actions : elles viennent des repository secrets. ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
+import os
 
 # ──────────────────────────────────────────────
-#  🔑 MEXC API CREDENTIALS
+#  🔑 CREDENTIALS — VARIABLES D'ENVIRONNEMENT UNIQUEMENT
 # ──────────────────────────────────────────────
-MEXC_API_KEY    = "mx0vgliPQVUSuDsTAx"
-MEXC_SECRET_KEY = "64ee4910041642a2a0d37de4b49ebde6"
+MEXC_API_KEY    = os.environ.get("MEXC_API_KEY", "").strip()
+MEXC_SECRET_KEY = os.environ.get("MEXC_SECRET_KEY", "").strip()
 MEXC_BASE_URL   = "https://contract.mexc.com"
 MEXC_SPOT_URL   = "https://api.mexc.com"
 
 # ──────────────────────────────────────────────
-#  🤖 CLÉS API DES IAS (GRATUIT)
-#
-#  GEMINI (100% GRATUIT, sans CB) :
-#    1. Va sur https://aistudio.google.com
-#    2. Clique "Get API Key" → créer une clé
-#    3. Colle la clé ici (format: AIzaSy...)
-#
-#  KIMI (crédits gratuits offerts) :
-#    1. Va sur https://platform.moonshot.cn/console/api-keys
-#    2. Crée un compte → clé API gratuite
-#    3. Colle la clé ici (format: sk-...)
+#  📱 TELEGRAM
 # ──────────────────────────────────────────────
-GEMINI_API_KEY  = ""   # ← Colle ta clé Gemini ici (aistudio.google.com)
-KIMI_API_KEY    = ""   # ← Colle ta clé Kimi ici (platform.moonshot.cn)
+TG_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+TG_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+TG_ENABLED   = bool(TG_BOT_TOKEN and TG_CHAT_ID)
+
+# ──────────────────────────────────────────────
+#  🤖 CLÉS API IA OPTIONNELLES
+# ──────────────────────────────────────────────
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+KIMI_API_KEY   = os.environ.get("KIMI_API_KEY", "").strip()
+
+
+def validate_env(require_trading: bool = True) -> list:
+    """
+    Vérifie que les variables nécessaires sont présentes.
+    Retourne la liste des variables manquantes (vide si tout est OK).
+    À appeler au démarrage — ne lève pas d'exception, laisse l'appelant décider.
+    """
+    missing = []
+    if require_trading:
+        if not MEXC_API_KEY:
+            missing.append("MEXC_API_KEY")
+        if not MEXC_SECRET_KEY:
+            missing.append("MEXC_SECRET_KEY")
+    if not TG_BOT_TOKEN:
+        missing.append("TELEGRAM_BOT_TOKEN")
+    if not TG_CHAT_ID:
+        missing.append("TELEGRAM_CHAT_ID")
+    return missing
 
 
 # ──────────────────────────────────────────────
-#  🌐 EXCHANGES POUR CONSENSUS (100% Gratuit — Pas de clé API requise)
+#  🌐 EXCHANGES POUR CONSENSUS (APIs publiques, sans clé)
 # ──────────────────────────────────────────────
-# Le bot va interroger ces 6 échanges majeurs en parallèle
 EXCHANGES_TO_CHECK = [
     "MEXC",
     "Bitget",
     "Bybit",
     "OKX",
     "Binance",
-    "Kraken"
+    "Kraken",
 ]
 
-# ──────────────────────────────────────────────
-#  ⚖️ CARNET D'ORDRES — ANALYSE INSTITUTIONNELLE
-# ──────────────────────────────────────────────
-ORDERBOOK_DEPTH         = 50      # 50 niveaux de profondeur par exchange
-IMBALANCE_RATIO         = 2.0     # Ratio bid/ask par niveau
-MIN_STACKED_LEVELS      = 2       # 2 blocs consécutifs minimum
-MIN_CONSENSUS_PCT       = 80.0    # 80%+ = 5/6 exchanges dans la MEME direction
-ANTI_MANIP_THRESHOLD    = 35.0    # Anti-manipulation seuil
+# Nombre minimum d'exchanges devant répondre pour qu'un signal soit analysé
+MIN_EXCHANGES_OK = 3
 
 # ──────────────────────────────────────────────
-#  📈 TENDANCE LONG TERME (4H)
+#  ⚖️ CARNET D'ORDRES
 # ──────────────────────────────────────────────
-TIMEFRAME           = "4h"    # 4H pour setup long terme
-KLINE_LIMIT         = 200     # Nombre de bougies analysées
-USE_TREND_FILTER    = False   # Désactivé — le carnet d'ordres suffit
-MA_TREND_FAST       = 21
-MA_TREND_SLOW       = 55
-USE_VWAP_FILTER     = False   # Désactivé
+ORDERBOOK_DEPTH      = 50     # Niveaux de profondeur demandés par exchange
+IMBALANCE_RATIO      = 3.0    # Ratio bid/ask par niveau pour marquer un déséquilibre
+MIN_STACKED_LEVELS   = 3      # Niveaux consécutifs requis pour une dominance
+MIN_CONSENSUS_PCT    = 65.0   # Seuil de consensus multi-exchange
+ANTI_MANIP_THRESHOLD = 35.0   # Un exchange opposé au-delà de ce score = manipulation
 
 # ──────────────────────────────────────────────
-#  📊 MODE PAIRES (Auto-Scan ou Manuel)
+#  📈 TENDANCE (informatif — filtres désactivés)
 # ──────────────────────────────────────────────
-AUTO_SCAN           = True
-AUTO_SCAN_TOP_N     = 75       # Sélectionner les 75 plus gros volumes 24h crypto
-AUTO_SCAN_MIN_VOL   = 1_500_000 # Minimum 1.5 Million USDT/24h
-AUTO_SCAN_INTERVAL  = 300      # Re-scanner le marché toutes les 5 min
+TIMEFRAME        = "4h"
+KLINE_LIMIT      = 200
+USE_TREND_FILTER = False
+MA_TREND_FAST    = 21
+MA_TREND_SLOW    = 55
+USE_VWAP_FILTER  = False
+
+# ──────────────────────────────────────────────
+#  📊 SÉLECTION DES PAIRES
+# ──────────────────────────────────────────────
+AUTO_SCAN          = True
+AUTO_SCAN_TOP_N    = 75
+AUTO_SCAN_MIN_VOL  = 1_500_000
+AUTO_SCAN_INTERVAL = 300
 
 MANUAL_PAIRS = [
     "BTC_USDT", "ETH_USDT", "SOL_USDT", "BNB_USDT", "XRP_USDT",
     "ADA_USDT", "DOGE_USDT", "AVAX_USDT", "LINK_USDT", "DOT_USDT",
-    "OIL_USDT", "GOLD_USDT", "PEPE_USDT", "SUI_USDT", "NEAR_USDT"
+    "PEPE_USDT", "SUI_USDT", "NEAR_USDT",
 ]
 
 # ──────────────────────────────────────────────
-#  💰 GESTION DU RISQUE & LEVIER (LONG TERME)
+#  💰 GESTION DU RISQUE & LEVIER
 # ──────────────────────────────────────────────
-LEVERAGE            = 40       # Levier x40 (setup long terme)
-RISK_PER_TRADE_PCT  = 1.0      # 1% du capital risqué par trade
-USE_SL              = False    # SL Désactivé selon demande utilisateur
-ATR_SL_MULT         = 2.0      # SL = ATR x 2.0 (si réactivé)
-ATR_TP_MULT         = 5.0      # TP = ATR x 5.0 (ratio R/R 1:2.5)
-MIN_RR              = 2.0      # Ratio minimum 1:2.0
-MAX_CONCURRENT      = 1        # 1 SEUL trade à la fois — dès que terminé, prochain scan
-MAX_DAILY_LOSS_PCT  = 5.0      # Stop journalier à -5% du capital
-MAX_DRAWDOWN_PCT    = 15.0     # Stop absolu si drawdown -15%
+LEVERAGE = 40      # Levier appliqué à l'ouverture
 
-# Trailing Stop
-USE_TRAILING_SL     = True
-TRAILING_TRIGGER    = 1.5      # Déclencher après +1.5% de profit
-TRAILING_STEP       = 0.5      # Trailing step %
+# ⚠️ STOP-LOSS DÉSACTIVÉ (choix explicite de l'utilisateur).
+#    Sans SL, le dimensionnement ne peut PAS se baser sur une distance au stop.
+#    Il se base donc sur une fraction fixe du capital engagée en marge.
+USE_SL = False
+
+# Fraction du solde disponible engagée en MARGE sur une position.
+# Exposition notionnelle = POSITION_MARGIN_PCT % × LEVERAGE.
+# Ex : 2.5 % de marge × levier 40 = 100 % du solde en exposition notionnelle.
+# ⚠️ Avec un levier x40 et sans SL, une variation d'environ -2,5 % du prix
+#    contre la position suffit à liquider la marge engagée.
+POSITION_MARGIN_PCT = 2.5
+
+# Plafond de sécurité : la marge engagée ne dépassera jamais ce montant en USDT.
+MAX_MARGIN_USDT = 50.0
+
+RISK_PER_TRADE_PCT = 1.0   # Conservé pour compatibilité (utilisé si USE_SL=True)
+ATR_SL_MULT        = 2.0
+ATR_TP_MULT        = 5.0
+MIN_RR             = 2.0
+MAX_CONCURRENT     = 1
+MAX_DAILY_LOSS_PCT = 5.0
+MAX_DRAWDOWN_PCT   = 15.0
+
+# Trailing stop — ne se déclenche QU'EN PROFIT (verrouillage de gain).
+# Ne crée jamais de perte : il ne s'active qu'après +TRAILING_TRIGGER %.
+USE_TRAILING_SL  = True
+TRAILING_TRIGGER = 1.5
+TRAILING_STEP    = 0.5
 
 # ──────────────────────────────────────────────
-#  🔄 FRÉQUENCE D'ANALYSE
+#  🔄 FRÉQUENCE
 # ──────────────────────────────────────────────
-UPDATE_INTERVAL_SEC = 300      # Scan toutes les 5 minutes selon demande utilisateur
-SIGNAL_COOLDOWN_SEC = 3600     # 1 heure de pause entre 2 signaux sur la même paire
+UPDATE_INTERVAL_SEC = 300
+SIGNAL_COOLDOWN_SEC = 3600
 
 # ──────────────────────────────────────────────
-#  📱 TELEGRAM ALERTES
+#  🪵 LOGS & ÉTAT PERSISTANT
 # ──────────────────────────────────────────────
-TG_ENABLED          = True
-TG_BOT_TOKEN        = "8347280600:AAGY6UJKbLULT58j1rJpC9TQm_kR0mJsQew"
-TG_CHAT_ID          = "375129602"
+LOG_TRADES      = True
+LOG_FILE        = "trades_log.csv"
+LOG_SIGNALS     = True
+SIGNAL_LOG_FILE = "signals_log.csv"
 
-# ──────────────────────────────────────────────
-#  🪵 LOGS CSV
-# ──────────────────────────────────────────────
-LOG_TRADES          = True
-LOG_FILE            = "trades_log.csv"
-LOG_SIGNALS         = True
-SIGNAL_LOG_FILE     = "signals_log.csv"
+# Fichier d'état — indispensable en mode GitHub Actions, où le processus
+# repart de zéro à chaque run. Sans lui : pas de notification de clôture,
+# pas de cooldown, pas de limite de perte journalière.
+STATE_FILE = "state.json"
