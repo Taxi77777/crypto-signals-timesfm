@@ -141,7 +141,34 @@ MANUAL_PAIRS = [
 # ──────────────────────────────────────────────
 #  💰 GESTION DU RISQUE & LEVIER
 # ──────────────────────────────────────────────
-LEVERAGE = 40      # Levier appliqué à l'ouverture
+# Levier appliqué à l'ouverture.
+#
+# Mesuré sur 287 signaux identiques, trailing actif, TP 2x ATR
+# (balayage du levier, 5 août) :
+#
+#  Levier  LIQ à    réussite   PF    rend/trade  liquidations
+#    x5    18.00 %   70.0 %   1.32    +0.046 %      2.4 %
+#   x10     9.00 %   68.3 %   1.31    +0.083 %      5.6 %
+#   x15     6.00 %   66.6 %   1.31    +0.120 %     10.0 %
+#   x20     4.50 %   65.5 %   1.36    +0.173 %     13.7 %   <-- retenu
+#   x25     3.60 %   64.5 %   1.40    +0.231 %     19.4 %
+#   x30     3.00 %   62.0 %   1.35    +0.236 %     23.6 %
+#   x40     2.25 %   59.6 %   1.40    +0.334 %     31.3 %   <-- ancienne valeur
+#  (rendement en % du capital par trade ; liquidations en % des trades)
+#
+# Constat central : le PROFIT FACTOR est plat (1.31 à 1.40) sur toute
+# la plage. Le levier ne change pas la QUALITÉ de la stratégie — il
+# multiplie gains et pertes dans les mêmes proportions.
+#
+# Ce que le levier change vraiment, c'est le TAUX DE LIQUIDATION :
+# 31,3 % à x40 contre 13,7 % à x20. Un trade sur trois détruit, contre
+# un sur sept.
+#
+# x20 est retenu : le PF y est au niveau des meilleurs (1.36), le taux
+# de liquidation est plus que divisé par deux, et le rendement reste
+# à la moitié de celui de x40. On échange du rendement contre de la
+# survie — sans dégrader l'avantage statistique.
+LEVERAGE = 20
 
 # ⚠️ STOP-LOSS DÉSACTIVÉ (choix explicite de l'utilisateur).
 #    Sans SL, le dimensionnement ne peut PAS se baser sur une distance au stop.
