@@ -160,8 +160,30 @@ MAX_MARGIN_USDT = 50.0
 
 RISK_PER_TRADE_PCT = 1.0   # Conservé pour compatibilité (utilisé si USE_SL=True)
 ATR_SL_MULT        = 2.0
-ATR_TP_MULT        = 5.0
-MIN_RR             = 2.0
+
+# Take Profit, en multiples d'ATR.
+#
+# Mesuré sur 287 signaux, 12 paires, 167 jours (balayage du 5 août) :
+#
+#   TP     TP en %   reussite    PF   esperance   DD max    TP touche
+#   0.50    1.51 %    70.4 %   1.07   +0.0438    -28.34       194
+#   1.00    3.01 %    61.0 %   1.26   +0.2053    -18.36        98
+#   1.50    4.52 %    59.9 %   1.35   +0.2874    -17.73        44
+#   2.00    6.02 %    59.6 %   1.40   +0.3337    -20.46        20
+#   3.00    9.03 %    59.6 %   1.45   +0.3680    -20.74         3
+#   5.00   15.06 %    59.6 %   1.45   +0.3707    -20.74         0   <- ancienne valeur
+#
+# L'ancien TP à 5x ATR représente 15 % de mouvement alors que la
+# liquidation se déclenche à 2,25 %. Il n'était atteint que 3 fois
+# sur 287 (1 %). Purement décoratif.
+#
+# 2.0x est retenu : le profit factor y est déjà à 1.40 (contre 1.45
+# au maximum, écart négligeable), et surtout le TP se déclenche
+# encore réellement — au-delà de 3x il ne sert plus à rien, c'est
+# le trailing stop qui ferme toutes les positions.
+ATR_TP_MULT        = 2.0
+MIN_RR             = 1.0   # rr = TP/SL = 2.0/2.0 = 1.0 ; un seuil à 2.0
+                           # aurait rejeté 100 % des signaux.
 MAX_CONCURRENT     = 1
 MAX_DAILY_LOSS_PCT = 5.0
 MAX_DRAWDOWN_PCT   = 15.0

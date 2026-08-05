@@ -39,6 +39,7 @@ from config import (
     LEVERAGE, POSITION_MARGIN_PCT, MAX_MARGIN_USDT, USE_SL,
     MAX_HOLD_HOURS, TAKER_FEE_PCT, LIQUIDATION_BUFFER,
     PAPER_STATE_FILE, PAPER_TRADES_FILE,
+    USE_TRAILING_SL, TRAILING_TRIGGER, TRAILING_STEP,
 )
 
 log = logging.getLogger("IHP-PAPER")
@@ -126,6 +127,7 @@ def open_paper_trade(signal, balance: float, state: dict) -> dict:
         'strength':      getattr(signal, 'strength', '?'),
         'rr':            float(getattr(signal, 'rr', 0)),
         'reason':        (getattr(signal, 'reason', '') or '')[:200],
+        'trail':         None,   # niveau du stop suiveur, armé au-delà de +TRAILING_TRIGGER %
     }
 
     state['open'].append(trade)
@@ -183,34 +185,54 @@ def _resolve_trade(trade: dict) -> dict:
         return {}   # pas encore de bougie close depuis l'entree
 
     direction = trade['direction']
-    tp   = trade['tp']
-    sl   = trade['sl']
-    liq  = trade['liq']
+    tp    = trade['tp']
+    sl    = trade['sl']
+    liq   = trade['liq']
+    trail = trade.get('trail')        # niveau suiveur mémorisé entre deux runs
 
     for _, c in after.iterrows():
         high, low, close = float(c['high']), float(c['low']), float(c['close'])
         ts = int(c['open_time'])
 
         if direction == 'BUY':
-            if low <= liq:
-                return {'exit_price': liq, 'exit_reason': 'LIQUIDATION', 'exit_ms': ts}
+            # Stop effectif = le plus protecteur entre liquidation et trailing
+            stop = max(liq, trail) if trail is not None else liq
+            if low <= stop:
+                reason = 'TRAILING_STOP' if (trail is not None and stop == trail) else 'LIQUIDATION'
+                return {'exit_price': stop, 'exit_reason': reason, 'exit_ms': ts, 'trail': trail}
             if sl > 0 and low <= sl:
-                return {'exit_price': sl, 'exit_reason': 'STOP_LOSS', 'exit_ms': ts}
+                return {'exit_price': sl, 'exit_reason': 'STOP_LOSS', 'exit_ms': ts, 'trail': trail}
             if tp > 0 and high >= tp:
-                return {'exit_price': tp, 'exit_reason': 'TAKE_PROFIT', 'exit_ms': ts}
+                return {'exit_price': tp, 'exit_reason': 'TAKE_PROFIT', 'exit_ms': ts, 'trail': trail}
+            # Mise à jour du trailing APRÈS les tests de sortie : utiliser le
+            # plus haut de la bougie pour se protéger DANS cette même bougie
+            # serait du lookahead intra-bougie.
+            if USE_TRAILING_SL and (high - trade['entry']) / trade['entry'] * 100 >= TRAILING_TRIGGER:
+                new_trail = high * (1 - TRAILING_STEP / 100.0)
+                if trail is None or new_trail > trail:
+                    trail = new_trail
         else:
-            if high >= liq:
-                return {'exit_price': liq, 'exit_reason': 'LIQUIDATION', 'exit_ms': ts}
+            stop = min(liq, trail) if trail is not None else liq
+            if high >= stop:
+                reason = 'TRAILING_STOP' if (trail is not None and stop == trail) else 'LIQUIDATION'
+                return {'exit_price': stop, 'exit_reason': reason, 'exit_ms': ts, 'trail': trail}
             if sl > 0 and high >= sl:
-                return {'exit_price': sl, 'exit_reason': 'STOP_LOSS', 'exit_ms': ts}
+                return {'exit_price': sl, 'exit_reason': 'STOP_LOSS', 'exit_ms': ts, 'trail': trail}
             if tp > 0 and low <= tp:
-                return {'exit_price': tp, 'exit_reason': 'TAKE_PROFIT', 'exit_ms': ts}
+                return {'exit_price': tp, 'exit_reason': 'TAKE_PROFIT', 'exit_ms': ts, 'trail': trail}
+            if USE_TRAILING_SL and (trade['entry'] - low) / trade['entry'] * 100 >= TRAILING_TRIGGER:
+                new_trail = low * (1 + TRAILING_STEP / 100.0)
+                if trail is None or new_trail < trail:
+                    trail = new_trail
 
         # Expiration
         if (ts - entry_ms) >= MAX_HOLD_HOURS * 3600 * 1000:
-            return {'exit_price': close, 'exit_reason': 'EXPIRATION', 'exit_ms': ts}
+            return {'exit_price': close, 'exit_reason': 'EXPIRATION', 'exit_ms': ts, 'trail': trail}
 
-    return {}   # toujours ouverte
+    # Toujours ouverte : on mémorise le trailing atteint pour le prochain run,
+    # sinon il repartirait de zéro à chaque cycle de 15 minutes.
+    trade['trail'] = trail
+    return {}
 
 
 def update_paper_positions(state: dict) -> list:
@@ -259,14 +281,14 @@ def _append_csv(closed: dict):
             if not exists:
                 w.writerow([
                     'open_time', 'exit_time', 'symbol', 'direction', 'entry', 'exit_price',
-                    'tp', 'sl', 'liq', 'exit_reason', 'move_pct', 'pnl_usdt',
+                    'tp', 'sl', 'liq', 'trail', 'exit_reason', 'move_pct', 'pnl_usdt',
                     'pnl_on_margin_pct', 'duration_min', 'notional', 'margin',
                     'leverage', 'consensus_pct', 'timesfm', 'strength', 'rr',
                 ])
             w.writerow([
                 closed['open_time'], closed['exit_time'], closed['symbol'], closed['direction'],
                 closed['entry'], closed['exit_price'], closed['tp'], closed['sl'], closed['liq'],
-                closed['exit_reason'], closed['move_pct'], closed['pnl_usdt'],
+                closed.get('trail'), closed['exit_reason'], closed['move_pct'], closed['pnl_usdt'],
                 closed['pnl_on_margin_pct'], closed['duration_min'], closed['notional'],
                 closed['margin'], closed['leverage'], closed['consensus_pct'],
                 closed['timesfm'], closed['strength'], closed['rr'],
