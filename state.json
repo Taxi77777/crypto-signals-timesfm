@@ -1,10 +1,21 @@
 {
-  "active_positions": {},
-  "last_signal_time": {},
+  "active_positions": {
+    "ETH_USDT": {
+      "direction": "SELL",
+      "entry": 1915.67,
+      "sl": 0.0,
+      "tp": 1872.734286,
+      "vol": 0.0,
+      "open_time": 1786120610.008
+    }
+  },
+  "last_signal_time": {
+    "ETH_USDT": 1786120610.008
+  },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-08-07",
-  "updated_at": "2026-08-07T16:36:50"
+  "updated_at": "2026-08-07T17:36:09"
 }
