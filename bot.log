@@ -2456,3 +2456,37 @@
 2026-08-07 06:48:59,981 [INFO]   PAPER TRADING — aucun trade cloture pour l'instant
 2026-08-07 06:48:59,981 [INFO]   Positions simulees en cours : 0
 2026-08-07 06:48:59,981 [INFO] ====================================================================
+2026-08-07 08:16:28,798 [INFO] ====================================================================
+2026-08-07 08:16:28,798 [INFO]   IHP v5.1 — CYCLE UNIQUE
+2026-08-07 08:16:28,798 [INFO]   MODE            : PAPER (aucun ordre reel)
+2026-08-07 08:16:28,798 [INFO]   Levier          : x20 | SL : DESACTIVE
+2026-08-07 08:16:28,798 [INFO]   Marge par trade : 2.5% (plafond 50.0 USDT)
+2026-08-07 08:16:28,798 [INFO]   Consensus min   : 80.0%
+2026-08-07 08:16:28,798 [INFO]   TimesFM         : strict=True | conf min=55%
+2026-08-07 08:16:28,798 [INFO]   Duree max trade : 24.0 h
+2026-08-07 08:16:28,798 [INFO] ====================================================================
+2026-08-07 08:16:28,798 [INFO] [STATE] Charge : 0 position(s) suivie(s) | trades=0 | PnL jour=+0.00
+2026-08-07 08:16:28,799 [INFO] [TimesFM] Chargement du modele Google TimesFM 2.5...
+2026-08-07 08:16:28,799 [INFO] [TimesFM] Chargement du modele Google TimesFM 2.5...
+2026-08-07 08:16:28,799 [INFO] [TimesFM] Repo : google/timesfm-2.5-200m-pytorch
+2026-08-07 08:16:31,236 [INFO] HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-08-07 08:16:31,276 [INFO] HTTP Request: HEAD https://huggingface.co/google/timesfm-2.5-200m-pytorch/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-07 08:16:31,276 [WARNING] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-07 08:16:31,284 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/timesfm-2.5-200m-pytorch/1d952420fba87f3c6dee4f240de0f1a0fbc790e3/config.json "HTTP/1.1 200 OK"
+2026-08-07 08:16:31,284 [INFO] Downloading checkpoint from Hugging Face repo google/timesfm-2.5-200m-pytorch
+2026-08-07 08:16:31,324 [INFO] HTTP Request: HEAD https://huggingface.co/google/timesfm-2.5-200m-pytorch/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-08-07 08:16:32,376 [INFO] Loading checkpoint from: /home/runner/.cache/huggingface/hub/models--google--timesfm-2.5-200m-pytorch/snapshots/1d952420fba87f3c6dee4f240de0f1a0fbc790e3/model.safetensors
+2026-08-07 08:16:32,485 [INFO] [TimesFM] Compilation du modele (ForecastConfig par defaut)...
+2026-08-07 08:16:32,485 [INFO] When compiling, max horizon needs to be multiple of the output patch size 128. Using max horizon = 128 instead.
+2026-08-07 08:16:32,485 [INFO] [TimesFM] MODELE COMPILE ET PRET — JUGE FINAL ACTIF
+2026-08-07 08:16:32,485 [INFO] [TimesFM] Modele pret.
+2026-08-07 08:16:32,485 [INFO] 🔍 Scan des volumes du marché Futures MEXC...
+2026-08-07 08:16:32,686 [INFO] Paires a scanner : 13
+2026-08-07 08:16:32,846 [INFO] Balance MEXC : 35.02 USDT | Equity: 35.02
+2026-08-07 08:16:32,846 [INFO] Scan de 13 paires (desequilibre 6 exchanges d'abord)...
+2026-08-07 08:16:36,054 [INFO] Aucun signal valide sur ce cycle.
+2026-08-07 08:16:36,054 [INFO] 
+====================================================================
+2026-08-07 08:16:36,054 [INFO]   PAPER TRADING — aucun trade cloture pour l'instant
+2026-08-07 08:16:36,054 [INFO]   Positions simulees en cours : 0
+2026-08-07 08:16:36,054 [INFO] ====================================================================
