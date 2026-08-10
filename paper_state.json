@@ -1,5 +1,25 @@
 {
-  "open": [],
+  "open": [
+    {
+      "symbol": "LTC_USDT",
+      "direction": "BUY",
+      "entry": 45.11,
+      "tp": 45.835714,
+      "sl": 0.0,
+      "liq": 43.08005,
+      "margin": 0.0013,
+      "notional": 0.0253,
+      "leverage": 20,
+      "open_time_ms": 1786389552781,
+      "open_time": "2026-08-10T19:19:12+00:00",
+      "consensus_pct": 80.0,
+      "timesfm": "BUY(+0.36%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 5.4 niveaux | CVD 3B/1S | TimesFM CONFIRME BUY (\u0394+0.36%, conf=63%) | Tendance 4H: NEUTRAL | RSI:43",
+      "trail": null
+    }
+  ],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -29,5 +49,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-10T18:05:40+00:00"
+  "updated_at": "2026-08-10T19:19:13+00:00"
 }
