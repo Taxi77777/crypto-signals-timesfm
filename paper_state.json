@@ -18,6 +18,25 @@
       "rr": 1.0,
       "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 5.4 niveaux | CVD 3B/1S | TimesFM CONFIRME BUY (\u0394+0.36%, conf=63%) | Tendance 4H: NEUTRAL | RSI:43",
       "trail": null
+    },
+    {
+      "symbol": "SEI_USDT",
+      "direction": "BUY",
+      "entry": 0.03993,
+      "tp": 0.04102,
+      "sl": 0.0,
+      "liq": 0.03813315,
+      "margin": 0.0064,
+      "notional": 0.127,
+      "leverage": 20,
+      "open_time_ms": 1786470222863,
+      "open_time": "2026-08-11T17:43:42+00:00",
+      "consensus_pct": 87.5,
+      "timesfm": "BUY(+1.02%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 88% sur 4 exchanges | Stacked 3.8 niveaux | CVD 4B/0S | TimesFM CONFIRME BUY (\u0394+1.02%, conf=83%) | Tendance 4H: BEARISH | RSI:31",
+      "trail": null
     }
   ],
   "closed": [
@@ -49,5 +68,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-11T16:38:53+00:00"
+  "updated_at": "2026-08-11T17:43:43+00:00"
 }
