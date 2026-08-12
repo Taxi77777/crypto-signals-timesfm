@@ -3,7 +3,7 @@ name: Institutional Hunter Pro v5.2 — 24/7 Cloud
 # ══════════════════════════════════════════════════════════════════
 #  CADENCE
 #
-#  Le `schedule` de GitHub reste ici en FILET DE SECURITE seulement.
+#  Le `schedule` de GitHub porte la cadence. Il est etrangle (runs
 #  Il est etrangle (runs observes espaces de 1 a 3 h) et ne peut pas
 #  porter la cadence a lui seul.
 #
@@ -14,7 +14,7 @@ name: Institutional Hunter Pro v5.2 — 24/7 Cloud
 # ══════════════════════════════════════════════════════════════════
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 concurrency:
