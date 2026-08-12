@@ -1,15 +1,26 @@
-name: Institutional Hunter Pro v5.1 — 24/7 Cloud
+name: Institutional Hunter Pro v5.2 — 24/7 Cloud
 
+# ══════════════════════════════════════════════════════════════════
+#  CADENCE
+#
+#  Le `schedule` de GitHub reste ici en FILET DE SECURITE seulement.
+#  Il est etrangle (runs observes espaces de 1 a 3 h) et ne peut pas
+#  porter la cadence a lui seul.
+#
+#  La vraie cadence vient du Worker Cloudflare, qui appelle
+#  `workflow_dispatch` toutes les 5 minutes. Ce type d'evenement
+#  n'est PAS soumis a l'etranglement des crons : il part tout de
+#  suite. Voir cloudflare/worker.js.
+# ══════════════════════════════════════════════════════════════════
 on:
   schedule:
-    # GitHub ne garantit AUCUNE ponctualite sur les crons courts et
-    # throttle agressivement '*/5'. Les runs observes etaient espaces
-    # de 1 a 3 heures. '*/15' est plus proche de ce qui est reellement
-    # execute. Pour du vrai 24/7 a la minute, il faut un VPS.
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 concurrency:
+  # Serialise les runs : deux runs en parallele se marcheraient dessus
+  # sur state.json et le push git. Un run en attente maximum, les
+  # declenchements supplementaires sont ignores — c'est voulu.
   group: crypto-signals-live
   cancel-in-progress: false
 
@@ -18,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 20
+    timeout-minutes: 12
 
     steps:
       - name: Checkout du code
@@ -75,27 +86,36 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MEXC_API_KEY: ${{ secrets.MEXC_API_KEY }}
           MEXC_SECRET_KEY: ${{ secrets.MEXC_SECRET_KEY }}
+          # Relais Cloudflare pour Binance / Kraken / OKX / Bybit / Bitget.
+          # Optionnels : sans eux le bot appelle les exchanges en direct.
+          EXCHANGE_PROXY_URL: ${{ secrets.EXCHANGE_PROXY_URL }}
+          EXCHANGE_PROXY_TOKEN: ${{ secrets.EXCHANGE_PROXY_TOKEN }}
           PYTHONUNBUFFERED: "1"
         run: python bot_once.py
 
-      # state.json porte les positions suivies, le cooldown et le PnL
-      # journalier. Sans ce commit, chaque run repart de zero et aucune
-      # cloture de trade n'est jamais notifiee.
+      # ══════════════════════════════════════════════════════════════
+      #  state.json porte les positions suivies, le cooldown et le PnL
+      #  journalier. Sans ce commit, chaque run repart de zero.
+      #
+      #  CHANGEMENT v5.2 : bot.log n'est PLUS commite.
+      #  Il pesait 1,4 Mo et etait reecrit a chaque run. A raison d'un
+      #  run toutes les 5 minutes, le depot grossissait d'environ
+      #  400 Mo par jour, et chaque `git pull --rebase` devenait plus
+      #  lent que le precedent. Le log reste disponible en artifact,
+      #  ce qui est sa place.
+      # ══════════════════════════════════════════════════════════════
       - name: Commit de l'etat et des logs
         if: always()
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # ATTENTION : `git add a b c` echoue ENTIEREMENT si un seul des
-          # chemins n'existe pas ("pathspec did not match any files"), et
-          # rien n'est alors indexe. Comme paper_trades.csv et les CSV de
-          # logs n'existent qu'apres le premier trade, l'ancienne commande
-          # ne commitait JAMAIS rien. On ajoute donc fichier par fichier.
-          for f in state.json paper_state.json paper_trades.csv bot.log signals_log.csv trades_log.csv; do
+          # `git add a b c` echoue ENTIEREMENT si un seul chemin manque.
+          # On ajoute donc fichier par fichier.
+          for f in state.json paper_state.json paper_trades.csv signals_log.csv trades_log.csv; do
             if [ -f "$f" ]; then
               git add -f "$f" && echo "  indexe : $f"
             else
-              echo "  absent  : $f (ignore)"
+              echo "  absent : $f (ignore)"
             fi
           done
           if ! git diff --cached --quiet; then

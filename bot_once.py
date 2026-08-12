@@ -37,6 +37,14 @@ import mexc_api as api
 import paper_engine as paper
 import bot as bot_mod
 
+# ── Ajouts locaux ────────────────────────────────────────────────
+# Relais Cloudflare (sans effet si EXCHANGE_PROXY_URL n'est pas defini)
+import proxy_patch  # noqa: F401
+# Messages Telegram lisibles
+from telegram_messages import msg_signal, msg_cloture
+# Garde-fous : regime BTC, funding, cout/objectif, concentration
+from signal_quality import evaluer_signal
+
 # Nombre de positions simultanées selon le mode
 CONCURRENT_LIMIT = PAPER_MAX_CONCURRENT if PAPER_MODE else MAX_CONCURRENT
 
@@ -115,13 +123,7 @@ def run_single_cycle() -> int:
         closed = paper.update_paper_positions(paper_state)
         if closed:
             for c in closed:
-                tg_send(
-                    f"{'✅' if c['pnl_usdt'] > 0 else '❌'} <b>[PAPER] {c['direction']} {c['symbol']}</b>\n"
-                    f"  Sortie  : {c['exit_reason']}\n"
-                    f"  Mouvement : {c['move_pct']:+.2f}%\n"
-                    f"  PnL     : {c['pnl_usdt']:+.4f} USDT ({c['pnl_on_margin_pct']:+.1f}% de la marge)\n"
-                    f"  Duree   : {c['duration_min']} min"
-                )
+                tg_send(msg_cloture(c))
         paper.save_paper_state(paper_state)
         _sync_paper_into_scanner(paper_state)
     else:
@@ -198,27 +200,56 @@ def run_single_cycle() -> int:
         save_state()
         return 0
 
-    # ── 7. Meilleur signal ───────────────────────────────────────
-    signals.sort(key=lambda s: (0 if s.strength == 'STRONG' else 1, -s.consensus_pct, -s.rr))
-    best = signals[0]
-    log.info(best.summary())
+    # ── 7. Classement des signaux ────────────────────────────────
+    # AVANT : `best = signals[0]` — un seul trade par cycle, meme quand
+    # 8 paires passaient tous les filtres. C'etait le principal goulot
+    # d'etranglement : les 7 autres signaux valides etaient jetes.
+    signals.sort(key=lambda s: (0 if s.strength == 'STRONG' else 1,
+                                -s.consensus_pct, -s.rr))
+    places = CONCURRENT_LIMIT - n_open
+    log.info(f"{len(signals)} signal(aux) valide(s) | {places} place(s) disponible(s)")
 
-    # ── 8. Execution ─────────────────────────────────────────────
-    if PAPER_MODE:
-        trade = paper.open_paper_trade(best, balance, paper_state)
-        if trade:
-            tg_send(
-                f"{'🟢' if best.direction == 'BUY' else '🔴'} <b>[PAPER] SIGNAL {best.direction} {best.symbol}</b>\n"
-                f"  Entree    : {trade['entry']:.6f}\n"
-                f"  TP        : {trade['tp']:.6f}\n"
-                f"  Liquidation simulee : {trade['liq']:.6f}\n"
-                f"  Consensus : {best.consensus_pct:.0f}% sur {best.exchanges_ok} exchanges\n"
-                f"  TimesFM   : {best.timesfm_direction} conf={best.timesfm_confidence:.0%}\n"
-                f"  <i>Aucun ordre reel envoye.</i>"
-            )
-    else:
-        if not open_trade(best, balance):
-            log.warning("Le trade n'a pas ete ouvert (voir lignes precedentes).")
+    # ── 8. Garde-fous puis execution ─────────────────────────────
+    ouverts = 0
+    for sig in signals:
+        if ouverts >= places:
+            log.info(f"Places epuisees — {len(signals) - ouverts} signal(aux) non pris.")
+            break
+
+        positions = paper_state['open'] if PAPER_MODE else []
+        try:
+            verdict = evaluer_signal(sig, positions)
+        except Exception as e:
+            log.warning(f"[QUALITY] {sig.symbol} : evaluation impossible ({e}) — laisse passer.")
+            verdict = None
+
+        if verdict is not None and not verdict.accepte:
+            log.info(f"[QUALITY] {sig.symbol} REFUSE — {' | '.join(verdict.raisons)}")
+            continue
+        if verdict is not None:
+            log.info(f"[QUALITY] {sig.symbol} accepte, score {verdict.score:.0f}/100"
+                     + (f" — {' | '.join(verdict.atouts)}" if verdict.atouts else ""))
+
+        log.info(sig.summary())
+
+        if PAPER_MODE:
+            trade = paper.open_paper_trade(sig, balance, paper_state)
+            if trade:
+                ouverts += 1
+                sig.liq = trade['liq']
+                sig.n_exchanges = getattr(sig, 'exchanges_ok', None)
+                texte = msg_signal(sig, marge_usdt=trade.get('margin'))
+                if verdict is not None:
+                    texte += f"\n\nSCORE DE QUALITE : {verdict.score:.0f}/100"
+                tg_send(texte)
+                _sync_paper_into_scanner(paper_state)
+        else:
+            if open_trade(sig, balance):
+                ouverts += 1
+            else:
+                log.warning("Le trade n'a pas ete ouvert (voir lignes precedentes).")
+
+    log.info(f"{ouverts} position(s) ouverte(s) sur ce cycle.")
 
     _report(paper_state)
     paper.save_paper_state(paper_state)

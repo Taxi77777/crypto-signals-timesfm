@@ -1,0 +1,35 @@
+name = "ihp-scheduler"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# ──────────────────────────────────────────────────────────────
+# CADENCE — c'est ici que se joue le nombre de signaux.
+# Cloudflare execute ces crons a l'heure dite, contrairement
+# au `schedule` de GitHub Actions qui est etrangle.
+#
+# */5 = toutes les 5 minutes = 288 declenchements par jour.
+# Reste tres loin des 100 000 requetes/jour du palier gratuit.
+# ──────────────────────────────────────────────────────────────
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+GH_REPO     = "Taxi77777/crypto-signals-timesfm"
+GH_WORKFLOW = "crypto_signals.yml"
+GH_BRANCH   = "main"
+
+# ──────────────────────────────────────────────────────────────
+# SECRETS — ne jamais les ecrire dans ce fichier.
+# A definir en ligne de commande :
+#
+#   npx wrangler secret put GH_TOKEN
+#   npx wrangler secret put PROXY_TOKEN
+#
+# GH_TOKEN    : jeton GitHub fine-grained, portee limitee au
+#               depot, permission "Actions: Read and write".
+# PROXY_TOKEN : chaine aleatoire de ton choix. Empeche que ton
+#               Worker serve de proxy ouvert a des inconnus.
+# ──────────────────────────────────────────────────────────────
+
+[observability]
+enabled = true

@@ -20,3 +20,9 @@ state/
 # ── Modèles / caches ────────────────────────────────────────────────────────
 models/
 .cache/
+
+# ── Execution locale ────────────────────────────────────────────
+# Contient le token Telegram en clair : ne doit JAMAIS etre publie.
+MES_IDENTIFIANTS.bat
+bot_local.log
+_publication/
