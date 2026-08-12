@@ -23,17 +23,26 @@
       "tp": 0.04102,
       "vol": 0.0,
       "open_time": 1786470222.863
+    },
+    "BTC_USDT": {
+      "direction": "BUY",
+      "entry": 63790.67,
+      "sl": 0.0,
+      "tp": 64756.298571,
+      "vol": 0.0,
+      "open_time": 1786521477.788
     }
   },
   "last_signal_time": {
     "ETH_USDT": 1786120610.008,
     "LTC_USDT": 1786389552.781,
-    "SEI_USDT": 1786470222.863
+    "SEI_USDT": 1786470222.863,
+    "BTC_USDT": 1786521477.788
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-08-12",
-  "updated_at": "2026-08-12T07:57:58"
+  "updated_at": "2026-08-12T09:16:51"
 }

@@ -16631,3 +16631,125 @@
 2026-08-12 07:57:58,314 [INFO]     Sorties          : EXPIRATION:2
 2026-08-12 07:57:58,314 [INFO]     Positions ouvertes : 2
 2026-08-12 07:57:58,314 [INFO] ====================================================================
+2026-08-12 09:16:32,859 [INFO] ====================================================================
+2026-08-12 09:16:32,859 [INFO]   IHP v5.1 — CYCLE UNIQUE
+2026-08-12 09:16:32,859 [INFO]   MODE            : PAPER (aucun ordre reel)
+2026-08-12 09:16:32,859 [INFO]   Levier          : x20 | SL : DESACTIVE
+2026-08-12 09:16:32,859 [INFO]   Marge par trade : 2.5% (plafond 50.0 USDT)
+2026-08-12 09:16:32,859 [INFO]   Consensus min   : 80.0%
+2026-08-12 09:16:32,859 [INFO]   TimesFM         : strict=True | conf min=55%
+2026-08-12 09:16:32,859 [INFO]   Duree max trade : 24.0 h
+2026-08-12 09:16:32,860 [INFO] ====================================================================
+2026-08-12 09:16:32,860 [INFO] [STATE] Charge : 3 position(s) suivie(s) | trades=0 | PnL jour=+0.00
+2026-08-12 09:16:33,750 [INFO] [TimesFM] Chargement du modele Google TimesFM 2.5...
+2026-08-12 09:16:33,750 [INFO] [TimesFM] Chargement du modele Google TimesFM 2.5...
+2026-08-12 09:16:33,750 [INFO] [TimesFM] Repo : google/timesfm-2.5-200m-pytorch
+2026-08-12 09:16:35,552 [INFO] HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-08-12 09:16:35,590 [INFO] HTTP Request: HEAD https://huggingface.co/google/timesfm-2.5-200m-pytorch/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-12 09:16:35,591 [WARNING] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-12 09:16:35,596 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/timesfm-2.5-200m-pytorch/1d952420fba87f3c6dee4f240de0f1a0fbc790e3/config.json "HTTP/1.1 200 OK"
+2026-08-12 09:16:35,597 [INFO] Downloading checkpoint from Hugging Face repo google/timesfm-2.5-200m-pytorch
+2026-08-12 09:16:35,638 [INFO] HTTP Request: HEAD https://huggingface.co/google/timesfm-2.5-200m-pytorch/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-08-12 09:16:36,571 [INFO] Loading checkpoint from: /home/runner/.cache/huggingface/hub/models--google--timesfm-2.5-200m-pytorch/snapshots/1d952420fba87f3c6dee4f240de0f1a0fbc790e3/model.safetensors
+2026-08-12 09:16:36,684 [INFO] [TimesFM] Compilation du modele (ForecastConfig par defaut)...
+2026-08-12 09:16:36,684 [INFO] When compiling, max horizon needs to be multiple of the output patch size 128. Using max horizon = 128 instead.
+2026-08-12 09:16:36,684 [INFO] [TimesFM] MODELE COMPILE ET PRET — JUGE FINAL ACTIF
+2026-08-12 09:16:36,684 [INFO] [TimesFM] Modele pret.
+2026-08-12 09:16:36,684 [INFO] 🔍 Scan des volumes du marché Futures MEXC...
+2026-08-12 09:16:36,879 [INFO] ✅ 75 paires sélectionnées par volume :
+2026-08-12 09:16:36,880 [INFO]    1. 🔥 BTC_USDT           4,368M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    2. 🔥 ETH_USDT           2,044M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    3. 🔥 SOL_USDT           1,139M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    4. 🔥 XRP_USDT           341M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    5. ⭐ HYPE_USDT          183M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    6. ⭐ ZEC_USDT           119M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    7. ⭐ DOGE_USDT          115M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    8. ⭐ SUI_USDT           101M USDT/24h
+2026-08-12 09:16:36,880 [INFO]    9. ⭐ BEAT_USDT          91M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   10. ⭐ TAO_USDT           85M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   11. ⭐ LINK_USDT          80M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   12. ✅ VELVET_USDT        55M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   13. ✅ WLD_USDT           54M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   14. ✅ AVAX_USDT          41M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   15. ✅ CYS_USDT           31M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   16. ✅ UNI_USDT           29M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   17. ✅ BNB_USDT           27M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   18. ✅ ADA_USDT           23M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   19. ✅ SKYAI_USDT         21M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   20. ✅ AAVE_USDT          21M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   21. ✅ NEAR_USDT          21M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   22. ✅ ONDO_USDT          20M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   23. ✅ XLM_USDT           19M USDT/24h
+2026-08-12 09:16:36,880 [INFO]   24. ✅ DOT_USDT           18M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   25. ✅ ENA_USDT           17M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   26. ✅ ASTER_USDT         15M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   27. ✅ CRV_USDT           13M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   28. ✅ OP_USDT            13M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   29. ✅ KAITO_USDT         12M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   30. ✅ FILECOIN_USDT      12M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   31. ✅ FARTCOIN_USDT      12M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   32. ✅ PENGU_USDT         12M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   33. ✅ HOLO_USDT          10M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   34. ✅ INJ_USDT           10M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   35. ✅ LTC_USDT           10M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   36. ✅ TUT_USDT           9M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   37. ✅ BLESS_USDT         9M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   38. ✅ FET_USDT           8M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   39. ✅ INX_USDT           8M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   40. ✅ PROM_USDT          8M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   41. ✅ BTW_USDT           7M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   42. ✅ BLUAI_USDT         7M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   43. ✅ XPL_USDT           7M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   44. ✅ HBAR_USDT          6M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   45. ✅ ICP_USDT           5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   46. ✅ BICO_USDT          5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   47. ✅ TRX_USDT           5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   48. ✅ ATOM_USDT          5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   49. ✅ APT_USDT           5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   50. ✅ ARB_USDT           5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   51. ✅ A_USDT             5M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   52. ✅ XMR_USDT           4M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   53. ✅ AKE_USDT           4M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   54. ✅ TIA_USDT           4M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   55. ✅ SEI_USDT           4M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   56. ✅ BANANAS31_USDT     4M USDT/24h
+2026-08-12 09:16:36,881 [INFO]   57. ✅ XPD_USDT           4M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   58. ✅ LSK_USDT           4M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   59. ✅ DOS_USDT           4M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   60. ✅ BMT_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   61. ✅ LDO_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   62. ✅ VIRTUAL_USDT       3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   63. ✅ HEI_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   64. ✅ WLFI_USDT          3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   65. ✅ ONE_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   66. ✅ APR_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   67. ✅ ALLO_USDT          3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   68. ✅ JIMOTHY_USDT       3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   69. ✅ PAXG_USDT          3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   70. ✅ ETHFI_USDT         3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   71. ✅ BCH_USDT           3M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   72. ✅ GALA_USDT          2M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   73. ✅ LUNANEW_USDT       2M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   74. ✅ WIF_USDT           2M USDT/24h
+2026-08-12 09:16:36,882 [INFO]   75. ✅ ORDI_USDT          2M USDT/24h
+2026-08-12 09:16:36,883 [INFO] Paires a scanner : 75
+2026-08-12 09:16:37,300 [INFO] Balance MEXC : 0.26 USDT | Equity: 3.93
+2026-08-12 09:16:37,300 [INFO] Scan de 75 paires (desequilibre 6 exchanges d'abord)...
+2026-08-12 09:16:41,657 [ERROR] [Klines Spot] FILECOIN_USDT 4h: 400 Client Error: Bad Request for url: https://api.mexc.com/api/v3/klines?symbol=FILECOINUSDT&interval=4h&limit=200
+2026-08-12 09:16:46,280 [ERROR] [Klines Spot] XPD_USDT 4h: 400 Client Error: Bad Request for url: https://api.mexc.com/api/v3/klines?symbol=XPDUSDT&interval=4h&limit=200
+2026-08-12 09:16:46,433 [ERROR] [Klines Spot] LSK_USDT 4h: 400 Client Error: Bad Request for url: https://api.mexc.com/api/v3/klines?symbol=LSKUSDT&interval=4h&limit=200
+2026-08-12 09:16:48,046 [ERROR] [Klines Spot] PAXG_USDT 4h: 400 Client Error: Bad Request for url: https://api.mexc.com/api/v3/klines?symbol=PAXGUSDT&interval=4h&limit=200
+2026-08-12 09:16:48,227 [ERROR] [Klines Spot] LUNANEW_USDT 4h: 400 Client Error: Bad Request for url: https://api.mexc.com/api/v3/klines?symbol=LUNANEWUSDT&interval=4h&limit=200
+2026-08-12 09:16:51,110 [INFO] Aucun signal valide sur ce cycle.
+2026-08-12 09:16:51,110 [INFO] 
+====================================================================
+2026-08-12 09:16:51,110 [INFO]   PAPER TRADING — 2 trades clotures
+2026-08-12 09:16:51,110 [INFO]     Taux de reussite : 50.0% (1G / 1P)
+2026-08-12 09:16:51,111 [INFO]     PnL total        : -0.1414 USDT
+2026-08-12 09:16:51,111 [INFO]     Esperance/trade  : -0.0707 USDT
+2026-08-12 09:16:51,111 [INFO]     Gain moyen       : +0.0001 | Perte moyenne : -0.1415
+2026-08-12 09:16:51,111 [INFO]     Profit factor    : 0.00
+2026-08-12 09:16:51,111 [INFO]     Drawdown max     : -0.1415 USDT
+2026-08-12 09:16:51,111 [INFO]     Sorties          : EXPIRATION:2
+2026-08-12 09:16:51,111 [INFO]     Positions ouvertes : 2
+2026-08-12 09:16:51,111 [INFO] ====================================================================
