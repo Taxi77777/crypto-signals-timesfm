@@ -1,25 +1,5 @@
 {
-  "open": [
-    {
-      "symbol": "BTC_USDT",
-      "direction": "BUY",
-      "entry": 63790.67,
-      "tp": 64756.298571,
-      "sl": 0.0,
-      "liq": 60920.08985,
-      "margin": 0.0066,
-      "notional": 0.1321,
-      "leverage": 20,
-      "open_time_ms": 1786521477788,
-      "open_time": "2026-08-12T07:57:57+00:00",
-      "consensus_pct": 80.0,
-      "timesfm": "BUY(+0.39%)",
-      "strength": "STRONG",
-      "rr": 1.0,
-      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 7.0 niveaux | CVD 3B/0S | TimesFM CONFIRME BUY (\u0394+0.39%, conf=64%) | Tendance 4H: BEARISH | RSI:31",
-      "trail": null
-    }
-  ],
+  "open": [],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -98,8 +78,34 @@
       "move_pct": 1.0948,
       "pnl_usdt": 0.0012,
       "pnl_on_margin_pct": 19.34
+    },
+    {
+      "symbol": "BTC_USDT",
+      "direction": "BUY",
+      "entry": 63790.67,
+      "tp": 64756.298571,
+      "sl": 0.0,
+      "liq": 60920.08985,
+      "margin": 0.0066,
+      "notional": 0.1321,
+      "leverage": 20,
+      "open_time_ms": 1786521477788,
+      "open_time": "2026-08-12T07:57:57+00:00",
+      "consensus_pct": 80.0,
+      "timesfm": "BUY(+0.39%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 7.0 niveaux | CVD 3B/0S | TimesFM CONFIRME BUY (\u0394+0.39%, conf=64%) | Tendance 4H: BEARISH | RSI:31",
+      "trail": null,
+      "exit_price": 63912.72,
+      "exit_reason": "EXPIRATION",
+      "exit_time": "2026-08-13T08:00:00+00:00",
+      "duration_min": 1442,
+      "move_pct": 0.1913,
+      "pnl_usdt": 0.0001,
+      "pnl_on_margin_pct": 1.43
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-13T06:44:47+00:00"
+  "updated_at": "2026-08-13T08:07:19+00:00"
 }
