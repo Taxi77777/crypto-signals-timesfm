@@ -1,5 +1,25 @@
 {
-  "open": [],
+  "open": [
+    {
+      "symbol": "BCH_USDT",
+      "direction": "BUY",
+      "entry": 206.6,
+      "tp": 211.885714,
+      "sl": 0.0,
+      "liq": 197.303,
+      "margin": 0.0026,
+      "notional": 0.0519,
+      "leverage": 20,
+      "open_time_ms": 1786664694045,
+      "open_time": "2026-08-13T23:44:54+00:00",
+      "consensus_pct": 80.0,
+      "timesfm": "BUY(+1.38%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 3.8 niveaux | CVD 4B/0S | TimesFM CONFIRME BUY (\u0394+1.38%, conf=87%) | Tendance 4H: BEARISH | RSI:31",
+      "trail": null
+    }
+  ],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -107,5 +127,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-13T23:00:39+00:00"
+  "updated_at": "2026-08-13T23:44:54+00:00"
 }
