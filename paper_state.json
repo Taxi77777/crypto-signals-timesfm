@@ -1,25 +1,6 @@
 {
   "open": [
     {
-      "symbol": "BCH_USDT",
-      "direction": "BUY",
-      "entry": 206.6,
-      "tp": 211.885714,
-      "sl": 0.0,
-      "liq": 197.303,
-      "margin": 0.0026,
-      "notional": 0.0519,
-      "leverage": 20,
-      "open_time_ms": 1786664694045,
-      "open_time": "2026-08-13T23:44:54+00:00",
-      "consensus_pct": 80.0,
-      "timesfm": "BUY(+1.38%)",
-      "strength": "STRONG",
-      "rr": 1.0,
-      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 3.8 niveaux | CVD 4B/0S | TimesFM CONFIRME BUY (\u0394+1.38%, conf=87%) | Tendance 4H: BEARISH | RSI:31",
-      "trail": null
-    },
-    {
       "symbol": "LDO_USDT",
       "direction": "BUY",
       "entry": 0.2932,
@@ -143,8 +124,34 @@
       "move_pct": 0.1913,
       "pnl_usdt": 0.0001,
       "pnl_on_margin_pct": 1.43
+    },
+    {
+      "symbol": "BCH_USDT",
+      "direction": "BUY",
+      "entry": 206.6,
+      "tp": 211.885714,
+      "sl": 0.0,
+      "liq": 197.303,
+      "margin": 0.0026,
+      "notional": 0.0519,
+      "leverage": 20,
+      "open_time_ms": 1786664694045,
+      "open_time": "2026-08-13T23:44:54+00:00",
+      "consensus_pct": 80.0,
+      "timesfm": "BUY(+1.38%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 80% sur 5 exchanges | Stacked 3.8 niveaux | CVD 4B/0S | TimesFM CONFIRME BUY (\u0394+1.38%, conf=87%) | Tendance 4H: BEARISH | RSI:31",
+      "trail": null,
+      "exit_price": 204.8,
+      "exit_reason": "EXPIRATION",
+      "exit_time": "2026-08-14T23:45:00+00:00",
+      "duration_min": 1440,
+      "move_pct": -0.8712,
+      "pnl_usdt": -0.0005,
+      "pnl_on_margin_pct": -19.79
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-14T23:23:41+00:00"
+  "updated_at": "2026-08-14T23:45:51+00:00"
 }
