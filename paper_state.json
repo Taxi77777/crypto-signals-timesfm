@@ -1,25 +1,5 @@
 {
-  "open": [
-    {
-      "symbol": "ZEC_USDT",
-      "direction": "SELL",
-      "entry": 552.0,
-      "tp": 530.28,
-      "sl": 0.0,
-      "liq": 576.8399999999999,
-      "margin": 0.4954,
-      "notional": 9.9072,
-      "leverage": 20,
-      "open_time_ms": 1787156501329,
-      "open_time": "2026-08-19T16:21:41+00:00",
-      "consensus_pct": 87.5,
-      "timesfm": "SELL(-1.41%)",
-      "strength": "STRONG",
-      "rr": 1.0,
-      "reason": "[APPROUVE] Desequilibre SELL 88% sur 4 exchanges | Stacked 4.8 niveaux | CVD 1B/3S | TimesFM CONFIRME SELL (\u0394-1.41%, conf=94%) | Tendance 4H: BULLISH | RSI:75",
-      "trail": null
-    }
-  ],
+  "open": [],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -202,8 +182,34 @@
       "move_pct": -1.8025,
       "pnl_usdt": -0.0025,
       "pnl_on_margin_pct": -38.3
+    },
+    {
+      "symbol": "ZEC_USDT",
+      "direction": "SELL",
+      "entry": 552.0,
+      "tp": 530.28,
+      "sl": 0.0,
+      "liq": 576.8399999999999,
+      "margin": 0.4954,
+      "notional": 9.9072,
+      "leverage": 20,
+      "open_time_ms": 1787156501329,
+      "open_time": "2026-08-19T16:21:41+00:00",
+      "consensus_pct": 87.5,
+      "timesfm": "SELL(-1.41%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre SELL 88% sur 4 exchanges | Stacked 4.8 niveaux | CVD 1B/3S | TimesFM CONFIRME SELL (\u0394-1.41%, conf=94%) | Tendance 4H: BULLISH | RSI:75",
+      "trail": null,
+      "exit_price": 576.84,
+      "exit_reason": "LIQUIDATION",
+      "exit_time": "2026-08-19T21:05:00+00:00",
+      "duration_min": 283,
+      "move_pct": -4.5,
+      "pnl_usdt": -0.4577,
+      "pnl_on_margin_pct": -92.39
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-19T20:52:37+00:00"
+  "updated_at": "2026-08-19T21:18:36+00:00"
 }
