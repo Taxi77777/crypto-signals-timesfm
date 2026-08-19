@@ -55,6 +55,14 @@
       "tp": 0.548229,
       "vol": 0.0,
       "open_time": 1786878786.686
+    },
+    "ZEC_USDT": {
+      "direction": "SELL",
+      "entry": 552.0,
+      "sl": 0.0,
+      "tp": 530.28,
+      "vol": 0.0,
+      "open_time": 1787156501.329
     }
   },
   "last_signal_time": {
@@ -64,12 +72,13 @@
     "BTC_USDT": 1786521477.788,
     "BCH_USDT": 1786664694.045,
     "LDO_USDT": 1786721399.751,
-    "APT_USDT": 1786878786.686
+    "APT_USDT": 1786878786.686,
+    "ZEC_USDT": 1787156501.329
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-08-19",
-  "updated_at": "2026-08-19T15:56:51"
+  "updated_at": "2026-08-19T16:21:41"
 }

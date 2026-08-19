@@ -1,5 +1,25 @@
 {
-  "open": [],
+  "open": [
+    {
+      "symbol": "ZEC_USDT",
+      "direction": "SELL",
+      "entry": 552.0,
+      "tp": 530.28,
+      "sl": 0.0,
+      "liq": 576.8399999999999,
+      "margin": 0.4954,
+      "notional": 9.9072,
+      "leverage": 20,
+      "open_time_ms": 1787156501329,
+      "open_time": "2026-08-19T16:21:41+00:00",
+      "consensus_pct": 87.5,
+      "timesfm": "SELL(-1.41%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre SELL 88% sur 4 exchanges | Stacked 4.8 niveaux | CVD 1B/3S | TimesFM CONFIRME SELL (\u0394-1.41%, conf=94%) | Tendance 4H: BULLISH | RSI:75",
+      "trail": null
+    }
+  ],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -185,5 +205,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-19T15:56:51+00:00"
+  "updated_at": "2026-08-19T16:21:41+00:00"
 }
