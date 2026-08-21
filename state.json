@@ -63,6 +63,14 @@
       "tp": 530.28,
       "vol": 0.0,
       "open_time": 1787156501.329
+    },
+    "UNI_USDT": {
+      "direction": "BUY",
+      "entry": 3.96,
+      "sl": 0.0,
+      "tp": 4.240429,
+      "vol": 0.0,
+      "open_time": 1787340064.573
     }
   },
   "last_signal_time": {
@@ -73,12 +81,13 @@
     "BCH_USDT": 1786664694.045,
     "LDO_USDT": 1786721399.751,
     "APT_USDT": 1786878786.686,
-    "ZEC_USDT": 1787156501.329
+    "ZEC_USDT": 1787156501.329,
+    "UNI_USDT": 1787340064.573
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-08-21",
-  "updated_at": "2026-08-21T18:54:53"
+  "updated_at": "2026-08-21T19:21:05"
 }

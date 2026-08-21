@@ -1,5 +1,25 @@
 {
-  "open": [],
+  "open": [
+    {
+      "symbol": "UNI_USDT",
+      "direction": "BUY",
+      "entry": 3.96,
+      "tp": 4.240429,
+      "sl": 0.0,
+      "liq": 3.7817999999999996,
+      "margin": 0.0047,
+      "notional": 0.0938,
+      "leverage": 20,
+      "open_time_ms": 1787340064573,
+      "open_time": "2026-08-21T19:21:04+00:00",
+      "consensus_pct": 100.0,
+      "timesfm": "BUY(+0.61%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 100% sur 4 exchanges | Stacked 5.5 niveaux | CVD 4B/0S | TimesFM CONFIRME BUY (\u0394+0.61%, conf=84%) | Tendance 4H: BULLISH | RSI:91",
+      "trail": null
+    }
+  ],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -211,5 +231,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-21T18:54:53+00:00"
+  "updated_at": "2026-08-21T19:21:05+00:00"
 }
