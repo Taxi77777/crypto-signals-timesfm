@@ -1,25 +1,5 @@
 {
-  "open": [
-    {
-      "symbol": "DASH_USDT",
-      "direction": "SELL",
-      "entry": 43.04,
-      "tp": 37.137143,
-      "sl": 0.0,
-      "liq": 44.9768,
-      "margin": 0.0047,
-      "notional": 0.0938,
-      "leverage": 20,
-      "open_time_ms": 1787429902137,
-      "open_time": "2026-08-22T20:18:22+00:00",
-      "consensus_pct": 100.0,
-      "timesfm": "SELL(-8.69%)",
-      "strength": "STRONG",
-      "rr": 1.0,
-      "reason": "[APPROUVE] Desequilibre SELL 100% sur 3 exchanges | Stacked 4.3 niveaux | CVD 0B/3S | TimesFM CONFIRME SELL (\u0394-8.69%, conf=97%) | Tendance 4H: BULLISH | RSI:72",
-      "trail": null
-    }
-  ],
+  "open": [],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -254,8 +234,34 @@
       "move_pct": 1.1081,
       "pnl_usdt": 0.0009,
       "pnl_on_margin_pct": 19.72
+    },
+    {
+      "symbol": "DASH_USDT",
+      "direction": "SELL",
+      "entry": 43.04,
+      "tp": 37.137143,
+      "sl": 0.0,
+      "liq": 44.9768,
+      "margin": 0.0047,
+      "notional": 0.0938,
+      "leverage": 20,
+      "open_time_ms": 1787429902137,
+      "open_time": "2026-08-22T20:18:22+00:00",
+      "consensus_pct": 100.0,
+      "timesfm": "SELL(-8.69%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre SELL 100% sur 3 exchanges | Stacked 4.3 niveaux | CVD 0B/3S | TimesFM CONFIRME SELL (\u0394-8.69%, conf=97%) | Tendance 4H: BULLISH | RSI:72",
+      "trail": null,
+      "exit_price": 41.51655,
+      "exit_reason": "TRAILING_STOP",
+      "exit_time": "2026-08-22T21:05:00+00:00",
+      "duration_min": 46,
+      "move_pct": 3.5396,
+      "pnl_usdt": 0.0032,
+      "pnl_on_margin_pct": 68.25
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-08-22T20:47:39+00:00"
+  "updated_at": "2026-08-22T21:14:44+00:00"
 }
