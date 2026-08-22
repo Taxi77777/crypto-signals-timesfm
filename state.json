@@ -71,6 +71,14 @@
       "tp": 4.240429,
       "vol": 0.0,
       "open_time": 1787340064.573
+    },
+    "DASH_USDT": {
+      "direction": "SELL",
+      "entry": 43.04,
+      "sl": 0.0,
+      "tp": 37.137143,
+      "vol": 0.0,
+      "open_time": 1787429902.137
     }
   },
   "last_signal_time": {
@@ -82,12 +90,13 @@
     "LDO_USDT": 1786721399.751,
     "APT_USDT": 1786878786.686,
     "ZEC_USDT": 1787156501.329,
-    "UNI_USDT": 1787340064.573
+    "UNI_USDT": 1787340064.573,
+    "DASH_USDT": 1787429902.137
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-08-22",
-  "updated_at": "2026-08-22T19:58:15"
+  "updated_at": "2026-08-22T20:18:22"
 }
