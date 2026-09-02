@@ -1,5 +1,25 @@
 {
-  "open": [],
+  "open": [
+    {
+      "symbol": "EGLD_USDT",
+      "direction": "BUY",
+      "entry": 4.719,
+      "tp": 4.983143,
+      "sl": 0.0,
+      "liq": 4.506645,
+      "margin": 0.0047,
+      "notional": 0.0938,
+      "leverage": 20,
+      "open_time_ms": 1788369039611,
+      "open_time": "2026-09-02T17:10:39+00:00",
+      "consensus_pct": 87.5,
+      "timesfm": "BUY(+0.56%)",
+      "strength": "STRONG",
+      "rr": 1.0,
+      "reason": "[APPROUVE] Desequilibre BUY 88% sur 4 exchanges | Stacked 6.2 niveaux | CVD 3B/0S | TimesFM CONFIRME BUY (\u0394+0.56%, conf=83%) | Tendance 4H: BULLISH | RSI:76",
+      "trail": null
+    }
+  ],
   "closed": [
     {
       "symbol": "ETH_USDT",
@@ -263,5 +283,5 @@
     }
   ],
   "created_at": "2026-08-05T09:07:15+00:00",
-  "updated_at": "2026-09-02T13:09:17+00:00"
+  "updated_at": "2026-09-02T17:10:40+00:00"
 }

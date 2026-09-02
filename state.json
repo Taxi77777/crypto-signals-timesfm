@@ -79,6 +79,14 @@
       "tp": 37.137143,
       "vol": 0.0,
       "open_time": 1787429902.137
+    },
+    "EGLD_USDT": {
+      "direction": "BUY",
+      "entry": 4.719,
+      "sl": 0.0,
+      "tp": 4.983143,
+      "vol": 0.0,
+      "open_time": 1788369039.611
     }
   },
   "last_signal_time": {
@@ -91,12 +99,13 @@
     "APT_USDT": 1786878786.686,
     "ZEC_USDT": 1787156501.329,
     "UNI_USDT": 1787340064.573,
-    "DASH_USDT": 1787429902.137
+    "DASH_USDT": 1787429902.137,
+    "EGLD_USDT": 1788369039.611
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-09-02",
-  "updated_at": "2026-09-02T13:09:17"
+  "updated_at": "2026-09-02T17:10:40"
 }
