@@ -87,6 +87,14 @@
       "tp": 4.983143,
       "vol": 0.0,
       "open_time": 1788369039.611
+    },
+    "WIF_USDT": {
+      "direction": "BUY",
+      "entry": 0.2157,
+      "sl": 0.0,
+      "tp": 0.2297,
+      "vol": 0.0,
+      "open_time": 1788808767.071
     }
   },
   "last_signal_time": {
@@ -100,12 +108,13 @@
     "ZEC_USDT": 1787156501.329,
     "UNI_USDT": 1787340064.573,
     "DASH_USDT": 1787429902.137,
-    "EGLD_USDT": 1788369039.611
+    "EGLD_USDT": 1788369039.611,
+    "WIF_USDT": 1788808767.071
   },
   "daily_pnl": 0.0,
   "start_balance": 0.0,
   "trade_count": 0,
   "win_count": 0,
   "pnl_day": "2026-09-07",
-  "updated_at": "2026-09-07T15:18:22"
+  "updated_at": "2026-09-07T19:19:27"
 }
