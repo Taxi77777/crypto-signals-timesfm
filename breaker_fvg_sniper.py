@@ -79,7 +79,7 @@ GoMaxR = 0.33
 
 # =================================================================== CONFIG CRYPTO (env)
 SCAN_DIRECTION = int(os.environ.get("BFS_DIRECTION", "0"))          # 0 = achats+ventes, 1 = achats, -1 = ventes
-SCAN_TFS = os.environ.get("BFS_TFS", "M15,M30,H1,H4")
+SCAN_TFS = os.environ.get("BFS_TFS", "M15,M30")
 MIN_SCORE = float(os.environ.get("BFS_MIN_SCORE", "40"))
 TOP_N = int(os.environ.get("BFS_TOP_N", "120"))                      # top N paires Kraken par volume
 MIN_QUOTE_VOL = float(os.environ.get("BFS_MIN_QUOTE_VOL", "250000"))
@@ -886,6 +886,10 @@ def score_setup(eng, s, tf, bias):
     return min(sc, 90.0)
 
 
+STATS = {"setups": 0, "retests": 0}
+_stats_lock = threading.Lock()
+
+
 def scan_symbol(sym, tfs, need):
     try:
         return _scan_symbol(sym, tfs, need)
@@ -908,6 +912,9 @@ def _scan_symbol(sym, tfs, need):
             continue
         eng = Engine(O, H, L, C, T, tf, dig, SCAN_DIRECTION)
         eng.run(ScanBars)
+        with _stats_lock:
+            STATS["setups"] += sum(1 for x in eng.S if x.ready)
+            STATS["retests"] += sum(1 for x in eng.S if x.touched or x.shFill > 0)
 
         htf = htf_of(tf)
         if htf not in htf_cache:
@@ -1008,23 +1015,16 @@ def save_state(st):
         json.dump(st, f, indent=1, sort_keys=True)
 
 
-def main():
-    tfs = [TF_MIN[t.strip().upper()] for t in SCAN_TFS.split(",") if t.strip().upper() in TF_MIN]
-    need = ScanBars + max(SweepLookback, SwingLeft) + OBSearchBars + ATRPeriod + max(LiqLookback, RallyLB) + 30
-    if SHARD == 0 and os.environ.get("BFS_TEST", "").lower() in ("1", "true"):
-        tg_send("✅ <b>TEST</b> — Breaker FVG Sniper connecte (Kraken Pro).\n"
-                "Seuls les signaux RETEST seront envoyes, avec Entree / Stop / TP1 / TP2.")
-    syms = top_symbols()
-    syms = syms[SHARD::SHARDS]
-    log.info("Lot %d/%d", SHARD + 1, SHARDS)
-    log.info("Scan %d cryptos x %s (%d bougies)", len(syms), ",".join(TF_NAME[t] for t in tfs), need)
+LOOP_MINUTES = float(os.environ.get("BFS_LOOP_MINUTES", "0"))   # >0 : scan en boucle pendant N minutes
+INTERVAL = float(os.environ.get("BFS_INTERVAL", "180"))            # secondes entre deux debuts de scan
 
+
+def run_once(st, tfs, need, syms):
+    STATS["setups"] = STATS["retests"] = 0
     opps = []
     with ThreadPoolExecutor(max_workers=3) as ex:
         for res in ex.map(lambda s: scan_symbol(s, tfs, need), syms):
             opps.extend(res)
-
-    st = load_state()
     sent = st.setdefault("sent", {})
     opps.sort(key=lambda o: -o["score"])
     n = 0
@@ -1035,8 +1035,33 @@ def main():
             sent[o["key"]] = time.time()
             n += 1
             time.sleep(1)
-    log.info("%d retest(s) actifs, %d nouveau(x) signal(aux) envoye(s)", len(opps), n)
+    log.info("%d setups valides / %d retests sur l'historique (%d bougies) | %d retest(s) en cours, %d signal(aux) envoye(s)",
+             STATS["setups"], STATS["retests"], ScanBars, len(opps), n)
     save_state(st)
+
+
+def main():
+    tfs = [TF_MIN[t.strip().upper()] for t in SCAN_TFS.split(",") if t.strip().upper() in TF_MIN]
+    need = ScanBars + max(SweepLookback, SwingLeft) + OBSearchBars + ATRPeriod + max(LiqLookback, RallyLB) + 30
+    if SHARD == 0 and os.environ.get("BFS_TEST", "").lower() in ("1", "true"):
+        tg_send("✅ <b>TEST</b> — Breaker FVG Sniper connecte (Kraken Pro).\n"
+                "Seuls les signaux RETEST seront envoyes, avec Entree / Stop / TP1 / TP2.")
+    st = load_state()
+    end = time.time() + LOOP_MINUTES * 60
+    syms, syms_t = [], 0.0
+    while True:
+        t0 = time.time()
+        if not syms or t0 - syms_t > 3600:                  # liste des cryptos rafraichie toutes les heures
+            syms = top_symbols()[SHARD::SHARDS]
+            syms_t = t0
+            log.info("Lot %d/%d : %d cryptos x %s (%d bougies)", SHARD + 1, SHARDS, len(syms),
+                     ",".join(TF_NAME[t] for t in tfs), need)
+        run_once(st, tfs, need, syms)
+        wait = INTERVAL - (time.time() - t0)
+        if time.time() + max(wait, 0) + 150 > end:
+            break
+        if wait > 0:
+            time.sleep(wait)
 
 
 if __name__ == "__main__":
