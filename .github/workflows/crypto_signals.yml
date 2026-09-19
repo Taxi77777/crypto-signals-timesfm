@@ -1,0 +1,55 @@
+name: Breaker FVG Sniper — Crypto Kraken Pro (RETEST -> Telegram)
+
+# Declenche toutes les 15 min par GitHub + toutes les 5 min par le
+# Worker Cloudflare existant (il appelle workflow_dispatch sur ce fichier :
+# GH_WORKFLOW = "crypto_signals.yml" dans cloudflare/wrangler.toml).
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: breaker-fvg-sniper
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependances
+        run: pip install requests
+
+      - name: Scan Breaker FVG Sniper (crypto Kraken Pro)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BFS_TFS: "M15,M30,H1,H4"
+          BFS_MIN_SCORE: "40"
+          BFS_TOP_N: "30"
+          BFS_QUOTE: "USD"
+          PYTHONUNBUFFERED: "1"
+        run: python breaker_fvg_sniper.py
+
+      # Memorise les signaux deja envoyes (pas de doublon sur Telegram)
+      - name: Sauvegarde de l'etat
+        if: always()
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          if [ -f bfs_state.json ]; then
+            git add -f bfs_state.json
+            if ! git diff --cached --quiet; then
+              git commit -m "chore: bfs state [skip ci]"
+              git pull --rebase --autostash origin main || true
+              git push origin main || true
+            fi
+          fi
