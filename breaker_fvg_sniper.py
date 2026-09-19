@@ -186,7 +186,9 @@ class Engine:
 
     # ---- utilitaires
     def nd(self, v):
-        return round(v, self.dig)
+        # NormalizeDouble MT4 : arrondi au plus proche, egalite -> loin de zero
+        p = 10 ** self.dig
+        return math.copysign(math.floor(abs(v) * p + 0.5) / p, v)
 
     def lowest(self, start, count):
         e = min(self.N - 1, start + count - 1)
@@ -753,8 +755,13 @@ def _throttle():
         _rl_last[0] = time.time()
 
 
+HARD_END = [0.0]   # >0 : plus aucune requete apres cette heure (fin de job)
+
+
 def get(path, params, tries=4):
     for a in range(tries):
+        if HARD_END[0] and time.time() > HARD_END[0]:
+            return None
         _throttle()
         try:
             r = _http.get(KRAKEN + path, params=params, timeout=15)
@@ -1003,6 +1010,7 @@ def message(o):
     dig = o["dig"]
     return (
         f"{'🟢' if d > 0 else '🔴'} <b>RETEST {'ACHAT' if d > 0 else 'VENTE'}</b> — <b>{display_name(o['sym'])}</b> {TF_NAME[o['tf']]}\n"
+        f"⏳ Attendre cloture {TF_NAME[o['tf']]} {'verte au-dessus de' if d > 0 else 'rouge sous'} l'entree\n"
         f"Entree : <code>{fmt(o['entry'], dig)}</code>\n"
         f"Stop : <code>{fmt(o['sl'], dig)}</code>\n"
         f"TP1 : <code>{fmt(o['tp1'], dig)}</code>\n"
@@ -1077,6 +1085,8 @@ def main():
                 "Seuls les signaux RETEST seront envoyes, avec Entree / Stop / TP1 / TP2.")
     st = load_state()
     end = time.time() + LOOP_MINUTES * 60
+    if LOOP_MINUTES:
+        HARD_END[0] = end + 12 * 60
     syms, syms_t = [], 0.0
     while True:
         t0 = time.time()
