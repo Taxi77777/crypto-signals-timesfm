@@ -81,10 +81,12 @@ GoMaxR = 0.33
 SCAN_DIRECTION = int(os.environ.get("BFS_DIRECTION", "0"))          # 0 = achats+ventes, 1 = achats, -1 = ventes
 SCAN_TFS = os.environ.get("BFS_TFS", "M15,M30,H1,H4")
 MIN_SCORE = float(os.environ.get("BFS_MIN_SCORE", "40"))
-TOP_N = int(os.environ.get("BFS_TOP_N", "30"))                      # top N paires Kraken par volume
-MIN_QUOTE_VOL = float(os.environ.get("BFS_MIN_QUOTE_VOL", "1000000"))
+TOP_N = int(os.environ.get("BFS_TOP_N", "120"))                      # top N paires Kraken par volume
+MIN_QUOTE_VOL = float(os.environ.get("BFS_MIN_QUOTE_VOL", "250000"))
+SHARD = int(os.environ.get("BFS_SHARD", "0"))                      # repartition sur plusieurs jobs (IP differentes)
+SHARDS = max(1, int(os.environ.get("BFS_SHARDS", "1")))
 EXTRA_SYMBOLS = [s.strip().upper() for s in os.environ.get("BFS_SYMBOLS", "").split(",") if s.strip()]
-STATE_FILE = os.environ.get("BFS_STATE_FILE", "bfs_state.json")
+STATE_FILE = os.environ.get("BFS_STATE_FILE", "bfs_state.json" if SHARDS == 1 else f"bfs_state_{SHARD}.json")
 DRY_RUN = os.environ.get("BFS_DRY_RUN", "").lower() in ("1", "true", "yes")
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -895,11 +897,13 @@ def scan_symbol(sym, tfs, need):
 def _scan_symbol(sym, tfs, need):
     out = []
     htf_cache = {}
-    for tf in tfs:
+    closes = {}
+    for tf in sorted(tfs, reverse=True):   # H4 d'abord : reutilise comme tendance HTF des M15/M30
         k = klines(sym, tf, min(720, need))
         if not k:
             continue
         O, H, L, C, T, dig = k
+        closes[tf] = C
         if len(C) < SweepLookback + OBSearchBars + ATRPeriod + 60:
             continue
         eng = Engine(O, H, L, C, T, tf, dig, SCAN_DIRECTION)
@@ -907,10 +911,13 @@ def _scan_symbol(sym, tfs, need):
 
         htf = htf_of(tf)
         if htf not in htf_cache:
-            hk = klines(sym, htf, 200)
+            if htf in closes:
+                hc = closes[htf]
+            else:
+                hk = klines(sym, htf, 200)
+                hc = hk[3] if hk else []
             bias = 0
-            if hk:
-                hc = hk[3]
+            if hc:
                 e = ema_last_closed(hc, BiasEMA)
                 if len(hc) > 1 and hc[1] > 0 and e > 0:
                     bias = 1 if hc[1] > e else -1
@@ -1004,10 +1011,12 @@ def save_state(st):
 def main():
     tfs = [TF_MIN[t.strip().upper()] for t in SCAN_TFS.split(",") if t.strip().upper() in TF_MIN]
     need = ScanBars + max(SweepLookback, SwingLeft) + OBSearchBars + ATRPeriod + max(LiqLookback, RallyLB) + 30
-    if os.environ.get("BFS_TEST", "").lower() in ("1", "true"):
+    if SHARD == 0 and os.environ.get("BFS_TEST", "").lower() in ("1", "true"):
         tg_send("✅ <b>TEST</b> — Breaker FVG Sniper connecte (Kraken Pro).\n"
                 "Seuls les signaux RETEST seront envoyes, avec Entree / Stop / TP1 / TP2.")
     syms = top_symbols()
+    syms = syms[SHARD::SHARDS]
+    log.info("Lot %d/%d", SHARD + 1, SHARDS)
     log.info("Scan %d cryptos x %s (%d bougies)", len(syms), ",".join(TF_NAME[t] for t in tfs), need)
 
     opps = []
