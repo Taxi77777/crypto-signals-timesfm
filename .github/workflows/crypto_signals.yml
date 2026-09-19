@@ -47,7 +47,7 @@ jobs:
           BFS_MIN_SCORE: "40"
           BFS_TOP_N: "120"
           BFS_MARKET: "perp"
-          BFS_MIN_QUOTE_VOL: "50000"
+          BFS_MIN_QUOTE_VOL: "1000000"
           BFS_SHARDS: "4"
           BFS_SHARD: ${{ matrix.shard }}
           BFS_QUOTE: "USD"
