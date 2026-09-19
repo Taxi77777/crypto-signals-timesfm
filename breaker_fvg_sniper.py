@@ -1004,6 +1004,9 @@ def save_state(st):
 def main():
     tfs = [TF_MIN[t.strip().upper()] for t in SCAN_TFS.split(",") if t.strip().upper() in TF_MIN]
     need = ScanBars + max(SweepLookback, SwingLeft) + OBSearchBars + ATRPeriod + max(LiqLookback, RallyLB) + 30
+    if os.environ.get("BFS_TEST", "").lower() in ("1", "true"):
+        tg_send("✅ <b>TEST</b> — Breaker FVG Sniper connecte (Kraken Pro).\n"
+                "Seuls les signaux RETEST seront envoyes, avec Entree / Stop / TP1 / TP2.")
     syms = top_symbols()
     log.info("Scan %d cryptos x %s (%d bougies)", len(syms), ",".join(TF_NAME[t] for t in tfs), need)
 
