@@ -1,4 +1,4 @@
-name: Breaker FVG Sniper — Crypto Kraken Pro (RETEST -> Telegram)
+name: Breaker FVG Sniper — PERP Kraken Pro (RETEST -> Telegram)
 
 # SCAN EN CONTINU : chaque job tourne ~5 h 40 et rescanne toutes les 3 min,
 # puis le workflow se relance lui-meme (workflow_dispatch).
@@ -39,14 +39,15 @@ jobs:
       - name: Dependances
         run: pip install requests
 
-      - name: Scan en continu Breaker FVG Sniper (M15/M30, crypto Kraken Pro)
+      - name: Scan en continu Breaker FVG Sniper (M15/M30, perpetuels Kraken Pro)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BFS_TFS: "M15,M30"
           BFS_MIN_SCORE: "40"
           BFS_TOP_N: "120"
-          BFS_MIN_QUOTE_VOL: "250000"
+          BFS_MARKET: "perp"
+          BFS_MIN_QUOTE_VOL: "50000"
           BFS_SHARDS: "4"
           BFS_SHARD: ${{ matrix.shard }}
           BFS_QUOTE: "USD"
