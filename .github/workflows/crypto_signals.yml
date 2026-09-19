@@ -74,7 +74,7 @@ jobs:
 
   relance:
     needs: scan
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
