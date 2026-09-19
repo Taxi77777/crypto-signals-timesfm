@@ -20,6 +20,10 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]     # 4 lots de ~30 cryptos en parallele (IP differentes)
     permissions:
       contents: write
     timeout-minutes: 12
@@ -39,7 +43,10 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BFS_TFS: "M15,M30,H1,H4"
           BFS_MIN_SCORE: "40"
-          BFS_TOP_N: "30"
+          BFS_TOP_N: "120"
+          BFS_MIN_QUOTE_VOL: "250000"
+          BFS_SHARDS: "4"
+          BFS_SHARD: ${{ matrix.shard }}
           BFS_QUOTE: "USD"
           BFS_TEST: ${{ github.event.inputs.test }}
           PYTHONUNBUFFERED: "1"
@@ -51,11 +58,14 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          if [ -f bfs_state.json ]; then
-            git add -f bfs_state.json
+          F=bfs_state_${{ matrix.shard }}.json
+          if [ -f "$F" ]; then
+            git add -f "$F"
             if ! git diff --cached --quiet; then
-              git commit -m "chore: bfs state [skip ci]"
-              git pull --rebase --autostash origin main || true
-              git push origin main || true
+              git commit -m "chore: bfs state ${{ matrix.shard }} [skip ci]"
+              for i in 1 2 3 4 5; do
+                git pull --rebase origin main && git push origin main && break
+                sleep $((RANDOM % 5 + 2))
+              done
             fi
           fi
