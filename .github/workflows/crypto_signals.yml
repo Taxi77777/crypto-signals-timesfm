@@ -7,6 +7,11 @@ on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+    inputs:
+      test:
+        description: 'Envoyer un message test sur Telegram'
+        type: boolean
+        default: false
 
 concurrency:
   group: breaker-fvg-sniper
@@ -36,6 +41,7 @@ jobs:
           BFS_MIN_SCORE: "40"
           BFS_TOP_N: "30"
           BFS_QUOTE: "USD"
+          BFS_TEST: ${{ github.event.inputs.test }}
           PYTHONUNBUFFERED: "1"
         run: python breaker_fvg_sniper.py
 
