@@ -29,6 +29,8 @@ jobs:
     timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
@@ -61,16 +63,18 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           F=bfs_state_${{ matrix.shard }}.json
-          if [ -f "$F" ]; then
+          [ -f "$F" ] || exit 0
+          cp "$F" /tmp/state.json
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/state.json "$F"
             git add -f "$F"
-            if ! git diff --cached --quiet; then
-              git commit -m "chore: bfs state ${{ matrix.shard }} [skip ci]"
-              for i in 1 2 3 4 5; do
-                git pull --rebase origin main && git push origin main && break
-                sleep $((RANDOM % 5 + 2))
-              done
-            fi
-          fi
+            git diff --cached --quiet && exit 0
+            git commit -qm "chore: bfs state ${{ matrix.shard }} [skip ci]"
+            git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "::warning::etat non sauvegarde"
 
   relance:
     needs: scan
