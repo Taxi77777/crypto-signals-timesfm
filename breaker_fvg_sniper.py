@@ -13,6 +13,8 @@ setup toujours valide, score >= MIN_SCORE).
 import os
 import sys
 import json
+import glob
+import zlib
 import math
 import time
 import logging
@@ -1002,9 +1004,21 @@ def message(o):
 def load_state():
     try:
         with open(STATE_FILE) as f:
-            return json.load(f)
+            st = json.load(f)
     except Exception:
-        return {"sent": {}}
+        st = {"sent": {}}
+    sent = st.setdefault("sent", {})
+    # anti-doublon global : on relit aussi les signaux deja envoyes par les autres lots
+    for fn in glob.glob("bfs_state*.json"):
+        if fn == STATE_FILE:
+            continue
+        try:
+            with open(fn) as f:
+                for k, v in json.load(f).get("sent", {}).items():
+                    sent.setdefault(k, v)
+        except Exception:
+            pass
+    return st
 
 
 def save_state(st):
@@ -1052,7 +1066,7 @@ def main():
     while True:
         t0 = time.time()
         if not syms or t0 - syms_t > 3600:                  # liste des cryptos rafraichie toutes les heures
-            syms = top_symbols()[SHARD::SHARDS]
+            syms = [x for x in top_symbols() if zlib.crc32(x.encode()) % SHARDS == SHARD]   # lot stable par crypto
             syms_t = t0
             log.info("Lot %d/%d : %d cryptos x %s (%d bougies)", SHARD + 1, SHARDS, len(syms),
                      ",".join(TF_NAME[t] for t in tfs), need)
