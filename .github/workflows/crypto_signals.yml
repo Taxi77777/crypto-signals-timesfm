@@ -1,11 +1,11 @@
 name: Breaker FVG Sniper — Crypto Kraken Pro (RETEST -> Telegram)
 
-# Declenche toutes les 15 min par GitHub + toutes les 5 min par le
-# Worker Cloudflare existant (il appelle workflow_dispatch sur ce fichier :
-# GH_WORKFLOW = "crypto_signals.yml" dans cloudflare/wrangler.toml).
+# SCAN EN CONTINU : chaque job tourne ~5 h 40 et rescanne toutes les 3 min,
+# puis le workflow se relance lui-meme (workflow_dispatch).
+# Le cron sert de filet de securite si la chaine s'arrete.
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '7 */2 * * *'
   workflow_dispatch:
     inputs:
       test:
@@ -26,7 +26,7 @@ jobs:
         shard: [0, 1, 2, 3]     # 4 lots de ~30 cryptos en parallele (IP differentes)
     permissions:
       contents: write
-    timeout-minutes: 12
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +37,7 @@ jobs:
       - name: Dependances
         run: pip install requests
 
-      - name: Scan Breaker FVG Sniper (crypto Kraken Pro)
+      - name: Scan en continu Breaker FVG Sniper (M15/M30, crypto Kraken Pro)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -48,6 +48,8 @@ jobs:
           BFS_SHARDS: "4"
           BFS_SHARD: ${{ matrix.shard }}
           BFS_QUOTE: "USD"
+          BFS_LOOP_MINUTES: "340"
+          BFS_INTERVAL: "180"
           BFS_TEST: ${{ github.event.inputs.test }}
           PYTHONUNBUFFERED: "1"
         run: python breaker_fvg_sniper.py
@@ -69,3 +71,15 @@ jobs:
               done
             fi
           fi
+
+  relance:
+    needs: scan
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Relance du scan continu
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run crypto_signals.yml --repo "${{ github.repository }}" --ref main
