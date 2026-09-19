@@ -41,7 +41,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          BFS_TFS: "M15,M30,H1,H4"
+          BFS_TFS: "M15,M30"
           BFS_MIN_SCORE: "40"
           BFS_TOP_N: "120"
           BFS_MIN_QUOTE_VOL: "250000"
