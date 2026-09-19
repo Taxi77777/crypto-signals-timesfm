@@ -2,10 +2,10 @@ name: Breaker FVG Sniper — Crypto Kraken Pro (RETEST -> Telegram)
 
 # SCAN EN CONTINU : chaque job tourne ~5 h 40 et rescanne toutes les 3 min,
 # puis le workflow se relance lui-meme (workflow_dispatch).
-# Le cron sert de filet de securite si la chaine s'arrete.
+# Le cron (toutes les heures) sert de filet de securite si la chaine s'arrete.
 on:
   schedule:
-    - cron: '7 */2 * * *'
+    - cron: '7 * * * *'
   workflow_dispatch:
     inputs:
       test:
@@ -48,7 +48,7 @@ jobs:
           BFS_SHARDS: "4"
           BFS_SHARD: ${{ matrix.shard }}
           BFS_QUOTE: "USD"
-          BFS_LOOP_MINUTES: "340"
+          BFS_LOOP_MINUTES: "330"
           BFS_INTERVAL: "180"
           BFS_TEST: ${{ github.event.inputs.test }}
           PYTHONUNBUFFERED: "1"
@@ -74,7 +74,7 @@ jobs:
 
   relance:
     needs: scan
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.scan.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
