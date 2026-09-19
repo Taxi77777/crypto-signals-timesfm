@@ -95,6 +95,12 @@ TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TG_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
 KRAKEN = "https://api.kraken.com"
+FUTURES = "https://futures.kraken.com"
+MARKET = os.environ.get("BFS_MARKET", "perp").lower()      # perp = contrats perpetuels Kraken Pro (DOGE PERP...), spot = marche au comptant
+PERP_EXCLUDE_CAT = ("Stablecoin", "Forex", "xStocks", "Commodities", "Equities", "Indices", "Pre-IPO", "DTF")
+PERP_FALLBACK = ["PF_XBTUSD", "PF_ETHUSD", "PF_SOLUSD", "PF_XRPUSD", "PF_DOGEUSD", "PF_ADAUSD", "PF_AVAXUSD",
+                 "PF_LINKUSD", "PF_SUIUSD", "PF_LTCUSD", "PF_NEARUSD", "PF_DOTUSD", "PF_UNIUSD", "PF_AAVEUSD"]
+PERP_RES = {1: "1m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 240: "4h", 720: "12h", 1440: "1d", 10080: "1w"}
 QUOTE = os.environ.get("BFS_QUOTE", "USD").upper()          # paires Kraken Pro cotees en USD
 FALLBACK_SYMBOLS = ["XXBTZUSD", "XETHZUSD", "SOLUSD", "XXRPZUSD", "ADAUSD", "XDGUSD", "AVAXUSD",
                     "LINKUSD", "DOTUSD", "SUIUSD", "XLTCZUSD", "NEARUSD", "PEPEUSD", "TRXUSD"]
@@ -852,10 +858,116 @@ def top_symbols():
     return syms
 
 
+# ------------------------------------------------------------------- PERPETUELS KRAKEN PRO (Futures)
+def fget(path, params=None, tries=4):
+    for a in range(tries):
+        if HARD_END[0] and time.time() > HARD_END[0]:
+            return None
+        _throttle()
+        try:
+            r = _http.get(FUTURES + path, params=params or {}, timeout=15)
+            if r.status_code == 200:
+                j = r.json()
+                if isinstance(j, dict) and j.get("result", "success") == "success":
+                    return j
+                log.warning("Kraken Futures %s -> %s", path, str(j)[:160])
+            else:
+                log.warning("Kraken Futures %s -> HTTP %s", path, r.status_code)
+        except Exception as e:
+            log.warning("Kraken Futures %s : %s", path, e)
+        time.sleep(1.5 + a)
+    return None
+
+
+def _tick_digits(tick):
+    try:
+        from decimal import Decimal
+        e = Decimal(str(tick)).normalize().as_tuple().exponent
+        return max(0, -e)
+    except Exception:
+        return 5
+
+
+def load_perps():
+    j = fget("/derivatives/api/v3/instruments")
+    if not j or not isinstance(j.get("instruments"), list):
+        return
+    for i in j["instruments"]:
+        try:
+            sym = i.get("symbol") or ""
+            if not sym.startswith("PF_") or i.get("quote") != "USD" or not i.get("tradeable", True):
+                continue
+            if i.get("isExpired") or i.get("tradfi") or i.get("category") in PERP_EXCLUDE_CAT:
+                continue
+            base = i.get("base") or sym[3:-3]
+            _PAIRS[sym] = {"wsname": f"{base} PERP", "base": base, "dig": _tick_digits(i.get("tickSize", 0.00001))}
+        except Exception:
+            continue
+
+
+def klines_perp(sym, tf_min, limit):
+    res = PERP_RES.get(tf_min)
+    if not res:
+        return None
+    now = int(time.time())
+    j = fget(f"/api/charts/v1/trade/{sym}/{res}", {"from": now - (limit + 3) * tf_min * 60, "to": now})
+    rows = j.get("candles") if j else None
+    if not rows:
+        return None
+    try:
+        rows = rows[-limit:][::-1]   # serie : index 0 = bougie en cours
+        O = [float(r["open"]) for r in rows]
+        H = [float(r["high"]) for r in rows]
+        L = [float(r["low"]) for r in rows]
+        C = [float(r["close"]) for r in rows]
+        T = [int(r["time"]) // 1000 for r in rows]
+    except Exception:
+        return None
+    dig = _PAIRS.get(sym, {}).get("dig")
+    if dig is None:
+        dig = max(5, 4 - int(math.floor(math.log10(C[0])))) if C and C[0] > 0 else 8
+    return O, H, L, C, T, dig
+
+
+def top_perps():
+    load_perps()
+    syms = []
+    j = fget("/derivatives/api/v3/tickers") if _PAIRS else None
+    if j and isinstance(j.get("tickers"), list):
+        rows = []
+        for t in j["tickers"]:
+            try:
+                sym = t.get("symbol")
+                if sym in _PAIRS and not t.get("suspended"):
+                    qv = float(t.get("volumeQuote") or 0)
+                    if qv >= MIN_QUOTE_VOL:
+                        rows.append((qv, sym))
+            except Exception:
+                continue
+        rows.sort(reverse=True)
+        syms = [k for _, k in rows[:TOP_N]]
+    if not syms:
+        log.warning("Tickers Kraken Futures indisponibles -> liste de secours")
+        syms = list(PERP_FALLBACK)
+        STATS["fallback"] = True
+    for s in EXTRA_SYMBOLS:
+        if s not in syms:
+            syms.append(s)
+    return syms
+
+
+if MARKET == "perp":
+    klines = klines_perp            # noqa: F811
+    top_symbols = top_perps         # noqa: F811
+    FALLBACK_SYMBOLS = PERP_FALLBACK
+
+
 def display_name(pair):
     p = _PAIRS.get(pair)
     if p:
         return p["wsname"].replace("XBT", "BTC").replace("XDG", "DOGE")
+    if pair.startswith("PF_") and pair.endswith("USD"):
+        return pair[3:-3].replace("XBT", "BTC") + " PERP"
     return pair
 
 
