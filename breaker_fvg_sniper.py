@@ -690,6 +690,8 @@ class Engine:
         s.slCur = s.sl
         s.tp1, s.tp2 = self.nd(s.tp1), self.nd(s.tp2)
         s.rr = abs(s.tp2 - s.entry) / max(rk, self.pt)
+        if abs(s.entry - s.sl) < self.pt * 5 or s.dir * (s.tp1 - s.entry) <= 0:
+            return                                          # niveaux degeneres apres arrondi
         s.departed = True
         s.pd = self.range_pos(s.entry, cur)
         if not self.pd_ok(s.dir, s.pd):
@@ -779,14 +781,19 @@ def load_pairs():
     res = get("/0/public/AssetPairs", {})
     if not res:
         return
+    if not isinstance(res, dict):
+        return
     for key, p in res.items():
-        ws = p.get("wsname", "")
-        if not ws.endswith("/" + QUOTE) or p.get("status", "online") != "online" or ".d" in key:
+        try:
+            ws = p.get("wsname") or ""
+            if not ws.endswith("/" + QUOTE) or p.get("status", "online") != "online" or ".d" in key:
+                continue
+            base = ws.split("/")[0]
+            if base in EXCLUDE:
+                continue
+            _PAIRS[key] = {"wsname": ws, "base": base, "dig": int(p.get("pair_decimals") or 5)}
+        except Exception:
             continue
-        base = ws.split("/")[0]
-        if base in EXCLUDE:
-            continue
-        _PAIRS[key] = {"wsname": ws, "base": base, "dig": int(p.get("pair_decimals", 5))}
 
 
 def klines(pair, tf_min, limit):
@@ -802,7 +809,9 @@ def klines(pair, tf_min, limit):
     L = [float(r[3]) for r in rows]
     C = [float(r[4]) for r in rows]
     T = [int(r[0]) for r in rows]
-    dig = _PAIRS.get(pair, {}).get("dig", 5)
+    dig = _PAIRS.get(pair, {}).get("dig")
+    if dig is None:                                          # paire inconnue : decimales deduites du prix
+        dig = max(5, 4 - int(math.floor(math.log10(C[0])))) if C and C[0] > 0 else 8
     return O, H, L, C, T, dig
 
 
@@ -829,6 +838,7 @@ def top_symbols():
     if not syms:
         log.warning("Ticker Kraken indisponible -> liste de secours")
         syms = list(FALLBACK_SYMBOLS)
+        STATS["fallback"] = True
     for s in EXTRA_SYMBOLS:
         if s not in syms:
             syms.append(s)
@@ -888,7 +898,7 @@ def score_setup(eng, s, tf, bias):
     return min(sc, 90.0)
 
 
-STATS = {"setups": 0, "retests": 0}
+STATS = {"setups": 0, "retests": 0, "fallback": False}
 _stats_lock = threading.Lock()
 
 
@@ -1007,15 +1017,20 @@ def load_state():
             st = json.load(f)
     except Exception:
         st = {"sent": {}}
-    sent = st.setdefault("sent", {})
+    if not isinstance(st, dict) or not isinstance(st.get("sent"), dict):
+        st = {"sent": {}}
+    st["sent"] = {k: v for k, v in st["sent"].items() if isinstance(v, (int, float))}
+    sent = st["sent"]
     # anti-doublon global : on relit aussi les signaux deja envoyes par les autres lots
     for fn in glob.glob("bfs_state*.json"):
         if fn == STATE_FILE:
             continue
         try:
             with open(fn) as f:
-                for k, v in json.load(f).get("sent", {}).items():
-                    sent.setdefault(k, v)
+                other = json.load(f).get("sent", {})
+                for k, v in (other.items() if isinstance(other, dict) else []):
+                    if isinstance(v, (int, float)):
+                        sent.setdefault(k, v)
         except Exception:
             pass
     return st
@@ -1066,8 +1081,14 @@ def main():
     while True:
         t0 = time.time()
         if not syms or t0 - syms_t > 3600:                  # liste des cryptos rafraichie toutes les heures
-            syms = [x for x in top_symbols() if zlib.crc32(x.encode()) % SHARDS == SHARD]   # lot stable par crypto
-            syms_t = t0
+            STATS["fallback"] = False
+            try:
+                syms = [x for x in top_symbols() if zlib.crc32(x.encode()) % SHARDS == SHARD]   # lot stable par crypto
+            except Exception:
+                log.exception("Liste des cryptos indisponible")
+                syms = [x for x in FALLBACK_SYMBOLS if zlib.crc32(x.encode()) % SHARDS == SHARD]
+                STATS["fallback"] = True
+            syms_t = t0 - 3000 if STATS["fallback"] else t0      # liste de secours : on reessaie dans 10 min
             log.info("Lot %d/%d : %d cryptos x %s (%d bougies)", SHARD + 1, SHARDS, len(syms),
                      ",".join(TF_NAME[t] for t in tfs), need)
         run_once(st, tfs, need, syms)
