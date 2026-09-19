@@ -885,6 +885,14 @@ def score_setup(eng, s, tf, bias):
 
 
 def scan_symbol(sym, tfs, need):
+    try:
+        return _scan_symbol(sym, tfs, need)
+    except Exception:
+        log.exception("Erreur scan %s", sym)
+        return []
+
+
+def _scan_symbol(sym, tfs, need):
     out = []
     htf_cache = {}
     for tf in tfs:
@@ -996,7 +1004,6 @@ def save_state(st):
 def main():
     tfs = [TF_MIN[t.strip().upper()] for t in SCAN_TFS.split(",") if t.strip().upper() in TF_MIN]
     need = ScanBars + max(SweepLookback, SwingLeft) + OBSearchBars + ATRPeriod + max(LiqLookback, RallyLB) + 30
-    need = max(need, 500)
     syms = top_symbols()
     log.info("Scan %d cryptos x %s (%d bougies)", len(syms), ",".join(TF_NAME[t] for t in tfs), need)
 
