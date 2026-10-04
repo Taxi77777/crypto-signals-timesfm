@@ -1,4 +1,3 @@
-# test
 """
 BSCI -- scanner perpetuels Kraken Pro -> signaux Telegram
 =========================================================
@@ -54,7 +53,7 @@ TP_MODE = int(_f("BSCI_TP_MODE", 0))         # 0 = sommet de la jambe (original)
 RR = _f("BSCI_RR", 2.0)
 MIN_RR = _f("BSCI_MIN_RR", 1.5)
 SCAN_BARS = int(_f("BSCI_SCAN_BARS", 300))
-RECENT_BARS = int(_f("BSCI_RECENT_BARS", 2))  # signal envoye seulement s'il date de <= X bougies
+RECENT_BARS = int(_f("BSCI_RECENT_BARS", 10))  # comme le tableau MT4 : signaux des X dernieres bougies
 
 ST_WAIT, ST_LIVE, ST_TP, ST_SL, ST_CANCEL = 1, 2, 3, 4, 5
 
@@ -378,7 +377,7 @@ def _scan_symbol(sym, tfs):
                 "sym": sym, "tf": tf, "dir": s["dir"], "state": s["state"], "dig": dig,
                 "entry": s["entry"], "sl": s["sl"], "tp": s["tp"],
                 "rr": abs(s["tp"] - s["entry"]) / risk if risk > 0 else 0.0,
-                "price": c[-1],
+                "price": c[-1], "ago": ago,
             })
             break
     return opps
@@ -426,7 +425,8 @@ def message(o):
         f"Entree : <code>{fmt(o['entry'], dig)}</code>\n"
         f"Stop : <code>{fmt(o['sl'], dig)}</code>\n"
         f"TP : <code>{fmt(o['tp'], dig)}</code>\n"
-        f"R:R {o['rr']:.1f} · prix actuel {fmt(o['price'], dig)}"
+        f"R:R {o['rr']:.1f} · prix actuel {fmt(o['price'], dig)}\n"
+        f"Signal il y a {o['ago']} bougie(s) {TF_NAME[o['tf']]}"
     )
 
 
