@@ -1,0 +1,84 @@
+name: BSCI — perpetuels Kraken Pro -> Telegram
+
+# Scan en continu : chaque job tourne ~5 h 30 et rescanne toutes les 3 min,
+# puis le workflow se relance lui-meme. Le cron horaire sert de filet de securite.
+on:
+  schedule:
+    - cron: '7 * * * *'
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 'Envoyer un message test sur Telegram'
+        type: boolean
+        default: false
+
+concurrency:
+  group: bsci
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    permissions:
+      contents: write
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependances
+        run: pip install requests
+      - name: Scan BSCI (M5/M15/M30/H1, perpetuels Kraken Pro)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BSCI_TFS: "M5,M15,M30,H1"
+          BSCI_TOP_N: "120"
+          BSCI_MIN_QUOTE_VOL: "1000000"
+          BSCI_SHARDS: "4"
+          BSCI_SHARD: ${{ matrix.shard }}
+          BSCI_ENTRY_MODE: "0"
+          BSCI_TP_MODE: "0"
+          BSCI_RR: "2.0"
+          BSCI_LOOP_MINUTES: "330"
+          BSCI_INTERVAL: "180"
+          BSCI_TEST: ${{ github.event.inputs.test }}
+          PYTHONUNBUFFERED: "1"
+        run: python bsci.py
+      - name: Sauvegarde de l'etat (anti-doublon Telegram)
+        if: always()
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          F=bsci_state_${{ matrix.shard }}.json
+          [ -f "$F" ] || exit 0
+          cp "$F" /tmp/state.json
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/state.json "$F"
+            git add -f "$F"
+            git diff --cached --quiet && exit 0
+            git commit -qm "chore: bsci state ${{ matrix.shard }} [skip ci]"
+            git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "::warning::etat non sauvegarde"
+
+  relance:
+    needs: scan
+    if: ${{ !cancelled() && needs.scan.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Relance du scan continu
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bsci.yml --repo "${{ github.repository }}" --ref main
