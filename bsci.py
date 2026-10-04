@@ -53,7 +53,8 @@ TP_MODE = int(_f("BSCI_TP_MODE", 0))         # 0 = sommet de la jambe (original)
 RR = _f("BSCI_RR", 2.0)
 MIN_RR = _f("BSCI_MIN_RR", 1.5)
 SCAN_BARS = int(_f("BSCI_SCAN_BARS", 300))
-RECENT_BARS = int(_f("BSCI_RECENT_BARS", 10))  # comme le tableau MT4 : signaux des X dernieres bougies
+RECENT_BARS = int(_f("BSCI_RECENT_BARS", 5))   # signaux des X dernieres bougies au maximum
+MAX_RUN_R = _f("BSCI_MAX_RUN_R", 0.3)          # trade deja parti de plus de X R vers le TP = trop tard, pas envoye
 
 ST_WAIT, ST_LIVE, ST_TP, ST_SL, ST_CANCEL = 1, 2, 3, 4, 5
 
@@ -372,6 +373,10 @@ def _scan_symbol(sym, tfs):
             if ago > RECENT_BARS:
                 continue
             risk = abs(s["entry"] - s["sl"])
+            # encore jouable ? (prix pas trop loin de l'entree, stop pas touche)
+            run = (c[-1] - s["entry"]) * s["dir"] / risk if risk > 0 else 99
+            if s["state"] == ST_LIVE and (run > MAX_RUN_R or run <= -1):
+                continue
             opps.append({
                 "key": f"{sym}|{tf}|{s['dir']}|{t[s['i_conf']]}",
                 "sym": sym, "tf": tf, "dir": s["dir"], "state": s["state"], "dig": dig,
