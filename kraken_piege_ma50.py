@@ -627,6 +627,25 @@ def save_state(st):
         log.warning("etat non sauvegarde : %s", e)
 
 
+def check_keys(st):
+    """Verification des cles au demarrage (lecture seule, aucun ordre)."""
+    if not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
+        notify(st, "ATTENTION : aucune cle Kraken Futures -> le mode REEL ne pourra pas trader.")
+        return False
+    try:
+        f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
+        eq = float(f.get("marginEquity") or f.get("portfolioValue") or 0)
+        notify(st, "Cles Kraken FUTURES valides. Capital du compte : %.2f USD" % eq)
+        if eq <= 0:
+            notify(st, "ATTENTION : capital a 0 sur le compte Futures. En mode REEL, "
+                       "aucun ordre ne pourra etre passe tant que le compte n'est pas approvisionne.")
+        return True
+    except Exception as e:
+        notify(st, "ATTENTION : cles Kraken REFUSEES (%s). Ce sont peut-etre des cles SPOT : "
+                   "il faut des cles creees dans l'onglet Futures." % e)
+        return False
+
+
 def cycle(st, C):
     if st.get("mode") != C["MODE"]:
         st.update(arm={}, pos={}, mode=C["MODE"])
@@ -675,6 +694,7 @@ def main():
     log.info("Demarrage [%s] x%s %s %s ADX>=%g | boucle %s min, scan toutes les %s s",
              "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["TF"],
              C["ADX_MIN"], C["LOOP_MINUTES"], C["INTERVAL"])
+    check_keys(st)
     end = time.time() + C["LOOP_MINUTES"] * 60
     while True:
         t0 = time.time()
