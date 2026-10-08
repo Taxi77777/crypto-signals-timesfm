@@ -50,8 +50,10 @@ def envf(name, default):
 
 CFG = {
     "MODE": envf("KRAKEN_MODE", "paper"),
-    "SYMBOLS": envf("KRAKEN_SYMBOLS", "PF_XBTUSD,PF_ETHUSD,PF_SOLUSD,PF_XRPUSD,"
-                                      "PF_DOGEUSD,PF_AVAXUSD,PF_BNBUSD"),
+    # vide = TOUS les perpetuels Kraken ayant assez de volume
+    "SYMBOLS": envf("KRAKEN_SYMBOLS", ""),
+    "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 2000000.0),   # volume 24 h minimum, en USD
+    "TOP_N": envf("TOP_N", 60),                          # nb max d'actifs suivis
     "TF": envf("KRAKEN_TF", "15m"),
     # piege
     "CONF_BARS": envf("CONF_BARS", 3),
@@ -323,17 +325,43 @@ def tickers():
     return out
 
 
+PERP_EXCLUDE = ("TRADFI", "INDEX")
+
+
 def instruments(C):
+    """Tous les perpetuels PF_...USD negociables, avec leurs precisions."""
     out = {}
     for i in pub("/derivatives/api/v3/instruments").get("instruments") or []:
         s = (i.get("symbol") or "").upper()
-        if s in C["SYMS"]:
-            # contractValueTradePrecision = nb de decimales autorisees sur la TAILLE
-            # (c'est bien ce champ, pas contractValuePrecision, qui vaut souvent 0)
-            cvtp = i.get("contractValueTradePrecision")
-            out[s] = {"tick": float(i.get("tickSize") or 0.0001),
-                      "sp": int(cvtp) if cvtp is not None else 4}
+        if not s.startswith("PF_") or not s.endswith("USD"):
+            continue
+        if not i.get("tradeable", True) or i.get("isExpired") or i.get("tradfi"):
+            continue
+        if str(i.get("category") or "").upper() in PERP_EXCLUDE:
+            continue
+        # contractValueTradePrecision = nb de decimales autorisees sur la TAILLE
+        # (c'est bien ce champ, pas contractValuePrecision, qui vaut souvent 0)
+        cvtp = i.get("contractValueTradePrecision")
+        out[s] = {"tick": float(i.get("tickSize") or 0.0001),
+                  "sp": int(cvtp) if cvtp is not None else 4}
     return out
+
+
+def discover(st, C):
+    """Liste des actifs suivis : ceux choisis a la main, sinon tous les
+       perpetuels Kraken classes par volume 24 h."""
+    if C["SYMBOLS"].strip():
+        return [s.strip().upper() for s in C["SYMBOLS"].split(",") if s.strip()]
+    rows = []
+    for t in pub("/derivatives/api/v3/tickers").get("tickers") or []:
+        s = (t.get("symbol") or "").upper()
+        if s not in st["inst"] or t.get("suspended"):
+            continue
+        qv = float(t.get("volumeQuote") or 0)
+        if qv >= C["MIN_QUOTE_VOL"]:
+            rows.append((qv, s))
+    rows.sort(reverse=True)
+    return [s for _, s in rows[:C["TOP_N"]]]
 
 
 def open_positions():
@@ -655,13 +683,20 @@ def check_keys(st):
 
 
 def cycle(st, C):
+    # liste des actifs : rafraichie au demarrage puis toutes les heures
+    if time.time() - st.get("disco", 0) > 3600 or not C["SYMS"]:
+        st["inst"] = instruments(C)
+        C["SYMS"] = discover(st, C)
+        st["disco"] = time.time()
+        log.info("%d actifs suivis (volume >= %s USD) : %s", len(C["SYMS"]),
+                 int(C["MIN_QUOTE_VOL"]), ", ".join(nm(s) for s in C["SYMS"][:12])
+                 + (" ..." if len(C["SYMS"]) > 12 else ""))
     if st.get("mode") != C["MODE"]:
         st.update(arm={}, pos={}, mode=C["MODE"])
-        notify(st, "Bot PIEGE -> MA50 [%s] x%s %s %s ADX>=%g : %s"
+        notify(st, "Bot PIEGE -> MA50 [%s] x%s %s %s ADX>=%g | %d perpetuels Kraken "
+                   "(volume 24h >= %s USD), un seul trade a la fois"
                % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["TF"],
-                  C["ADX_MIN"], ", ".join(nm(s) for s in C["SYMS"])))
-    if len(st["inst"]) < len(C["SYMS"]):
-        st["inst"] = instruments(C)
+                  C["ADX_MIN"], len(C["SYMS"]), int(C["MIN_QUOTE_VOL"])))
     if LIVE:
         for sym in C["SYMS"]:
             if st["lev"].get(sym) == C["LEVERAGE"]:
@@ -681,6 +716,7 @@ def cycle(st, C):
         try:
             if st["last"].get(sym) != last_closed and now - (last_closed + C["TFS"]) >= 5:
                 bars = candles(sym, C)
+                time.sleep(0.15)                 # ne pas saturer l'API Kraken
                 if len(bars) > 120 and bars[-1][0] == last_closed:
                     st["last"][sym] = last_closed
                     on_bar(st, sym, bars, C)
