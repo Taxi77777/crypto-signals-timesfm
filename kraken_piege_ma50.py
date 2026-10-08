@@ -54,7 +54,7 @@ CFG = {
     "SYMBOLS": envf("KRAKEN_SYMBOLS", ""),
     "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 1000000.0),   # volume 24 h minimum, en USD
     "TOP_N": envf("TOP_N", 100),                         # nb max d'actifs suivis
-    "TF": envf("KRAKEN_TF", "15m"),
+    "TF": envf("KRAKEN_TF", "5m,15m,30m"),      # plusieurs unites de temps, separees par des virgules
     # piege
     "CONF_BARS": envf("CONF_BARS", 3),
     "DISP_ATR": envf("DISP_ATR", 0.8),
@@ -94,7 +94,9 @@ CFG = {
     "INTERVAL": envf("INTERVAL", 60),
 }
 CFG["SYMS"] = [s.strip().upper() for s in CFG["SYMBOLS"].split(",") if s.strip()]
-CFG["TFS"] = TF_SEC[CFG["TF"]]
+CFG["TF_LIST"] = [t.strip() for t in CFG["TF"].split(",") if t.strip() in TF_SEC]
+if not CFG["TF_LIST"]:
+    CFG["TF_LIST"] = ["15m"]
 LIVE = CFG["MODE"].lower() == "live"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s",
@@ -303,14 +305,14 @@ def priv(method, endpoint, params=None):
     return j
 
 
-def candles(sym, C):
+def candles(sym, tf):
+    tfs = TF_SEC[tf]
     now = int(time.time())
-    j = pub("/api/charts/v1/trade/%s/%s" % (sym, C["TF"]),
-            {"from": now - 300 * C["TFS"], "to": now})
+    j = pub("/api/charts/v1/trade/%s/%s" % (sym, tf), {"from": now - 300 * tfs, "to": now})
     out = []
     for r in j.get("candles") or []:
         ts = int(r["time"]) // 1000
-        if ts + C["TFS"] <= now:                 # bougies CLOTUREES seulement
+        if ts + tfs <= now:                      # bougies CLOTUREES seulement
             out.append([ts, float(r["open"]), float(r["high"]), float(r["low"]), float(r["close"])])
     return out
 
@@ -482,7 +484,9 @@ def close_mkt(st, sym, p, qty, price, why):
 # =========================================================================
 #  CYCLE
 # =========================================================================
-def on_bar(st, sym, bars, C):
+def on_bar(st, sym, tf, bars, C):
+    tfs = TF_SEC[tf]
+    akey = "%s|%s" % (sym, tf)
     S = series(bars, C)
     k = len(bars) - 1
     mL, aL = S["m"][k], S["a"][k]
@@ -491,29 +495,30 @@ def on_bar(st, sym, bars, C):
     for s in find_setups(bars, C, S):
         if s["i"] != k:
             continue
-        key = "%s|%s|%s" % (sym, s["ts"], s["dir"])
+        key = "%s|%s|%s|%s" % (sym, tf, s["ts"], s["dir"])
         if key in st["seen"]:
             continue
         st["seen"].append(key)
         side = "ACHAT" if s["dir"] > 0 else "VENTE"
         msg = ("%s %s PIEGE %s au %s %s -> attente retour MA50 pour %s"
-               % (nm(sym), C["TF"], s["trap"], "PDH" if s["trap"] == "VENTE" else "PDL",
+               % (nm(sym), tf, s["trap"], "PDH" if s["trap"] == "VENTE" else "PDL",
                   rp(st, sym, s["level"]), side))
-        if len(st["pos"]) + len(st["arm"]) >= C["MAX_OPEN"]:
+        if sym in st["pos"] or len(st["pos"]) + len(st["arm"]) >= C["MAX_OPEN"]:
             msg += "  (ignore : un trade deja en cours)"
         else:
-            st["arm"][sym] = {"dir": s["dir"], "expire": s["ts"] + (C["WAIT_BARS"] + 1) * C["TFS"],
-                              "order_id": None, "target": None, "sl": None, "qty": 0, "adx": ""}
+            st["arm"][akey] = {"sym": sym, "tf": tf, "dir": s["dir"],
+                               "expire": s["ts"] + (C["WAIT_BARS"] + 1) * tfs,
+                               "order_id": None, "target": None, "sl": None, "qty": 0, "adx": ""}
         notify(st, msg)
 
     # 2) ordre limite qui suit la MA50 (+ filtre ADX)
-    ar = st["arm"].get(sym)
+    ar = st["arm"].get(akey)
     if ar:
         cancel(ar.get("order_id"))
         ar.update(order_id=None, target=None, qty=0)
-        if bars[k][0] + C["TFS"] >= ar["expire"]:
-            del st["arm"][sym]
-            notify(st, "%s pas de retour MA50 a temps -> setup annule" % nm(sym))
+        if bars[k][0] + tfs >= ar["expire"]:
+            del st["arm"][akey]
+            notify(st, "%s %s pas de retour MA50 a temps -> setup annule" % (nm(sym), tf))
         else:
             target, sl = levels(mL, aL, ar["dir"], C)
             ok, why = adx_ok(S, k, ar["dir"], C)
@@ -542,9 +547,9 @@ def on_bar(st, sym, bars, C):
                                "Compte Futures vide ou capital trop faible pour cet actif."
                            % (nm(sym), eq))
 
-    # 3) trailing stop + duree max
+    # 3) trailing stop + duree max (sur l'unite de temps qui a ouvert la position)
     p = st["pos"].get(sym)
-    if p:
+    if p and p.get("tf", tf) == tf:
         if p["tp1_done"] or not C["TRAIL_AFTER_TP1"]:
             since = [b for b in bars if b[0] >= p["bar_ts"]]
             if since:
@@ -554,16 +559,20 @@ def on_bar(st, sym, bars, C):
                     p["sl"] = t
                     place_stop(st, sym, p)
                     log.info("%s trailing stop -> %s", sym, rp(st, sym, t))
-        if (bars[k][0] - p["bar_ts"]) / C["TFS"] > C["MAX_HOLD"]:
+        if (bars[k][0] - p["bar_ts"]) / tfs > C["MAX_HOLD"]:
             cancel(p.get("stop_id"))
             cancel(p.get("tp_id"))
             close_mkt(st, sym, p, p["qty"], bars[k][4], "SORTIE duree max")
             st["pos"].pop(sym, None)
 
 
-def check_fill(st, sym, price, pos_ex, C):
-    ar = st["arm"].get(sym)
+def check_fill(st, akey, px, pos_ex, C):
+    ar = st["arm"].get(akey)
     if not ar or not ar.get("target") or ar["qty"] <= 0:
+        return
+    sym, tf = ar["sym"], ar["tf"]
+    price = px.get(sym)
+    if not price:
         return
     dr = ar["dir"]
     if LIVE:
@@ -581,13 +590,17 @@ def check_fill(st, sym, price, pos_ex, C):
     now = time.time()
     p = {"dir": dr, "entry": fill, "sl": ar["sl"], "qty": qty, "qty0": qty,
          "tp1": fill + dr * C["TP1_R"] * risk, "tp1_done": False,
-         "bar_ts": int(now // C["TFS"] * C["TFS"]), "stop_id": None, "tp_id": None}
-    del st["arm"][sym]
+         "bar_ts": int(now // TF_SEC[tf] * TF_SEC[tf]), "tf": tf,
+         "stop_id": None, "tp_id": None}
+    del st["arm"][akey]
+    for k2 in [k3 for k3, v in st["arm"].items() if v["sym"] == sym]:
+        cancel(st["arm"][k2].get("order_id"))      # plus d'ordre concurrent sur cet actif
+        del st["arm"][k2]
     st["pos"][sym] = p
     place_stop(st, sym, p)
     place_tp1(st, sym, p)
-    notify(st, "%s %s x%s sur MA50 @ %s  qte %s\nSL %s  TP1 %s (50%%) puis trailing\n%s"
-           % (nm(sym), "ACHAT" if dr > 0 else "VENTE", C["LEVERAGE"], rp(st, sym, fill), qty,
+    notify(st, "%s %s %s x%s sur MA50 @ %s  qte %s\nSL %s  TP1 %s (50%%) puis trailing\n%s"
+           % (nm(sym), tf, "ACHAT" if dr > 0 else "VENTE", C["LEVERAGE"], rp(st, sym, fill), qty,
               rp(st, sym, p["sl"]), rp(st, sym, p["tp1"]), ar.get("adx", "")))
 
 
@@ -693,10 +706,10 @@ def cycle(st, C):
                  + (" ..." if len(C["SYMS"]) > 12 else ""))
     if st.get("mode") != C["MODE"]:
         st.update(arm={}, pos={}, mode=C["MODE"])
-        notify(st, "Bot PIEGE -> MA50 [%s] x%s %s %s ADX>=%g | %d perpetuels Kraken "
-                   "(volume 24h >= %s USD), un seul trade a la fois"
-               % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["TF"],
-                  C["ADX_MIN"], len(C["SYMS"]), int(C["MIN_QUOTE_VOL"])))
+        notify(st, "Bot PIEGE -> MA50 [%s] x%s %s | unites de temps %s | ADX>=%g | "
+                   "%d perpetuels Kraken (volume 24h >= %s USD), un seul trade a la fois"
+               % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"],
+                  "/".join(C["TF_LIST"]), C["ADX_MIN"], len(C["SYMS"]), int(C["MIN_QUOTE_VOL"])))
     if LIVE:
         for sym in C["SYMS"]:
             if st["lev"].get(sym) == C["LEVERAGE"]:
@@ -711,23 +724,35 @@ def cycle(st, C):
     px = tickers()
     pos_ex = open_positions() if LIVE else {}
     now = time.time()
-    last_closed = int(now // C["TFS"] * C["TFS"]) - C["TFS"]
-    for sym in C["SYMS"]:
+    for tf in C["TF_LIST"]:
+        tfs = TF_SEC[tf]
+        last_closed = int(now // tfs * tfs) - tfs
+        if now - (last_closed + tfs) < 5:
+            continue
+        for sym in C["SYMS"]:
+            akey = "%s|%s" % (sym, tf)
+            try:
+                if st["last"].get(akey) != last_closed:
+                    bars = candles(sym, tf)
+                    time.sleep(0.08)             # ne pas saturer l'API Kraken
+                    if len(bars) > 120 and bars[-1][0] == last_closed:
+                        st["last"][akey] = last_closed
+                        on_bar(st, sym, tf, bars, C)
+            except Exception as e:
+                log.warning("%s %s : %s", sym, tf, e)
+
+    for akey in list(st["arm"]):
         try:
-            if st["last"].get(sym) != last_closed and now - (last_closed + C["TFS"]) >= 5:
-                bars = candles(sym, C)
-                time.sleep(0.15)                 # ne pas saturer l'API Kraken
-                if len(bars) > 120 and bars[-1][0] == last_closed:
-                    st["last"][sym] = last_closed
-                    on_bar(st, sym, bars, C)
-            price = px.get(sym)
-            if not price:
-                continue
-            check_fill(st, sym, price, pos_ex, C)
-            manage(st, sym, price, pos_ex, C)
+            check_fill(st, akey, px, pos_ex, C)
         except Exception as e:
-            log.warning("%s : %s", sym, e)
-    st["seen"] = st["seen"][-300:]
+            log.warning("remplissage %s : %s", akey, e)
+    for sym in list(st["pos"]):
+        try:
+            if px.get(sym):
+                manage(st, sym, px[sym], pos_ex, C)
+        except Exception as e:
+            log.warning("suivi %s : %s", sym, e)
+    st["seen"] = st["seen"][-600:]
 
 
 def main():
@@ -735,9 +760,9 @@ def main():
     if LIVE and not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
         sys.exit("MODE live sans cles Kraken Futures")
     st = load_state(C)
-    log.info("Demarrage [%s] x%s %s %s ADX>=%g | boucle %s min, scan toutes les %s s",
-             "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["TF"],
-             C["ADX_MIN"], C["LOOP_MINUTES"], C["INTERVAL"])
+    log.info("Demarrage [%s] x%s %s | %s | ADX>=%g | boucle %s min, scan toutes les %s s",
+             "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"],
+             "/".join(C["TF_LIST"]), C["ADX_MIN"], C["LOOP_MINUTES"], C["INTERVAL"])
     check_keys(st)
     end = time.time() + C["LOOP_MINUTES"] * 60
     while True:
