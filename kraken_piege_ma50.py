@@ -704,12 +704,35 @@ def check_keys(st):
         notify(st, "ATTENTION : aucune cle Kraken Futures -> le mode REEL ne pourra pas trader.")
         return False
     try:
-        f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
+        accs = priv("GET", "/api/v3/accounts").get("accounts") or {}
+        # detail de tous les sous-comptes : l'argent peut etre ailleurs que sur "flex"
+        for an, av in accs.items():
+            if not isinstance(av, dict):
+                continue
+            bits = {k: av.get(k) for k in ("marginEquity", "portfolioValue", "availableMargin",
+                                           "balanceValue", "type") if av.get(k) is not None}
+            bal = {k: v for k, v in (av.get("balances") or {}).items() if float(v or 0) > 0}
+            if bits or bal:
+                log.info("compte %s : %s %s", an, bits, bal or "")
+        f = accs.get("flex") or {}
         eq = float(f.get("marginEquity") or f.get("portfolioValue") or 0)
         notify(st, "Cles Kraken FUTURES valides. Capital du compte : %.2f USD" % eq)
         if eq <= 0:
             notify(st, "ATTENTION : capital a 0 sur le compte Futures. En mode REEL, "
                        "aucun ordre ne pourra etre passe tant que le compte n'est pas approvisionne.")
+        try:
+            oo = priv("GET", "/api/v3/openorders").get("openOrders") or []
+            known = {v.get("order_id") for v in st.get("arm", {}).values() if isinstance(v, dict)}
+            known |= {p.get("stop_id") for p in st.get("pos", {}).values() if isinstance(p, dict)}
+            known |= {p.get("tp_id") for p in st.get("pos", {}).values() if isinstance(p, dict)}
+            orph = [o for o in oo if o.get("order_id") not in known]
+            if orph:
+                for o in orph:
+                    cancel(o.get("order_id"))
+                notify(st, "%d ordre(s) orphelin(s) annule(s) au demarrage : %s"
+                       % (len(orph), ", ".join(nm((o.get("symbol") or "").upper()) for o in orph)))
+        except Exception as e:
+            log.warning("ordres ouverts : %s", e)
         return True
     except Exception as e:
         notify(st, "ATTENTION : cles Kraken REFUSEES (%s). Ce sont peut-etre des cles SPOT : "
