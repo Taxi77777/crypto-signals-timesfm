@@ -32,8 +32,9 @@ jobs:
 
       - name: Bot PIEGE -> MA50
         env:
-          KRAKEN_KEY:         ${{ secrets.KRAKEN_KEY }}
-          KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET }}
+          # la cle privee est acceptee sous le nom KRAKEN_SECRET ou CLE_PRIVEE
+          KRAKEN_KEY:         ${{ secrets.KRAKEN_KEY || secrets.CLE_PUBLIQUE }}
+          KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET || secrets.CLE_PRIVEE }}
           # "paper" = fictif. Pour trader en REEL : creer la variable
           # KRAKEN_MODE = live (Settings > Secrets and variables > Actions > Variables)
           KRAKEN_MODE:        ${{ vars.KRAKEN_MODE || 'paper' }}
