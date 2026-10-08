@@ -44,7 +44,7 @@ jobs:
           PDH_MIN_QUOTE_VOL: "1000000"
           PDH_SHARDS: "4"
           PDH_SHARD: ${{ matrix.shard }}
-          PDH_USE_SESSION: "1"
+          PDH_USE_SESSION: "0"
           PDH_LOOP_MINUTES: "330"
           PDH_INTERVAL: "180"
           PDH_TEST: ${{ github.event.inputs.test }}
