@@ -566,9 +566,15 @@ def on_bar(st, sym, tf, bars, C):
             st["pos"].pop(sym, None)
 
 
+C_TF_FALLBACK = "15m"
+
+
 def check_fill(st, akey, px, pos_ex, C):
     ar = st["arm"].get(akey)
-    if not ar or not ar.get("target") or ar["qty"] <= 0:
+    if not isinstance(ar, dict) or "sym" not in ar or "tf" not in ar:
+        st["arm"].pop(akey, None)                # entree d'une ancienne version
+        return
+    if not ar.get("target") or ar["qty"] <= 0:
         return
     sym, tf = ar["sym"], ar["tf"]
     price = px.get(sym)
@@ -668,6 +674,22 @@ def load_state(C):
     return st
 
 
+def migrate_state(st):
+    """Les anciennes versions indexaient les armements par simple symbole et
+       sans les champs sym/tf. On les annule proprement pour ne pas bloquer
+       le bot (MAX_OPEN) ni laisser un ordre limite orphelin chez Kraken."""
+    for k in [k for k, v in list(st.get("arm", {}).items())
+              if not isinstance(v, dict) or "sym" not in v or "tf" not in v]:
+        v = st["arm"].pop(k)
+        if isinstance(v, dict) and v.get("order_id"):
+            cancel(v["order_id"])
+        log.info("ancien armement %s supprime (format obsolete)", k)
+    for k in [k for k, v in list(st.get("pos", {}).items())
+              if not isinstance(v, dict) or "tf" not in v]:
+        st["pos"][k]["tf"] = st.get("mode") and C_TF_FALLBACK or C_TF_FALLBACK
+    st["last"] = {k: v for k, v in (st.get("last") or {}).items() if "|" in k}
+
+
 def save_state(st):
     try:
         with open(STATE_FILE, "w") as f:
@@ -760,6 +782,8 @@ def main():
     if LIVE and not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
         sys.exit("MODE live sans cles Kraken Futures")
     st = load_state(C)
+    globals()["C_TF_FALLBACK"] = C["TF_LIST"][0]
+    migrate_state(st)
     log.info("Demarrage [%s] x%s %s | %s | ADX>=%g | boucle %s min, scan toutes les %s s",
              "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"],
              "/".join(C["TF_LIST"]), C["ADX_MIN"], C["LOOP_MINUTES"], C["INTERVAL"])
