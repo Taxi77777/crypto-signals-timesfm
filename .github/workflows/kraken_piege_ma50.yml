@@ -1,0 +1,81 @@
+name: Bot PIEGE PDH/PDL -> MA50 (perpetuels Kraken Pro)
+
+# Le bot tourne EN CONTINU : chaque job dure ~5 h 20 et scanne toutes les
+# 60 s, puis le workflow se relance lui-meme. Le cron horaire n'est qu'un
+# filet de securite (les crons GitHub sont souvent retardes).
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: kraken-piege-ma50          # jamais deux bots en meme temps
+  cancel-in-progress: false
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependances
+        run: pip install requests
+
+      - name: Bot PIEGE -> MA50
+        env:
+          KRAKEN_KEY:         ${{ secrets.KRAKEN_KEY }}
+          KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET }}
+          # "paper" = fictif. Pour trader en REEL : creer la variable
+          # KRAKEN_MODE = live (Settings > Secrets and variables > Actions > Variables)
+          KRAKEN_MODE:        ${{ vars.KRAKEN_MODE || 'paper' }}
+          KRAKEN_SYMBOLS:     ${{ vars.KRAKEN_SYMBOLS }}
+          KRAKEN_TF:          ${{ vars.KRAKEN_TF }}
+          LEVERAGE:           ${{ vars.LEVERAGE }}
+          SIZING:             ${{ vars.SIZING }}
+          ADX_MIN:            ${{ vars.ADX_MIN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          LOOP_MINUTES:       '320'
+          INTERVAL:           '60'
+          PYTHONUNBUFFERED:   '1'
+        run: python kraken_piege_ma50.py
+
+      - name: Sauvegarde de l'etat (position / attente MA50)
+        if: always()
+        run: |
+          F=kraken_piege_state.json
+          [ -f "$F" ] || exit 0
+          cp "$F" /tmp/state.json
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/state.json "$F"
+            git add -f "$F"
+            git diff --cached --quiet && exit 0
+            git commit -qm "chore: etat bot piege MA50 [skip ci]"
+            git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "::warning::etat non sauvegarde"
+
+  relance:
+    needs: bot
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Relance du bot (fonctionnement 24h/24)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run kraken_piege_ma50.yml --repo "${{ github.repository }}" --ref main
