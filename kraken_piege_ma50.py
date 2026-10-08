@@ -328,8 +328,11 @@ def instruments(C):
     for i in pub("/derivatives/api/v3/instruments").get("instruments") or []:
         s = (i.get("symbol") or "").upper()
         if s in C["SYMS"]:
+            # contractValueTradePrecision = nb de decimales autorisees sur la TAILLE
+            # (c'est bien ce champ, pas contractValuePrecision, qui vaut souvent 0)
+            cvtp = i.get("contractValueTradePrecision")
             out[s] = {"tick": float(i.get("tickSize") or 0.0001),
-                      "sp": int(i.get("contractValuePrecision") or 0)}
+                      "sp": int(cvtp) if cvtp is not None else 4}
     return out
 
 
@@ -360,8 +363,9 @@ def rp(st, sym, x):
 
 
 def rq(st, sym, x):
-    p = (st["inst"].get(sym) or {}).get("sp") or 0
-    f = 10 ** p
+    d = st["inst"].get(sym) or {}
+    p = d["sp"] if "sp" in d else 4
+    f = 10.0 ** p
     return math.floor(x * f + 1e-9) / f
 
 
@@ -505,6 +509,10 @@ def on_bar(st, sym, bars, C):
                                  sym, rp(st, sym, target), qty, rp(st, sym, sl), why)
                     except Exception as e:
                         notify(st, "%s ordre MA50 refuse : %s" % (nm(sym), e))
+                else:
+                    notify(st, "%s taille calculee a 0 (capital %.2f USD) -> aucun ordre. "
+                               "Compte Futures vide ou capital trop faible pour cet actif."
+                           % (nm(sym), eq))
 
     # 3) trailing stop + duree max
     p = st["pos"].get(sym)
