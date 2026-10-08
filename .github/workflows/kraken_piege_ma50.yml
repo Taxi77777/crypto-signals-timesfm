@@ -7,10 +7,19 @@ on:
   schedule:
     - cron: '23 * * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'paper (fictif) ou live (REEL). Vide = valeur de la variable KRAKEN_MODE'
+        type: string
+        default: ''
+      minutes:
+        description: 'Duree de ce job en minutes (320 = fonctionnement continu)'
+        type: string
+        default: ''
 
 concurrency:
   group: kraken-piege-ma50          # jamais deux bots en meme temps
-  cancel-in-progress: false
+  cancel-in-progress: true          # un nouveau lancement remplace l'ancien
 
 jobs:
   bot:
@@ -37,7 +46,7 @@ jobs:
           KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET || secrets.CLE_PRIVEE }}
           # "paper" = fictif. Pour trader en REEL : creer la variable
           # KRAKEN_MODE = live (Settings > Secrets and variables > Actions > Variables)
-          KRAKEN_MODE:        ${{ vars.KRAKEN_MODE || 'paper' }}
+          KRAKEN_MODE:        ${{ inputs.mode || vars.KRAKEN_MODE || 'paper' }}
           KRAKEN_SYMBOLS:     ${{ vars.KRAKEN_SYMBOLS }}
           KRAKEN_TF:          ${{ vars.KRAKEN_TF }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
@@ -45,7 +54,7 @@ jobs:
           ADX_MIN:            ${{ vars.ADX_MIN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-          LOOP_MINUTES:       '320'
+          LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           INTERVAL:           '60'
           PYTHONUNBUFFERED:   '1'
         run: python kraken_piege_ma50.py
