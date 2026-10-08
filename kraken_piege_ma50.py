@@ -54,7 +54,7 @@ CFG = {
     "SYMBOLS": envf("KRAKEN_SYMBOLS", ""),
     "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 1000000.0),   # volume 24 h minimum, en USD
     "TOP_N": envf("TOP_N", 100),                         # nb max d'actifs suivis
-    "TF": envf("KRAKEN_TF", "5m,15m,30m"),      # plusieurs unites de temps, separees par des virgules
+    "TF": envf("KRAKEN_TF", "15m,30m"),      # plusieurs unites de temps, separees par des virgules
     # piege
     "CONF_BARS": envf("CONF_BARS", 3),
     "DISP_ATR": envf("DISP_ATR", 0.8),
