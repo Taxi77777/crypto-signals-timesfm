@@ -714,7 +714,8 @@ def migrate_state(st):
        sans les champs sym/tf. On les annule proprement pour ne pas bloquer
        le bot (MAX_OPEN) ni laisser un ordre limite orphelin chez Kraken."""
     for k in [k for k, v in list(st.get("arm", {}).items())
-              if not isinstance(v, dict) or "sym" not in v or "tf" not in v]:
+              if not isinstance(v, dict) or "sym" not in v or "tf" not in v
+              or "ready" not in v or v.get("order_id")]:
         v = st["arm"].pop(k)
         if isinstance(v, dict) and v.get("order_id"):
             cancel(v["order_id"])
