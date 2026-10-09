@@ -84,7 +84,8 @@ CFG = {
     "CAPITAL_PCT": envf("CAPITAL_PCT", 95.0),
     "RISK_PCT": envf("RISK_PCT", 5.0),
     "LIQ_SAFETY": envf("LIQ_SAFETY", 0.75),
-    "MAX_OPEN": envf("MAX_OPEN", 1),
+    "MAX_OPEN": envf("MAX_OPEN", 1),          # positions ouvertes simultanees
+    "MAX_ARMS": envf("MAX_ARMS", 25),         # setups surveilles en parallele
     "FEE_MAKER": envf("FEE_MAKER", 0.0002),
     "FEE_TAKER": envf("FEE_TAKER", 0.0005),
     "MAX_FEE_R": envf("MAX_FEE_R", 0.35),
@@ -249,7 +250,7 @@ def levels(m_last, a_last, dr, C):
 
 def fee_r(entry, sl, C):
     r = abs(entry - sl)
-    return 99.0 if r <= 0 else (C["FEE_MAKER"] + C["FEE_TAKER"]) * entry / r
+    return 99.0 if r <= 0 else 2 * C["FEE_TAKER"] * entry / r
 
 
 def sl_ok(entry, sl, C):
@@ -327,7 +328,24 @@ def tickers():
     return out
 
 
-PERP_EXCLUDE = ("TRADFI", "INDEX")
+PERP_EXCLUDE = ("TRADFI", "INDEX", "STOCK", "EQUIT", "COMMOD", "METAL", "GOLD", "FOREX")
+# or tokenise et actions tokenisees (xStocks) : pas de la crypto
+NON_CRYPTO = {"XAUT", "PAXG", "XAU", "XAG"}
+XSTOCKS = {"TSLAX", "CRCLX", "NVDAX", "AAPLX", "SPYX", "QQQX", "METAX", "GOOGLX", "AMZNX",
+           "MSFTX", "COINX", "HOODX", "MSTRX", "AMDX", "NFLXX", "PLTRX", "GMEX", "IBITX",
+           "GLDX", "SLVX", "TQQQX", "ORCLX", "AVGOX", "INTCX", "BABAX", "UBERX", "DISX"}
+
+
+def is_crypto(sym, inst):
+    base = sym[3:-3]
+    if base in NON_CRYPTO or base in XSTOCKS:
+        return False
+    for f in ("category", "tags", "type", "underlying", "group"):
+        v = inst.get(f)
+        txt = " ".join(map(str, v)) if isinstance(v, list) else str(v or "")
+        if any(x in txt.upper() for x in PERP_EXCLUDE):
+            return False
+    return True
 
 
 def instruments(C):
@@ -339,7 +357,7 @@ def instruments(C):
             continue
         if not i.get("tradeable", True) or i.get("isExpired") or i.get("tradfi"):
             continue
-        if str(i.get("category") or "").upper() in PERP_EXCLUDE:
+        if not is_crypto(s, i):
             continue
         # contractValueTradePrecision = nb de decimales autorisees sur la TAILLE
         # (c'est bien ce champ, pas contractValuePrecision, qui vaut souvent 0)
@@ -503,49 +521,34 @@ def on_bar(st, sym, tf, bars, C):
         msg = ("%s %s PIEGE %s au %s %s -> attente retour MA50 pour %s"
                % (nm(sym), tf, s["trap"], "PDH" if s["trap"] == "VENTE" else "PDL",
                   rp(st, sym, s["level"]), side))
-        if sym in st["pos"] or len(st["pos"]) + len(st["arm"]) >= C["MAX_OPEN"]:
-            msg += "  (ignore : un trade deja en cours)"
+        if sym in st["pos"]:
+            msg += "  (ignore : position deja ouverte sur cet actif)"
+        elif len(st["arm"]) >= C["MAX_ARMS"]:
+            msg += "  (ignore : trop de setups surveilles)"
         else:
             st["arm"][akey] = {"sym": sym, "tf": tf, "dir": s["dir"],
                                "expire": s["ts"] + (C["WAIT_BARS"] + 1) * tfs,
-                               "order_id": None, "target": None, "sl": None, "qty": 0, "adx": ""}
+                               "target": None, "sl": None, "ready": False, "adx": ""}
         notify(st, msg)
 
-    # 2) ordre limite qui suit la MA50 (+ filtre ADX)
+    # 2) zone MA50 recalculee a chaque bougie (+ filtre ADX). Aucun ordre pose
+    #    d'avance : l'entree part quand le prix touche la zone (check_fill), ce qui
+    #    permet de surveiller plusieurs setups sans immobiliser la marge.
     ar = st["arm"].get(akey)
     if ar:
-        cancel(ar.get("order_id"))
-        ar.update(order_id=None, target=None, qty=0)
         if bars[k][0] + tfs >= ar["expire"]:
             del st["arm"][akey]
             notify(st, "%s %s pas de retour MA50 a temps -> setup annule" % (nm(sym), tf))
         else:
             target, sl = levels(mL, aL, ar["dir"], C)
             ok, why = adx_ok(S, k, ar["dir"], C)
+            ready = ok and sl_ok(target, sl, C)
+            ar.update(target=target, sl=sl, ready=ready, adx=why)
             if not ok:
-                log.info("%s filtre ADX : %s -> pas d'ordre cette bougie", sym, why)
-            elif not sl_ok(target, sl, C):
-                log.info("%s SL hors limites (frais / liquidation x%s) -> pas d'ordre",
-                         sym, C["LEVERAGE"])
-            else:
-                eq = equity(st)
-                full = eq * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / target
-                qty = rq(st, sym, full if C["SIZING"] == "FULL"
-                         else min(eq * C["RISK_PCT"] / 100 / abs(target - sl), full))
-                if qty > 0:
-                    try:
-                        ar["order_id"] = order({"orderType": "lmt", "symbol": sym,
-                                                "side": side_of(ar["dir"]), "size": qty,
-                                                "limitPrice": rp(st, sym, target)})
-                        ar.update(target=target, sl=sl, qty=qty, adx=why)
-                        log.info("%s ordre limite MA50 %s qte %s SL %s | %s",
-                                 sym, rp(st, sym, target), qty, rp(st, sym, sl), why)
-                    except Exception as e:
-                        notify(st, "%s ordre MA50 refuse : %s" % (nm(sym), e))
-                else:
-                    notify(st, "%s taille calculee a 0 (capital %.2f USD) -> aucun ordre. "
-                               "Compte Futures vide ou capital trop faible pour cet actif."
-                           % (nm(sym), eq))
+                log.info("%s %s filtre ADX : %s -> en attente", sym, tf, why)
+            elif not ready:
+                log.info("%s %s SL hors limites (frais / liquidation x%s) -> en attente",
+                         sym, tf, C["LEVERAGE"])
 
     # 3) trailing stop + duree max (sur l'unite de temps qui a ouvert la position)
     p = st["pos"].get(sym)
@@ -570,37 +573,69 @@ C_TF_FALLBACK = "15m"
 
 
 def check_fill(st, akey, px, pos_ex, C):
+    """Declenche l'entree quand le prix touche la zone MA50 d'un setup arme."""
     ar = st["arm"].get(akey)
     if not isinstance(ar, dict) or "sym" not in ar or "tf" not in ar:
         st["arm"].pop(akey, None)                # entree d'une ancienne version
         return
-    if not ar.get("target") or ar["qty"] <= 0:
+    if not ar.get("ready") or not ar.get("target"):
         return
-    sym, tf = ar["sym"], ar["tf"]
+    if len(st["pos"]) >= C["MAX_OPEN"]:          # un seul trade a la fois
+        return
+    sym, tf, dr = ar["sym"], ar["tf"], ar["dir"]
+    if sym in st["pos"]:
+        return
     price = px.get(sym)
     if not price:
         return
-    dr = ar["dir"]
+    if not ((price <= ar["target"]) if dr > 0 else (price >= ar["target"])):
+        return                                   # pas encore sur la MA50
+    sl = ar["sl"]
+    if (price - sl) * dr <= 0:                   # deja passe au-dela du SL : setup mort
+        del st["arm"][akey]
+        notify(st, "%s %s prix deja au-dela du SL -> setup annule" % (nm(sym), tf))
+        return
+    if not sl_ok(price, sl, C):
+        return
+    eq = equity(st)
+    full = eq * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / price
+    qty = rq(st, sym, full if C["SIZING"] == "FULL"
+             else min(eq * C["RISK_PCT"] / 100 / abs(price - sl), full))
+    if qty <= 0:
+        del st["arm"][akey]
+        notify(st, "%s taille calculee a 0 (capital %.2f USD) -> setup annule" % (nm(sym), eq))
+        return
     if LIVE:
-        ex = pos_ex.get(sym)
+        try:
+            order({"orderType": "mkt", "symbol": sym, "side": side_of(dr), "size": qty})
+        except Exception as e:
+            del st["arm"][akey]
+            notify(st, "%s %s ordre d'entree refuse par Kraken : %s" % (nm(sym), tf, e))
+            return
+        time.sleep(1.5)
+        ex = open_positions().get(sym)
         if not ex or ex["size"] <= 0 or ex["dir"] != dr:
+            del st["arm"][akey]
+            notify(st, "%s %s entree envoyee mais aucune position constatee -> abandon"
+                   % (nm(sym), tf))
             return
-        qty, fill = ex["size"], ex["price"] or ar["target"]
-        cancel(ar.get("order_id"))
+        qty, fill = ex["size"], ex["price"] or price
+        pos_ex[sym] = ex                          # photo a jour pour manage() juste apres
     else:
-        if not ((price <= ar["target"]) if dr > 0 else (price >= ar["target"])):
-            return
-        qty, fill = ar["qty"], ar["target"]
-        st["paper"] -= C["FEE_MAKER"] * fill * qty
-    risk = (fill - ar["sl"]) * dr
+        fill = price
+        st["paper"] -= C["FEE_TAKER"] * fill * qty
+    risk = (fill - sl) * dr
     now = time.time()
-    p = {"dir": dr, "entry": fill, "sl": ar["sl"], "qty": qty, "qty0": qty,
+    if risk <= 0:                                 # glissement au-dela du SL : on sort aussitot
+        del st["arm"][akey]
+        tmp = {"dir": dr, "entry": fill, "qty": qty}
+        close_mkt(st, sym, tmp, qty, price, "SORTIE immediate (entree au-dela du SL)")
+        return
+    p = {"dir": dr, "entry": fill, "sl": sl, "qty": qty, "qty0": qty,
          "tp1": fill + dr * C["TP1_R"] * risk, "tp1_done": False,
          "bar_ts": int(now // TF_SEC[tf] * TF_SEC[tf]), "tf": tf,
          "stop_id": None, "tp_id": None}
-    del st["arm"][akey]
-    for k2 in [k3 for k3, v in st["arm"].items() if v["sym"] == sym]:
-        cancel(st["arm"][k2].get("order_id"))      # plus d'ordre concurrent sur cet actif
+    for k2 in [k3 for k3, v in st["arm"].items() if v.get("sym") == sym]:
         del st["arm"][k2]
     st["pos"][sym] = p
     place_stop(st, sym, p)
