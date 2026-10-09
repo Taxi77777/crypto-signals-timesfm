@@ -62,8 +62,8 @@ CFG = {
     "MA_PERIOD": envf("MA_PERIOD", 50),
     "MA_TYPE": envf("MA_TYPE", "SMA"),
     "MA_SLOPE": envf("MA_SLOPE", 5),
-    "MA_FILTER": envf("MA_FILTER", 1),
-    "ZONE_ATR": envf("ZONE_ATR", 0.20),
+    "MA_FILTER": envf("MA_FILTER", 0),      # 0 = pas de filtre de pente MA50
+    "ZONE_ATR": envf("ZONE_ATR", 0.0),      # 0 = entree au contact exact de la MA50
     "WAIT_BARS": envf("WAIT_BARS", 16),
     # ADX
     "ADX_FILTER": envf("ADX_FILTER", 1),
@@ -543,7 +543,10 @@ def on_bar(st, sym, tf, bars, C):
             target, sl = levels(mL, aL, ar["dir"], C)
             ok, why = adx_ok(S, k, ar["dir"], C)
             ready = ok and sl_ok(target, sl, C)
-            ar.update(target=target, sl=sl, ready=ready, adx=why)
+            # la bougie qui vient de clore a-t-elle touche la MA50 (meche comprise) ?
+            hit = (S["l"][k] <= mL) if ar["dir"] > 0 else (S["h"][k] >= mL)
+            ar.update(target=target, sl=sl, ready=ready, adx=why,
+                      touched=bool(hit and ready))
             if not ok:
                 log.info("%s %s filtre ADX : %s -> en attente", sym, tf, why)
             elif not ready:
@@ -588,8 +591,9 @@ def check_fill(st, akey, px, pos_ex, C):
     price = px.get(sym)
     if not price:
         return
-    if not ((price <= ar["target"]) if dr > 0 else (price >= ar["target"])):
-        return                                   # pas encore sur la MA50
+    on_ma = (price <= ar["target"]) if dr > 0 else (price >= ar["target"])
+    if not on_ma and not ar.get("touched"):
+        return                                   # pas encore de contact avec la MA50
     sl = ar["sl"]
     if (price - sl) * dr <= 0:                   # deja passe au-dela du SL : setup mort
         del st["arm"][akey]
