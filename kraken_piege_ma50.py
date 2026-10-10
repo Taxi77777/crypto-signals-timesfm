@@ -398,7 +398,8 @@ def equity(st):
     if not LIVE:
         return st["paper"]
     f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
-    return float(f.get("marginEquity") or f.get("portfolioValue") or f.get("availableMargin") or 0)
+    # marge reellement disponible (hors marge deja engagee), sinon l'equite
+    return float(f.get("availableMargin") or f.get("marginEquity") or f.get("portfolioValue") or 0)
 
 
 # =========================================================================
@@ -610,11 +611,27 @@ def check_fill(st, akey, px, pos_ex, C):
         notify(st, "%s taille calculee a 0 (capital %.2f USD) -> setup annule" % (nm(sym), eq))
         return
     if LIVE:
-        try:
-            order({"orderType": "mkt", "symbol": sym, "side": side_of(dr), "size": qty})
-        except Exception as e:
+        # Kraken reserve une marge de securite sur les ordres au marche : a 95 % du
+        # capital l'ordre peut etre refuse (insufficientAvailableFunds). On reessaie
+        # alors avec une taille reduite au lieu de perdre le setup.
+        sent, last_err = False, None
+        for frac in (1.0, 0.84, 0.68, 0.53):
+            q = rq(st, sym, qty * frac)
+            if q <= 0:
+                break
+            try:
+                order({"orderType": "mkt", "symbol": sym, "side": side_of(dr), "size": q})
+                sent = True
+                if frac < 1.0:
+                    log.info("%s entree acceptee a %d%% de la taille prevue", sym, int(frac * 100))
+                break
+            except Exception as e:
+                last_err = e
+                if "insufficient" not in str(e).lower():
+                    break
+        if not sent:
             del st["arm"][akey]
-            notify(st, "%s %s ordre d'entree refuse par Kraken : %s" % (nm(sym), tf, e))
+            notify(st, "%s %s ordre d'entree refuse par Kraken : %s" % (nm(sym), tf, last_err))
             return
         time.sleep(1.5)
         ex = open_positions().get(sym)
