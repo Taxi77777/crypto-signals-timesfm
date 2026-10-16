@@ -53,6 +53,7 @@ jobs:
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
           RISK_PCT:           ${{ vars.RISK_PCT }}
+          MAX_OPEN:           ${{ vars.MAX_OPEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
