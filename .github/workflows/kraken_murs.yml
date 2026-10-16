@@ -1,8 +1,9 @@
-name: Bot PIEGE PDH/PDL -> MA50 (perpetuels Kraken Pro)
+name: Bot MURS & BULLES (carnet d'ordres reel, perpetuels Kraken Pro)
 
-# Le bot tourne EN CONTINU : chaque job dure ~5 h 20 et scanne toutes les
-# 60 s, puis le workflow se relance lui-meme. Le cron horaire n'est qu'un
-# filet de securite (les crons GitHub sont souvent retardes).
+# Remplace l'ancien bot "PIEGE PDH/PDL -> MA50".
+# Le bot tourne EN CONTINU : chaque job dure ~5 h 20, lit le carnet d'ordres
+# Kraken toutes les 60 s, puis le workflow se relance lui-meme. Le cron horaire
+# n'est qu'un filet de securite (les crons GitHub sont souvent retardes).
 on:
   schedule:
     - cron: '23 * * * *'
@@ -18,8 +19,10 @@ on:
         default: ''
 
 concurrency:
-  group: kraken-piege-ma50          # jamais deux bots en meme temps
-  cancel-in-progress: true          # un nouveau lancement remplace l'ancien
+  # un seul bot a la fois ; un lancement en attente patiente au lieu de TUER
+  # le job en cours (sinon position ouverte + etat perime)
+  group: kraken-murs
+  cancel-in-progress: false
 
 jobs:
   bot:
@@ -39,30 +42,28 @@ jobs:
       - name: Dependances
         run: pip install requests
 
-      - name: Bot PIEGE -> MA50
+      - name: Bot MURS & BULLES
         env:
-          # la cle privee est acceptee sous le nom KRAKEN_SECRET ou CLE_PRIVEE
           KRAKEN_KEY:         ${{ secrets.KRAKEN_KEY || secrets.CLE_PUBLIQUE }}
           KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET || secrets.CLE_PRIVEE }}
-          # "paper" = fictif. Pour trader en REEL : creer la variable
-          # KRAKEN_MODE = live (Settings > Secrets and variables > Actions > Variables)
+          # "paper" = fictif. REEL : variable KRAKEN_MODE = live
           KRAKEN_MODE:        ${{ inputs.mode || vars.KRAKEN_MODE || 'paper' }}
           KRAKEN_SYMBOLS:     ${{ vars.KRAKEN_SYMBOLS }}
-          KRAKEN_TF:          ${{ vars.KRAKEN_TF }}
+          KRAKEN_TF:          ${{ vars.KRAKEN_TF_MURS }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
-          ADX_MIN:            ${{ vars.ADX_MIN }}
+          RISK_PCT:           ${{ vars.RISK_PCT }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           INTERVAL:           '60'
           PYTHONUNBUFFERED:   '1'
-        run: python kraken_piege_ma50.py
+        run: python kraken_murs.py
 
-      - name: Sauvegarde de l'etat (position / attente MA50)
+      - name: Sauvegarde de l'etat (positions / murs)
         if: always()
         run: |
-          F=kraken_piege_state.json
+          F=kraken_murs_state.json
           [ -f "$F" ] || exit 0
           cp "$F" /tmp/state.json
           git config user.name "GitHub Actions"
@@ -72,7 +73,7 @@ jobs:
             cp /tmp/state.json "$F"
             git add -f "$F"
             git diff --cached --quiet && exit 0
-            git commit -qm "chore: etat bot piege MA50 [skip ci]"
+            git commit -qm "chore: etat bot murs [skip ci]"
             git push -q origin HEAD:main && exit 0
             sleep $((RANDOM % 5 + 2))
           done
@@ -88,4 +89,4 @@ jobs:
       - name: Relance du bot (fonctionnement 24h/24)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run kraken_piege_ma50.yml --repo "${{ github.repository }}" --ref main
+        run: gh workflow run kraken_murs.yml --repo "${{ github.repository }}" --ref main

@@ -1,3 +1,23 @@
+# 🧱 Bot Kraken « MURS & BULLES » (carnet d'ordres réel) — `kraken_murs.py`
+
+Remplace l'ancien bot Kraken « PIÈGE PDH/PDL → MA50 ». Tourne 24 h/24 sur GitHub Actions
+(`.github/workflows/kraken_murs.yml`), sur les perpétuels Kraken Pro les plus liquides, en 5m / 15m / 30m / 1h.
+
+| Élément de la vidéo | Ce que fait le bot |
+|---|---|
+| **Mur** (ordres passifs) | Lit le **vrai carnet d'ordres Kraken** chaque minute. Un mur = niveau de prix ≥ 5× la médiane des niveaux voisins, présent depuis ≥ 3 min. |
+| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne + delta acheteurs/vendeurs des derniers trades (info). |
+| **1 · Il tient** | Le prix touche le mur, grosse bulle, rebond → **ACHAT** (mur d'achat) / **VENTE** (mur de vente). |
+| **2 · Mangé** | Le mur disparaît et le prix traverse → continuation. Désactivé par défaut (`SIGNAL_MANGE=0`). |
+| **3 · Retiré** | Le mur disparaît avant l'impact → pas de trade ; en position, **sortie immédiate** (`EXIT_IF_WALL_GONE=1`). |
+
+SL derrière le mur (0,5 ATR), TP = 1,5 × le risque, posés chez Kraken. Réglages prudents par défaut :
+levier x5, risque 1 % du capital par trade, une seule position. Mode `paper` (fictif) tant que la variable
+`KRAKEN_MODE` ne vaut pas `live`. ⚠️ Stratégie non prouvée : l'équivalent MT4 (murs estimés au tick-volume) perdait
+après frais au backtest ; le vrai carnet d'ordres reste à valider en fictif.
+
+---
+
 # 🌐 INSTITUTIONAL HUNTER PRO v3.0 — Multi-Exchange OBI & Trend Consensus
 
 > **Stratégie d'Analyse Institutionnelle Multi-Échange & Tendance Long Terme**
