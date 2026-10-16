@@ -306,11 +306,16 @@ def notify(st, msg):
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
     if not tok or not chat:
         return
-    try:
-        SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok,
-                     json={"chat_id": chat, "text": msg}, timeout=15)
-    except Exception as e:
-        log.warning("telegram : %s", e)
+    for essai in range(3):                       # Telegram coupe parfois : 3 essais
+        try:
+            r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok,
+                             json={"chat_id": chat, "text": msg}, timeout=20)
+            if r.ok:
+                return
+            log.warning("telegram HTTP %s", r.status_code)
+        except Exception as e:
+            log.warning("telegram (essai %d) : %s", essai + 1, e)
+        time.sleep(2 + 3 * essai)
 
 
 def side_of(dr):
