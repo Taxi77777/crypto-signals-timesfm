@@ -60,8 +60,8 @@ def envf(name, default):
 CFG = {
     "MODE": envf("KRAKEN_MODE", "paper"),
     "SYMBOLS": envf("KRAKEN_SYMBOLS", ""),       # vide = perpetuels les plus liquides
-    "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 5000000.0),
-    "TOP_N": envf("TOP_N", 30),                  # carnet lu chaque minute : rester raisonnable
+    "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 500000.0),  # 0,5 M$/24 h -> ~55 cryptos (en dessous, carnets trop vides)
+    "TOP_N": envf("TOP_N", 60),                  # carnet lu chaque minute (~11 s pour 55 cryptos)
     "TF": envf("KRAKEN_TF", "5m,15m,30m,1h"),
     # murs (carnet d'ordres reel)
     "BUCKET_PCT": envf("BUCKET_PCT", 0.05),      # largeur d'un niveau de prix, en % du prix
