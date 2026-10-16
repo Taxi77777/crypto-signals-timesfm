@@ -78,6 +78,13 @@ CFG = {
     "HVN_BINS": envf("HVN_BINS", 40),
     "DELTA_FILTER": envf("DELTA_FILTER", 1),     # les derniers trades doivent aller dans le sens du trade
     "DELTA_MIN": envf("DELTA_MIN", 0.1),         #   (acheteurs - vendeurs) / total >= X
+    # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
+    "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
+    "SPOOF_WIN": envf("SPOOF_WIN", 30),          # ...en Y minutes -> ce cote n'est plus cru
+    # idee 2 : absorption / iceberg = volume REELLEMENT execute sur le mur
+    "ABS_FILTER": envf("ABS_FILTER", 1),         # exiger que le mur ait encaisse des trades
+    "ABS_MIN": envf("ABS_MIN", 0.2),             # volume execute au mur >= X de sa taille
+    "ABS_NEAR_PCT": envf("ABS_NEAR_PCT", 0.25),  # on lit les trades si le prix est a < X % d'un mur
     "WALL_KEEP": envf("WALL_KEEP", 0.25),        # un mur qui encaisse les attaques maigrit : on le garde jusqu'a X du max
     "WALL_GONE": envf("WALL_GONE", 0.3),         # "retire / mange" si taille < X du max
     # bulles + rebond
@@ -185,6 +192,48 @@ def orderbook(sym):
     if len(bids) < 5 or len(asks) < 5:
         raise RuntimeError("carnet vide ou incomplet")
     return bids, asks
+
+
+def trade_ts(t):
+    """'2026-10-16T07:07:15.517753248Z' -> secondes epoch (UTC)"""
+    try:
+        import calendar
+        return calendar.timegm(time.strptime(str(t)[:19], "%Y-%m-%dT%H:%M:%S"))
+    except Exception:
+        return 0
+
+
+def absorb_trades(st, sym, mid, now, C):
+    """IDEE 2 - absorption / iceberg : quand le prix est pres d'un mur, on additionne le
+       volume REELLEMENT EXECUTE au prix du mur (trades Kraken). Un mur qui encaisse des
+       trades et reste en place est un vrai mur (ou un iceberg qui se recharge) ; un faux
+       mur, lui, est retire avant d'etre touche."""
+    book = st["walls"].get(sym) or {}
+    near = [v for v in book.values() if v.get("size", 0) > 0
+            and abs(v["price"] - mid) / mid * 100 <= C["ABS_NEAR_PCT"]]
+    if not near:
+        return
+    h = pub("/derivatives/api/v3/history", {"symbol": sym}).get("history") or []
+    last = st.setdefault("tr_last", {}).get(sym, now - 120)
+    newest = last
+    for t in h:
+        ts = trade_ts(t.get("time"))
+        if ts <= last:
+            continue
+        newest = max(newest, ts)
+        px_t, q = float(t.get("price") or 0), float(t.get("size") or 0)
+        for v in near:
+            if abs(px_t - v["price"]) <= (v.get("w") or mid * C["BUCKET_PCT"] / 100):
+                v["traded"] = v.get("traded", 0.0) + q
+                v["hits"] = v.get("hits", 0) + 1
+    st["tr_last"][sym] = newest
+
+
+def spoof_side(st, sym, side, now, C):
+    """IDEE 1 - reputation : ce cote du carnet a-t-il retire SPOOF_MAX murs a l'approche
+       du prix dans les SPOOF_WIN dernieres minutes ? (signature du spoofing)"""
+    lst = [e for e in (st.get("spoof", {}).get(sym) or []) if now - e[1] <= C["SPOOF_WIN"] * 60]
+    return sum(1 for e in lst if e[0] == side) >= C["SPOOF_MAX"]
 
 
 def taker_delta(sym):
@@ -531,12 +580,15 @@ def detect(bars, walls, C):
             if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
                     and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
+        ab = w.get("traded", 0.0) / w["max"] if w.get("max") else 0.0
+        if d and C["ABS_FILTER"] and ab < C["ABS_MIN"]:
+            d = 0                                  # le mur n'a encaisse aucun trade : pas prouve
         hv = hvn_strength(bars, W, C) if d else 0.0
         if d and C["HVN_FILTER"] and hv < C["HVN_MIN"]:
             d = 0                                  # mur du carnet seul : pas de volume echange derriere
         if d and (best is None or w["max"] > best["wall"]["max"]):
             best = {"dir": d, "type": "REBOND", "wall": w, "atr": a, "close": c[k],
-                    "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv}
+                    "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv, "abs": ab}
     return best
 
 
@@ -717,12 +769,14 @@ def enter(st, sym, tf, sig, px, C):
     st["pos"][sym] = p
     place_exits(st, sym, p)
     notify(st, "%s %s %s (%s) x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
-               "bulle x%.1f, agresseurs %+d%%\nTP %s   SL %s (derriere le mur)"
+               "bulle x%.1f, agresseurs %+d%%, %s\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
               "le mur tient" if sig["type"] == "REBOND" else "mur mange",
               C["LEVERAGE"], rp(st, sym, e), qty,
               "D'ACHAT" if sig["wall"]["side"] > 0 else "DE VENTE", rp(st, sym, sig["wall"]["price"]),
               sig["wall"]["max"], int(100 * sig.get("hvn", 1.0)), sig["vol"], int(100 * sig.get("delta", 0)),
+              ("ICEBERG (a encaisse %d%% de sa taille et tient)" if sig.get("abs", 0) >= 1 else
+               "absorption %d%%") % int(100 * sig.get("abs", 0)),
               rp(st, sym, tp), rp(st, sym, sl)))
     return None
 
@@ -901,9 +955,17 @@ def cycle(st, C):
             for kind, v in ev:
                 dist = abs(px[sym] - v["price"]) / px[sym] * 100
                 if kind == "RETIRE" and dist <= 0.3:
+                    # retire alors que le prix approchait = signature du faux mur -> reputation
+                    sp = st.setdefault("spoof", {}).setdefault(sym, [])
+                    sp.append([v["side"], now])
+                    st["spoof"][sym] = [e for e in sp if now - e[1] <= C["SPOOF_WIN"] * 60]
                     (notify if C["NOTIFY_RETIRE"] else (lambda _s, m: log.info(m)))(st, "%s MUR %s RETIRE juste avant l'impact (%s, a %.2f%% du prix) -> pas de trade"
                            % (nm(sym), "D'ACHAT" if v["side"] > 0 else "DE VENTE",
                               rp(st, sym, v["price"]), dist))
+            try:
+                absorb_trades(st, sym, px[sym], now, C)
+            except Exception as e:
+                log.warning("trades %s : %s", sym, e)
             time.sleep(0.15)
         except Exception as e:
             log.warning("carnet %s : %s", sym, e)
@@ -931,7 +993,8 @@ def cycle(st, C):
             akey = "%s|%s" % (sym, tf)
             if st["last"].get(akey) == last_closed:
                 continue
-            walls = live_walls(st, sym, now, C)
+            walls = [w for w in live_walls(st, sym, now, C)
+                     if not spoof_side(st, sym, w["side"], now, C)]     # cote qui bluffe : ignore
             gone = [v for kind, v in events.get(sym, []) if kind == "MANGE"]
             if not walls and not gone:
                 st["last"][akey] = last_closed
