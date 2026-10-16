@@ -70,7 +70,14 @@ CFG = {
     "MAX_WALLS": envf("MAX_WALLS", 3),           # seulement les X plus gros murs de chaque cote
     "GONE_SNAPS": envf("GONE_SNAPS", 2),         # absent X lectures de suite = vraiment parti
     "NOTIFY_RETIRE": envf("NOTIFY_RETIRE", 0),   # 1 = Telegram a chaque mur retire (bavard)
-    "WALL_MIN_AGE": envf("WALL_MIN_AGE", 180),   # secondes de presence minimum
+    "WALL_MIN_AGE": envf("WALL_MIN_AGE", 300),   # secondes de presence minimum (anti faux murs)
+    "WALL_STABLE": envf("WALL_STABLE", 0.8),     # present sur >= X des lectures depuis son apparition
+    "HVN_FILTER": envf("HVN_FILTER", 1),         # DOUBLE MUR : le mur du carnet doit tomber sur une zone
+    "HVN_MIN": envf("HVN_MIN", 0.5),             #   de gros volume deja echange (heatmap MT4) >= X du max
+    "HVN_BARS": envf("HVN_BARS", 150),
+    "HVN_BINS": envf("HVN_BINS", 40),
+    "DELTA_FILTER": envf("DELTA_FILTER", 1),     # les derniers trades doivent aller dans le sens du trade
+    "DELTA_MIN": envf("DELTA_MIN", 0.1),         #   (acheteurs - vendeurs) / total >= X
     "WALL_KEEP": envf("WALL_KEEP", 0.25),        # un mur qui encaisse les attaques maigrit : on le garde jusqu'a X du max
     "WALL_GONE": envf("WALL_GONE", 0.3),         # "retire / mange" si taille < X du max
     # bulles + rebond
@@ -417,7 +424,8 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         v = book[key]
         if v.get("gone"):                          # mur retire puis repose : on repart de zero
             v.update(first=now, max=size)
-        v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol)
+        v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol,
+                 n=v.get("n", 0) + 1, tot=v.get("tot", 0) + 1)
         v.pop("gone", None)
         seen.add(key)
     events = []
@@ -428,12 +436,13 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         if not (lo <= v["price"] <= hi):           # sorti de la fenetre (le prix s'est eloigne) :
             v["last"] = now                        # ni retire ni mange, on n'en sait rien
             continue
+        v["tot"] = v.get("tot", 0) + 1             # une lecture de plus pour ce mur
         # sorti du top MAX_WALLS mais toujours dans le carnet ? -> toujours la
         if buckets and w > 0:
             b = int(math.floor(v["price"] / w))
             q = sum(buckets.get((v["side"], b + i), 0.0) for i in (-1, 0, 1))
             if q >= C["WALL_GONE"] * v["max"]:
-                v.update(size=q, last=now, miss=0)
+                v.update(size=q, last=now, miss=0, n=v.get("n", 0) + 1)
                 continue
         # les teneurs de marche retirent / reposent leurs ordres en permanence :
         # un mur n'est "parti" qu'apres GONE_SNAPS lectures absentes de suite
@@ -453,9 +462,11 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
 
 
 def live_walls(st, sym, now, C):
-    """Murs confirmes (assez vieux) et toujours presents."""
+    """Murs FIABLES : assez vieux, toujours presents, et stables (pas un mur qui clignote :
+       les faux murs - spoofing - sont poses puis retires sans arret)."""
     return [dict(v, key=k) for k, v in (st["walls"].get(sym) or {}).items()
             if v.get("size", 0) > 0 and not v.get("miss") and now - v["first"] >= C["WALL_MIN_AGE"]
+            and v.get("n", 0) >= C["WALL_STABLE"] * max(1, v.get("tot", 0))
             and now - v.get("top", 0) <= 3 * C["INTERVAL"]       # encore parmi les plus gros murs
             and v["size"] >= C["WALL_KEEP"] * v["max"]]
 
@@ -463,6 +474,31 @@ def live_walls(st, sym, now, C):
 # =========================================================================
 #  SIGNAL : rebond sur un mur qui tient (scenario 1) / mur mange (scenario 2)
 # =========================================================================
+def hvn_strength(bars, price, C):
+    """Force (0..1) de la zone de volume DEJA ECHANGE au prix donne, sur les HVN_BARS
+       bougies avant la derniere (meme calcul que la heatmap de l'indicateur MT4).
+       Un ordre en attente peut etre retire ; un volume echange ne s'efface pas."""
+    win = bars[-(C["HVN_BARS"] + 3):-3]
+    if len(win) < 30:
+        return 1.0
+    lo = min(b[3] for b in win)
+    hi = max(b[2] for b in win)
+    nb = C["HVN_BINS"]
+    if hi <= lo or not (lo <= price <= hi):
+        return 0.0
+    step = (hi - lo) / nb
+    bins = [0.0] * nb
+    for b in win:
+        a = min(nb - 1, max(0, int((b[3] - lo) / step)))
+        z = min(nb - 1, max(0, int((b[2] - lo) / step)))
+        for k in range(a, z + 1):
+            bins[k] += b[5] / (z - a + 1)
+    sm = [(bins[max(0, k - 1)] + 2 * bins[k] + bins[min(nb - 1, k + 1)]) / 4 for k in range(nb)]
+    mx = max(sm) or 1.0
+    k = min(nb - 1, max(0, int((price - lo) / step)))
+    return max(sm[max(0, k - 1):k + 2]) / mx
+
+
 def detect(bars, walls, C):
     o = [b[1] for b in bars]
     h = [b[2] for b in bars]
@@ -495,9 +531,12 @@ def detect(bars, walls, C):
             if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
                     and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
+        hv = hvn_strength(bars, W, C) if d else 0.0
+        if d and C["HVN_FILTER"] and hv < C["HVN_MIN"]:
+            d = 0                                  # mur du carnet seul : pas de volume echange derriere
         if d and (best is None or w["max"] > best["wall"]["max"]):
             best = {"dir": d, "type": "REBOND", "wall": w, "atr": a, "close": c[k],
-                    "vol": max(v[k], v[k - 1]) / avgv}
+                    "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv}
     return best
 
 
@@ -615,6 +654,10 @@ def enter(st, sym, tf, sig, px, C):
             tp = cap
     if (tp - e) * d < C["MIN_RR"] * abs(e - sl):
         return "mur oppose trop proche (gain/risque < %g)" % C["MIN_RR"]
+    delta = taker_delta(sym)
+    sig["delta"] = delta
+    if C["DELTA_FILTER"] and delta * d < C["DELTA_MIN"]:
+        return "les %s ne frappent pas encore (delta %+d%%)" % ("acheteurs" if d > 0 else "vendeurs", int(100 * delta))
     eq = equity(st)
     full = eq * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / e
     qty = rq(st, sym, full if C["SIZING"] == "FULL" else min(eq * C["RISK_PCT"] / 100 / abs(e - sl), full))
@@ -673,13 +716,13 @@ def enter(st, sym, tf, sig, px, C):
          "bar_ts": int(time.time() // TF_SEC[tf] * TF_SEC[tf]), "stop_id": None, "tp_id": None}
     st["pos"][sym] = p
     place_exits(st, sym, p)
-    notify(st, "%s %s %s (%s) x%s @ %s  qte %s\nMur %s %s (taille %.4g, bulle x%.1f, delta %+d%%)\n"
-               "TP %s   SL %s (derriere le mur)"
+    notify(st, "%s %s %s (%s) x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
+               "bulle x%.1f, agresseurs %+d%%\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
               "le mur tient" if sig["type"] == "REBOND" else "mur mange",
               C["LEVERAGE"], rp(st, sym, e), qty,
-              "d'achat" if sig["wall"]["side"] > 0 else "de vente", rp(st, sym, sig["wall"]["price"]),
-              sig["wall"]["max"], sig["vol"], int(100 * taker_delta(sym)),
+              "D'ACHAT" if sig["wall"]["side"] > 0 else "DE VENTE", rp(st, sym, sig["wall"]["price"]),
+              sig["wall"]["max"], int(100 * sig.get("hvn", 1.0)), sig["vol"], int(100 * sig.get("delta", 0)),
               rp(st, sym, tp), rp(st, sym, sl)))
     return None
 
@@ -750,8 +793,16 @@ def manage(st, sym, price, pos_ex, C):
     if C["EXIT_IF_WALL_GONE"] and p.get("wall_key") and not p.get("adopted"):
         v = (st["walls"].get(sym) or {}).get(p["wall_key"])
         still_our_side = (price - p["wall"]) * d > 0
-        if (not v or v.get("size", 0) <= 0) and still_our_side:
-            close_mkt(st, sym, p, price, "SORTIE : le mur a ete retire")
+        if (not v or v.get("size", 0) <= 0) and still_our_side and not p.get("be"):
+            if (price - p["entry"]) * d > 0:
+                # en gain : on ne sort pas sur un retrait (souvent du bluff) -> stop au prix
+                # d'entree (plus de perte possible) et on laisse aller au TP
+                p["sl"], p["be"] = p["entry"], True
+                place_exits(st, sym, p)
+                notify(st, "%s mur retire, trade en gain -> stop deplace au prix d'entree %s (zero perte)"
+                       % (nm(sym), rp(st, sym, p["entry"])))
+            else:
+                close_mkt(st, sym, p, price, "SORTIE : le mur a ete retire (trade en perte)")
             return
     # 3) duree max
     if not p.get("adopted") and time.time() - p.get("bar_ts", time.time()) > C["MAX_HOLD"] * TF_SEC.get(p.get("tf"), 900):
