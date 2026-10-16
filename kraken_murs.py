@@ -77,13 +77,17 @@ CFG = {
     "HVN_BARS": envf("HVN_BARS", 150),
     "HVN_BINS": envf("HVN_BINS", 40),
     "DELTA_FILTER": envf("DELTA_FILTER", 1),     # les derniers trades doivent aller dans le sens du trade
-    "DELTA_MIN": envf("DELTA_MIN", 0.1),         #   (acheteurs - vendeurs) / total >= X
+    "DELTA_MIN": envf("DELTA_MIN", 0.05),        #   (acheteurs - vendeurs) / total >= X
+    "WALL_COOLDOWN": envf("WALL_COOLDOWN", 60),  # minutes sans retrader le meme mur apres un trade
+    "ABS_WINDOW": envf("ABS_WINDOW", 30),        # absorption comptee sur les X dernieres minutes
+    "ABS_HITS": envf("ABS_HITS", 3),             # ...ou au moins X trades executes sur le mur
+    "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6),   # resume Telegram toutes les X heures
     # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
     "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
     "SPOOF_WIN": envf("SPOOF_WIN", 30),          # ...en Y minutes -> ce cote n'est plus cru
     # idee 2 : absorption / iceberg = volume REELLEMENT execute sur le mur
     "ABS_FILTER": envf("ABS_FILTER", 1),         # exiger que le mur ait encaisse des trades
-    "ABS_MIN": envf("ABS_MIN", 0.05),            # volume execute au mur >= X de sa taille (mesure : max ~10 %)
+    "ABS_MIN": envf("ABS_MIN", 0.02),            # volume execute au mur >= X de sa taille (100 trades/min lus)
     "ABS_NEAR_PCT": envf("ABS_NEAR_PCT", 0.25),  # on lit les trades si le prix est a < X % d'un mur
     "WALL_KEEP": envf("WALL_KEEP", 0.25),        # un mur qui encaisse les attaques maigrit : on le garde jusqu'a X du max
     "WALL_GONE": envf("WALL_GONE", 0.3),         # "retire / mange" si taille < X du max
@@ -213,20 +217,30 @@ def absorb_trades(st, sym, mid, now, C):
             and abs(v["price"] - mid) / mid * 100 <= C["ABS_NEAR_PCT"]]
     if not near:
         return
+    for v in near:
+        v["near_ts"] = now                         # le prix est au contact du mur maintenant
     h = pub("/derivatives/api/v3/history", {"symbol": sym}).get("history") or []
-    last = st.setdefault("tr_last", {}).get(sym, now - 120)
+    # anti-doublon par numero de sequence (plusieurs trades peuvent avoir la meme seconde)
+    last = st.setdefault("tr_seq", {}).get(sym, 0)
+    t0 = now - 120 if not last else 0
     newest = last
     for t in h:
+        try:
+            seq = int(t.get("sequence_id") or 0)
+        except Exception:
+            seq = 0
         ts = trade_ts(t.get("time"))
-        if ts <= last:
+        if (seq and seq <= last) or ts < t0:
             continue
-        newest = max(newest, ts)
+        newest = max(newest, seq)
         px_t, q = float(t.get("price") or 0), float(t.get("size") or 0)
         for v in near:
-            if abs(px_t - v["price"]) <= (v.get("w") or mid * C["BUCKET_PCT"] / 100):
-                v["traded"] = v.get("traded", 0.0) + q
-                v["hits"] = v.get("hits", 0) + 1
-    st["tr_last"][sym] = newest
+            half = (v.get("w") or mid * C["BUCKET_PCT"] / 100) / 2.0   # le niveau du mur seulement
+            if abs(px_t - v["price"]) <= half:
+                v.setdefault("tr", []).append([ts, q])
+    st["tr_seq"][sym] = newest
+    for v in near:                                 # on ne garde que la fenetre recente
+        v["tr"] = [x for x in v.get("tr", []) if now - x[0] <= C["ABS_WINDOW"] * 60]
 
 
 def spoof_side(st, sym, side, now, C):
@@ -329,17 +343,20 @@ def equity(st):
 # =========================================================================
 #  OUTILS
 # =========================================================================
+def tick_dec(t):
+    txt = ("%.12f" % t).rstrip("0")
+    return len(txt.split(".")[1]) if "." in txt else 0
+
+
 def rp(st, sym, x):
     t = (st["inst"].get(sym) or {}).get("tick") or 0.0001
-    d = max(0, -int(math.floor(math.log10(t)))) if t < 1 else 0
-    return round(round(x / t) * t, d)
+    return round(round(x / t) * t, tick_dec(t))
 
 
 def px_str(st, sym, x):
     """Prix arrondi au tick, ecrit en decimal (jamais 1.2e-05 pour PEPE / SHIB)."""
     t = (st["inst"].get(sym) or {}).get("tick") or 0.0001
-    d = max(0, -int(math.floor(math.log10(t)))) if t < 1 else 0
-    return "%.*f" % (d, rp(st, sym, x))
+    return "%.*f" % (tick_dec(t), rp(st, sym, x))
 
 
 def qty_str(st, sym, q):
@@ -472,7 +489,7 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
             book[key] = {"price": price, "side": side, "first": now, "max": size}
         v = book[key]
         if v.get("gone"):                          # mur retire puis repose : on repart de zero
-            v.update(first=now, max=size)
+            v.update(first=now, max=size, n=0, tot=0, tr=[], near_ts=0)
         v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol,
                  n=v.get("n", 0) + 1, tot=v.get("tot", 0) + 1)
         v.pop("gone", None)
@@ -568,20 +585,22 @@ def detect(bars, walls, C):
     tol, pierce = C["TOL_ATR"] * a, C["PIERCE_ATR"] * a
     best = None
     for w in walls:
-        if w["first"] + C["WALL_MIN_AGE"] > bars[k - 1][0]:
-            continue                               # mur apparu apres le contact : ignore
+        near = w.get("near_ts", 0)
+        if not near or near < bars[k - 1][0] or w["first"] + C["WALL_MIN_AGE"] > near:
+            continue                               # le mur doit etre confirme AVANT le contact
         W, d = w["price"], 0
         if bub0 or bub1:
             lowmin, highmax = min(l[k], l[k - 1]), max(h[k], h[k - 1])
-            gw = w.get("w") or pierce               # le prix ne doit pas TRAVERSER le mur (sinon il est mange)
+            gw = max(w.get("w") or 0.0, 0.2 * a)   # une petite meche sous le mur est toleree
             if (w["side"] > 0 and c[k - 2] > W and W - gw <= lowmin <= W + tol and c[k] > W
                     and c[k] > o[k] and (c[k] - l[k]) >= 0.5 * rng and c[k] > c[k - 1]):
                 d = 1                              # mur d'achat qui TIENT -> ACHAT
             if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
                     and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
-        ab = w.get("traded", 0.0) / w["max"] if w.get("max") else 0.0
-        if d and C["ABS_FILTER"] and ab < C["ABS_MIN"]:
+        trs = w.get("tr", [])
+        ab = sum(x[1] for x in trs) / w["max"] if w.get("max") else 0.0
+        if d and C["ABS_FILTER"] and ab < C["ABS_MIN"] and len(trs) < C["ABS_HITS"]:
             d = 0                                  # le mur n'a encaisse aucun trade : pas prouve
         hv = hvn_strength(bars, W, C) if d else 0.0
         if d and C["HVN_FILTER"] and hv < C["HVN_MIN"]:
@@ -632,25 +651,34 @@ def sl_ok(entry, sl, C):
 #  ORDRES
 # =========================================================================
 def place_exits(st, sym, p):
-    for k in ("stop_id", "tp_id"):
-        cancel(p.get(k))
-        p[k] = None
+    """Pose le stop et le TP. Le NOUVEL ordre est pose AVANT d'annuler l'ancien :
+       la position n'est jamais sans protection, meme une seconde."""
     if p["qty"] <= 0:
         return
+    old_stop, old_tp = p.get("stop_id"), p.get("tp_id")
     try:
-        p["stop_id"] = order({"orderType": "stp", "symbol": sym, "side": side_of(-p["dir"]),
-                              "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["sl"]),
-                              "triggerSignal": "mark", "reduceOnly": "true"})
+        new = order({"orderType": "stp", "symbol": sym, "side": side_of(-p["dir"]),
+                     "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["sl"]),
+                     "triggerSignal": "mark", "reduceOnly": "true"})
+        p["stop_id"], p["stopfail"] = new, 0
+        p.pop("warned", None)
+        if old_stop and old_stop != new:
+            cancel(old_stop)
     except Exception as e:
+        p["stop_id"] = old_stop                    # l'ancien stop reste en place chez Kraken
         p["stopfail"] = p.get("stopfail", 0) + 1
         if not p.get("warned"):                    # un seul message, pas un par minute
             p["warned"] = True
             notify(st, "%s stop Kraken NON pose (%s) -> nouvel essai, fermeture si 2e echec" % (nm(sym), e))
     try:
-        p["tp_id"] = order({"orderType": "take_profit", "symbol": sym, "side": side_of(-p["dir"]),
-                            "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["tp"]),
-                            "triggerSignal": "last", "reduceOnly": "true"})
+        new = order({"orderType": "take_profit", "symbol": sym, "side": side_of(-p["dir"]),
+                     "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["tp"]),
+                     "triggerSignal": "last", "reduceOnly": "true"})
+        p["tp_id"] = new
+        if old_tp and old_tp != new:
+            cancel(old_tp)
     except Exception as e:
+        p["tp_id"] = old_tp
         log.warning("TP : %s", e)
 
 
@@ -762,13 +790,13 @@ def enter(st, sym, tf, sig, px, C):
         st["pos"][sym] = p                        # si la sortie echoue : stop d'urgence pose au cycle suivant
         close_mkt(st, sym, p, price, "SORTIE immediate (prix obtenu trop loin du plan)")
         return None
-    p = {"dir": d, "entry": e, "sl": sl, "tp": tp, "qty": qty, "tf": tf,
+    p = {"dir": d, "entry": e, "sl": sl, "tp": tp, "qty": qty, "tf": tf, "risk0": abs(e - sl),
          "wall": sig["wall"]["price"], "wall_side": sig["wall"]["side"],
          "wall_key": sig["wall"].get("key"),
          "bar_ts": int(time.time() // TF_SEC[tf] * TF_SEC[tf]), "stop_id": None, "tp_id": None}
     st["pos"][sym] = p
     place_exits(st, sym, p)
-    notify(st, "%s %s %s (%s) x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
+    notify(st, "%s %s %s (%s) levier max x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
                "bulle x%.1f, agresseurs %+d%%, %s\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
               "le mur tient" if sig["type"] == "REBOND" else "mur mange",
@@ -799,6 +827,7 @@ def adopt_orphans(st, pos_ex, px, C):
         d, e = ex["dir"], ex["price"] or price
         sl = min(e, price) - 1.5 * a if d > 0 else max(e, price) + 1.5 * a
         p = {"dir": d, "entry": e, "sl": sl, "tp": e + d * C["RR"] * abs(e - sl), "qty": ex["size"],
+             "risk0": abs(e - sl),
              "tf": "15m", "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
              "bar_ts": int(time.time()), "stop_id": None, "tp_id": None}
         # pas de cancel_all : on ne touche pas aux ordres poses a la main ou par un autre outil
@@ -828,7 +857,8 @@ def manage(st, sym, price, pos_ex, C):
             return
         if not ex or ex["dir"] != d or ex["size"] <= 0:
             cancel_all(sym)
-            why = "TP" if (price - p["entry"]) * d > 0 else "STOP"
+            why = ("stop au prix d'entree, ~0 $" if p.get("be") and abs(price - p["entry"]) < p.get("risk0", 0)
+                   else "TP" if (price - p["entry"]) * d > 0 else "STOP")
             notify(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             st["pos"].pop(sym, None)
             return
@@ -839,7 +869,7 @@ def manage(st, sym, price, pos_ex, C):
                 close_mkt(st, sym, p, price, "SORTIE : stop impossible a poser chez Kraken")
                 return
     # securite : prix nettement au-dela du SL et toujours en position -> on sort
-    if (p["sl"] - price) * d > 0.3 * abs(p["entry"] - p["sl"]):
+    if not p.get("be") and (p["sl"] - price) * d > 0.3 * p.get("risk0", abs(p["entry"] - p["sl"])):
         close_mkt(st, sym, p, price, "STOP (securite bot)")
         return
     # 2) scenario 3 en position : le mur a ete RETIRE alors que le prix ne l'a pas
@@ -984,7 +1014,9 @@ def cycle(st, C):
             log.warning("suivi %s : %s", sym, e)
 
     # 3) a chaque bougie cloturee : le prix a-t-il rebondi sur un mur qui tient ?
-    for tf in C["TF_LIST"]:
+    stats = st.setdefault("stats", {})
+    cd = st.setdefault("cooldown", {})
+    for tf in sorted(C["TF_LIST"], key=lambda x: TF_SEC[x], reverse=True):   # 1h d'abord
         tfs = TF_SEC[tf]
         last_closed = int(now // tfs * tfs) - tfs
         if now - (last_closed + tfs) < 5:
@@ -994,7 +1026,8 @@ def cycle(st, C):
             if st["last"].get(akey) == last_closed:
                 continue
             walls = [w for w in live_walls(st, sym, now, C)
-                     if not spoof_side(st, sym, w["side"], now, C)]     # cote qui bluffe : ignore
+                     if not spoof_side(st, sym, w["side"], now, C)     # cote qui bluffe : ignore
+                     and cd.get("%s|%s" % (sym, w["key"]), 0) < now]   # mur deja trade : pause
             gone = [v for kind, v in events.get(sym, []) if kind == "MANGE"]
             if not walls and not gone:
                 st["last"][akey] = last_closed
@@ -1014,14 +1047,31 @@ def cycle(st, C):
                 if key in st["seen"]:
                     continue
                 st["seen"].append(key)
+                stats["signaux"] = stats.get("signaux", 0) + 1
                 why = enter(st, sym, tf, sig, px, C)
+                if not why:
+                    stats["trades"] = stats.get("trades", 0) + 1
+                    if sig["wall"].get("key"):
+                        cd["%s|%s" % (sym, sig["wall"]["key"])] = now + C["WALL_COOLDOWN"] * 60
                 if why:                            # journal seulement (pas de Telegram a chaque refus)
+                    motif = why.split("(")[0].strip()[:40]
+                    stats["refus: " + motif] = stats.get("refus: " + motif, 0) + 1
                     log.info("%s %s signal %s sur mur %s ignore : %s"
                            % (nm(sym), tf, "ACHAT" if sig["dir"] > 0 else "VENTE",
                               rp(st, sym, sig["wall"]["price"]), why))
             except Exception as e:
                 log.warning("%s %s : %s", sym, tf, e)
     st["seen"] = st["seen"][-600:]
+    st["cooldown"] = {k: v for k, v in cd.items() if v > now}
+    # resume regulier : l'utilisateur sait ce que le bot voit, meme sans trade
+    if not st.get("stats_ts"):
+        st["stats_ts"] = now
+    elif now - st["stats_ts"] >= C["SUMMARY_HOURS"] * 3600:
+        lignes = ["%s : %d" % (k, v) for k, v in sorted(stats.items(), key=lambda x: -x[1])]
+        notify(st, "Resume %dh : %d signaux detectes, %d trades\n%s"
+               % (C["SUMMARY_HOURS"], stats.get("signaux", 0), stats.get("trades", 0),
+                  "\n".join(l for l in lignes if l.startswith("refus"))[:900] or "aucun refus"))
+        st["stats"], st["stats_ts"] = {}, now
     nw = sum(len(live_walls(st, s, now, C)) for s in C["SYMS"])
     log.info("cycle ok : %d murs confirmes sur %d actifs, %d position(s)", nw, len(C["SYMS"]), len(st["pos"]))
 

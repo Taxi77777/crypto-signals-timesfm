@@ -82,7 +82,9 @@ jobs:
 
   relance:
     needs: bot
-    if: ${{ !cancelled() }}
+    # relance seulement si le job s'est bien termine (pas de boucle de relances si le
+    # bot plante au demarrage) ; le cron horaire reste le filet de securite
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
