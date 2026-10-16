@@ -83,7 +83,7 @@ CFG = {
     "SPOOF_WIN": envf("SPOOF_WIN", 30),          # ...en Y minutes -> ce cote n'est plus cru
     # idee 2 : absorption / iceberg = volume REELLEMENT execute sur le mur
     "ABS_FILTER": envf("ABS_FILTER", 1),         # exiger que le mur ait encaisse des trades
-    "ABS_MIN": envf("ABS_MIN", 0.2),             # volume execute au mur >= X de sa taille
+    "ABS_MIN": envf("ABS_MIN", 0.05),            # volume execute au mur >= X de sa taille (mesure : max ~10 %)
     "ABS_NEAR_PCT": envf("ABS_NEAR_PCT", 0.25),  # on lit les trades si le prix est a < X % d'un mur
     "WALL_KEEP": envf("WALL_KEEP", 0.25),        # un mur qui encaisse les attaques maigrit : on le garde jusqu'a X du max
     "WALL_GONE": envf("WALL_GONE", 0.3),         # "retire / mange" si taille < X du max
