@@ -65,13 +65,13 @@ CFG = {
     "TF": envf("KRAKEN_TF", "5m,15m,30m,1h"),
     # murs (carnet d'ordres reel)
     "BUCKET_PCT": envf("BUCKET_PCT", 0.05),      # largeur d'un niveau de prix, en % du prix
-    "RANGE_PCT": envf("RANGE_PCT", 3.0),         # on regarde le carnet a +/- X % du prix
+    "RANGE_PCT": envf("RANGE_PCT", 1.5),         # on regarde le carnet a +/- X % du prix
     "WALL_FACTOR": envf("WALL_FACTOR", 8.0),     # mur = niveau >= X fois la mediane
     "MAX_WALLS": envf("MAX_WALLS", 3),           # seulement les X plus gros murs de chaque cote
     "GONE_SNAPS": envf("GONE_SNAPS", 2),         # absent X lectures de suite = vraiment parti
     "NOTIFY_RETIRE": envf("NOTIFY_RETIRE", 0),   # 1 = Telegram a chaque mur retire (bavard)
     "WALL_MIN_AGE": envf("WALL_MIN_AGE", 180),   # secondes de presence minimum
-    "WALL_KEEP": envf("WALL_KEEP", 0.5),         # "il tient" si taille >= X du max observe
+    "WALL_KEEP": envf("WALL_KEEP", 0.25),        # un mur qui encaisse les attaques maigrit : on le garde jusqu'a X du max
     "WALL_GONE": envf("WALL_GONE", 0.3),         # "retire / mange" si taille < X du max
     # bulles + rebond
     "BUBBLE": envf("BUBBLE", 1.8),
@@ -85,6 +85,8 @@ CFG = {
     "MIN_RISK_ATR": envf("MIN_RISK_ATR", 0.5),   # risque minimum (evite les SL collants)
     "RR": envf("RR", 1.5),                       # TP = RR x risque
     "EXIT_IF_WALL_GONE": envf("EXIT_IF_WALL_GONE", 1),
+    "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),   # reprendre (stop d'urgence) une position inconnue du bot
+    "MIN_RR": envf("MIN_RR", 1.0),               # TP avant le mur oppose : refuse si gain/risque < X
     "MAX_HOLD": envf("MAX_HOLD", 48),            # bougies max en position
     # risque (prudent par defaut : petit compte)
     "LEVERAGE": envf("LEVERAGE", 5),
@@ -276,6 +278,18 @@ def rp(st, sym, x):
     return round(round(x / t) * t, d)
 
 
+def px_str(st, sym, x):
+    """Prix arrondi au tick, ecrit en decimal (jamais 1.2e-05 pour PEPE / SHIB)."""
+    t = (st["inst"].get(sym) or {}).get("tick") or 0.0001
+    d = max(0, -int(math.floor(math.log10(t)))) if t < 1 else 0
+    return "%.*f" % (d, rp(st, sym, x))
+
+
+def qty_str(st, sym, q):
+    d = st["inst"].get(sym) or {}
+    return "%.*f" % (max(0, d["sp"] if "sp" in d else 4), q)
+
+
 def rq(st, sym, x):
     d = st["inst"].get(sym) or {}
     f = 10.0 ** (d["sp"] if "sp" in d else 4)
@@ -342,10 +356,20 @@ def atr(h, l, c, p):
 # =========================================================================
 #  MURS : lecture du carnet d'ordres reel
 # =========================================================================
-def find_walls(bids, asks, mid, C):
-    """Regroupe le carnet par niveaux de BUCKET_PCT et renvoie les murs :
-       [(prix_centre, taille, cote)]  cote = +1 mur d'achat (bids), -1 mur de vente"""
-    w = mid * C["BUCKET_PCT"] / 100.0
+def grid_width(st, sym, mid, C):
+    """Largeur de niveau FIXE pour un symbole (multiple du tick), recalculee a chaque
+       decouverte (1 h) : les frontieres ne bougent plus a chaque minute."""
+    g = st.setdefault("grid", {})
+    if not g.get(sym):
+        t = (st["inst"].get(sym) or {}).get("tick") or 0.0001
+        g[sym] = max(t, round(mid * C["BUCKET_PCT"] / 100.0 / t) * t)
+    return g[sym]
+
+
+def find_walls(bids, asks, mid, C, w=None):
+    """Regroupe le carnet par niveaux fixes et renvoie les murs :
+       [(prix_centre, taille, cote)]  cote = +1 mur d'achat (sous le prix), -1 mur de vente"""
+    w = w or mid * C["BUCKET_PCT"] / 100.0
     lo, hi = mid * (1 - C["RANGE_PCT"] / 100.0), mid * (1 + C["RANGE_PCT"] / 100.0)
     buckets = {}
     for side, rows in ((1, bids), (-1, asks)):
@@ -356,9 +380,12 @@ def find_walls(bids, asks, mid, C):
             buckets[k] = buckets.get(k, 0.0) + q
     if len(buckets) < 10:
         return [], buckets, w
-    med = statistics.median(buckets.values())
     out = []
-    for side in (1, -1):
+    for side in (1, -1):                           # une mediane PAR COTE (carnet asymetrique)
+        vals = [q for (sd, _b), q in buckets.items() if sd == side]
+        if len(vals) < 5:
+            continue
+        med = statistics.median(vals)
         rows = sorted(((q, b) for (sd, b), q in buckets.items()
                        if sd == side and q >= C["WALL_FACTOR"] * med), reverse=True)
         out += [((b + 0.5) * w, q, side) for q, b in rows[:C["MAX_WALLS"]]]
@@ -369,19 +396,22 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
     """Memorise les murs dans le temps -> age, taille max, et detecte les murs
        qui disparaissent (RETIRE) avant que le prix ne les touche."""
     book = st["walls"].setdefault(sym, {})
-    tol = mid * C["BUCKET_PCT"] / 100.0
+    tol = w if w > 0 else mid * C["BUCKET_PCT"] / 100.0
+    lo, hi = mid * (1 - C["RANGE_PCT"] / 100.0), mid * (1 + C["RANGE_PCT"] / 100.0)
     seen = set()
     for price, size, side in walls:
-        key = None
-        for k, v in book.items():                  # meme mur si a moins d'un niveau
-            if v["side"] == side and abs(v["price"] - price) <= tol * 1.01:
-                key = k
-                break
+        key, dist = None, None
+        for k, v in book.items():                  # le mur connu le PLUS PROCHE (< 1 niveau)
+            dd = abs(v["price"] - price)
+            if v["side"] == side and k not in seen and dd <= tol * 1.01 and (dist is None or dd < dist):
+                key, dist = k, dd
         if key is None:
             key = "%d|%.10g" % (side, price)
             book[key] = {"price": price, "side": side, "first": now, "max": size}
         v = book[key]
-        v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now)
+        if v.get("gone"):                          # mur retire puis repose : on repart de zero
+            v.update(first=now, max=size)
+        v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol)
         v.pop("gone", None)
         seen.add(key)
     events = []
@@ -389,10 +419,13 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         v = book[k]
         if k in seen:
             continue
+        if not (lo <= v["price"] <= hi):           # sorti de la fenetre (le prix s'est eloigne) :
+            v["last"] = now                        # ni retire ni mange, on n'en sait rien
+            continue
         # sorti du top MAX_WALLS mais toujours dans le carnet ? -> toujours la
         if buckets and w > 0:
             b = int(math.floor(v["price"] / w))
-            q = max(buckets.get((v["side"], b + i), 0.0) for i in (-1, 0, 1))
+            q = sum(buckets.get((v["side"], b + i), 0.0) for i in (-1, 0, 1))
             if q >= C["WALL_GONE"] * v["max"]:
                 v.update(size=q, last=now, miss=0)
                 continue
@@ -449,10 +482,11 @@ def detect(bars, walls, C):
         W, d = w["price"], 0
         if bub0 or bub1:
             lowmin, highmax = min(l[k], l[k - 1]), max(h[k], h[k - 1])
-            if (w["side"] > 0 and c[k - 2] > W and W - pierce <= lowmin <= W + tol and c[k] > W
+            gw = w.get("w") or pierce               # le prix ne doit pas TRAVERSER le mur (sinon il est mange)
+            if (w["side"] > 0 and c[k - 2] > W and W - gw <= lowmin <= W + tol and c[k] > W
                     and c[k] > o[k] and (c[k] - l[k]) >= 0.5 * rng and c[k] > c[k - 1]):
                 d = 1                              # mur d'achat qui TIENT -> ACHAT
-            if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + pierce and c[k] < W
+            if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
                     and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
         if d and (best is None or w["max"] > best["wall"]["max"]):
@@ -508,13 +542,16 @@ def place_exits(st, sym, p):
         return
     try:
         p["stop_id"] = order({"orderType": "stp", "symbol": sym, "side": side_of(-p["dir"]),
-                              "size": p["qty"], "stopPrice": rp(st, sym, p["sl"]),
+                              "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["sl"]),
                               "triggerSignal": "mark", "reduceOnly": "true"})
     except Exception as e:
-        notify(st, "%s stop Kraken NON pose (%s) -> gere par le bot" % (nm(sym), e))
+        p["stopfail"] = p.get("stopfail", 0) + 1
+        if not p.get("warned"):                    # un seul message, pas un par minute
+            p["warned"] = True
+            notify(st, "%s stop Kraken NON pose (%s) -> nouvel essai, fermeture si 2e echec" % (nm(sym), e))
     try:
         p["tp_id"] = order({"orderType": "take_profit", "symbol": sym, "side": side_of(-p["dir"]),
-                            "size": p["qty"], "stopPrice": rp(st, sym, p["tp"]),
+                            "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["tp"]),
                             "triggerSignal": "last", "reduceOnly": "true"})
     except Exception as e:
         log.warning("TP : %s", e)
@@ -535,7 +572,7 @@ def close_mkt(st, sym, p, price, why):
         try:
             # on sort D'ABORD : si ca echoue, le stop / TP chez Kraken restent en place
             order({"orderType": "mkt", "symbol": sym, "side": side_of(-p["dir"]),
-                   "size": qty, "reduceOnly": "true"})
+                   "size": qty_str(st, sym, qty), "reduceOnly": "true"})
         except Exception as e:
             notify(st, "%s ERREUR fermeture (stop Kraken conserve) : %s" % (nm(sym), e))
             if LIVE and not p.get("stop_id") and p.get("sl"):
@@ -553,6 +590,8 @@ def close_mkt(st, sym, p, price, why):
 def enter(st, sym, tf, sig, px, C):
     if len(st["pos"]) >= C["MAX_OPEN"] or sym in st["pos"]:
         return "position deja ouverte"
+    if time.time() < st.get("block_until", 0):
+        return "entree precedente incertaine, attente de verification"
     try:
         price = tickers().get(sym) or px.get(sym) or sig["close"]   # prix frais
     except Exception:
@@ -560,12 +599,23 @@ def enter(st, sym, tf, sig, px, C):
     e, sl, tp = plan(dict(sig, close=price), C)
     if not sl_ok(e, sl, C):
         return "SL hors limites (frais / liquidation x%s)" % C["LEVERAGE"]
+    d = sig["dir"]
+    # le prochain mur OPPOSE est la resistance suivante (video) : TP juste avant
+    opp = [v["price"] for v in live_walls(st, sym, time.time(), C)
+           if v["side"] == -d and (v["price"] - e) * d > 0]
+    if opp:
+        cap = min(opp, key=lambda x: abs(x - e)) - d * (st.get("grid", {}).get(sym) or 0)
+        if (cap - e) * d < (tp - e) * d:
+            tp = cap
+    if (tp - e) * d < C["MIN_RR"] * abs(e - sl):
+        return "mur oppose trop proche (gain/risque < %g)" % C["MIN_RR"]
     eq = equity(st)
     full = eq * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / e
     qty = rq(st, sym, full if C["SIZING"] == "FULL" else min(eq * C["RISK_PCT"] / 100 / abs(e - sl), full))
+    risk_plan = qty * abs(e - sl)                  # perte maximale prevue, en USD
+    tp_dist = abs(tp - e)
     if qty <= 0:
         return "taille a 0 (capital %.2f USD)" % eq
-    d = sig["dir"]
     if LIVE:
         sent, err = False, None
         for frac in (1.0, 0.84, 0.68):
@@ -573,7 +623,7 @@ def enter(st, sym, tf, sig, px, C):
             if q <= 0:
                 break
             try:
-                order({"orderType": "mkt", "symbol": sym, "side": side_of(d), "size": q})
+                order({"orderType": "mkt", "symbol": sym, "side": side_of(d), "size": qty_str(st, sym, q)})
                 sent = True
                 break
             except Exception as ex:
@@ -581,6 +631,7 @@ def enter(st, sym, tf, sig, px, C):
                 if "insufficient" not in str(ex).lower():
                     break
         if not sent:
+            st["block_until"] = time.time() + 180   # l'ordre a peut-etre quand meme ete execute
             return "ordre refuse par Kraken : %s" % err
         ex = None
         for _ in range(5):                       # l'ordre peut mettre un peu de temps
@@ -594,21 +645,21 @@ def enter(st, sym, tf, sig, px, C):
                 break
         if not ex or ex["size"] <= 0 or ex["dir"] != d:
             # la reconciliation (adopt_orphans) la reprendra si elle apparait plus tard
+            st["block_until"] = time.time() + 180
             return "entree envoyee mais aucune position constatee (surveillee)"
         qty, e = ex["size"], ex["price"] or e
-        # SL / TP recalcules sur le prix reellement obtenu
-        risk = abs(e - sl)
-        tp = e + d * C["RR"] * risk
-        if not sl_ok(e, sl, C) and (e - sl) * d > 0:
-            log.info("%s SL hors limites apres remplissage -> SL ramene a la limite", sym)
-            sl = e - d * e * C["LIQ_SAFETY"] / C["LEVERAGE"] * 0.95
-            tp = e + d * C["RR"] * abs(e - sl)
+        # le SL reste DERRIERE LE MUR (jamais elargi) ; seul le TP suit le prix obtenu
+        tp = e + d * tp_dist
     else:
         st["paper"] -= C["FEE_TAKER"] * e * qty
-    if (e - sl) * d <= 0:
-        p = {"dir": d, "entry": e, "qty": qty}
-        st["pos"][sym] = p
-        close_mkt(st, sym, p, price, "SORTIE immediate (entree au-dela du SL)")
+    # remplissage trop loin du plan : entree au-dela du SL, ou perte possible > 1,5 x prevu
+    if (e - sl) * d <= 0 or qty * abs(e - sl) > 1.5 * risk_plan:
+        a = sig["atr"]
+        p = {"dir": d, "entry": e, "qty": qty, "sl": e - d * a, "tp": e + d * a, "tf": tf,
+             "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
+             "bar_ts": int(time.time()), "stop_id": None, "tp_id": None}
+        st["pos"][sym] = p                        # si la sortie echoue : stop d'urgence pose au cycle suivant
+        close_mkt(st, sym, p, price, "SORTIE immediate (prix obtenu trop loin du plan)")
         return None
     p = {"dir": d, "entry": e, "sl": sl, "tp": tp, "qty": qty, "tf": tf,
          "wall": sig["wall"]["price"], "wall_side": sig["wall"]["side"],
@@ -630,6 +681,8 @@ def enter(st, sym, tf, sig, px, C):
 def adopt_orphans(st, pos_ex, px, C):
     """Position ouverte chez Kraken mais inconnue du bot (job tue, etat perdu...) :
        on la reprend avec un stop d'urgence et un TP, pour ne JAMAIS la laisser nue."""
+    if not C["ADOPT_ORPHANS"]:
+        return
     for sym, ex in pos_ex.items():
         if sym in st["pos"] or ex["size"] <= 0 or not sym.startswith("PF_"):
             continue
@@ -643,9 +696,9 @@ def adopt_orphans(st, pos_ex, px, C):
         d, e = ex["dir"], ex["price"] or price
         sl = min(e, price) - 1.5 * a if d > 0 else max(e, price) + 1.5 * a
         p = {"dir": d, "entry": e, "sl": sl, "tp": e + d * C["RR"] * abs(e - sl), "qty": ex["size"],
-             "tf": "15m", "wall": None, "wall_side": 0, "wall_key": None,
+             "tf": "15m", "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
              "bar_ts": int(time.time()), "stop_id": None, "tp_id": None}
-        cancel_all(sym)
+        # pas de cancel_all : on ne touche pas aux ordres poses a la main ou par un autre outil
         st["pos"][sym] = p
         place_exits(st, sym, p)
         notify(st, "%s position Kraken inconnue reprise (%s qte %s) -> stop d'urgence %s, TP %s"
@@ -665,6 +718,11 @@ def manage(st, sym, price, pos_ex, C):
                 ex = open_positions().get(sym)
             except Exception:
                 return                            # dans le doute, on ne touche a rien
+        if ex and ex["size"] > 0 and ex["dir"] != d:
+            # etat perime : la vraie position est dans l'autre sens -> on la laisse a
+            # adopt_orphans (stop d'urgence) SANS annuler son stop actuel
+            st["pos"].pop(sym, None)
+            return
         if not ex or ex["dir"] != d or ex["size"] <= 0:
             cancel_all(sym)
             why = "TP" if (price - p["entry"]) * d > 0 else "STOP"
@@ -674,14 +732,23 @@ def manage(st, sym, price, pos_ex, C):
         p["qty"] = ex["size"]
         if not p.get("stop_id"):                  # stop jamais pose -> on reessaie
             place_exits(st, sym, p)
-    # 2) scenario 3 en position : le mur qui nous protegeait a disparu -> on sort
-    if C["EXIT_IF_WALL_GONE"] and p.get("wall_key"):
+            if not p.get("stop_id") and p.get("stopfail", 0) >= 2:
+                close_mkt(st, sym, p, price, "SORTIE : stop impossible a poser chez Kraken")
+                return
+    # securite : prix nettement au-dela du SL et toujours en position -> on sort
+    if (p["sl"] - price) * d > 0.3 * abs(p["entry"] - p["sl"]):
+        close_mkt(st, sym, p, price, "STOP (securite bot)")
+        return
+    # 2) scenario 3 en position : le mur a ete RETIRE alors que le prix ne l'a pas
+    #    traverse -> on sort. S'il a ete mange (prix au-dela), c'est le SL qui joue.
+    if C["EXIT_IF_WALL_GONE"] and p.get("wall_key") and not p.get("adopted"):
         v = (st["walls"].get(sym) or {}).get(p["wall_key"])
-        if not v or v.get("size", 0) < C["WALL_GONE"] * v["max"]:
-            close_mkt(st, sym, p, price, "SORTIE : le mur a disparu")
+        still_our_side = (price - p["wall"]) * d > 0
+        if (not v or v.get("size", 0) <= 0) and still_our_side:
+            close_mkt(st, sym, p, price, "SORTIE : le mur a ete retire")
             return
     # 3) duree max
-    if time.time() - p.get("bar_ts", time.time()) > C["MAX_HOLD"] * TF_SEC.get(p.get("tf"), 900):
+    if not p.get("adopted") and time.time() - p.get("bar_ts", time.time()) > C["MAX_HOLD"] * TF_SEC.get(p.get("tf"), 900):
         close_mkt(st, sym, p, price, "SORTIE duree max")
         return
     if (price <= p["sl"]) if d > 0 else (price >= p["sl"]):
@@ -710,7 +777,8 @@ def load_state(C):
 def save_state(st):
     try:
         with open(STATE_FILE, "w") as f:
-            json.dump(st, f, indent=1)
+            # depot PUBLIC : on n'ecrit pas le journal des messages (capital, P&L...)
+            json.dump({k: v for k, v in st.items() if k != "log"}, f, indent=1)
     except Exception as e:
         log.warning("etat non sauvegarde : %s", e)
 
@@ -723,6 +791,8 @@ def check_keys(st):
         f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
         eq = float(f.get("marginEquity") or f.get("portfolioValue") or 0)
         notify(st, "Cles Kraken FUTURES valides. Capital du compte : %.2f USD" % eq)
+        if eq <= 0:
+            notify(st, "ATTENTION : capital a 0 sur le compte Futures -> aucun ordre possible.")
         return True
     except Exception as e:
         notify(st, "ATTENTION : cles Kraken REFUSEES (%s)" % e)
@@ -734,6 +804,7 @@ def cycle(st, C):
         st["inst"] = instruments()
         C["SYMS"] = discover(st, C)
         st["disco"] = time.time()
+        st["grid"] = {}                           # grille recalculee 1x par heure
         log.info("%d actifs suivis : %s", len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"][:15]))
     if st.get("mode") != C["MODE"]:
         if st.get("mode") != "live":              # positions fictives : on repart a zero
@@ -762,7 +833,7 @@ def cycle(st, C):
             continue
         try:
             bids, asks = orderbook(sym)
-            walls, buckets, bw = find_walls(bids, asks, px[sym], C)
+            walls, buckets, bw = find_walls(bids, asks, px[sym], C, grid_width(st, sym, px[sym], C))
             ev = update_walls(st, sym, walls, px[sym], now, C, buckets, bw)
             events[sym] = ev
             for kind, v in ev:
@@ -819,8 +890,8 @@ def cycle(st, C):
                     continue
                 st["seen"].append(key)
                 why = enter(st, sym, tf, sig, px, C)
-                if why:
-                    notify(st, "%s %s signal %s sur mur %s ignore : %s"
+                if why:                            # journal seulement (pas de Telegram a chaque refus)
+                    log.info("%s %s signal %s sur mur %s ignore : %s"
                            % (nm(sym), tf, "ACHAT" if sig["dir"] > 0 else "VENTE",
                               rp(st, sym, sig["wall"]["price"]), why))
             except Exception as e:
@@ -848,7 +919,7 @@ def main():
         except Exception as e:
             log.warning("cycle : %s", e)
         save_state(st)
-        if time.time() >= end:
+        if time.time() + 180 >= end:
             log.info("Fin de ce job (le workflow se relance automatiquement).")
             return
         time.sleep(max(5, C["INTERVAL"] - (time.time() - t0)))
