@@ -206,7 +206,8 @@ PERP_EXCLUDE = ("TRADFI", "INDEX", "STOCK", "EQUIT", "COMMOD", "METAL", "GOLD", 
 NON_CRYPTO = {"XAUT", "PAXG", "XAU", "XAG"}
 XSTOCKS = {"TSLAX", "CRCLX", "NVDAX", "AAPLX", "SPYX", "QQQX", "METAX", "GOOGLX", "AMZNX",
            "MSFTX", "COINX", "HOODX", "MSTRX", "AMDX", "NFLXX", "PLTRX", "GMEX", "IBITX",
-           "GLDX", "SLVX", "TQQQX", "ORCLX", "AVGOX", "INTCX", "BABAX", "UBERX", "DISX"}
+           "GLDX", "SLVX", "TQQQX", "ORCLX", "AVGOX", "INTCX", "BABAX", "UBERX", "DISX",
+           "ANTHROPICX", "OPENAIX", "SPACEXX", "XAIX"}           # actions pre-IPO tokenisees
 
 
 def is_crypto(sym, inst):
@@ -243,7 +244,7 @@ def discover(st, C):
     rows = []
     for t in pub("/derivatives/api/v3/tickers").get("tickers") or []:
         s = (t.get("symbol") or "").upper()
-        if s not in st["inst"] or t.get("suspended"):
+        if s not in st["inst"] or t.get("suspended") or s in st.get("blocked", []):
             continue
         qv = float(t.get("volumeQuote") or 0)
         if qv >= C["MIN_QUOTE_VOL"]:
@@ -819,14 +820,19 @@ def cycle(st, C):
                % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["RISK_PCT"],
                   "/".join(C["TF_LIST"]), len(C["SYMS"])))
     if LIVE:
-        for sym in C["SYMS"]:
+        for sym in list(C["SYMS"]):
             if st["lev"].get(sym) != C["LEVERAGE"]:
                 try:
                     priv("PUT", "/api/v3/leveragepreferences",
                          {"symbol": sym, "maxLeverage": C["LEVERAGE"]})
                     st["lev"][sym] = C["LEVERAGE"]
                 except Exception as e:
-                    log.warning("levier %s : %s", sym, e)
+                    if "MARKET_RESTRICTED" in str(e):   # interdit pour ce compte : on l'ecarte
+                        st.setdefault("blocked", []).append(sym)
+                        C["SYMS"].remove(sym)
+                        log.info("%s interdit pour ce compte Kraken -> retire de la liste", sym)
+                    else:
+                        log.warning("levier %s : %s", sym, e)
 
     px = tickers()
     pos_ex = open_positions() if LIVE else {}
