@@ -62,7 +62,7 @@ CFG = {
     "SYMBOLS": envf("KRAKEN_SYMBOLS", ""),       # vide = perpetuels les plus liquides
     "MIN_QUOTE_VOL": envf("MIN_QUOTE_VOL", 500000.0),  # 0,5 M$/24 h -> ~55 cryptos (en dessous, carnets trop vides)
     "TOP_N": envf("TOP_N", 60),                  # carnet lu chaque minute (~11 s pour 55 cryptos)
-    "TF": envf("KRAKEN_TF", "5m,15m,30m,1h"),
+    "TF": envf("KRAKEN_TF", "15m,30m,1h"),        # 5m retire : frais > 50 % du risque (perdant par construction)
     # murs (carnet d'ordres reel)
     "BUCKET_PCT": envf("BUCKET_PCT", 0.05),      # largeur d'un niveau de prix, en % du prix
     "RANGE_PCT": envf("RANGE_PCT", 1.5),         # on regarde le carnet a +/- X % du prix
@@ -101,6 +101,8 @@ CFG = {
     # sortie
     "SL_BEHIND_ATR": envf("SL_BEHIND_ATR", 0.5), # SL = mur - X ATR
     "MIN_RISK_ATR": envf("MIN_RISK_ATR", 0.5),   # risque minimum (evite les SL collants)
+    "SL_MIN_PCT": envf("SL_MIN_PCT", 0.3),       # risque minimum en % du prix (frais Kraken <= 1/3 du risque)
+    "EXIT_IF_WALL_BROKEN": envf("EXIT_IF_WALL_BROKEN", 1),  # mur disparu ET traverse -> sortie
     "RR": envf("RR", 1.5),                       # TP = RR x risque
     "EXIT_IF_WALL_GONE": envf("EXIT_IF_WALL_GONE", 1),
     "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),   # reprendre (stop d'urgence) une position inconnue du bot
@@ -630,13 +632,13 @@ def mange_signal(bars, ev, C):
 
 
 def plan(sig, C):
-    """Entree / SL derriere le mur / TP"""
+    """Entree / SL derriere le mur, elargi au plancher (ATR, % du prix, frais) / TP.
+       La taille est calculee sur ce risque : la perte reste 1 % du capital."""
     d, W, a, e = sig["dir"], sig["wall"]["price"], sig["atr"], sig["close"]
-    sl = W - d * C["SL_BEHIND_ATR"] * a
-    if (e - sl) * d < C["MIN_RISK_ATR"] * a:
-        sl = e - d * C["MIN_RISK_ATR"] * a
-    risk = (e - sl) * d
-    return e, sl, e + d * C["RR"] * risk
+    fee_min = 2 * C["FEE_TAKER"] * e / C["MAX_FEE_R"] * 1.02   # garantit que les frais passent
+    r = max((e - (W - d * C["SL_BEHIND_ATR"] * a)) * d,
+            C["MIN_RISK_ATR"] * a, e * C["SL_MIN_PCT"] / 100.0, fee_min)
+    return e, e - d * r, e + d * C["RR"] * r
 
 
 def sl_ok(entry, sl, C):
@@ -723,7 +725,7 @@ def enter(st, sym, tf, sig, px, C):
         price = px.get(sym) or sig["close"]
     e, sl, tp = plan(dict(sig, close=price), C)
     if not sl_ok(e, sl, C):
-        return "SL hors limites (frais / liquidation x%s)" % C["LEVERAGE"]
+        return "SL trop loin (> %.1f %% : risque de liquidation x%s)" % (100 * C["LIQ_SAFETY"] / C["LEVERAGE"], C["LEVERAGE"])
     d = sig["dir"]
     # le prochain mur OPPOSE est la resistance suivante (video) : TP juste avant
     opp = [v["price"] for v in live_walls(st, sym, time.time(), C)
@@ -767,8 +769,8 @@ def enter(st, sym, tf, sig, px, C):
             time.sleep(1.5)
             try:
                 ex = open_positions().get(sym)
-            except Exception as e:
-                log.warning("positions : %s", e)
+            except Exception as err:            # (ne pas ecraser e = prix d'entree)
+                log.warning("positions : %s", err)
                 continue
             if ex and ex["size"] > 0 and ex["dir"] == d:
                 break
@@ -877,7 +879,13 @@ def manage(st, sym, price, pos_ex, C):
     if C["EXIT_IF_WALL_GONE"] and p.get("wall_key") and not p.get("adopted"):
         v = (st["walls"].get(sym) or {}).get(p["wall_key"])
         still_our_side = (price - p["wall"]) * d > 0
-        if (not v or v.get("size", 0) <= 0) and still_our_side and not p.get("be"):
+        gone = not v or v.get("size", 0) <= 0
+        if gone and not still_our_side and C["EXIT_IF_WALL_BROKEN"]:
+            # le stop est plus loin que le mur : si le mur est tombe ET traverse, l'idee
+            # du trade est fausse -> on sort sans attendre le stop complet
+            close_mkt(st, sym, p, price, "SORTIE : mur traverse (l'idee du trade est fausse)")
+            return
+        if gone and still_our_side and not p.get("be"):
             if (price - p["entry"]) * d > 0:
                 # en gain : on ne sort pas sur un retrait (souvent du bluff) -> stop au prix
                 # d'entree (plus de perte possible) et on laisse aller au TP
