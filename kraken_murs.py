@@ -353,9 +353,17 @@ class TradeFeed:
         while not self.stop:
             ws = None
             try:
+                while not self.stop:               # attendre la liste des cryptos AVANT de se
+                    with self.lock:                # connecter : Kraken n'envoie rien tant qu'on
+                        if self.syms:              # n'est pas abonne, et recv() ne rend pas la main
+                            break
+                    time.sleep(1)
                 ws = websocket.create_connection(self.URL, timeout=20)
                 with self.lock:
                     self.acked = set()             # nouvelle connexion : tout re-confirmer
+                # heartbeat : un message regulier meme en marche calme -> la boucle tourne,
+                # les nouvelles cryptos sont abonnees sans attendre
+                ws.send(json.dumps({"event": "subscribe", "feed": "heartbeat"}))
                 done = set()
                 last_ping = time.time()
                 wait = 2
