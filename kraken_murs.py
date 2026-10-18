@@ -81,6 +81,11 @@ CFG = {
     "WALL_COOLDOWN": envf("WALL_COOLDOWN", 60),  # minutes sans retrader le meme mur apres un trade
     "ABS_WINDOW": envf("ABS_WINDOW", 30),        # absorption comptee sur les X dernieres minutes
     "ABS_HITS": envf("ABS_HITS", 3),             # ...ou au moins X trades executes sur le mur
+    # ICEBERG : mur qui encaisse plus que sa taille affichee et se recharge (ordre cache)
+    "ICE_RATIO": envf("ICE_RATIO", 0.5),         # volume execute MESURE (30 min) >= X fois sa taille max
+                                                 # (on ne lit que 100 trades/min : 50 % mesures ~ >= 100 % reels)
+    "ICE_KEEP": envf("ICE_KEEP", 0.7),           # ...et toujours >= X de sa taille max (il se recharge)
+    "NOTIFY_ICEBERG": envf("NOTIFY_ICEBERG", 1), # alerte Telegram (1 fois par mur)
     "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6),   # resume Telegram toutes les X heures
     # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
     "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
@@ -244,6 +249,26 @@ def absorb_trades(st, sym, mid, now, C):
     st["tr_seq"][sym] = newest
     for v in near:                                 # on ne garde que la fenetre recente
         v["tr"] = [x for x in v.get("tr", []) if now - x[0] <= C["ABS_WINDOW"] * 60]
+
+
+def is_iceberg(v, C):
+    """Mur qui a encaisse au moins sa taille en trades et reste en place : il se recharge
+       depuis une reserve cachee (ordre iceberg) = acheteur / vendeur REEL et determine."""
+    mx = v.get("max") or 0.0
+    traded = sum(x[1] for x in v.get("tr", []))
+    return mx > 0 and traded >= C["ICE_RATIO"] * mx and v.get("size", 0) >= C["ICE_KEEP"] * mx
+
+
+def iceberg_alerts(st, sym, mid, now, C):
+    for v in (st["walls"].get(sym) or {}).values():
+        if v.get("ice_alert") or not is_iceberg(v, C):
+            continue
+        v["ice_alert"] = True
+        traded = sum(x[1] for x in v.get("tr", []))
+        msg = ("%s ICEBERG detecte : %s a %s (a encaisse %d%% de sa taille en 30 min et se recharge)"
+               % (nm(sym), "MUR D'ACHAT" if v["side"] > 0 else "MUR DE VENTE", rp(st, sym, v["price"]),
+                  int(100 * traded / v["max"])))
+        (notify if C["NOTIFY_ICEBERG"] else (lambda _s, m: log.info(m)))(st, msg)
 
 
 def spoof_side(st, sym, side, now, C):
@@ -492,7 +517,7 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
             book[key] = {"price": price, "side": side, "first": now, "max": size}
         v = book[key]
         if v.get("gone"):                          # mur retire puis repose : on repart de zero
-            v.update(first=now, max=size, n=0, tot=0, tr=[], near_ts=0)
+            v.update(first=now, max=size, n=0, tot=0, tr=[], near_ts=0, ice_alert=False)
         v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol,
                  n=v.get("n", 0) + 1, tot=v.get("tot", 0) + 1)
         v.pop("gone", None)
@@ -592,7 +617,8 @@ def detect(bars, walls, C):
         if not near or near < bars[k - 1][0] or w["first"] + C["WALL_MIN_AGE"] > near:
             continue                               # le mur doit etre confirme AVANT le contact
         W, d = w["price"], 0
-        if bub0 or bub1:
+        ice = is_iceberg(w, C)                     # iceberg : l'interet reel est deja prouve
+        if bub0 or bub1 or ice:
             lowmin, highmax = min(l[k], l[k - 1]), max(h[k], h[k - 1])
             gw = max(w.get("w") or 0.0, 0.2 * a)   # une petite meche sous le mur est toleree
             if (w["side"] > 0 and c[k - 2] > W and W - gw <= lowmin <= W + tol and c[k] > W
@@ -606,10 +632,10 @@ def detect(bars, walls, C):
         if d and C["ABS_FILTER"] and ab < C["ABS_MIN"] and len(trs) < C["ABS_HITS"]:
             d = 0                                  # le mur n'a encaisse aucun trade : pas prouve
         hv = hvn_strength(bars, W, C) if d else 0.0
-        if d and C["HVN_FILTER"] and hv < C["HVN_MIN"]:
+        if d and C["HVN_FILTER"] and hv < C["HVN_MIN"] and not ice:
             d = 0                                  # mur du carnet seul : pas de volume echange derriere
         if d and (best is None or w["max"] > best["wall"]["max"]):
-            best = {"dir": d, "type": "REBOND", "wall": w, "atr": a, "close": c[k],
+            best = {"dir": d, "type": "ICEBERG" if ice else "REBOND", "wall": w, "atr": a, "close": c[k],
                     "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv, "abs": ab}
     return best
 
@@ -806,7 +832,7 @@ def enter(st, sym, tf, sig, px, C):
     notify(st, "%s %s %s (%s) levier max x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
                "bulle x%.1f, agresseurs %+d%%, %s\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
-              "le mur tient" if sig["type"] == "REBOND" else "mur mange",
+              {"REBOND": "le mur tient", "ICEBERG": "ICEBERG : le mur se recharge"}.get(sig["type"], "mur mange"),
               C["LEVERAGE"], rp(st, sym, e), qty,
               "D'ACHAT" if sig["wall"]["side"] > 0 else "DE VENTE", rp(st, sym, sig["wall"]["price"]),
               sig["wall"]["max"], int(100 * sig.get("hvn", 1.0)), sig["vol"], int(100 * sig.get("delta", 0)),
@@ -1007,6 +1033,7 @@ def cycle(st, C):
                               rp(st, sym, v["price"]), dist))
             try:
                 absorb_trades(st, sym, px[sym], now, C)
+                iceberg_alerts(st, sym, px[sym], now, C)
             except Exception as e:
                 log.warning("trades %s : %s", sym, e)
             time.sleep(0.15)
