@@ -403,6 +403,19 @@ FEED = None
 TICK = {}                                          # funding / open interest du dernier passage
 
 
+def oi_note(st, sym, now):
+    """Variation de l'open interest sur ~1 h (INFORMATION seulement, ne bloque rien).
+       Prix + OI qui montent = nouveaux acteurs ; prix qui monte + OI qui baisse = rachats."""
+    h = (st.get("oi_hist") or {}).get(sym) or []
+    old = [x for x in h if 3300 <= now - x[0] <= 4500]
+    cur = (TICK.get(sym) or {}).get("oi")
+    if not old or not cur or not old[0][1]:
+        return "open interest : historique en cours (1 h)"
+    ch = (cur - old[0][1]) / old[0][1] * 100
+    return "open interest %+.1f %% sur 1 h (%s)" % (ch, "argent qui ENTRE" if ch > 0.5 else
+                                                    "argent qui SORT" if ch < -0.5 else "stable")
+
+
 def taker_delta(sym):
     """Achats agressifs - ventes agressives (flux en direct sur DELTA_SECS s ; sinon REST)."""
     if FEED and FEED.ok(sym):
@@ -1031,7 +1044,7 @@ def enter(st, sym, tf, sig, px, C):
     place_exits(st, sym, p)
     save_state(st)
     notify(st, "%s %s %s (%s) levier max x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
-               "bulle x%.1f, agresseurs %+d%%, %s\n%s, funding %+.4f %%/h\nTP %s   SL %s (derriere le mur)"
+               "bulle x%.1f, agresseurs %+d%%, %s\n%s, funding %+.4f %%/h\n%s\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
               {"REBOND": "le mur tient", "ICEBERG": "ICEBERG : le mur se recharge"}.get(sig["type"], "mur mange"),
               C["LEVERAGE"], rp(st, sym, e), qty,
@@ -1040,7 +1053,7 @@ def enter(st, sym, tf, sig, px, C):
               ("ICEBERG (a encaisse %d%% de sa taille et se recharge)" if sig["type"] == "ICEBERG" else
                "absorption %d%%") % int(100 * sig.get("abs", 0)),
               "preuve : mur CONFIRME sur OKX" if sig.get("okx") else "preuve : zone de volume / iceberg",
-              100 * sig.get("rf", 0.0),
+              100 * sig.get("rf", 0.0), oi_note(st, sym, time.time()),
               rp(st, sym, tp), rp(st, sym, sl)))
     return None
 
@@ -1218,7 +1231,7 @@ def cycle(st, C):
         st["grid"] = {}                           # grille recalculee 1x par heure
         keep = set(C["SYMS"]) | set(st["pos"]) | {k for k, v in (st.get("pending") or {}).items()
                                                   if time.time() - v.get("ts", 0) < 1800}
-        for key in ("walls", "spoof", "tr_seq", "pending"):
+        for key in ("walls", "spoof", "tr_seq", "pending", "oi_hist"):
             st[key] = {k: v for k, v in (st.get(key) or {}).items() if k in keep}
         st["last"] = {k: v for k, v in (st.get("last") or {}).items() if k.split("|")[0] in keep}
         st["cooldown"] = {k: v for k, v in (st.get("cooldown") or {}).items() if k.split("|")[0] in keep}
@@ -1247,6 +1260,14 @@ def cycle(st, C):
                         log.warning("levier %s : %s", sym, e)
 
     px = tickers()
+    oih = st.setdefault("oi_hist", {})             # open interest : 1 point / 5 min, 2 h gardees
+    for sym in C["SYMS"]:
+        oi = (TICK.get(sym) or {}).get("oi")
+        if oi:
+            lst = oih.setdefault(sym, [])
+            if not lst or time.time() - lst[-1][0] >= 300:
+                lst.append([time.time(), oi])
+            oih[sym] = [x for x in lst if time.time() - x[0] <= 7200]
     pos_ex = open_positions() if LIVE else {}
     now = time.time()
     events = {}
