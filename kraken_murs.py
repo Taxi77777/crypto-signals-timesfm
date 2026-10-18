@@ -435,7 +435,10 @@ def order(p):
     if s.get("status") and s["status"] not in (
             "placed", "attempted", "untouched", "partiallyFilled", "filled"):
         raise RuntimeError("ordre refuse : " + s["status"])
-    return s.get("order_id") or s.get("orderId")
+    oid = s.get("order_id") or s.get("orderId")
+    if not oid:
+        raise RuntimeError("ordre sans identifiant renvoye par Kraken (%s)" % (s.get("status") or s))
+    return oid
 
 
 def cancel(oid):
@@ -534,8 +537,8 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
             continue
         if not (lo <= v["price"] <= hi):           # sorti de la fenetre (le prix s'est eloigne) :
             v.setdefault("out_ts", now)            # ni retire ni mange ; oublie au bout d'1 h
-            if now - v["out_ts"] > 3600:
-                del book[k]
+            if now - v["out_ts"] > 3600 and k != (st["pos"].get(sym) or {}).get("wall_key"):
+                del book[k]                        # (sauf le mur d'une position ouverte)
             continue
         v.pop("out_ts", None)
         v["tot"] = v.get("tot", 0) + 1             # une lecture de plus pour ce mur
@@ -619,7 +622,7 @@ def detect(bars, walls, C):
     if rng <= 0:
         return None
     bub0, bub1 = v[k] >= C["BUBBLE"] * avgv, v[k - 1] >= C["BUBBLE"] * avgv
-    tol, pierce = C["TOL_ATR"] * a, C["PIERCE_ATR"] * a
+    tol = C["TOL_ATR"] * a
     best = None
     for w in walls:
         near = w.get("near_ts", 0)
@@ -790,7 +793,7 @@ def enter(st, sym, tf, sig, px, C):
     risk_plan = qty * abs(e - sl)                  # perte maximale prevue, en USD
     tp_dist = abs(tp - e)
     if qty <= 0:
-        return "taille a 0 (capital %.2f USD)" % eq
+        return "taille a 0 (capital insuffisant pour la taille minimale Kraken)"
     if LIVE:
         # plan memorise AVANT l'ordre : si la confirmation se perd, la position reprise
         # recevra CE stop (et pas un stop d'urgence plus large)
@@ -833,8 +836,9 @@ def enter(st, sym, tf, sig, px, C):
         tp = e + d * tp_dist
     else:
         st["paper"] -= C["FEE_TAKER"] * e * qty
-    # remplissage trop loin du plan : entree au-dela du SL, ou perte possible > 1,2 x prevu
-    if (e - sl) * d <= 0 or qty * abs(e - sl) > 1.2 * risk_plan:
+    # remplissage trop loin du plan : entree au-dela du SL, ou perte possible > 1,35 x prevu
+    # (1,2 faisait sortir sur un simple glissement de ~0,06 % en payant les frais pour rien)
+    if (e - sl) * d <= 0 or qty * abs(e - sl) > 1.35 * risk_plan:
         a = sig["atr"]
         p = {"dir": d, "entry": e, "qty": qty, "sl": e - d * a, "tp": e + d * a, "tf": tf,
              "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
@@ -947,7 +951,7 @@ def manage(st, sym, price, pos_ex, C):
                 old_sl = p["sl"]
                 p["sl"] = p["entry"]
                 place_exits(st, sym, p)
-                if p.get("stop_px") == p["sl"]:       # Kraken a bien accepte le nouveau stop
+                if p.get("stop_id") and p.get("stop_px") == p["sl"]:   # Kraken a bien accepte le nouveau stop
                     p["be"] = True
                     save_state(st)
                     notify(st, "%s mur retire, trade en gain -> stop deplace au prix d'entree %s (zero perte)"
@@ -976,20 +980,36 @@ def manage(st, sym, price, pos_ex, C):
 def load_state(C):
     st = {"pos": {}, "walls": {}, "seen": [], "last": {}, "paper": C["PAPER_BALANCE"],
           "inst": {}, "lev": {}, "log": [], "mode": None, "stats": {}}
-    if os.path.exists(STATE_FILE):
+    for fn in (STATE_FILE, STATE_FILE + ".bak"):   # copie de secours si le fichier est abime
+        if not os.path.exists(fn):
+            continue
         try:
-            with open(STATE_FILE) as f:
+            with open(fn) as f:
                 st.update(json.load(f))
+            if fn != STATE_FILE:
+                log.warning("etat principal illisible -> copie de secours utilisee")
+            return st
         except Exception as e:
-            log.warning("etat illisible (%s) -> repart a zero", e)
+            log.warning("etat %s illisible (%s)", fn, e)
     return st
 
 
 def save_state(st):
+    """Ecriture ATOMIQUE : fichier temporaire puis remplacement. Un arret brutal au milieu
+       ne peut plus laisser un fichier tronque (l'ancien reste intact + copie .bak)."""
     try:
-        with open(STATE_FILE, "w") as f:
+        tmp = STATE_FILE + ".tmp"
+        with open(tmp, "w") as f:
             # depot PUBLIC : on n'ecrit pas le journal des messages (capital, P&L...)
             json.dump({k: v for k, v in st.items() if k != "log"}, f, separators=(",", ":"))
+            f.flush()
+            os.fsync(f.fileno())
+        if os.path.exists(STATE_FILE):
+            try:
+                os.replace(STATE_FILE, STATE_FILE + ".bak")
+            except Exception:
+                pass
+        os.replace(tmp, STATE_FILE)
     except Exception as e:
         log.warning("etat non sauvegarde : %s", e)
 
@@ -1016,7 +1036,8 @@ def cycle(st, C):
         C["SYMS"] = discover(st, C)
         st["disco"] = time.time()
         st["grid"] = {}                           # grille recalculee 1x par heure
-        keep = set(C["SYMS"]) | set(st["pos"])     # on oublie les cryptos plus suivies
+        keep = set(C["SYMS"]) | set(st["pos"]) | {k for k, v in (st.get("pending") or {}).items()
+                                                  if time.time() - v.get("ts", 0) < 1800}
         for key in ("walls", "spoof", "tr_seq", "pending"):
             st[key] = {k: v for k, v in (st.get(key) or {}).items() if k in keep}
         st["last"] = {k: v for k, v in (st.get("last") or {}).items() if k.split("|")[0] in keep}
@@ -1169,6 +1190,11 @@ def main():
         check_keys(st)
 
     def _arret(signum, frame):                     # job annule / redemarre : on ne perd rien
+        for sg2 in (signal.SIGTERM, signal.SIGINT):
+            try:
+                signal.signal(sg2, signal.SIG_IGN)     # un 2e signal n'interrompt pas la sauvegarde
+            except Exception:
+                pass
         save_state(st)
         log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
         sys.exit(0)
