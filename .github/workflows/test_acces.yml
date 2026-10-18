@@ -1,0 +1,45 @@
+name: Test d'acces aux plateformes (temporaire)
+
+# Test unique : quelles plateformes repondent depuis les serveurs GitHub (USA) ?
+# Aucune cle, aucun ordre : uniquement des donnees publiques.
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acces HTTP (carnets publics)
+        run: |
+          for u in \
+            "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=5" \
+            "https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=5" \
+            "https://api.binance.us/api/v3/depth?symbol=BTCUSDT&limit=5" \
+            "https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=5" \
+            "https://www.okx.com/api/v5/market/books?instId=BTC-USDT-SWAP&sz=5" \
+            "https://api.exchange.coinbase.com/products/BTC-USD/book?level=2" \
+            "https://api.hyperliquid.xyz/info" \
+            "https://futures.kraken.com/derivatives/api/v3/tickers" ; do
+            if echo "$u" | grep -q hyperliquid; then
+              code=$(curl -s -o /tmp/r -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"type":"l2Book","coin":"BTC"}' "$u")
+            else
+              code=$(curl -s -o /tmp/r -w '%{http_code}' "$u")
+            fi
+            echo "$code  $(head -c 90 /tmp/r | tr -d '\n')  <- $u"
+          done
+      - name: Flux en direct Kraken Futures (WebSocket)
+        run: |
+          pip install -q websocket-client
+          python - <<'EOF'
+          import json, time, websocket
+          ws = websocket.create_connection("wss://futures.kraken.com/ws/v1", timeout=15)
+          ws.send(json.dumps({"event": "subscribe", "feed": "trade", "product_ids": ["PF_XBTUSD", "PF_ETHUSD"]}))
+          ws.send(json.dumps({"event": "subscribe", "feed": "book", "product_ids": ["PF_XBTUSD"]}))
+          t0, n = time.time(), {}
+          while time.time() - t0 < 25:
+              m = json.loads(ws.recv())
+              f = m.get("feed") or m.get("event")
+              n[f] = n.get(f, 0) + 1
+          print("messages recus en 25 s :", n)
+          ws.close()
+          EOF
