@@ -107,6 +107,7 @@ CFG = {
     "EXIT_IF_WALL_GONE": envf("EXIT_IF_WALL_GONE", 1),
     "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),   # reprendre (stop d'urgence) une position inconnue du bot
     "MIN_RR": envf("MIN_RR", 1.0),               # TP avant le mur oppose : refuse si gain/risque < X
+    "OPP_STRENGTH": envf("OPP_STRENGTH", 1.0),   # seul un mur oppose >= X fois NOTRE mur bloque le TP
     "MAX_HOLD": envf("MAX_HOLD", 48),            # bougies max en position
     # risque (prudent par defaut : petit compte)
     "LEVERAGE": envf("LEVERAGE", 5),
@@ -728,8 +729,12 @@ def enter(st, sym, tf, sig, px, C):
         return "SL trop loin (> %.1f %% : risque de liquidation x%s)" % (100 * C["LIQ_SAFETY"] / C["LEVERAGE"], C["LEVERAGE"])
     d = sig["dir"]
     # le prochain mur OPPOSE est la resistance suivante (video) : TP juste avant
+    # (un mur oppose plus FAIBLE que le notre sera vraisemblablement mange par le rebond :
+    #  seul un mur au moins aussi fort arrete le trajet)
+    ours = sig["wall"].get("max") or 0.0
     opp = [v["price"] for v in live_walls(st, sym, time.time(), C)
-           if v["side"] == -d and (v["price"] - e) * d > 0]
+           if v["side"] == -d and (v["price"] - e) * d > 0
+           and v.get("max", 0.0) >= C["OPP_STRENGTH"] * ours]
     if opp:
         cap = min(opp, key=lambda x: abs(x - e)) - d * (st.get("grid", {}).get(sym) or 0)
         if (cap - e) * d < (tp - e) * d:
