@@ -40,7 +40,7 @@ jobs:
           python-version: '3.11'
 
       - name: Dependances
-        run: pip install requests
+        run: pip install requests websocket-client
 
       - name: Bot MURS & BULLES
         env:

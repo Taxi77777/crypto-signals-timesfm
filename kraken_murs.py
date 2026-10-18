@@ -39,11 +39,18 @@ import os
 import re
 import signal
 import statistics
+import threading
+from collections import deque
 import sys
 import time
 import urllib.parse
 
 import requests
+
+try:                                               # flux en direct (facultatif : repli REST sinon)
+    import websocket
+except Exception:
+    websocket = None
 
 BASE = "https://futures.kraken.com"
 TF_SEC = {"5m": 300, "15m": 900, "30m": 1800, "1h": 3600, "4h": 14400}
@@ -88,6 +95,15 @@ CFG = {
                                                  # (on ne lit que 100 trades/min : 50 % mesures ~ >= 100 % reels)
     "ICE_KEEP": envf("ICE_KEEP", 0.7),           # ...et toujours >= X de sa taille max (il se recharge)
     "NOTIFY_ICEBERG": envf("NOTIFY_ICEBERG", 1), # alerte Telegram (1 fois par mur)
+    # flux en direct des trades Kraken (WebSocket) : TOUS les trades, pas 100 par minute
+    "WS_TRADES": envf("WS_TRADES", 1),
+    "DELTA_SECS": envf("DELTA_SECS", 300),       # acheteurs/vendeurs mesures sur les X dernieres s
+    # funding : eviter d'entrer du cote deja surcharge (tout le monde long -> pas d'ACHAT)
+    "FUND_FILTER": envf("FUND_FILTER", 1),
+    "FUND_MAX": envf("FUND_MAX", 0.00005),       # funding relatif par heure (0,005 %/h ~ 44 %/an)
+    # 2e plateforme : OKX (Binance/Bybit bloques depuis GitHub USA)
+    "OKX_CONFIRM": envf("OKX_CONFIRM", 1),       # mur confirme sur OKX = preuve alternative au double mur
+    "OKX_FACTOR": envf("OKX_FACTOR", 3.0),       # niveau OKX >= X fois la mediane du cote
     "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6.0), # resume Telegram toutes les X heures
     # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
     "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
@@ -229,6 +245,24 @@ def absorb_trades(st, sym, mid, now, C):
         return
     for v in near:
         v["near_ts"] = now                         # le prix est au contact du mur maintenant
+    tr_ts = st.setdefault("tr_ts", {})            # dernier trade compte (toutes sources)
+    if FEED and FEED.ok(sym):                      # TOUS les trades du flux en direct
+        last = st.setdefault("tr_wsseq", {}).get(sym, 0)
+        t0 = max(now - 120 if not last else 0, tr_ts.get(sym, 0))
+        newest = last
+        for ts, px_t, q, _side, seq in FEED.since(sym, last):
+            newest = max(newest, seq)
+            if ts <= t0:
+                continue
+            tr_ts[sym] = max(tr_ts.get(sym, 0), ts)
+            for v in near:
+                half = (v.get("w") or mid * C["BUCKET_PCT"] / 100) / 2.0
+                if abs(px_t - v["price"]) <= half:
+                    v.setdefault("tr", []).append([ts, q])
+        st["tr_wsseq"][sym] = newest
+        for v in near:
+            v["tr"] = [x for x in v.get("tr", []) if now - x[0] <= C["ABS_WINDOW"] * 60]
+        return
     h = pub("/derivatives/api/v3/history", {"symbol": sym}).get("history") or []
     # anti-doublon par numero de sequence (plusieurs trades peuvent avoir la meme seconde)
     last = st.setdefault("tr_seq", {}).get(sym, 0)
@@ -240,8 +274,8 @@ def absorb_trades(st, sym, mid, now, C):
         except Exception:
             seq = 0
         ts = trade_ts(t.get("time"))
-        if (seq and seq <= last) or ts < t0:
-            continue
+        if (seq and seq <= last) or ts < t0 or ts <= tr_ts.get(sym, 0):
+            continue                               # (deja compte par le flux en direct)
         newest = max(newest, seq)
         px_t, q = float(t.get("price") or 0), float(t.get("size") or 0)
         for v in near:
@@ -280,8 +314,103 @@ def spoof_side(st, sym, side, now, C):
     return sum(1 for e in lst if e[0] == side) >= C["SPOOF_MAX"]
 
 
+class TradeFeed:
+    """Flux en direct des trades Kraken Futures (WebSocket, thread de fond).
+       Le bot voit ainsi CHAQUE trade (absorption / iceberg / agresseurs exacts) au lieu
+       d'un instantane de 100 trades par minute. Reconnexion automatique ; si le flux
+       tombe, le bot repasse sur l'API REST comme avant."""
+    URL = "wss://futures.kraken.com/ws/v1"
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.trades = {}
+        self.syms = set()
+        self.acked = set()                         # symboles dont l'abonnement est CONFIRME
+        self.alive = 0.0                           # derniere activite reelle du flux
+        self.n = 0                                 # compteur local : ne repart jamais a zero
+        self.stop = False
+
+    def set_symbols(self, syms):
+        with self.lock:
+            self.syms = set(syms)
+
+    def ok(self, sym=None):
+        """Flux vivant ET (si sym donne) abonnement confirme pour ce symbole."""
+        with self.lock:
+            return time.time() - self.alive < 120 and (sym is None or sym in self.acked)
+
+    def since(self, sym, seq0):
+        with self.lock:
+            return [x for x in self.trades.get(sym, ()) if x[4] > seq0]
+
+    def recent(self, sym, secs):
+        t0 = time.time() - secs
+        with self.lock:
+            return [x for x in self.trades.get(sym, ()) if x[0] >= t0]
+
+    def run(self):
+        wait = 2
+        while not self.stop:
+            ws = None
+            try:
+                ws = websocket.create_connection(self.URL, timeout=20)
+                with self.lock:
+                    self.acked = set()             # nouvelle connexion : tout re-confirmer
+                done = set()
+                last_ping = time.time()
+                wait = 2
+                while not self.stop:
+                    with self.lock:
+                        new = sorted(self.syms - done)
+                    if new:
+                        ws.send(json.dumps({"event": "subscribe", "feed": "trade", "product_ids": new}))
+                        done |= set(new)
+                    if time.time() - last_ping > 30:   # Kraken coupe une connexion sans ping
+                        ws.ping()
+                        last_ping = time.time()
+                    try:
+                        m = json.loads(ws.recv())
+                    except websocket.WebSocketTimeoutException:
+                        continue
+                    ev = m.get("event")
+                    if ev == "subscribed" and m.get("feed") == "trade":
+                        with self.lock:
+                            self.acked |= set(x.upper() for x in (m.get("product_ids") or []))
+                            self.alive = time.time()
+                    elif ev in ("error", "alert"):
+                        log.warning("flux trades (Kraken) : %s", m)
+                    elif m.get("feed") == "trade" and "price" in m and "qty" in m:
+                        sym = (m.get("product_id") or "").upper()
+                        with self.lock:
+                            self.n += 1
+                            rec = (float(m["time"]) / 1000.0, float(m["price"]), float(m["qty"]),
+                                   m.get("side"), self.n)
+                            self.trades.setdefault(sym, deque(maxlen=20000)).append(rec)
+                            self.alive = time.time()
+            except Exception as e:
+                log.warning("flux trades : %s -> reconnexion dans %d s", e, wait)
+                time.sleep(wait)
+                wait = min(60, wait * 2)
+            finally:
+                try:
+                    if ws is not None:
+                        ws.close()                 # pas de connexion orpheline
+                except Exception:
+                    pass
+
+
+FEED = None
+TICK = {}                                          # funding / open interest du dernier passage
+
+
 def taker_delta(sym):
-    """Achats agressifs - ventes agressives sur les 100 derniers trades (info)."""
+    """Achats agressifs - ventes agressives (flux en direct sur DELTA_SECS s ; sinon REST)."""
+    if FEED and FEED.ok(sym):
+        tr = FEED.recent(sym, CFG["DELTA_SECS"])
+        if len(tr) >= 5:
+            buy = sum(x[2] for x in tr if x[3] == "buy")
+            sell = sum(x[2] for x in tr if x[3] == "sell")
+            return (buy - sell) / (buy + sell) if buy + sell else 0.0
     try:
         h = pub("/derivatives/api/v3/history", {"symbol": sym}).get("history") or []
         buy = sum(float(t["size"]) for t in h if t.get("side") == "buy")
@@ -294,11 +423,14 @@ def taker_delta(sym):
 
 def tickers():
     out = {}
+    TICK.clear()
     for t in pub("/derivatives/api/v3/tickers").get("tickers") or []:
         s = (t.get("symbol") or "").upper()
         p = t.get("last") or t.get("markPrice")
         if s and p:
             out[s] = float(p)
+            TICK[s] = {"rf": float(t.get("relativeFundingRate") or 0.0),
+                       "oi": float(t.get("openInterest") or 0.0)}
     return out
 
 
@@ -605,6 +737,42 @@ def hvn_strength(bars, price, C):
     return max(sm[max(0, k - 1):k + 2]) / mx
 
 
+def okx_inst(sym):
+    base = sym[3:-3].replace("XBT", "BTC").replace("XDG", "DOGE")
+    return base + "-USDT-SWAP"
+
+
+def okx_confirm(sym, wall, C, kmid=None):
+    """Le mur Kraken correspond-il a un gros niveau dans le carnet OKX (meme cote, meme
+       prix a +/- 1 niveau) ? Un mur present sur 2 plateformes n'est pas un bluff local.
+       OKX cote en USDT, Kraken en USD : le prix du mur est ramene a la base OKX."""
+    r = SESSION.get("https://www.okx.com/api/v5/market/books-full",
+                    params={"instId": okx_inst(sym), "sz": "5000"}, timeout=5).json()
+    if str(r.get("code", "0")) != "0":
+        log.info("OKX %s : %s %s", okx_inst(sym), r.get("code"), r.get("msg"))
+        return False
+    d = (r.get("data") or [{}])[0]
+    rows = d.get("bids" if wall["side"] > 0 else "asks") or []
+    if len(rows) < 20 or not d.get("bids") or not d.get("asks"):
+        return False
+    w = wall.get("w") or wall["price"] * C["BUCKET_PCT"] / 100
+    mid = (float(d["bids"][0][0]) + float(d["asks"][0][0])) / 2.0
+    wall_px = wall["price"] * (mid / kmid) if kmid else wall["price"]
+    buckets = {}
+    for r_ in rows:
+        px_, q = float(r_[0]), float(r_[1])
+        if abs(px_ - mid) / mid * 100 > C["RANGE_PCT"]:
+            continue
+        b = int(math.floor(px_ / w))
+        buckets[b] = buckets.get(b, 0.0) + q
+    if len(buckets) < 5:
+        return False
+    med = statistics.median(buckets.values())
+    b0 = int(math.floor(wall_px / w))
+    best = max(buckets.get(b0 + i, 0.0) for i in (-1, 0, 1))
+    return med > 0 and best >= C["OKX_FACTOR"] * med
+
+
 def detect(bars, walls, C):
     o = [b[1] for b in bars]
     h = [b[2] for b in bars]
@@ -644,11 +812,14 @@ def detect(bars, walls, C):
         if d and C["ABS_FILTER"] and ab < C["ABS_MIN"] and len(trs) < C["ABS_HITS"]:
             d = 0                                  # le mur n'a encaisse aucun trade : pas prouve
         hv = hvn_strength(bars, W, C) if d else 0.0
-        if d and C["HVN_FILTER"] and hv < C["HVN_MIN"] and not ice:
+        need_okx = False
+        if d and C["HVN_FILTER"] and hv < C["HVN_MIN"] and not ice and C["OKX_CONFIRM"]:
+            need_okx = True                        # pas de zone de volume : la preuve viendra d'OKX
+        elif d and C["HVN_FILTER"] and hv < C["HVN_MIN"] and not ice:
             d = 0                                  # mur du carnet seul : pas de volume echange derriere
-        if d and (best is None or w["max"] > best["wall"]["max"]):
+        if d and (best is None or (not need_okx, w["max"]) > (not best.get("need_okx"), best["wall"]["max"])):
             best = {"dir": d, "type": "ICEBERG" if ice else "REBOND", "wall": w, "atr": a, "close": c[k],
-                    "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv, "abs": ab}
+                    "vol": max(v[k], v[k - 1]) / avgv, "hvn": hv, "abs": ab, "need_okx": need_okx}
     return best
 
 
@@ -783,6 +954,11 @@ def enter(st, sym, tf, sig, px, C):
             tp = cap
     if (tp - e) * d < C["MIN_RR"] * abs(e - sl):
         return "mur oppose trop proche (gain/risque < %g)" % C["MIN_RR"]
+    rf = (TICK.get(sym) or {}).get("rf", 0.0)
+    sig["rf"] = rf
+    if C["FUND_FILTER"] and rf * d > C["FUND_MAX"]:
+        return "funding extreme : trop de %s deja en position (%+.4f %%/h)" % (
+            "acheteurs" if d > 0 else "vendeurs", 100 * rf)
     delta = taker_delta(sym)
     sig["delta"] = delta
     if C["DELTA_FILTER"] and delta * d < C["DELTA_MIN"]:
@@ -855,7 +1031,7 @@ def enter(st, sym, tf, sig, px, C):
     place_exits(st, sym, p)
     save_state(st)
     notify(st, "%s %s %s (%s) levier max x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
-               "bulle x%.1f, agresseurs %+d%%, %s\nTP %s   SL %s (derriere le mur)"
+               "bulle x%.1f, agresseurs %+d%%, %s\n%s, funding %+.4f %%/h\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
               {"REBOND": "le mur tient", "ICEBERG": "ICEBERG : le mur se recharge"}.get(sig["type"], "mur mange"),
               C["LEVERAGE"], rp(st, sym, e), qty,
@@ -863,6 +1039,8 @@ def enter(st, sym, tf, sig, px, C):
               sig["wall"]["max"], int(100 * sig.get("hvn", 1.0)), sig["vol"], int(100 * sig.get("delta", 0)),
               ("ICEBERG (a encaisse %d%% de sa taille et se recharge)" if sig["type"] == "ICEBERG" else
                "absorption %d%%") % int(100 * sig.get("abs", 0)),
+              "preuve : mur CONFIRME sur OKX" if sig.get("okx") else "preuve : zone de volume / iceberg",
+              100 * sig.get("rf", 0.0),
               rp(st, sym, tp), rp(st, sym, sl)))
     return None
 
@@ -1034,6 +1212,8 @@ def cycle(st, C):
     if time.time() - st.get("disco", 0) > 3600 or not C["SYMS"]:
         st["inst"] = instruments()
         C["SYMS"] = discover(st, C)
+        if FEED:
+            FEED.set_symbols(set(C["SYMS"]) | set(st["pos"]))
         st["disco"] = time.time()
         st["grid"] = {}                           # grille recalculee 1x par heure
         keep = set(C["SYMS"]) | set(st["pos"]) | {k for k, v in (st.get("pending") or {}).items()
@@ -1149,6 +1329,18 @@ def cycle(st, C):
                     continue
                 st["seen"].append(key)
                 stats["signaux"] = stats.get("signaux", 0) + 1
+                sig["okx"] = None                  # None = OKX pas consulte (pas necessaire)
+                if sig.get("need_okx"):
+                    try:
+                        sig["okx"] = okx_confirm(sym, sig["wall"], C, px.get(sym))
+                    except Exception as e:
+                        log.warning("OKX %s : %s", sym, e)
+                        sig["okx"] = False
+                if sig.get("need_okx") and not sig["okx"]:
+                    stats["refus: ni zone de volume ni mur OKX"] = stats.get("refus: ni zone de volume ni mur OKX", 0) + 1
+                    log.info("%s %s signal sur mur %s ignore : ni zone de volume ni mur sur OKX"
+                             % (nm(sym), tf, rp(st, sym, sig["wall"]["price"])))
+                    continue
                 why = enter(st, sym, tf, sig, px, C)
                 if not why:
                     stats["trades"] = stats.get("trades", 0) + 1
@@ -1183,6 +1375,14 @@ def main():
     if LIVE and not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
         sys.exit("MODE live sans cles Kraken Futures")
     st = load_state(C)
+    st.pop("tr_wsseq", None)                       # compteur du flux : propre a chaque job
+    global FEED
+    if C["WS_TRADES"] and websocket is not None:
+        FEED = TradeFeed()
+        threading.Thread(target=FEED.run, daemon=True).start()
+        log.info("Flux en direct des trades Kraken : demarre")
+    elif C["WS_TRADES"]:
+        log.warning("module websocket absent : trades lus par l'API REST (100 par minute)")
     log.info("Demarrage MURS & BULLES [%s] x%s %s | %s | boucle %s min, scan toutes les %s s",
              "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"],
              "/".join(C["TF_LIST"]), C["LOOP_MINUTES"], C["INTERVAL"])
