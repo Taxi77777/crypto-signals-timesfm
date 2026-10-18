@@ -36,6 +36,8 @@ import json
 import logging
 import math
 import os
+import re
+import signal
 import statistics
 import sys
 import time
@@ -86,7 +88,7 @@ CFG = {
                                                  # (on ne lit que 100 trades/min : 50 % mesures ~ >= 100 % reels)
     "ICE_KEEP": envf("ICE_KEEP", 0.7),           # ...et toujours >= X de sa taille max (il se recharge)
     "NOTIFY_ICEBERG": envf("NOTIFY_ICEBERG", 1), # alerte Telegram (1 fois par mur)
-    "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6),   # resume Telegram toutes les X heures
+    "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6.0), # resume Telegram toutes les X heures
     # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
     "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
     "SPOOF_WIN": envf("SPOOF_WIN", 30),          # ...en Y minutes -> ce cote n'est plus cru
@@ -261,13 +263,13 @@ def is_iceberg(v, C):
 
 def iceberg_alerts(st, sym, mid, now, C):
     for v in (st["walls"].get(sym) or {}).values():
-        if v.get("ice_alert") or not is_iceberg(v, C):
+        if v.get("ice_alert") or not is_iceberg(v, C) or now - v.get("first", now) < C["WALL_MIN_AGE"]:
             continue
         v["ice_alert"] = True
         traded = sum(x[1] for x in v.get("tr", []))
-        msg = ("%s ICEBERG detecte : %s a %s (a encaisse %d%% de sa taille en 30 min et se recharge)"
+        msg = ("%s ICEBERG detecte : %s a %s (a encaisse %d%% de sa taille en %d min et se recharge)"
                % (nm(sym), "MUR D'ACHAT" if v["side"] > 0 else "MUR DE VENTE", rp(st, sym, v["price"]),
-                  int(100 * traded / v["max"])))
+                  int(100 * traded / v["max"]), C["ABS_WINDOW"]))
         (notify if C["NOTIFY_ICEBERG"] else (lambda _s, m: log.info(m)))(st, msg)
 
 
@@ -403,7 +405,9 @@ def nm(sym):
 
 
 def notify(st, msg):
-    log.info(msg)
+    # journaux GitHub publics : on masque le capital et le P&L (Telegram recoit tout)
+    log.info(re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)",
+                    re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", msg)))
     st["log"] = (st.get("log") or [])[-59:] + [time.strftime("%d/%m %H:%M") + " " + msg]
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
     if not tok or not chat:
@@ -411,7 +415,7 @@ def notify(st, msg):
     for essai in range(3):                       # Telegram coupe parfois : 3 essais
         try:
             r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok,
-                             json={"chat_id": chat, "text": msg}, timeout=20)
+                             json={"chat_id": chat, "text": msg}, timeout=8)
             if r.ok:
                 return
             log.warning("telegram HTTP %s", r.status_code)
@@ -518,6 +522,7 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         v = book[key]
         if v.get("gone"):                          # mur retire puis repose : on repart de zero
             v.update(first=now, max=size, n=0, tot=0, tr=[], near_ts=0, ice_alert=False)
+        v.pop("out_ts", None)
         v.update(price=price, size=size, last=now, max=max(v["max"], size), miss=0, top=now, w=tol,
                  n=v.get("n", 0) + 1, tot=v.get("tot", 0) + 1)
         v.pop("gone", None)
@@ -528,13 +533,16 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         if k in seen:
             continue
         if not (lo <= v["price"] <= hi):           # sorti de la fenetre (le prix s'est eloigne) :
-            v["last"] = now                        # ni retire ni mange, on n'en sait rien
+            v.setdefault("out_ts", now)            # ni retire ni mange ; oublie au bout d'1 h
+            if now - v["out_ts"] > 3600:
+                del book[k]
             continue
+        v.pop("out_ts", None)
         v["tot"] = v.get("tot", 0) + 1             # une lecture de plus pour ce mur
         # sorti du top MAX_WALLS mais toujours dans le carnet ? -> toujours la
         if buckets and w > 0:
             b = int(math.floor(v["price"] / w))
-            q = sum(buckets.get((v["side"], b + i), 0.0) for i in (-1, 0, 1))
+            q = buckets.get((v["side"], b), 0.0)    # meme mesure que la taille max (un seul niveau)
             if q >= C["WALL_GONE"] * v["max"]:
                 v.update(size=q, last=now, miss=0, n=v.get("n", 0) + 1)
                 continue
@@ -544,6 +552,7 @@ def update_walls(st, sym, walls, mid, now, C, buckets=None, w=0.0):
         if v["miss"] < C["GONE_SNAPS"]:
             continue
         v["size"] = 0.0
+        v.update(tr=[], ice_alert=False)           # un mur parti n'a plus d'absorption ni d'alerte
         old = now - v["first"] >= C["WALL_MIN_AGE"]
         if old and not v.get("gone"):
             v["gone"] = now
@@ -689,7 +698,7 @@ def place_exits(st, sym, p):
         new = order({"orderType": "stp", "symbol": sym, "side": side_of(-p["dir"]),
                      "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["sl"]),
                      "triggerSignal": "mark", "reduceOnly": "true"})
-        p["stop_id"], p["stopfail"] = new, 0
+        p["stop_id"], p["stopfail"], p["stop_px"] = new, 0, p["sl"]
         p.pop("warned", None)
         if old_stop and old_stop != new:
             cancel(old_stop)
@@ -737,7 +746,9 @@ def close_mkt(st, sym, p, price, why):
     if not LIVE:
         st["paper"] += pnl
     st["pos"].pop(sym, None)
+    st.get("pending", {}).pop(sym, None)
     notify(st, "%s %s @ %s  P&L ~ %+.2f $" % (nm(sym), why, rp(st, sym, price), pnl))
+    save_state(st)                                 # un redemarrage ne doit rien perdre
     return True
 
 
@@ -750,6 +761,8 @@ def enter(st, sym, tf, sig, px, C):
         price = tickers().get(sym) or px.get(sym) or sig["close"]   # prix frais
     except Exception:
         price = px.get(sym) or sig["close"]
+    if (price - sig["wall"]["price"]) * sig["dir"] <= 0:
+        return "le prix a deja franchi le mur"
     e, sl, tp = plan(dict(sig, close=price), C)
     if not sl_ok(e, sl, C):
         return "SL trop loin (> %.1f %% : risque de liquidation x%s)" % (100 * C["LIQ_SAFETY"] / C["LEVERAGE"], C["LEVERAGE"])
@@ -779,6 +792,10 @@ def enter(st, sym, tf, sig, px, C):
     if qty <= 0:
         return "taille a 0 (capital %.2f USD)" % eq
     if LIVE:
+        # plan memorise AVANT l'ordre : si la confirmation se perd, la position reprise
+        # recevra CE stop (et pas un stop d'urgence plus large)
+        st.setdefault("pending", {})[sym] = {"dir": d, "sl": sl, "tp": tp, "ts": time.time()}
+        save_state(st)
         sent, err = False, None
         for frac in (1.0, 0.84, 0.68):
             q = rq(st, sym, qty * frac)
@@ -792,6 +809,8 @@ def enter(st, sym, tf, sig, px, C):
                 err = ex
                 if "insufficient" not in str(ex).lower():
                     break
+        if not sent and "insufficient" in str(err).lower():
+            st["pending"].pop(sym, None)           # refus net de Kraken : rien n'a ete execute
         if not sent:
             st["block_until"] = time.time() + 180   # l'ordre a peut-etre quand meme ete execute
             return "ordre refuse par Kraken : %s" % err
@@ -814,8 +833,8 @@ def enter(st, sym, tf, sig, px, C):
         tp = e + d * tp_dist
     else:
         st["paper"] -= C["FEE_TAKER"] * e * qty
-    # remplissage trop loin du plan : entree au-dela du SL, ou perte possible > 1,5 x prevu
-    if (e - sl) * d <= 0 or qty * abs(e - sl) > 1.5 * risk_plan:
+    # remplissage trop loin du plan : entree au-dela du SL, ou perte possible > 1,2 x prevu
+    if (e - sl) * d <= 0 or qty * abs(e - sl) > 1.2 * risk_plan:
         a = sig["atr"]
         p = {"dir": d, "entry": e, "qty": qty, "sl": e - d * a, "tp": e + d * a, "tf": tf,
              "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
@@ -828,7 +847,9 @@ def enter(st, sym, tf, sig, px, C):
          "wall_key": sig["wall"].get("key"),
          "bar_ts": int(time.time() // TF_SEC[tf] * TF_SEC[tf]), "stop_id": None, "tp_id": None}
     st["pos"][sym] = p
+    st.get("pending", {}).pop(sym, None)
     place_exits(st, sym, p)
+    save_state(st)
     notify(st, "%s %s %s (%s) levier max x%s @ %s  qte %s\nDOUBLE MUR %s %s : carnet (taille %.4g) + volume echange %d%%\n"
                "bulle x%.1f, agresseurs %+d%%, %s\nTP %s   SL %s (derriere le mur)"
            % (nm(sym), tf, "ACHAT" if d > 0 else "VENTE",
@@ -836,7 +857,7 @@ def enter(st, sym, tf, sig, px, C):
               C["LEVERAGE"], rp(st, sym, e), qty,
               "D'ACHAT" if sig["wall"]["side"] > 0 else "DE VENTE", rp(st, sym, sig["wall"]["price"]),
               sig["wall"]["max"], int(100 * sig.get("hvn", 1.0)), sig["vol"], int(100 * sig.get("delta", 0)),
-              ("ICEBERG (a encaisse %d%% de sa taille et tient)" if sig.get("abs", 0) >= 1 else
+              ("ICEBERG (a encaisse %d%% de sa taille et se recharge)" if sig["type"] == "ICEBERG" else
                "absorption %d%%") % int(100 * sig.get("abs", 0)),
               rp(st, sym, tp), rp(st, sym, sl)))
     return None
@@ -859,6 +880,9 @@ def adopt_orphans(st, pos_ex, px, C):
         a = a or price * 0.01
         d, e = ex["dir"], ex["price"] or price
         sl = min(e, price) - 1.5 * a if d > 0 else max(e, price) + 1.5 * a
+        pend = st.get("pending", {}).pop(sym, None)
+        if pend and pend["dir"] == d and time.time() - pend["ts"] < 1800 and (price - pend["sl"]) * d > 0:
+            sl = pend["sl"]                        # entree du bot dont la confirmation s'est perdue
         p = {"dir": d, "entry": e, "sl": sl, "tp": e + d * C["RR"] * abs(e - sl), "qty": ex["size"],
              "risk0": abs(e - sl),
              "tf": "15m", "wall": None, "wall_side": 0, "wall_key": None, "adopted": True,
@@ -907,7 +931,7 @@ def manage(st, sym, price, pos_ex, C):
         return
     # 2) scenario 3 en position : le mur a ete RETIRE alors que le prix ne l'a pas
     #    traverse -> on sort. S'il a ete mange (prix au-dela), c'est le SL qui joue.
-    if C["EXIT_IF_WALL_GONE"] and p.get("wall_key") and not p.get("adopted"):
+    if (C["EXIT_IF_WALL_GONE"] or C["EXIT_IF_WALL_BROKEN"]) and p.get("wall_key") and not p.get("adopted"):
         v = (st["walls"].get(sym) or {}).get(p["wall_key"])
         still_our_side = (price - p["wall"]) * d > 0
         gone = not v or v.get("size", 0) <= 0
@@ -916,14 +940,21 @@ def manage(st, sym, price, pos_ex, C):
             # du trade est fausse -> on sort sans attendre le stop complet
             close_mkt(st, sym, p, price, "SORTIE : mur traverse (l'idee du trade est fausse)")
             return
-        if gone and still_our_side and not p.get("be"):
+        if C["EXIT_IF_WALL_GONE"] and gone and still_our_side and not p.get("be"):
             if (price - p["entry"]) * d > 0:
                 # en gain : on ne sort pas sur un retrait (souvent du bluff) -> stop au prix
                 # d'entree (plus de perte possible) et on laisse aller au TP
-                p["sl"], p["be"] = p["entry"], True
+                old_sl = p["sl"]
+                p["sl"] = p["entry"]
                 place_exits(st, sym, p)
-                notify(st, "%s mur retire, trade en gain -> stop deplace au prix d'entree %s (zero perte)"
-                       % (nm(sym), rp(st, sym, p["entry"])))
+                if p.get("stop_px") == p["sl"]:       # Kraken a bien accepte le nouveau stop
+                    p["be"] = True
+                    save_state(st)
+                    notify(st, "%s mur retire, trade en gain -> stop deplace au prix d'entree %s (zero perte)"
+                           % (nm(sym), rp(st, sym, p["entry"])))
+                else:                              # refuse : on garde l'ancien stop, nouvel essai
+                    p["sl"] = old_sl
+                    log.info("%s stop au prix d'entree refuse par Kraken -> nouvel essai au prochain cycle", sym)
             else:
                 close_mkt(st, sym, p, price, "SORTIE : le mur a ete retire (trade en perte)")
             return
@@ -958,7 +989,7 @@ def save_state(st):
     try:
         with open(STATE_FILE, "w") as f:
             # depot PUBLIC : on n'ecrit pas le journal des messages (capital, P&L...)
-            json.dump({k: v for k, v in st.items() if k != "log"}, f, indent=1)
+            json.dump({k: v for k, v in st.items() if k != "log"}, f, separators=(",", ":"))
     except Exception as e:
         log.warning("etat non sauvegarde : %s", e)
 
@@ -985,6 +1016,11 @@ def cycle(st, C):
         C["SYMS"] = discover(st, C)
         st["disco"] = time.time()
         st["grid"] = {}                           # grille recalculee 1x par heure
+        keep = set(C["SYMS"]) | set(st["pos"])     # on oublie les cryptos plus suivies
+        for key in ("walls", "spoof", "tr_seq", "pending"):
+            st[key] = {k: v for k, v in (st.get(key) or {}).items() if k in keep}
+        st["last"] = {k: v for k, v in (st.get("last") or {}).items() if k.split("|")[0] in keep}
+        st["cooldown"] = {k: v for k, v in (st.get("cooldown") or {}).items() if k.split("|")[0] in keep}
         log.info("%d actifs suivis : %s", len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"][:15]))
     if st.get("mode") != C["MODE"]:
         if st.get("mode") != "live":              # positions fictives : on repart a zero
@@ -1002,7 +1038,8 @@ def cycle(st, C):
                     st["lev"][sym] = C["LEVERAGE"]
                 except Exception as e:
                     if "MARKET_RESTRICTED" in str(e):   # interdit pour ce compte : on l'ecarte
-                        st.setdefault("blocked", []).append(sym)
+                        if sym not in st.setdefault("blocked", []):
+                            st["blocked"].append(sym)
                         C["SYMS"].remove(sym)
                         log.info("%s interdit pour ce compte Kraken -> retire de la liste", sym)
                     else:
@@ -1013,6 +1050,7 @@ def cycle(st, C):
     now = time.time()
     events = {}
     # 1) photo du carnet de chaque actif -> murs (age, taille), murs retires / manges
+    n_retire = 0
     for sym in C["SYMS"]:
         if not px.get(sym):
             continue
@@ -1028,9 +1066,11 @@ def cycle(st, C):
                     sp = st.setdefault("spoof", {}).setdefault(sym, [])
                     sp.append([v["side"], now])
                     st["spoof"][sym] = [e for e in sp if now - e[1] <= C["SPOOF_WIN"] * 60]
-                    (notify if C["NOTIFY_RETIRE"] else (lambda _s, m: log.info(m)))(st, "%s MUR %s RETIRE juste avant l'impact (%s, a %.2f%% du prix) -> pas de trade"
-                           % (nm(sym), "D'ACHAT" if v["side"] > 0 else "DE VENTE",
-                              rp(st, sym, v["price"]), dist))
+                    n_retire += 1                  # resume en 1 ligne par cycle (journal lisible)
+                    if C["NOTIFY_RETIRE"]:
+                        notify(st, "%s MUR %s RETIRE juste avant l'impact (%s, a %.2f%% du prix) -> pas de trade"
+                               % (nm(sym), "D'ACHAT" if v["side"] > 0 else "DE VENTE",
+                                  rp(st, sym, v["price"]), dist))
             try:
                 absorb_trades(st, sym, px[sym], now, C)
                 iceberg_alerts(st, sym, px[sym], now, C)
@@ -1113,7 +1153,8 @@ def cycle(st, C):
                   "\n".join(l for l in lignes if l.startswith("refus"))[:900] or "aucun refus"))
         st["stats"], st["stats_ts"] = {}, now
     nw = sum(len(live_walls(st, s, now, C)) for s in C["SYMS"])
-    log.info("cycle ok : %d murs confirmes sur %d actifs, %d position(s)", nw, len(C["SYMS"]), len(st["pos"]))
+    log.info("cycle ok : %d murs confirmes sur %d actifs, %d position(s), %d mur(s) retire(s) a l'approche",
+             nw, len(C["SYMS"]), len(st["pos"]), n_retire)
 
 
 def main():
@@ -1126,6 +1167,16 @@ def main():
              "/".join(C["TF_LIST"]), C["LOOP_MINUTES"], C["INTERVAL"])
     if LIVE:
         check_keys(st)
+
+    def _arret(signum, frame):                     # job annule / redemarre : on ne perd rien
+        save_state(st)
+        log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
+        sys.exit(0)
+    for sg in (signal.SIGTERM, signal.SIGINT):
+        try:
+            signal.signal(sg, _arret)
+        except Exception:
+            pass
     end = time.time() + C["LOOP_MINUTES"] * 60
     while True:
         t0 = time.time()
