@@ -1,20 +1,25 @@
 # 🧱 Bot Kraken « MURS & BULLES » (carnet d'ordres réel) — `kraken_murs.py`
 
 Remplace l'ancien bot Kraken « PIÈGE PDH/PDL → MA50 ». Tourne 24 h/24 sur GitHub Actions
-(`.github/workflows/kraken_murs.yml`), sur les perpétuels Kraken Pro les plus liquides, en 5m / 15m / 30m / 1h.
+(`.github/workflows/kraken_murs.yml`) en **réel** (`KRAKEN_MODE=live`), sur les perpétuels Kraken Pro crypto
+échangeant ≥ 0,5 M$/24 h (≈ 45-55, 60 max), en **15m / 30m / 1h**. Scan du carnet toutes les 60 s.
 
 | Élément de la vidéo | Ce que fait le bot |
 |---|---|
-| **Mur** (ordres passifs) | Lit le **vrai carnet d'ordres Kraken** chaque minute. Un mur = niveau de prix ≥ 5× la médiane des niveaux voisins, présent depuis ≥ 3 min. |
-| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne + delta acheteurs/vendeurs des derniers trades (info). |
-| **1 · Il tient** | Le prix touche le mur, grosse bulle, rebond → **ACHAT** (mur d'achat) / **VENTE** (mur de vente). |
-| **2 · Mangé** | Le mur disparaît et le prix traverse → continuation. Désactivé par défaut (`SIGNAL_MANGE=0`). |
-| **3 · Retiré** | Le mur disparaît avant l'impact → pas de trade ; en position, **sortie immédiate** (`EXIT_IF_WALL_GONE=1`). |
+| **Mur** (ordres passifs) | Vrai carnet Kraken lu chaque minute. Mur = niveau ≥ 8× la médiane de son côté, top 3 par côté, présent depuis ≥ 5 min et sur ≥ 80 % des lectures. Un côté qui retire 2 murs à l'approche en 30 min n'est plus cru (anti-spoofing). |
+| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne. **Flux en direct** (WebSocket) de tous les trades : absorption = volume des vendeurs (mur d'achat) / acheteurs (mur de vente) qui frappent le mur. |
+| **1 · Il tient** | Contact sans traverser + rebond sur bougie fermée + bulle + absorption ≥ 5 % + **preuve** : zone de volume (heatmap) **ou** mur confirmé sur **OKX** **ou** **ICEBERG** (a encaissé ≥ sa taille et se recharge, sans bulle exigée). Agresseurs dans le sens du trade (5 min) et funding pas surchargé de ce côté. |
+| **2 · Mangé** | Désactivé par défaut (`SIGNAL_MANGE=0`). En position : mur tombé **et** traversé → sortie. |
+| **3 · Retiré** | Avant l'impact : pas de trade. En position : en perte → sortie ; en gain → stop à l'entrée + frais (vrai zéro perte). |
 
-SL derrière le mur (0,5 ATR), TP = 1,5 × le risque, posés chez Kraken. Réglages prudents par défaut :
-levier x5, risque 1 % du capital par trade, une seule position. Mode `paper` (fictif) tant que la variable
-`KRAKEN_MODE` ne vaut pas `live`. ⚠️ Stratégie non prouvée : l'équivalent MT4 (murs estimés au tick-volume) perdait
-après frais au backtest ; le vrai carnet d'ordres reste à valider en fictif.
+**Risque** : levier **x10** (choix de l'utilisateur), **1 % du capital par trade frais compris**, une seule position.
+SL derrière le mur, au moins 0,30 % (frais ≤ ⅓ du risque), au plus 3,5 % ; TP = 1,5 × le risque, coupé avant un mur
+opposé au moins aussi fort (refus si gain/risque < 1). Stop et TP posés chez Kraken (reduceOnly). Durée max 24 h.
+
+**Telegram** : trades (preuve, absorption, funding, open interest 1 h), alertes ICEBERG, résumé toutes les 6 h.
+
+⚠️ Stratégie non prouvée : l'équivalent MT4 (murs estimés au tick-volume) perdait après frais au backtest, et le
+carnet Kraken n'a pas d'historique pour la tester sur le passé. Juger sur plusieurs semaines de trades réels.
 
 ---
 
