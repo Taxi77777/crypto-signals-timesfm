@@ -7,14 +7,14 @@ Remplace l'ancien bot Kraken « PIÈGE PDH/PDL → MA50 ». Tourne 24 h/24 sur G
 | Élément de la vidéo | Ce que fait le bot |
 |---|---|
 | **Mur** (ordres passifs) | Vrai carnet Kraken lu chaque minute. Mur = niveau ≥ 8× la médiane de son côté, top 3 par côté, présent depuis ≥ 5 min et sur ≥ 80 % des lectures. Un côté qui retire 2 murs à l'approche en 30 min n'est plus cru (anti-spoofing). |
-| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne. **Flux en direct** (WebSocket) de tous les trades : absorption = volume des vendeurs (mur d'achat) / acheteurs (mur de vente) qui frappent le mur. |
+| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne **ou** agresseurs mesurés par le flux ≥ 25 % de la taille du mur. **Flux en direct** (WebSocket) de tous les trades : absorption = volume des vendeurs (mur d'achat) / acheteurs (mur de vente) qui frappent le mur. |
 | **1 · Il tient** | Contact sans traverser + rebond sur bougie fermée + bulle + absorption ≥ 5 % + **preuve** : zone de volume (heatmap) **ou** mur confirmé sur **OKX** **ou** **ICEBERG** (a encaissé ≥ sa taille et se recharge, sans bulle exigée). Agresseurs dans le sens du trade (5 min) et funding pas surchargé de ce côté. |
 | **2 · Mangé** | Désactivé par défaut (`SIGNAL_MANGE=0`). En position : mur tombé **et** traversé → sortie. |
 | **3 · Retiré** | Avant l'impact : pas de trade. En position : en perte → sortie ; en gain → stop à l'entrée + frais (vrai zéro perte). |
 
 **Risque** : levier **x10** (choix de l'utilisateur), **1 % du capital par trade frais compris**, une seule position.
 SL derrière le mur, au moins 0,30 % (frais ≤ ⅓ du risque), au plus 3,5 % ; TP = 1,5 × le risque, coupé avant un mur
-opposé au moins aussi fort (refus si gain/risque < 1). Stop et TP posés chez Kraken (reduceOnly). Durée max 24 h.
+opposé ≥ 1,5× plus fort (ignoré si ce côté retire ses murs : spoofing) (refus si gain/risque < 1). Stop et TP posés chez Kraken (reduceOnly). Durée max 24 h.
 
 **Telegram** : trades (preuve, absorption, funding, open interest 1 h), alertes ICEBERG, résumé toutes les 6 h.
 

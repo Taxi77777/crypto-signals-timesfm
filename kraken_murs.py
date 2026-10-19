@@ -137,7 +137,8 @@ CFG = {
     "EXIT_IF_WALL_GONE": envf("EXIT_IF_WALL_GONE", 1),
     "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),   # reprendre (stop d'urgence) une position inconnue du bot
     "MIN_RR": envf("MIN_RR", 1.0),               # TP avant le mur oppose : refuse si gain/risque < X
-    "OPP_STRENGTH": envf("OPP_STRENGTH", 1.0),   # seul un mur oppose >= X fois NOTRE mur bloque le TP
+    "OPP_STRENGTH": envf("OPP_STRENGTH", 1.5),   # seul un mur oppose >= X fois NOTRE mur bloque le TP
+    "ABS_BUBBLE": envf("ABS_BUBBLE", 0.25),      # flux en direct : agresseurs >= X de la taille du mur = bulle
     "MAX_HOLD": envf("MAX_HOLD", 48),            # bougies max en position...
     "MAX_HOLD_H": envf("MAX_HOLD_H", 24),        # ...et jamais plus de X heures (funding)
     "SL_MAX_PCT": envf("SL_MAX_PCT", 3.5),       # SL jamais plus loin (marge avant liquidation x10)
@@ -853,7 +854,12 @@ def detect(bars, walls, C):
             continue                               # le mur doit etre confirme AVANT le contact
         W, d = w["price"], 0
         ice = is_iceberg(w, C)                     # iceberg : l'interet reel est deja prouve
-        if bub0 or bub1 or ice:
+        trs = w.get("tr", [])
+        ab = sum(x[1] for x in trs) / w["max"] if w.get("max") else 0.0
+        # bulle = ordres ACTIFS qui frappent le mur : grosse bougie OU, mesure exacte du flux en
+        # direct, au moins ABS_BUBBLE de la taille du mur encaisse par les agresseurs
+        hit = w.get("src") == "ws" and ab >= C["ABS_BUBBLE"]
+        if bub0 or bub1 or ice or hit:
             lowmin, highmax = min(l[k], l[k - 1]), max(h[k], h[k - 1])
             gw = max(w.get("w") or 0.0, 0.2 * a)   # une petite meche sous le mur est toleree
             if (w["side"] > 0 and c[k - 2] > W and W - gw <= lowmin <= W + tol and c[k] > W
@@ -862,8 +868,6 @@ def detect(bars, walls, C):
             if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
                     and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
-        trs = w.get("tr", [])
-        ab = sum(x[1] for x in trs) / w["max"] if w.get("max") else 0.0
         amin = C["ABS_MIN_WS"] if w.get("src") == "ws" else C["ABS_MIN"]
         if d and C["ABS_FILTER"] and ab < amin and len(trs) < C["ABS_HITS"]:
             d = 0                                  # le mur n'a encaisse aucun trade : pas prouve
@@ -1004,7 +1008,8 @@ def enter(st, sym, tf, sig, px, C):
     ours = sig["wall"].get("max") or 0.0
     opp = [v["price"] for v in live_walls(st, sym, time.time(), C)
            if v["side"] == -d and (v["price"] - e) * d > 0
-           and v.get("max", 0.0) >= C["OPP_STRENGTH"] * ours]
+           and v.get("max", 0.0) >= C["OPP_STRENGTH"] * ours
+           and not spoof_side(st, sym, -d, time.time(), C)]   # un cote qui retire ses murs ne bloque rien
     if opp:
         cap = min(opp, key=lambda x: abs(x - e)) - d * (st.get("grid", {}).get(sym) or 0)
         if (cap - e) * d < (tp - e) * d:
