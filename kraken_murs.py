@@ -124,7 +124,7 @@ CFG = {
     # bulles + rebond
     "BUBBLE": envf("BUBBLE", 1.8),
     "VOL_AVG": envf("VOL_AVG", 20),
-    "TOL_ATR": envf("TOL_ATR", 0.15),
+    "TOL_ATR": envf("TOL_ATR", 0.3), 
     "PIERCE_ATR": envf("PIERCE_ATR", 0.6),
     "ATR_PERIOD": envf("ATR_PERIOD", 14),
     "SIGNAL_MANGE": envf("SIGNAL_MANGE", 0),     # scenario 2 (desactive par defaut)
@@ -863,10 +863,10 @@ def detect(bars, walls, C):
             lowmin, highmax = min(l[k], l[k - 1]), max(h[k], h[k - 1])
             gw = max(w.get("w") or 0.0, 0.2 * a)   # une petite meche sous le mur est toleree
             if (w["side"] > 0 and c[k - 2] > W and W - gw <= lowmin <= W + tol and c[k] > W
-                    and c[k] > o[k] and (c[k] - l[k]) >= 0.5 * rng and c[k] > c[k - 1]):
+                    and c[k] > o[k] and (c[k] - l[k]) >= 0.4 * rng and c[k] > c[k - 1]):
                 d = 1                              # mur d'achat qui TIENT -> ACHAT
             if (w["side"] < 0 and c[k - 2] < W and W - tol <= highmax <= W + gw and c[k] < W
-                    and c[k] < o[k] and (h[k] - c[k]) >= 0.5 * rng and c[k] < c[k - 1]):
+                    and c[k] < o[k] and (h[k] - c[k]) >= 0.4 * rng and c[k] < c[k - 1]):
                 d = -1                             # mur de vente qui TIENT -> VENTE
         amin = C["ABS_MIN_WS"] if w.get("src") == "ws" else C["ABS_MIN"]
         if d and C["ABS_FILTER"] and ab < amin and len(trs) < C["ABS_HITS"]:
