@@ -113,8 +113,9 @@ CFG = {
     "OKX_FACTOR": envf("OKX_FACTOR", 3.0),       # niveau OKX >= X fois la mediane du cote
     "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6.0), # resume Telegram toutes les X heures
     # idee 1 : reputation anti-faux murs (spoofing = mur retire quand le prix approche)
-    "SPOOF_MAX": envf("SPOOF_MAX", 2),           # X murs retires a l'approche sur un cote...
-    "SPOOF_WIN": envf("SPOOF_WIN", 30),          # ...en Y minutes -> ce cote n'est plus cru
+    "SPOOF_MAX": envf("SPOOF_MAX", 4),            # un cote qui retire X murs a l'approche n'est plus cru
+    "SPOOF_TRUST_AGE": envf("SPOOF_TRUST_AGE", 900), # ...sauf un mur present depuis >= X s (il a tenu : pas un bluff)
+    "SPOOF_WIN": envf("SPOOF_WIN", 30),          # fenetre (minutes) du comptage SPOOF_MAX
     # idee 2 : absorption / iceberg = volume REELLEMENT execute sur le mur
     "ABS_FILTER": envf("ABS_FILTER", 1),         # exiger que le mur ait encaisse des trades
     "ABS_MIN": envf("ABS_MIN", 0.02),            # volume execute au mur >= X de sa taille (100 trades/min lus)
@@ -326,6 +327,12 @@ def iceberg_alerts(st, sym, mid, now, C):
                % (nm(sym), "MUR D'ACHAT" if v["side"] > 0 else "MUR DE VENTE", rp(st, sym, v["price"]),
                   int(100 * traded / v["max"]), C["ABS_WINDOW"]))
         (notify if C["NOTIFY_ICEBERG"] else (lambda _s, m: log.info(m)))(st, msg)
+
+
+def distrusted(st, sym, w, now, C):
+    """Mur ecarte : son cote du carnet bluffe ET le mur lui-meme est recent.
+       (un mur reste en place depuis SPOOF_TRUST_AGE a prouve qu'il n'est pas un bluff)"""
+    return now - w["first"] < C["SPOOF_TRUST_AGE"] and spoof_side(st, sym, w["side"], now, C)
 
 
 def spoof_side(st, sym, side, now, C):
@@ -1009,7 +1016,7 @@ def enter(st, sym, tf, sig, px, C):
     opp = [v["price"] for v in live_walls(st, sym, time.time(), C)
            if v["side"] == -d and (v["price"] - e) * d > 0
            and v.get("max", 0.0) >= C["OPP_STRENGTH"] * ours
-           and not spoof_side(st, sym, -d, time.time(), C)]   # un cote qui retire ses murs ne bloque rien
+           and not distrusted(st, sym, v, time.time(), C)]   # mur recent d'un cote qui bluffe : ne bloque rien
     if opp:
         cap = min(opp, key=lambda x: abs(x - e)) - d * (st.get("grid", {}).get(sym) or 0)
         if (cap - e) * d < (tp - e) * d:
@@ -1412,7 +1419,7 @@ def cycle(st, C):
             if st["last"].get(akey) == last_closed:
                 continue
             walls = [w for w in live_walls(st, sym, now, C)
-                     if not spoof_side(st, sym, w["side"], now, C)     # cote qui bluffe : ignore
+                     if not distrusted(st, sym, w, now, C)            # cote qui bluffe : mur recent ignore
                      and cd.get("%s|%s" % (sym, w["key"]), 0) < now]   # mur deja trade : pause
             gone = [v for kind, v in events.get(sym, []) if kind == "MANGE"]
             if not walls and not gone:

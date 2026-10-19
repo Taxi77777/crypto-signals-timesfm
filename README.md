@@ -6,7 +6,7 @@ Remplace l'ancien bot Kraken « PIÈGE PDH/PDL → MA50 ». Tourne 24 h/24 sur G
 
 | Élément de la vidéo | Ce que fait le bot |
 |---|---|
-| **Mur** (ordres passifs) | Vrai carnet Kraken lu chaque minute. Mur = niveau ≥ 8× la médiane de son côté, top 3 par côté, présent depuis ≥ 5 min et sur ≥ 80 % des lectures. Un côté qui retire 2 murs à l'approche en 30 min n'est plus cru (anti-spoofing). |
+| **Mur** (ordres passifs) | Vrai carnet Kraken lu chaque minute. Mur = niveau ≥ 8× la médiane de son côté, top 3 par côté, présent depuis ≥ 5 min et sur ≥ 80 % des lectures. Un côté qui retire 4 murs à l'approche en 30 min n'est plus cru (anti-spoofing), sauf un mur présent depuis ≥ 15 min. |
 | **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne **ou** agresseurs mesurés par le flux ≥ 25 % de la taille du mur. **Flux en direct** (WebSocket) de tous les trades : absorption = volume des vendeurs (mur d'achat) / acheteurs (mur de vente) qui frappent le mur. |
 | **1 · Il tient** | Contact sans traverser + rebond sur bougie fermée + bulle + absorption ≥ 5 % + **preuve** : zone de volume (heatmap) **ou** mur confirmé sur **OKX** **ou** **ICEBERG** (a encaissé ≥ sa taille et se recharge, sans bulle exigée). Agresseurs dans le sens du trade (5 min) et funding pas surchargé de ce côté. |
 | **2 · Mangé** | Désactivé par défaut (`SIGNAL_MANGE=0`). En position : mur tombé **et** traversé → sortie. |
