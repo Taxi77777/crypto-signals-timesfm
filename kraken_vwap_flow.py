@@ -51,6 +51,7 @@ import logging
 import math
 import os
 import re
+import shutil
 import signal
 import statistics
 import threading
@@ -68,7 +69,6 @@ except Exception:
 
 BASE = "https://futures.kraken.com"
 TF_SEC = {"1m": 60, "5m": 300, "15m": 900, "30m": 1800, "1h": 3600, "4h": 14400}
-STATE_FILE = "kraken_vwap_state.json"
 
 
 def envf(name, default):
@@ -136,7 +136,7 @@ CFG = {
     "LEARN_EVERY_MIN": envf("LEARN_EVERY_MIN", 30),
     "LEARN_KEEP": envf("LEARN_KEEP", 1500),       # memoire : les X derniers setups
     # boucle
-    "LOOP_MINUTES": envf("LOOP_MINUTES", 320),
+    "LOOP_MINUTES": 320,                          # lu plus bas (valeur invalide -> 320)
     "FAST_SEC": envf("FAST_SEC", 2),              # lecture du flux / cloture des bougies
     "SLOW_SEC": envf("SLOW_SEC", 15),             # positions Kraken / stops / TP
     "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6.0),
@@ -145,6 +145,12 @@ CFG["BAR_SEC"] = TF_SEC.get(CFG["BAR_TF"], 900)
 CFG["SYMS"] = []
 CFG["RR_ADOPT"] = CFG["RR"]
 LIVE = CFG["MODE"].lower() == "live"
+try:                                               # duree d'un job : bornee sous le timeout (340 min)
+    CFG["LOOP_MINUTES"] = max(5, min(330, int(float(os.environ.get("LOOP_MINUTES") or 320))))
+except ValueError:
+    CFG["LOOP_MINUTES"] = 320
+# un fichier d'etat par mode : un essai en fictif n'efface JAMAIS les positions reelles
+STATE_FILE = "kraken_vwap_state.json" if LIVE else "kraken_vwap_state_paper.json"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s",
                     datefmt="%H:%M:%S", stream=sys.stdout)
@@ -163,7 +169,7 @@ def pub(path, params=None):
     last = None
     for essai in range(3):                       # 3 essais en cas de coupure reseau
         try:
-            r = SESSION.get(BASE + path, params=params, timeout=20)
+            r = SESSION.get(BASE + path, params=params, timeout=10)
             r.raise_for_status()
             j = r.json()
             if isinstance(j, dict) and j.get("result") not in (None, "success"):
@@ -229,6 +235,10 @@ class TradeFeed:
         self.alive = 0.0                           # derniere activite reelle du flux
         self.n = 0                                 # compteur local : ne repart jamais a zero
         self.stop = False
+        self.epoch = 0                             # +1 a chaque coupure
+        self.last_msg = 0.0                        # dernier message (heartbeat compris)
+        self.gaps = deque(maxlen=50)               # coupures (debut, fin) : bougies incompletes
+        self.gap_start = None
 
     def set_symbols(self, syms):
         with self.lock:
@@ -240,8 +250,21 @@ class TradeFeed:
             return time.time() - self.alive < 120 and (sym is None or sym in self.acked)
 
     def since(self, sym, seq0):
+        """Trades plus recents que seq0 (lecture depuis la fin : rapide meme liste pleine)."""
+        out = []
         with self.lock:
-            return [x for x in self.trades.get(sym, ()) if x[4] > seq0]
+            for x in reversed(self.trades.get(sym, ())):
+                if x[4] <= seq0:
+                    break
+                out.append(x)
+        out.reverse()
+        return out
+
+    def missing(self, t0, t1):
+        """Secondes de flux manquantes entre t0 et t1 (coupures du WebSocket)."""
+        with self.lock:
+            gaps = list(self.gaps) + ([(self.gap_start, time.time())] if self.gap_start else [])
+        return sum(max(0.0, min(e, t1) - max(s, t0)) for s, e in gaps)
 
     def recent(self, sym, secs):
         t0 = time.time() - secs
@@ -261,6 +284,7 @@ class TradeFeed:
                 ws = websocket.create_connection(self.URL, timeout=20)
                 with self.lock:
                     self.acked = set()             # nouvelle connexion : tout re-confirmer
+                    self.last_msg = time.time()
                 # heartbeat : un message regulier meme en marche calme -> la boucle tourne,
                 # les nouvelles cryptos sont abonnees sans attendre
                 ws.send(json.dumps({"event": "subscribe", "feed": "heartbeat"}))
@@ -270,22 +294,38 @@ class TradeFeed:
                 while not self.stop:
                     with self.lock:
                         new = sorted(self.syms - done)
+                        old = sorted(done - self.syms)
                     if new:
                         ws.send(json.dumps({"event": "subscribe", "feed": "trade", "product_ids": new}))
                         done |= set(new)
+                    if old:                        # cryptos sorties de la liste : desabonnement
+                        ws.send(json.dumps({"event": "unsubscribe", "feed": "trade", "product_ids": old}))
+                        done -= set(old)
+                        with self.lock:
+                            for x in old:
+                                self.trades.pop(x, None)
+                                self.acked.discard(x)
                     if time.time() - last_ping > 30:   # Kraken coupe une connexion sans ping
                         ws.ping()
                         last_ping = time.time()
                     try:
                         m = json.loads(ws.recv())
                     except websocket.WebSocketTimeoutException:
+                        # connexion a moitie morte : plus rien, meme pas le heartbeat -> on reconnecte
+                        if time.time() - self.last_msg > 60:
+                            raise RuntimeError("flux muet depuis 60 s")
                         continue
+                    with self.lock:
+                        self.last_msg = time.time()
                     ev = m.get("event")
                     if ev == "subscribed" and m.get("feed") == "trade":
                         with self.lock:
                             first = not self.acked
                             self.acked |= set(x.upper() for x in (m.get("product_ids") or []))
                             self.alive = time.time()
+                            if self.gap_start:     # fin de la coupure
+                                self.gaps.append((self.gap_start, time.time()))
+                                self.gap_start = None
                         if first:
                             log.info("Flux en direct des trades Kraken : CONNECTE (abonnement confirme)")
                     elif ev in ("error", "alert"):
@@ -298,9 +338,14 @@ class TradeFeed:
                             self.n += 1
                             rec = (float(m["time"]) / 1000.0, float(m["price"]), float(m["qty"]),
                                    m.get("side"), self.n)
-                            self.trades.setdefault(sym, deque(maxlen=20000)).append(rec)
+                            self.trades.setdefault(sym, deque(maxlen=5000)).append(rec)
                             self.alive = time.time()
             except Exception as e:
+                with self.lock:
+                    self.acked = set()             # plus aucun symbole considere comme vivant
+                    self.epoch += 1
+                    if not self.gap_start:         # debut de la coupure = dernier message recu
+                        self.gap_start = self.last_msg or time.time()
                 log.warning("flux trades : %s -> reconnexion dans %d s", e, wait)
                 time.sleep(wait)
                 wait = min(60, wait * 2)
@@ -388,6 +433,12 @@ def open_positions():
     return out
 
 
+def open_order_ids():
+    """Identifiants des ordres encore ouverts chez Kraken (stops / TP compris)."""
+    j = priv("GET", "/api/v3/openorders")
+    return set(o.get("order_id") or o.get("orderId") for o in (j.get("openOrders") or []))
+
+
 def equity(st):
     if not LIVE:
         return st["paper"]
@@ -435,6 +486,8 @@ def notify(st, msg):
     pub_msg = re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", msg)
     pub_msg = re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)", pub_msg)
     pub_msg = re.sub(r"perte max ~[0-9.]+ \$", "perte max ~(masque)", pub_msg)   # = % du capital
+    pub_msg = re.sub(r"qte [0-9.]+", "qte (masque)", pub_msg)          # qte x risque = capital
+    pub_msg = re.sub(r"reste [0-9.]+", "reste (masque)", pub_msg)
     log.info(pub_msg)
     st["log"] = (st.get("log") or [])[-59:] + [time.strftime("%d/%m %H:%M") + " " + msg]
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
@@ -551,12 +604,15 @@ def _place_tp(st, sym, p, old_tp):
 
 
 def cancel_all(sym):
-    """Annule TOUS les ordres restants du symbole (stop / TP orphelins)."""
-    if LIVE:
-        try:
-            priv("POST", "/api/v3/cancelallorders", {"symbol": sym})
-        except Exception as e:
-            log.warning("annulation globale %s : %s", sym, e)
+    """Annule TOUS les ordres restants du symbole (stop / TP orphelins). True si reussi."""
+    if not LIVE:
+        return True
+    try:
+        priv("POST", "/api/v3/cancelallorders", {"symbol": sym})
+        return True
+    except Exception as e:
+        log.warning("annulation globale %s : %s", sym, e)
+        return False
 
 
 def close_mkt(st, sym, p, price, why):
@@ -571,6 +627,23 @@ def close_mkt(st, sym, p, price, why):
             if LIVE and not p.get("stop_id") and p.get("sl"):
                 place_exits(st, sym, p)
             return False
+        if LIVE:
+            # un ordre au marche "place" peut n'etre execute qu'en partie (protection de prix
+            # Kraken) : on n'annule le stop que si la position est VRAIMENT fermee
+            rem = None
+            for _ in range(4):
+                time.sleep(1)
+                try:
+                    ex = open_positions().get(sym)
+                    rem = ex["size"] if ex and ex["dir"] == p["dir"] else 0.0
+                    break
+                except Exception:
+                    continue
+            if rem is None or rem > 0:
+                if rem:
+                    p["qty"] = rem
+                    notify(st, "%s fermeture PARTIELLE : reste %s, stop / TP Kraken conserves" % (nm(sym), rem))
+                return False                       # suivi au prochain tour (stop toujours pose)
     cancel_all(sym)
     pnl = (price - p["entry"]) * p["dir"] * qty - CFG["FEE_TAKER"] * price * qty
     if not LIVE:
@@ -589,6 +662,11 @@ def adopt_orphans(st, pos_ex, px, C):
         return
     for sym, ex in pos_ex.items():
         if sym in st["pos"] or ex["size"] <= 0 or not sym.startswith("PF_"):
+            continue
+        if sym not in st["inst"]:                  # pas une crypto suivie : precision inconnue
+            if sym not in st.setdefault("adopt_skip", []):
+                st["adopt_skip"].append(sym)
+                notify(st, "%s position Kraken hors liste crypto : le bot n'y touche pas" % nm(sym))
             continue
         price = px.get(sym) or ex["price"]
         try:
@@ -635,6 +713,8 @@ def load_state(C):
                 st.update(json.load(f))
             if fn != STATE_FILE:
                 log.warning("etat principal illisible -> copie de secours utilisee")
+            for p in st.get("pos", {}).values():
+                p.setdefault("qty", 0.0)           # relue chez Kraken au 1er suivi
             return st
         except Exception as e:
             log.warning("etat %s illisible (%s)", fn, e)
@@ -642,6 +722,7 @@ def load_state(C):
 
 
 _SAVING = [False]
+STOP = [False]
 
 
 def save_state(st):
@@ -652,14 +733,18 @@ def save_state(st):
     _SAVING[0] = True
     try:
         tmp = STATE_FILE + ".tmp%d" % os.getpid()
+        # depot PUBLIC : ni journal des messages (capital, P&L), ni QUANTITES des positions
+        # (quantite x distance du stop = capital) ; en reel la taille est relue chez Kraken
+        data = {k: v for k, v in st.items() if k != "log"}
+        if LIVE:
+            data["pos"] = {s: {k: v for k, v in p.items() if k != "qty"} for s, p in st["pos"].items()}
         with open(tmp, "w") as f:
-            # depot PUBLIC : on n'ecrit pas le journal des messages (capital, P&L...)
-            json.dump({k: v for k, v in st.items() if k != "log"}, f, separators=(",", ":"))
+            json.dump(data, f, separators=(",", ":"))
             f.flush()
             os.fsync(f.fileno())
         if os.path.exists(STATE_FILE):
-            try:
-                os.replace(STATE_FILE, STATE_FILE + ".bak")
+            try:                                   # COPIE (pas de deplacement) : le fichier
+                shutil.copy2(STATE_FILE, STATE_FILE + ".bak")   # d'etat n'est jamais absent
             except Exception:
                 pass
         os.replace(tmp, STATE_FILE)
@@ -715,14 +800,16 @@ class Flow:
         self.last_px = None
         self.last_ts = 0.0
         self.first_live = True
+        self.last_t = 0                            # debut de la derniere bougie cloturee
 
     # ---------- historique : VWAP depuis minuit UTC + contexte de tendance ----------
     def seed(self, now=None):
         now = now or time.time()
         day0 = int(now // 86400 * 86400)
         B = CFG["BAR_SEC"]
-        # contexte de tendance (TREND_BARS + marge) et VWAP depuis 0 h UTC
-        frm = min(day0, int(now) - (CFG["TREND_BARS"] + 8) * B)
+        # contexte de tendance (TREND_BARS + marge) et VWAP depuis 0 h UTC ; le debut est
+        # cale sur un minuit UTC pour que la VWAP de la veille soit aussi la vraie VWAP du jour
+        frm = min(day0, int(now) - (CFG["TREND_BARS"] + 8) * B) // 86400 * 86400
         j = pub("/api/charts/v1/trade/%s/%s" % (self.sym, CFG["BAR_TF"]), {"from": frm, "to": int(now)})
         cur_min = int(now // B * B)
         self.bars.clear()
@@ -741,6 +828,7 @@ class Flow:
             self.bars.append({"t": t, "o": o, "h": h, "l": l, "c": c, "vol": v,
                               "vwap": self.pv / self.vv if self.vv else c, "live": False})
             self.last_px = c
+            self.last_t = t
         self.seed_until = cur_min
         self.first_live = True
         self.cur = None
@@ -757,12 +845,20 @@ class Flow:
             if t < self.seed_until or qty <= 0:
                 continue                           # deja compte dans l'historique
             minute = int(t // CFG["BAR_SEC"] * CFG["BAR_SEC"])
+            if minute <= self.last_t or (self.cur and minute < self.cur["t"]):
+                # trade en retard (bougie deja cloturee) : jamais de "bougie fantome",
+                # il compte seulement dans la VWAP de son jour
+                if int(t // 86400) == self.day:
+                    self.pv += price * qty
+                    self.vv += qty
+                continue
             if self.cur and minute > self.cur["t"]:
                 closed.append(self._close())
             d = int(t // 86400)
             if d != self.day:                      # nouveau jour UTC : VWAP remise a zero
                 self.day, self.pv, self.vv = d, 0.0, 0.0
-                self.setup = {1: None, -1: None}
+                # (les checklists de la veille sont annulees dans evaluate, APRES lecture
+                #  de la bougie de 23h45)
             if not self.cur:
                 self.cur = {"t": minute, "o": price, "h": price, "l": price, "c": price,
                             "buy": 0.0, "sell": 0.0, "n": 0, "fills": [],
@@ -780,7 +876,7 @@ class Flow:
             self.vv += qty
             self.last_px, self.last_ts = price, t
         # bougie terminee sans nouveau trade : on cloture quand meme
-        if self.cur and now >= self.cur["t"] + CFG["BAR_SEC"] + 3:
+        if self.cur and now >= self.cur["t"] + CFG["BAR_SEC"] + 10:
             closed.append(self._close())
         return [b for b in closed if b]
 
@@ -788,6 +884,10 @@ class Flow:
         b, self.cur = self.cur, None
         if not b:
             return None
+        if hasattr(FEED, "missing") and \
+                FEED.missing(b["t"], b["t"] + CFG["BAR_SEC"]) > 0.1 * CFG["BAR_SEC"]:
+            b["partial"] = True                    # plus de 10 % de la bougie sans flux : pas lue
+        self.last_t = b["t"]
         vol = b["buy"] + b["sell"]
         b["vol"] = vol
         b["delta"] = b["buy"] - b["sell"]
@@ -836,6 +936,8 @@ def _start(fl, b, prev, d, L):
     """Points 1 + 2 (criteres SOUPLES : l'IA trie ensuite). Renvoie la checklist ou None."""
     if b.get("partial") or b["n"] < L["MIN_BAR_TRADES"] or len(prev) < L["TREND_BARS"]:
         return None
+    if b["t"] % 86400 < 4 * CFG["BAR_SEC"]:
+        return None                                # 1re heure du jour : VWAP pas encore formee
     v = b["vwap"]
     last = prev[-L["TREND_BARS"]:]
     trend = sum(1 for x in last if (x["c"] - x["vwap"]) * d > 0) / float(len(last))
@@ -863,6 +965,8 @@ def evaluate(fl, b, st, C):
     for d in (1, -1):
         side_txt = "ACHAT" if d > 0 else "VENTE"
         S = fl.setup[d]
+        if S and b["t"] // 86400 != S["t"] // 86400:
+            fl.setup[d] = S = None                 # nouveau jour UTC : nouvelle VWAP, on oublie
         if S:
             S["age"] += 1
             fresh = _start(fl, b, prev, d, L) if S["stage"] == 1 else None
@@ -875,14 +979,16 @@ def evaluate(fl, b, st, C):
                                                                 "sous" if d > 0 else "au-dessus de"))
                 fl.setup[d] = None
                 continue
-            elif S["age"] > C["SEQ_BARS"]:
-                fl.setup[d] = None
+            elif S["age"] >= C["SEQ_BARS"]:
+                fl.setup[d] = None                 # sequence complete en SEQ_BARS bougies maxi
                 continue
             if S:
                 # pire cloture sous la VWAP pendant la sequence : jugee par l'IA avec la
                 # meme tolerance que le contact (0,15 % au depart en 15 min)
                 pen = ((v - b["c"]) if d > 0 else (b["c"] - v)) / v * 100.0
                 S["touch"] = max(S["touch"], pen)
+                if b.get("partial") or b["n"] < L["MIN_BAR_TRADES"]:
+                    continue                       # bougie incomplete ou trop maigre : pas lue
             if not S:
                 pass
             elif S["stage"] == 1:
@@ -901,17 +1007,17 @@ def evaluate(fl, b, st, C):
                     sig = {"dir": d, "close": b["c"], "vwap": v, "lo": S["lo"], "hi": S["hi"],
                            "big": S["big"], "big_x": S.get("big_x", 0), "abs": S["abs"],
                            "conf": b["dpct"], "atr": fl.atr(), "trend": S["trend"],
-                           "touch": S["touch"], "sym": fl.sym, "t": b["t"],
-                           "new_sample": not S.get("sampled")}
-                    S["sampled"] = True
+                           "touch": S["touch"], "sym": fl.sym, "t": b["t"], "new_sample": True}
                     ok, why = gate(sig, st, C)
                     sig["take"] = ok
+                    # la 1re confirmation decide (regle "bougie suivante") : prise ou non, la
+                    # checklist se termine, et c'est CE setup que l'IA apprend
+                    fl.setup = {1: None, -1: None}
                     if ok:
                         event(st, "%s %s 4/4 : %s de retour (delta %+d%%) -> ENTREE CONFIRMEE"
                               % (nm(fl.sym), side_txt, "acheteurs" if d > 0 else "vendeurs",
                                  int(100 * b["dpct"])))
-                        fl.setup = {1: None, -1: None}
-                    elif sig["new_sample"]:
+                    else:
                         event(st, "%s %s 4/4 souple, pas retenu par l'IA (%s) : suivi pour apprendre"
                               % (nm(fl.sym), side_txt, why))
                     return sig
@@ -945,7 +1051,9 @@ def evaluate(fl, b, st, C):
 #     sur la borne BASSE de l'esperance (moyenne - incertitude) : pas sur la chance.
 #     Un reglage n'est adopte que si cette borne basse est POSITIVE (preuve d'un avantage).
 #  3. Garde-fous : un seul cran de reglage par parametre et par cycle, plages bornees,
-#     amelioration minimale exigee, au moins 20 setups par jeu de criteres.
+#     preuve a 2,5 ecarts-types sur au moins 30 bougies DISTINCTES (10 cryptos qui sortent
+#     ensemble ne font pas 10 preuves), confirmation sur les 30 % de setups les plus recents
+#     (jamais vus par la selection). Teste : sur du pur hasard, 1 changement sur 200.
 #     Un actif qui perd nettement est mis en pause 24 h. Si la strategie perd sur la
 #     periode recente, le risque par trade est divise par 2 (jamais augmente au-dela du
 #     reglage, jamais de levier en plus).
@@ -957,8 +1065,9 @@ GRID = {
     "TOUCH_PCT": [0.30, 0.25, 0.20, 0.15, 0.10, 0.06],   # distance maxi a la VWAP (%)
 }
 FEAT = {"ABS_DELTA": 2, "BIG_MULT": 3, "BUY_DELTA": 4, "TREND_MIN": 5, "TOUCH_PCT": 6}
-LEARN_NMIN = 30
-LEARN_V = 2                                        # v2 : big trade mesure contre le 99e centile
+LEARN_NMIN = 30                                    # bougies distinctes mini par jeu de criteres
+LEARN_Z = 2.5                                      # exigence de preuve (ecarts-types)
+LEARN_V = 3                                        # v3 : big trade au 99e centile + IA plus exigeante
 
 
 def loose(C):
@@ -1040,9 +1149,11 @@ def learn_record(st, sig, C):
     if not pl:
         return
     e, sl, tp = pl
+    if not sl_ok(e, sl, C):
+        return                                     # le bot ne le prendrait jamais : rien a apprendre
     lr["open"] = lr["open"][-299:] + [{"s": sig["sym"], "t": sig["t"], "d": sig["dir"], "e": e, "sl": sl,
                                       "tp": tp, "r": abs(e - sl), "best": e, "be": 0,
-                                      "f": [round(v, 4) for v in _feat(sig)]}]
+                                      "f": [round(v, 6) for v in _feat(sig)]}]
 
 
 def learn_track(st, sym, b, C):
@@ -1051,6 +1162,10 @@ def learn_track(st, sym, b, C):
     if not C["LEARN"]:
         return
     lr = learn_st(st, C)
+    lt = lr.setdefault("last_t", {})
+    if b["t"] <= lt.get(sym, 0):
+        return                                     # bougie deja vue (rejouee au redemarrage)
+    lt[sym] = b["t"]
     keep = []
     for o in lr["open"]:
         if o["s"] != sym or b["t"] <= o["t"]:
@@ -1083,13 +1198,28 @@ def learn_track(st, sym, b, C):
     lr["open"] = keep
 
 
-def _score(Rs):
-    n = len(Rs)
-    if n < LEARN_NMIN:
-        return None
-    m = sum(Rs) / n
-    sd = statistics.pstdev(Rs) if n > 1 else 1.0
-    return m - sd / math.sqrt(n)                   # borne basse : on ne croit pas a la chance
+def _sel(done, P, since=None):
+    """Setups qui passent les criteres P (et plus recents que since)."""
+    return [x for x in done if _passes(x[2:7], P) and (since is None or x[0] > since)]
+
+
+def _stats(recs, z):
+    """(moyenne, borne basse, borne haute, n_eff). n_eff = nombre de bougies DISTINCTES :
+       10 cryptos qui sortent sur la meme bougie (meme mouvement du marche) ne comptent pas
+       pour 10 preuves independantes."""
+    n_eff = len(set(x[0] for x in recs))
+    if not recs or n_eff == 0:
+        return None, None, None, 0
+    Rs = [x[7] for x in recs]
+    m = sum(Rs) / len(Rs)
+    sd = statistics.pstdev(Rs) if len(Rs) > 1 else 1.0
+    w = z * sd / math.sqrt(n_eff)
+    return m, m - w, m + w, n_eff
+
+
+def _score(recs):
+    m, lo, hi, n_eff = _stats(recs, LEARN_Z)
+    return lo if n_eff >= LEARN_NMIN else None
 
 
 def _Rs(done, P, paused=None):
@@ -1097,7 +1227,9 @@ def _Rs(done, P, paused=None):
 
 
 def learn_update(st, C):
-    """Le cycle d'apprentissage. Ne change rien tant qu'il n'y a pas assez de preuves."""
+    """Le cycle d'apprentissage. Ne change rien tant qu'il n'y a pas assez de preuves :
+       borne basse a 2,5 ecarts-types sur des bougies distinctes, puis CONFIRMATION sur les
+       30 % de setups les plus recents, que la selection n'a pas vus."""
     if not C["LEARN"]:
         return
     lr = learn_st(st, C)
@@ -1108,45 +1240,62 @@ def learn_update(st, C):
     done = lr["done"]
     if len(done) < C["LEARN_MIN"]:
         return
+    cut = int(len(done) * 0.7)
+    train, hold = done[:cut], done[cut:]
     P = dict(lr["params"])
     changes = []
     for k in GRID:                                 # un cran maximum par parametre et par cycle
         g = GRID[k]
         i = g.index(P[k]) if P[k] in g else g.index(_snap(k, P[k]))
-        base = _score(_Rs(done, P))
+        base = _score(_sel(train, P))
         best_i, best_s = i, base
         for j in (i - 1, i + 1):
-            if 0 <= j < len(g):
-                Q = dict(P, **{k: g[j]})
-                sc = _score(_Rs(done, Q))
-                # on ne bouge que si le nouveau reglage a une esperance POSITIVE meme dans le
-                # pire cas (borne basse > 0) : sur du bruit, l'IA ne touche a rien
-                if sc is not None and sc > 0 and (best_s is None or sc > best_s + 0.02):
-                    best_i, best_s = j, sc
+            if not 0 <= j < len(g):
+                continue
+            Q = dict(P, **{k: g[j]})
+            sc = _score(_sel(train, Q))
+            if sc is None or (best_s is not None and sc <= best_s + 0.02):
+                continue                           # pas d'amelioration nette
+            hm, _, _, hn = _stats(_sel(hold, Q), 1.0)
+            if hn < 10 or hm <= 0:
+                continue                           # pas confirme sur des setups jamais vus
+            # la destination doit etre PROUVEE positive : ce cran, ou le suivant dans la
+            # meme direction (on peut traverser un cran intermediaire, jamais a l'aveugle)
+            target = sc > 0
+            j2 = j + (j - i)
+            if not target and 0 <= j2 < len(g):
+                Q2 = dict(P, **{k: g[j2]})
+                sc2 = _score(_sel(train, Q2))
+                hm2, _, _, hn2 = _stats(_sel(hold, Q2), 1.0)
+                target = sc2 is not None and sc2 > 0 and hn2 >= 10 and hm2 > 0
+            if target:
+                best_i, best_s = j, sc
         if best_i != i:
             changes.append("%s %s -> %s" % (k, P[k], g[best_i]))
             P[k] = g[best_i]
-    # pause des actifs qui perdent nettement (re-evalues a chaque cycle)
+    # pause des actifs qui perdent nettement : jugee seulement sur les setups posterieurs
+    # a la pause precedente (sinon la meme histoire les remet en pause a vie)
     paused = {s: u for s, u in lr["paused"].items() if u > now}
+    pend = lr.setdefault("pause_end", {})
     by = {}
     for x in done:
-        if _passes(x[2:7], P):
-            by.setdefault(x[1], []).append(x[7])
-    for sym, Rs in by.items():
-        if len(Rs) >= 12 and sym not in paused:
-            m = sum(Rs) / len(Rs)
-            if m < -0.25 and m + statistics.pstdev(Rs) / math.sqrt(len(Rs)) < 0:
-                paused[sym] = now + 24 * 3600
-                changes.append("pause 24 h %s (%+.2f R en moyenne sur %d setups)" % (nm(sym), m, len(Rs)))
+        if _passes(x[2:7], P) and x[0] > pend.get(x[1], 0):
+            by.setdefault(x[1], []).append(x)
+    for sym, recs in by.items():
+        if sym in paused:
+            continue
+        m, lo, hi, n_eff = _stats(recs, 2.0)
+        if n_eff >= 30 and m < -0.25 and hi < 0:
+            paused[sym] = pend[sym] = now + 24 * 3600
+            changes.append("pause 24 h %s (%+.2f R en moyenne sur %d setups)" % (nm(sym), m, len(recs)))
     lr["paused"] = paused
     # risque : divise par 2 si la strategie perd sur la periode recente, jamais augmente
-    Rs = _Rs(done[-300:], P)
-    if len(Rs) < 30:
-        Rs = _Rs(done, P)[-300:]
-    if len(Rs) >= 30:
-        m = sum(Rs) / len(Rs)
-        up = m + statistics.pstdev(Rs) / math.sqrt(len(Rs))
-        rm = 0.5 if up < 0 else 1.0 if m >= 0 else lr["risk_mult"]
+    recs = _sel(done[-300:], P)
+    if len(recs) < 30:
+        recs = _sel(done, P)[-300:]
+    if len(recs) >= 30:
+        m, lo, hi, n_eff = _stats(recs, 2.0)
+        rm = 0.5 if hi < 0 else 1.0 if m >= 0 else lr["risk_mult"]
         if rm != lr["risk_mult"]:
             changes.append("risque par trade x%.1f (%+.2f R en moyenne recemment)" % (rm, m))
             lr["risk_mult"] = rm
@@ -1229,7 +1378,8 @@ def enter(st, sym, sig, fl, C):
     risk_plan = qty * (abs(e - sl) + fees)
     tp_dist = abs(tp - e)
     if LIVE:
-        cancel_all(sym)
+        if not cancel_all(sym):
+            return "anciens ordres du symbole impossibles a annuler (securite)"
         st.setdefault("pending", {})[sym] = {"dir": d, "sl": sl, "tp": tp, "ts": time.time()}
         save_state(st)
         sent, err = False, None
@@ -1302,7 +1452,7 @@ def enter(st, sym, sig, fl, C):
 # =========================================================================
 #  SUIVI DES POSITIONS
 # =========================================================================
-def manage(st, sym, price, pos_ex, C):
+def manage(st, sym, price, pos_ex, C, oo=None):
     p = st["pos"].get(sym)
     if not p:
         return
@@ -1328,7 +1478,26 @@ def manage(st, sym, price, pos_ex, C):
             event(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             st["pos"].pop(sym, None)
             return
+        resized = abs(ex["size"] - (p.get("qty") or 0)) > 1e-9 * max(1.0, ex["size"])
         p["qty"] = ex["size"]
+        if oo is not None:
+            # l'ordre existe-t-il VRAIMENT encore chez Kraken ? (stop execute en partie,
+            # annule a la main ou par Kraken...) : 2 constats de suite avant d'agir
+            for key in ("stop_id", "tp_id"):
+                oid = p.get(key)
+                if oid and oid not in oo:
+                    p[key + "_miss"] = p.get(key + "_miss", 0) + 1
+                    if p[key + "_miss"] >= 2:
+                        p[key + "_miss"] = 0
+                        if key == "stop_id":
+                            notify(st, "%s stop ABSENT chez Kraken -> repose immediatement" % nm(sym))
+                        # nouvel ordre D'ABORD, puis annulation de l'ancien (sans effet s'il a
+                        # vraiment disparu) : jamais de trou, jamais d'ordres empiles
+                        place_exits(st, sym, p, stop=key == "stop_id", tp=key == "tp_id")
+                else:
+                    p[key + "_miss"] = 0
+        if resized and p.get("stop_id"):
+            place_exits(st, sym, p)                # taille changee : stop / TP a la bonne taille
         if not p.get("stop_id"):
             place_exits(st, sym, p)
             if not p.get("stop_id") and p.get("stopfail", 0) >= 2:
@@ -1337,7 +1506,7 @@ def manage(st, sym, price, pos_ex, C):
         if not p.get("tp_id") and p.get("tpfail", 0) < 20:
             place_exits(st, sym, p, stop=False)    # TP refuse ou absent : on le repose
     r0 = p.get("risk0", abs(p["entry"] - p["sl"]))
-    if not p.get("be") and (p["sl"] - price) * d > 0.15 * r0:
+    if (p["sl"] - price) * d > 0.15 * r0:         # aussi APRES le passage a zero perte
         close_mkt(st, sym, p, price, "STOP (securite bot)")
         return
     # protection des gains : a +BE_AT_R x risque, stop a l'entree + frais (zero perte)
@@ -1389,8 +1558,12 @@ FLOWS = {}
 
 
 def refresh_symbols(st, C):
-    st["inst"] = instruments()
-    C["SYMS"] = discover(st, C)
+    inst = instruments()
+    if inst:
+        st["inst"] = inst                          # Kraken muet : on garde les precisions connues
+    syms = discover(st, C)
+    if syms or not C["SYMS"]:
+        C["SYMS"] = syms
     want = list(dict.fromkeys(list(C["SYMS"]) + list(st["pos"])))
     if FEED:
         FEED.set_symbols(set(want))
@@ -1405,6 +1578,11 @@ def refresh_symbols(st, C):
                 log.warning("historique %s : %s", sym, e)
                 continue
             FLOWS[sym] = fl
+            try:                                   # IA : rattrape les bougies manquees pendant un
+                for b in list(fl.bars):            # redemarrage ou une coupure (stops touches...)
+                    learn_track(st, sym, b, C)
+            except Exception as e:
+                log.warning("IA rattrapage %s : %s", sym, e)
             time.sleep(0.1)
     for sym in list(FLOWS):
         if sym not in want:
@@ -1419,8 +1597,13 @@ def refresh_symbols(st, C):
                     st["lev"][sym] = C["LEVERAGE"]
                 except Exception as e:
                     if "MARKET_RESTRICTED" in str(e):
-                        st.setdefault("blocked", []).append(sym)
+                        if sym not in st.setdefault("blocked", []):
+                            st["blocked"].append(sym)
                         C["SYMS"].remove(sym)
+                        if sym not in st["pos"]:   # plus suivi du tout (pas d'entree possible)
+                            FLOWS.pop(sym, None)
+                            if FEED:
+                                FEED.set_symbols(set(C["SYMS"]) | set(st["pos"]))
                     else:
                         log.warning("levier %s : %s", sym, e)
 
@@ -1432,9 +1615,7 @@ def fast_step(st, C):
     for sym, fl in list(FLOWS.items()):
         if not FEED:
             continue
-        new = FEED.since(sym, fl.seq)
-        if not FEED.ok(sym) and fl.cur:
-            fl.cur["partial"] = True               # flux coupe : bougie incomplete, pas lue
+        new = FEED.since(sym, fl.seq)              # (coupures : jugees a la cloture de la bougie)
         for b in fl.ingest(new, now):
             stats["bougies"] = stats.get("bougies", 0) + 1
             try:                                   # l'IA ne doit JAMAIS bloquer le trading
@@ -1483,16 +1664,35 @@ def slow_step(st, C):
             adopt_orphans(st, pos_ex, px, C)
         except Exception as e:
             log.warning("reconciliation : %s", e)
+    oo = None
+    if LIVE and st["pos"]:
+        try:
+            oo = open_order_ids()
+        except Exception as e:
+            log.warning("ordres ouverts : %s", e)
     for sym in list(st["pos"]):
         try:
             if px.get(sym):
-                manage(st, sym, px[sym], pos_ex, C)
+                manage(st, sym, px[sym], pos_ex, C, oo)
         except Exception as e:
             log.warning("suivi %s : %s", sym, e)
 
 
+FEED_DOWN = [None, False]                          # debut de la coupure, alerte envoyee
+
+
 def heartbeat(st, C):
     now = time.time()
+    if FEED and not FEED.ok():                     # flux coupe : le bot est aveugle -> alerte
+        FEED_DOWN[0] = FEED_DOWN[0] or now
+        if now - FEED_DOWN[0] > 300 and not FEED_DOWN[1]:
+            FEED_DOWN[1] = True
+            notify(st, "ALERTE : flux des trades Kraken coupe depuis plus de 5 min -> aucun "
+                       "nouveau trade possible (positions ouvertes toujours protegees)")
+    else:
+        if FEED_DOWN[1]:
+            notify(st, "Flux des trades Kraken retabli")
+        FEED_DOWN[0], FEED_DOWN[1] = None, False
     stats = st.setdefault("stats", {})
     actifs = [s for s, f in FLOWS.items() if f.last_ts and now - f.last_ts < 300]
     en_cours = ["%s %s %d/4" % (nm(s), "ACHAT" if d > 0 else "VENTE", 2 if S["stage"] == 1 else 3)
@@ -1523,22 +1723,30 @@ def main():
         sys.exit("module websocket-client absent : cette strategie a besoin du flux des trades")
     FEED = TradeFeed()
     threading.Thread(target=FEED.run, daemon=True).start()
-    log.info("Demarrage VWAP ORDER FLOW [%s] x%s %s %s%% | stop %s | RR %s",
-             "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["RISK_PCT"], C["STOP_MODE"], C["RR"])
+    log.info("Demarrage VWAP ORDER FLOW [%s] x%s | bougies %s | stop %s | RR %s",
+             "REEL" if LIVE else "PAPER", C["LEVERAGE"], C["BAR_TF"], C["STOP_MODE"], C["RR"])
     if LIVE:
         check_keys(st)
-    if st.get("mode") != C["MODE"]:
-        if st.get("mode") != "live":
-            st["pos"] = {}
-        elif st["pos"]:
+    mode = C["MODE"].lower()
+    if (st.get("mode") or "").lower() != mode:     # (un fichier d'etat par mode desormais)
+        if (st.get("mode") or "").lower() == "live" and st["pos"]:
             notify(st, "ATTENTION : passage en mode fictif avec des positions REELLES ouvertes (%s) : "
                        "leurs stops/TP restent poses chez Kraken." % ", ".join(nm(x) for x in st["pos"]))
-            st["pos"] = {}
-        st["mode"] = C["MODE"]
-    refresh_symbols(st, C)
+        st["pos"] = {}
+        st["mode"] = mode
+    for essai in range(20):                        # Kraken en panne au demarrage : on patiente
+        try:                                       # ~10 min au lieu de planter le job
+            refresh_symbols(st, C)
+            break
+        except Exception as e:
+            log.warning("demarrage : liste des cryptos indisponible (%s) -> nouvel essai dans 30 s", e)
+            time.sleep(30)
+    else:
+        save_state(st)
+        sys.exit("Kraken injoignable au demarrage")
     log.info(learn_summary(st, C))
-    notify(st, "Bot VWAP ORDER FLOW [%s] x%s %s %s%% | %d perpetuels : %s"
-           % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["RISK_PCT"],
+    notify(st, "Bot VWAP ORDER FLOW [%s] x%s | bougies %s | %d perpetuels : %s"
+           % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["BAR_TF"],
               len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"])))
 
     def _arret(signum, frame):
@@ -1547,6 +1755,9 @@ def main():
                 signal.signal(sg2, signal.SIG_IGN)
             except Exception:
                 pass
+        if _SAVING[0]:                             # sauvegarde deja en cours : la boucle
+            STOP[0] = True                         # sortira juste apres, proprement
+            return
         save_state(st)
         log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
         sys.exit(0)
@@ -1560,21 +1771,31 @@ def main():
     t_slow = t_beat = t_save = 0.0
     while True:
         t0 = time.time()
-        try:
-            if t0 - st.get("disco", 0) > 3600:
+        if t0 - st.get("disco", 0) > 3600:
+            st["disco"] = t0 - 3300                # en cas d'echec : nouvel essai dans 5 min
+            try:
                 refresh_symbols(st, C)
-            fast_step(st, C)
-            if t0 - t_slow >= C["SLOW_SEC"]:
+            except Exception as e:
+                log.warning("liste des cryptos : %s (les positions restent suivies)", e)
+        for nom, etape, due in (("checklist", fast_step, True),
+                                ("positions", slow_step, t0 - t_slow >= C["SLOW_SEC"]),
+                                ("bilan", heartbeat, t0 - t_beat >= 600)):
+            if not due:
+                continue
+            if etape is slow_step:
                 t_slow = t0
-                slow_step(st, C)
-            if t0 - t_beat >= 600:
+            elif etape is heartbeat:
                 t_beat = t0
-                heartbeat(st, C)
-            if t0 - t_save >= 60:
-                t_save = t0
-                save_state(st)
-        except Exception as e:
-            log.warning("boucle : %s", e)
+            try:                                   # une etape en panne n'arrete pas les autres
+                etape(st, C)
+            except Exception as e:
+                log.warning("%s : %s", nom, e)
+        if t0 - t_save >= 60 or STOP[0]:
+            t_save = t0
+            save_state(st)
+        if STOP[0]:
+            log.info("Arret demande : etat sauvegarde.")
+            return
         if time.time() + 180 >= end:
             save_state(st)
             log.info("Fin de ce job (le workflow se relance automatiquement).")

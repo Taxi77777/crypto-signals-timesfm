@@ -26,5 +26,5 @@ models/
 MES_IDENTIFIANTS.bat
 bot_local.log
 _publication/
-kraken_vwap_state.json.bak
-kraken_vwap_state.json.tmp*
+kraken_vwap_state*.json.bak
+kraken_vwap_state*.json.tmp*

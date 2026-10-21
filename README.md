@@ -17,7 +17,9 @@ derniers : en crypto la taille médiane est minuscule, la comparer à la médian
 | **3 · Big trade respecté** | Un gros **acheteur** dans la zone de la bougie d'absorption, et la bougie **clôture au-dessus** de son prix. |
 | **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +15 % et clôture plus haute → **entrée confirmée**. |
 
-Annulation : clôture **sous** la VWAP, ou séquence de plus de 4 bougies (1 h). **Vente** : exactement l'inverse.
+Annulation : clôture **sous** la VWAP, séquence de plus de 4 bougies (1 h), ou nouveau jour UTC. **Vente** : exactement
+l'inverse. Chaque bougie de la séquence doit être complète et avoir au moins 60 trades (sinon elle n'est pas lue) ;
+la 1re heure du jour UTC est ignorée (VWAP pas encore formée) ; la 1re confirmation décide (prise ou non).
 
 **Sortie** : stop **sous la bougie d'absorption** (`STOP_MODE=safe`, défaut) ou **sous le big trade**
 (`STOP_MODE=aggressive`), au moins 0,25 % et au minimum imposé par les frais Kraken (frais ≤ ⅓ du risque) ;
@@ -30,11 +32,20 @@ Durée max d'un trade : 12 h. Une seule position. Si Kraken refuse pour marge in
 - **chaque** setup, pris ou non, est suivi jusqu'à son résultat virtuel (stop, TP, zéro perte, trailing,
   frais) : l'IA apprend aussi des trades qu'elle n'a pas pris ;
 - toutes les 30 min, dès 40 résultats, elle ajuste les 5 critères (absorption, taille du big trade, retour
-  des acheteurs, tendance, distance à la VWAP) d'**un cran maximum**, et seulement si la borne **basse** de
-  l'espérance est positive : sur du hasard, elle ne touche à rien ;
-- un actif qui perd nettement est mis en pause 24 h ; si la stratégie perd sur la période récente, le risque
-  par trade est divisé par 2 (jamais augmenté, jamais de levier en plus) ;
+  des acheteurs, tendance, distance à la VWAP) d'**un cran maximum**, seulement avec une preuve à 2,5 écarts-types
+  sur au moins 30 bougies **distinctes** (10 cryptos qui sortent ensemble ne font pas 10 preuves), **confirmée**
+  sur les 30 % de setups les plus récents qu'elle n'a pas utilisés. Testé : sur du pur hasard, 1 changement
+  sur 200 ; sur un vrai avantage caché, elle le retrouve ;
+- un actif qui perd nettement (30 bougies, 2 écarts-types) est mis en pause 24 h, jugé ensuite seulement sur ses
+  nouveaux setups ; si la stratégie perd sur la période récente, le risque par trade est divisé par 2 (jamais
+  augmenté, jamais de levier en plus) ;
 - chaque réglage est annoncé sur Telegram et gardé dans `kraken_vwap_state.json` (`learn`).
+
+**Sécurité d'exécution** : toutes les 15 s le bot vérifie chez Kraken que son stop existe **vraiment** (sinon il le
+repose), redimensionne stop et TP si la taille de la position change, ne retire le stop qu'une fois la position
+**réellement** fermée, et ferme lui-même si le prix dépasse le stop (même après le passage à zéro perte). Flux des
+trades surveillé (reconnexion si muet 60 s, alerte Telegram après 5 min). Un fichier d'état par mode : un essai en
+fictif n'efface jamais les positions réelles. Dépôt public : ni capital, ni P&L, ni quantités dans les logs ou l'état.
 
 **Suivi** : Telegram (entrée avec la checklist, sorties, résumé toutes les 6 h). Le fichier
 `kraken_vwap_state.json` est mis à jour dans le dépôt toutes les 15 min, avec le journal des checklists

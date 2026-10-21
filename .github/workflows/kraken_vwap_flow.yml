@@ -41,7 +41,7 @@ jobs:
           python-version: '3.11'
 
       - name: Dependances
-        run: pip install requests websocket-client
+        run: pip install requests==2.32.3 websocket-client==1.8.0
 
       - name: Bot VWAP ORDER FLOW
         env:
@@ -69,15 +69,18 @@ jobs:
           # sauvegarde de l'etat (sans capital ni P&L) toutes les 15 min pendant le job :
           # on peut suivre ce que le bot voit sans attendre la fin des 5 h 20
           save() {
-            F=kraken_vwap_state.json
-            [ -f "$F" ] || return 0
-            cp "$F" /tmp/state.json
+            mkdir -p /tmp/etat
+            N=0
+            for F in kraken_vwap_state.json kraken_vwap_state_paper.json; do
+              [ -f "$F" ] && cp "$F" /tmp/etat/ && N=1
+            done
+            [ "$N" = 1 ] || return 0
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
             for i in 1 2 3 4 5; do
               git fetch -q origin main && git reset -q --hard origin/main
-              cp /tmp/state.json "$F"
-              git add -f "$F"
+              cp /tmp/etat/*.json .
+              git add -f kraken_vwap_state*.json
               git diff --cached --quiet && return 0
               git commit -qm "chore: etat bot vwap [skip ci]"
               git push -q origin HEAD:main && return 0
@@ -86,21 +89,31 @@ jobs:
           }
           python kraken_vwap_flow.py &
           PID=$!
+          # annulation / timeout : GitHub ne previent que bash -> on transmet a Python, qui
+          # sauvegarde son etat proprement avant de s'arreter
+          trap 'kill -TERM $PID 2>/dev/null; wait $PID' INT TERM
           ( while kill -0 $PID 2>/dev/null; do sleep 900; kill -0 $PID 2>/dev/null && save || true; done ) &
+          SAVER=$!
           wait $PID
+          RC=$?
+          kill $SAVER 2>/dev/null || true
+          exit $RC
 
       - name: Sauvegarde de l'etat (positions)
         if: always()
         run: |
-          F=kraken_vwap_state.json
-          [ -f "$F" ] || exit 0
-          cp "$F" /tmp/state.json
+          mkdir -p /tmp/etat
+          N=0
+          for F in kraken_vwap_state.json kraken_vwap_state_paper.json; do
+            [ -f "$F" ] && cp "$F" /tmp/etat/ && N=1
+          done
+          [ "$N" = 1 ] || exit 0
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           for i in 1 2 3 4 5 6; do
             git fetch -q origin main && git reset -q --hard origin/main
-            cp /tmp/state.json "$F"
-            git add -f "$F"
+            cp /tmp/etat/*.json .
+            git add -f kraken_vwap_state*.json
             git diff --cached --quiet && exit 0
             git commit -qm "chore: etat bot vwap [skip ci]"
             git push -q origin HEAD:main && exit 0
@@ -120,4 +133,8 @@ jobs:
       - name: Relance du bot (fonctionnement 24h/24)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run kraken_vwap_flow.yml --repo "${{ github.repository }}" --ref main
+          # meme mode et meme duree que le job qui se termine (un lancement manuel en
+          # "live" ne doit pas repartir en fictif 5 h plus tard)
+          MODE_IN: ${{ inputs.mode }}
+          MIN_IN: ${{ inputs.minutes }}
+        run: gh workflow run kraken_vwap_flow.yml --repo "${{ github.repository }}" --ref main -f mode="$MODE_IN" -f minutes="$MIN_IN"
