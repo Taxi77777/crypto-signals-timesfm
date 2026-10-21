@@ -194,11 +194,12 @@ def priv(method, endpoint, params=None):
                "Content-Type": "application/x-www-form-urlencoded"}
     url = BASE + "/derivatives" + endpoint + (("?" + data) if data else "")
     r = SESSION.request(method, url, headers=headers, timeout=25)
-    j = {}
     try:
         j = r.json()
     except Exception:
-        pass
+        raise RuntimeError("%s : reponse illisible (HTTP %s)" % (endpoint, r.status_code))
+    if not isinstance(j, dict):
+        raise RuntimeError("%s : reponse inattendue" % endpoint)
     if j.get("result") and j["result"] != "success":
         raise RuntimeError("%s : %s" % (endpoint, j.get("error") or j))
     if not r.ok:
@@ -270,6 +271,10 @@ class TradeFeed:
         with self.lock:
             gaps = list(self.gaps) + ([(self.gap_start, time.time())] if self.gap_start else [])
         return sum(max(0.0, min(e, t1) - max(s, t0)) for s, e in gaps)
+
+    def buffered(self, sym):
+        with self.lock:
+            return list(self.trades.get(sym, ()))
 
     def recent(self, sym, secs):
         t0 = time.time() - secs
@@ -430,7 +435,10 @@ def discover(st, C):
 
 def open_positions():
     out = {}
-    for p in priv("GET", "/api/v3/openpositions").get("openPositions") or []:
+    j = priv("GET", "/api/v3/openpositions")
+    if "openPositions" not in j:                   # reponse incomplete : surtout ne pas en
+        raise RuntimeError("openpositions : reponse incomplete")   # conclure "plus de position"
+    for p in j["openPositions"] or []:
         out[(p.get("symbol") or "").upper()] = {
             "dir": 1 if p.get("side") == "long" else -1,
             "size": float(p.get("size") or 0),
@@ -441,6 +449,8 @@ def open_positions():
 def open_order_ids():
     """Identifiants des ordres encore ouverts chez Kraken (stops / TP compris)."""
     j = priv("GET", "/api/v3/openorders")
+    if "openOrders" not in j:
+        raise RuntimeError("openorders : reponse incomplete")
     return set(o.get("order_id") or o.get("orderId") for o in (j.get("openOrders") or []))
 
 
@@ -621,6 +631,14 @@ def cancel_all(sym):
 
 
 def close_mkt(st, sym, p, price, why):
+    CRIT[0] += 1
+    try:
+        return _close_mkt(st, sym, p, price, why)
+    finally:
+        CRIT[0] -= 1
+
+
+def _close_mkt(st, sym, p, price, why):
     qty = rq(st, sym, p["qty"])
     if qty > 0:
         try:
@@ -683,7 +701,7 @@ def adopt_orphans(st, pos_ex, px, C):
         d, e = ex["dir"], ex["price"] or price
         sl = min(e, price) - 1.5 * a if d > 0 else max(e, price) + 1.5 * a
         pend = st.get("pending", {}).pop(sym, None)
-        recent = pend and pend["dir"] == d and time.time() - pend["ts"] < 1800
+        recent = pend and pend["dir"] == d and time.time() - pend["ts"] < 6 * 3600
         if recent and (price - pend["sl"]) * d <= 0:
             # entree du bot deja au-dela de SON stop prevu : on sort tout de suite
             tmp = {"dir": d, "entry": e, "qty": ex["size"], "sl": pend["sl"], "tp": pend["tp"]}
@@ -728,6 +746,7 @@ def load_state(C):
 
 _SAVING = [False]
 STOP = [False]
+CRIT = [0]                                         # > 0 : entree / sortie en cours (ne pas couper)
 
 
 def save_state(st):
@@ -811,6 +830,7 @@ class Flow:
         self.last_ts = 0.0
         self.first_live = True
         self.last_t = 0                            # debut de la derniere bougie cloturee
+        self.epoch = getattr(FEED, "epoch", 0)     # coupures du flux deja prises en compte
 
     # ---------- historique : VWAP depuis minuit UTC + contexte de tendance ----------
     def seed(self, now=None):
@@ -936,10 +956,17 @@ class Flow:
 #  LA CHECKLIST EN 4 POINTS
 # =========================================================================
 def _big_in(b, d, lo, hi, min_x):
-    """Gros ordre agressif DANS NOTRE SENS (acheteur pour un achat) dans la zone [lo, hi]."""
+    """Plus gros ordre agressif DANS NOTRE SENS dans la zone [lo, hi] et RESPECTE (la bougie
+       cloture au-dela de son prix) : un gros ordre casse ne masque plus un gros ordre tenu."""
     want = "buy" if d > 0 else "sell"
-    c = [x for x in b.get("big") or [] if x["side"] == want and lo <= x["price"] <= hi and x["x"] >= min_x]
+    c = [x for x in b.get("big") or [] if x["side"] == want and lo <= x["price"] <= hi
+         and x["x"] >= min_x and (b["c"] - x["price"]) * d > 0]
     return max(c, key=lambda x: x["size"]) if c else None
+
+
+def _zone_dist(price, lo, hi, v):
+    """Distance (%) du big trade a la bougie d'absorption : jugee par l'IA comme le contact."""
+    return max(0.0, lo - price, price - hi) / v * 100.0
 
 
 def _start(fl, b, prev, d, L):
@@ -971,14 +998,14 @@ def evaluate(fl, b, st, C):
     L = loose(C)
     v = b["vwap"]
     tol = v * L["TOUCH_PCT"] / 100.0
-    prev = [x for x in list(fl.bars)[:-1] if x.get("vwap")]
+    prev = [x for x in list(fl.bars) if x["t"] < b["t"] and x.get("vwap")]
     for d in (1, -1):
         side_txt = "ACHAT" if d > 0 else "VENTE"
         S = fl.setup[d]
         if S and b["t"] // 86400 != S["t"] // 86400:
             fl.setup[d] = S = None                 # nouveau jour UTC : nouvelle VWAP, on oublie
         if S:
-            S["age"] += 1
+            S["age"] = (b["t"] - S["t"]) // C["BAR_SEC"]   # en temps : une coupure ne prolonge rien
             fresh = _start(fl, b, prev, d, L) if S["stage"] == 1 else None
             if fresh and fresh["a"] > S["a"]:
                 fl.setup[d] = S = None             # absorption plus forte : on repart de celle-ci
@@ -1003,14 +1030,16 @@ def evaluate(fl, b, st, C):
                 pass
             elif S["stage"] == 1:
                 big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol, L["BIG_MULT"])
-                if big and (b["c"] - big["price"]) * d > 0:      # bougie cloture au-dela : RESPECTE
+                if big:                                          # bougie cloture au-dela : RESPECTE
                     S.update(stage=2, big=big["price"], big_x=big["x"])
+                    S["touch"] = max(S["touch"], _zone_dist(big["price"], S["lo"], S["hi"], v))
                     event(st, "%s %s 3/4 : big trade x%.1f (vs top 1 %%) respecte a %s"
                           % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
                 continue
             elif S["stage"] == 2:
                 big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol, L["BIG_MULT"])
-                if big and big["x"] > S.get("big_x", 0) and (b["c"] - big["price"]) * d > 0:
+                if big and big["x"] > S.get("big_x", 0) and \
+                        _zone_dist(big["price"], S["lo"], S["hi"], v) <= S["touch"]:
                     S.update(big=big["price"], big_x=big["x"])   # un plus gros defenseur
                 pc = prev[-1]["c"] if prev else b["o"]
                 if b["dpct"] * d >= L["BUY_DELTA"] and (b["c"] - pc) * d > 0:
@@ -1041,8 +1070,9 @@ def evaluate(fl, b, st, C):
               % (nm(fl.sym), side_txt, px_str(st, fl.sym, v), "vendeurs" if d > 0 else "acheteurs",
                  int(100 * b["dpct"])))
         big = _big_in(b, d, b["l"] - tol, b["h"] + tol, L["BIG_MULT"])  # peut etre dans la meme bougie
-        if big and (b["c"] - big["price"]) * d > 0:
+        if big:
             S.update(stage=2, big=big["price"], big_x=big["x"])
+            S["touch"] = max(S["touch"], _zone_dist(big["price"], b["l"], b["h"], v))
             event(st, "%s %s 3/4 : big trade x%.1f (vs top 1 %%) respecte a %s"
                   % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
         fl.setup[d] = S
@@ -1198,7 +1228,11 @@ def learn_track(st, sym, b, C):
                 nsl = o["best"] - d * C["TRAIL_R"] * r
                 if (nsl - o["sl"]) * d >= C["TRAIL_STEP_R"] * r:
                     o["sl"] = nsl
-            if b["t"] - o["t"] >= C["MAX_HOLD_MIN"] * 60:
+            if (worst - o["sl"]) * d <= 0:
+                # le stop remonte (zero perte / trailing) est retouche dans la MEME bougie :
+                # le vrai bot serait sorti -> on compte la sortie (jamais plus optimiste)
+                res = (o["sl"] - e) * d - fee
+            elif b["t"] - o["t"] >= C["MAX_HOLD_MIN"] * 60:
                 res = (b["c"] - e) * d - fee
         if res is None:
             keep.append(o)
@@ -1361,6 +1395,14 @@ def sl_ok(entry, sl, C):
 #  ENTREE
 # =========================================================================
 def enter(st, sym, sig, fl, C):
+    CRIT[0] += 1                                   # ordre au marche -> stop pose : pas d'arret
+    try:
+        return _enter(st, sym, sig, fl, C)
+    finally:
+        CRIT[0] -= 1
+
+
+def _enter(st, sym, sig, fl, C):
     if len(st["pos"]) >= C["MAX_OPEN"] or sym in st["pos"]:
         return "une position est deja ouverte"
     if time.time() < st.get("block_until", 0):
@@ -1475,9 +1517,15 @@ def manage(st, sym, price, pos_ex, C, oo=None):
             except Exception:
                 return
         if ex and ex["size"] > 0 and ex["dir"] != d:
+            cancel_all(sym)                        # anciens ordres reduce-only du mauvais sens
             st["pos"].pop(sym, None)
             return
         if not ex or ex["dir"] != d or ex["size"] <= 0:
+            # position absente : on CONFIRME avant d'annuler le stop (une reponse Kraken
+            # ponctuellement fausse ne doit jamais retirer la protection d'une position vivante)
+            p["gone"] = p.get("gone", 0) + 1
+            if p["gone"] < 2:
+                return
             cancel_all(sym)
             r0 = p.get("risk0", abs(p["entry"] - p["sl"])) or 1e-12
             why = ("TP" if (price - p["tp"]) * d >= -0.25 * r0
@@ -1488,6 +1536,7 @@ def manage(st, sym, price, pos_ex, C, oo=None):
             event(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             st["pos"].pop(sym, None)
             return
+        p["gone"] = 0
         resized = abs(ex["size"] - (p.get("qty") or 0)) > 1e-9 * max(1.0, ex["size"])
         p["qty"] = ex["size"]
         if oo is not None:
@@ -1623,6 +1672,18 @@ def refresh_symbols(st, C):
                         log.warning("levier %s : %s", sym, e)
 
 
+def resync(st, sym, fl, C):
+    """Apres une longue coupure du flux : VWAP et bougies rechargees depuis Kraken (le volume
+       de la coupure compte), checklists en cours oubliees, bougies manquees rejouees par l'IA."""
+    fl.setup = {1: None, -1: None}
+    fl.seed()
+    buf = FEED.buffered(sym)
+    later = [x[4] for x in buf if x[0] >= fl.seed_until]
+    fl.seq = (min(later) - 1) if later else max([x[4] for x in buf] or [fl.seq])
+    for b in list(fl.bars):
+        learn_track(st, sym, b, C)
+
+
 def fast_step(st, C):
     """Toutes les FAST_SEC s : lecture du flux, cloture des bougies, checklist."""
     now = time.time()
@@ -1630,6 +1691,16 @@ def fast_step(st, C):
     for sym, fl in list(FLOWS.items()):
         if not FEED:
             continue
+        ep = getattr(FEED, "epoch", 0)
+        if fl.epoch != ep and getattr(FEED, "gap_start", None) is None:
+            fl.epoch = ep                          # le flux est revenu apres une coupure
+            g = FEED.gaps[-1] if getattr(FEED, "gaps", None) else None
+            if g and g[1] - g[0] > 0.1 * C["BAR_SEC"]:
+                try:
+                    resync(st, sym, fl, C)
+                    event(st, "%s resynchronise apres %d s de coupure du flux" % (nm(sym), g[1] - g[0]))
+                except Exception as e:
+                    log.warning("resynchronisation %s : %s", sym, e)
         new = FEED.since(sym, fl.seq)              # (coupures : jugees a la cloture de la bougie)
         if sym in getattr(FEED, "overflowed", ()):
             FEED.overflowed.discard(sym)           # trades perdus (boucle bloquee) : bougie
@@ -1673,9 +1744,13 @@ def fast_step(st, C):
 
 def slow_step(st, C):
     """Toutes les SLOW_SEC s : positions Kraken, stops, TP, protection des gains."""
-    px = tickers()
+    try:
+        px = tickers()
+    except Exception as e:                         # prix du flux en secours : le suivi continue
+        log.warning("tickers : %s", e)
+        px = {}
     for sym, fl in FLOWS.items():                  # prix du flux s'il est frais (plus reactif)
-        if fl.last_px and time.time() - fl.last_ts < 15:
+        if fl.last_px and (time.time() - fl.last_ts < 15 or sym not in px):
             px[sym] = fl.last_px
     pos_ex = open_positions() if LIVE else {}
     if LIVE:
@@ -1746,8 +1821,8 @@ def main():
                 signal.signal(sg2, signal.SIG_IGN)
             except Exception:
                 pass
-        if _SAVING[0]:                             # sauvegarde deja en cours : la boucle
-            STOP[0] = True                         # sortira juste apres, proprement
+        if _SAVING[0] or CRIT[0]:                  # sauvegarde, entree ou sortie en cours : la
+            STOP[0] = True                         # boucle s'arretera juste apres, proprement
             return
         save_state(st)
         log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
