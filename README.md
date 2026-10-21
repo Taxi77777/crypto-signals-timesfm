@@ -7,7 +7,8 @@ que si elle contient au moins 60 trades : les actifs trop calmes sont ignorés d
 
 Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-même des bougies **footprint
 15 minutes** (intraday ; `BAR_TF`, le 1 minute donnait trop de bruit) : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
-exécutions d'une même milliseconde ; « gros » = ≥ 15× au départ la taille médiane des 3000 derniers ordres).
+exécutions d'une même milliseconde ; « gros » = ≥ 2× au départ le seuil des **1 % plus gros ordres** des 5000
+derniers : en crypto la taille médiane est minuscule, la comparer à la médiane rendait « gros » presque tout ordre).
 
 | Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT ; seuils de départ, ajustés ensuite par l'IA) |
 |---|---|

@@ -16,7 +16,8 @@
     2. VENDEURS ABSORBES    sur cette bougie les vendeurs frappent fort
                             (delta tres negatif)... mais le prix ne descend
                             plus : la bougie cloture sur / au-dessus de la VWAP
-    3. BIG TRADE RESPECTE   un gros ACHETEUR defend la zone (ordre >= BIG_MULT x
+    3. BIG TRADE RESPECTE   un gros ACHETEUR defend la zone (ordre >= BIG_MULT x le
+                            seuil des 1 % plus gros ordres recents, au lieu de x
                             la taille habituelle) et la bougie CLOTURE AU-DESSUS
                             de son prix
     4. ACHETEURS DE RETOUR  bougie suivante : delta positif et cloture plus haute
@@ -96,8 +97,11 @@ CFG = {
     "ABS_DELTA": envf("ABS_DELTA", 0.15),         # delta de la bougie <= -X du volume (achat)
     "MIN_BAR_TRADES": envf("MIN_BAR_TRADES", 60), # bougie avec assez de trades pour etre lue
     # 3. big trade respecte
-    "BIG_MULT": envf("BIG_MULT", 15.0),           # gros ordre = >= X fois la taille mediane
-    "BIG_SAMPLE": envf("BIG_SAMPLE", 3000),       # mediane calculee sur les X derniers ordres
+    # en crypto la taille MEDIANE d'un ordre est minuscule (particuliers) : comparer a la
+    # mediane rendait "gros" presque tout ordre (x19000 observes). Reference = le seuil des
+    # 1 % plus gros ordres recents (99e centile) : x1 = deja dans le top 1 %.
+    "BIG_MULT": envf("BIG_MULT", 2.0),            # gros ordre = >= X fois le 99e centile
+    "BIG_SAMPLE": envf("BIG_SAMPLE", 5000),       # centile calcule sur les X derniers ordres
     "BIG_WARMUP": envf("BIG_WARMUP", 200),        # ordres observes avant de juger "gros"
     # 4. acheteurs de retour
     "BUY_DELTA": envf("BUY_DELTA", 0.15),         # delta >= +X du volume (achat)
@@ -793,12 +797,15 @@ class Flow:
             k = (int(t * 1000), side)
             q, pq = agg.get(k, (0.0, 0.0))
             agg[k] = (q + qty, pq + price * qty)
-        med = statistics.median(self.prints) if len(self.prints) >= CFG["BIG_WARMUP"] else None
+        ref = None
+        if len(self.prints) >= CFG["BIG_WARMUP"]:
+            srt = sorted(self.prints)
+            ref = srt[min(len(srt) - 1, int(0.99 * len(srt)))] or None   # 99e centile
         b["big"] = []
         mult = min(CFG["BIG_MULT"], GRID["BIG_MULT"][0])   # l'IA juge ensuite le multiple utile
         for (ms, side), (q, pq) in agg.items():
-            if med and q >= mult * med:
-                b["big"].append({"price": pq / q, "side": side, "size": q, "x": q / med})
+            if ref and q >= mult * ref:
+                b["big"].append({"price": pq / q, "side": side, "size": q, "x": q / ref})
         self.prints.extend(q for q, _ in agg.values())
         b["live"] = True
         b.pop("fills", None)
@@ -880,7 +887,7 @@ def evaluate(fl, b, st, C):
                 big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol, L["BIG_MULT"])
                 if big and (b["c"] - big["price"]) * d > 0:      # bougie cloture au-dela : RESPECTE
                     S.update(stage=2, big=big["price"], big_x=big["x"])
-                    event(st, "%s %s 3/4 : big trade x%.0f respecte a %s"
+                    event(st, "%s %s 3/4 : big trade x%.1f (vs top 1 %%) respecte a %s"
                           % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
                 continue
             elif S["stage"] == 2:
@@ -918,7 +925,7 @@ def evaluate(fl, b, st, C):
         big = _big_in(b, d, b["l"] - tol, b["h"] + tol, L["BIG_MULT"])  # peut etre dans la meme bougie
         if big and (b["c"] - big["price"]) * d > 0:
             S.update(stage=2, big=big["price"], big_x=big["x"])
-            event(st, "%s %s 3/4 : big trade x%.0f respecte a %s"
+            event(st, "%s %s 3/4 : big trade x%.1f (vs top 1 %%) respecte a %s"
                   % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
         fl.setup[d] = S
     return None
@@ -942,13 +949,14 @@ def evaluate(fl, b, st, C):
 #     reglage, jamais de levier en plus).
 GRID = {
     "ABS_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini de l'absorption
-    "BIG_MULT": [7.0, 10.0, 15.0, 20.0, 30.0, 50.0],      # taille mini du big trade (x mediane)
+    "BIG_MULT": [1.0, 1.5, 2.0, 3.0, 5.0, 8.0],          # taille mini du big trade (x 99e centile)
     "BUY_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini du retour des acheteurs
     "TREND_MIN": [0.6, 0.7, 0.8, 0.9],                   # tendance mini avant le retour a la VWAP
     "TOUCH_PCT": [0.30, 0.25, 0.20, 0.15, 0.10, 0.06],   # distance maxi a la VWAP (%)
 }
 FEAT = {"ABS_DELTA": 2, "BIG_MULT": 3, "BUY_DELTA": 4, "TREND_MIN": 5, "TOUCH_PCT": 6}
 LEARN_NMIN = 30
+LEARN_V = 2                                        # v2 : big trade mesure contre le 99e centile
 
 
 def loose(C):
@@ -969,8 +977,8 @@ def _snap(k, v):
 
 def learn_st(st, C):
     lr = st.get("learn")
-    if not isinstance(lr, dict) or lr.get("tf") != C["BAR_TF"]:
-        lr = st["learn"] = {"tf": C["BAR_TF"]}     # autre unite de temps : on reapprend
+    if not isinstance(lr, dict) or lr.get("tf") != C["BAR_TF"] or lr.get("v") != LEARN_V:
+        lr = st["learn"] = {"tf": C["BAR_TF"], "v": LEARN_V}   # autre unite / autre mesure : on reapprend
     if not isinstance(lr.get("params"), dict):
         lr["params"] = {k: _snap(k, C[k]) for k in GRID}   # depart : criteres de la video
     lr.setdefault("open", [])
@@ -1007,7 +1015,7 @@ def gate(sig, st, C):
     if a < P["ABS_DELTA"] - 1e-9:
         return False, "absorption %d%% < %d%%" % (100 * a, 100 * P["ABS_DELTA"])
     if x < P["BIG_MULT"] - 1e-9:
-        return False, "big trade x%.0f < x%.0f" % (x, P["BIG_MULT"])
+        return False, "big trade x%.1f < x%.1f" % (x, P["BIG_MULT"])
     if c < P["BUY_DELTA"] - 1e-9:
         return False, "retour %d%% < %d%%" % (100 * c, 100 * P["BUY_DELTA"])
     if tr < P["TREND_MIN"] - 1e-9:
@@ -1156,7 +1164,7 @@ def learn_summary(st, C):
     lr = learn_st(st, C)
     P = lr["params"]
     Rs = _Rs(lr["done"], P)
-    return ("IA : %d setups appris, %d en cours | absorption >= %d%%, big trade >= x%.0f, retour >= %d%%, "
+    return ("IA : %d setups appris, %d en cours | absorption >= %d%%, big trade >= x%.1f (top 1 %%), retour >= %d%%, "
             "tendance >= %d%%, VWAP +/- %.2f%% | esperance %s | risque x%.1f%s" % (
                 len(lr["done"]), len(lr["open"]), 100 * P["ABS_DELTA"], P["BIG_MULT"], 100 * P["BUY_DELTA"],
                 100 * P["TREND_MIN"], P["TOUCH_PCT"],
@@ -1275,7 +1283,7 @@ def enter(st, sym, sig, fl, C):
                "CHECKLIST VWAP 4/4 :\n"
                " 1. prix sur la VWAP %s\n"
                " 2. %s absorbes (delta %+d%%)\n"
-               " 3. big trade x%.0f respecte a %s\n"
+               " 3. big trade x%.1f (vs top 1 %%) respecte a %s\n"
                " 4. %s de retour (delta %+d%%)\n"
                "SL %s (%s)   TP %s (%.1f R)\nperte max ~%.2f $ frais compris"
            % (nm(sym), "ACHAT" if d > 0 else "VENTE", px_str(st, sym, e), qty, C["LEVERAGE"],
