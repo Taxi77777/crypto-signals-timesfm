@@ -7,7 +7,7 @@
   (Dualis Flow, partie 2).
 ==========================================================================
   Le bot recoit CHAQUE trade Kraken en direct (WebSocket) et construit
-  lui-meme des bougies FOOTPRINT 1 minute : volume, acheteurs agressifs,
+  lui-meme des bougies FOOTPRINT 15 minutes (BAR_TF) : volume, acheteurs agressifs,
   vendeurs agressifs, DELTA, et les gros ordres ("big trades").
 
   LA CHECKLIST (il faut les 4) - exemple a l'ACHAT :
@@ -86,31 +86,33 @@ CFG = {
     # de trades (MIN_BAR_TRADES), donc les actifs trop calmes sont ignores d'eux-memes
     "MIN_QUOTE_VOL": envf("VWAP_MIN_VOL", 1000000.0),   # volume 24 h minimum (USD)
     "TOP_N": envf("VWAP_TOP_N", 60),
+    # unite de temps des bougies footprint : 15 min = intraday (1 min = trop de bruit)
+    "BAR_TF": envf("BAR_TF", "15m"),
     # 1. prix sur la VWAP
-    "TOUCH_PCT": envf("TOUCH_PCT", 0.06),         # "sur la VWAP" = a +/- X % de la VWAP
-    "TREND_BARS": envf("TREND_BARS", 15),         # tendance : sur les X bougies precedentes...
+    "TOUCH_PCT": envf("TOUCH_PCT", 0.15),         # "sur la VWAP" = a +/- X % de la VWAP
+    "TREND_BARS": envf("TREND_BARS", 12),         # tendance : sur les X bougies precedentes (3 h)...
     "TREND_MIN": envf("TREND_MIN", 0.7),          # ...au moins X du bon cote de la VWAP
     # 2. vendeurs absorbes
-    "ABS_DELTA": envf("ABS_DELTA", 0.20),         # delta de la bougie <= -X du volume (achat)
-    "MIN_BAR_TRADES": envf("MIN_BAR_TRADES", 15), # bougie avec assez de trades pour etre lue
+    "ABS_DELTA": envf("ABS_DELTA", 0.15),         # delta de la bougie <= -X du volume (achat)
+    "MIN_BAR_TRADES": envf("MIN_BAR_TRADES", 60), # bougie avec assez de trades pour etre lue
     # 3. big trade respecte
-    "BIG_MULT": envf("BIG_MULT", 10.0),           # gros ordre = >= X fois la taille mediane
+    "BIG_MULT": envf("BIG_MULT", 15.0),           # gros ordre = >= X fois la taille mediane
     "BIG_SAMPLE": envf("BIG_SAMPLE", 3000),       # mediane calculee sur les X derniers ordres
     "BIG_WARMUP": envf("BIG_WARMUP", 200),        # ordres observes avant de juger "gros"
     # 4. acheteurs de retour
-    "BUY_DELTA": envf("BUY_DELTA", 0.20),         # delta >= +X du volume (achat)
-    "SEQ_BARS": envf("SEQ_BARS", 5),              # toute la sequence en X bougies maximum
+    "BUY_DELTA": envf("BUY_DELTA", 0.15),         # delta >= +X du volume (achat)
+    "SEQ_BARS": envf("SEQ_BARS", 4),              # toute la sequence en X bougies maximum (1 h)
     # sortie
     "STOP_MODE": envf("STOP_MODE", "safe"),       # safe = sous la bougie ; aggressive = sous le big trade
-    "STOP_BUF_PCT": envf("STOP_BUF_PCT", 0.03),   # marge sous le niveau (en % du prix)
+    "STOP_BUF_PCT": envf("STOP_BUF_PCT", 0.05),   # marge sous le niveau (en % du prix)
     "SL_MIN_PCT": envf("SL_MIN_PCT", 0.25),       # risque minimum en % (frais Kraken <= 1/3 du risque)
-    "SL_MAX_PCT": envf("SL_MAX_PCT", 2.0),
+    "SL_MAX_PCT": envf("SL_MAX_PCT", 3.0),
     "RR": envf("RR", 2.0),                        # TP = RR x risque
     "BE_AT_R": envf("BE_AT_R", 1.0),              # a +X R : stop a l'entree + frais
     "BE_EXTRA_PCT": envf("BE_EXTRA_PCT", 0.02),
     "TRAIL_R": envf("TRAIL_R", 1.0),              # trailing : stop a X R derriere le meilleur prix (0 = off)
     "TRAIL_STEP_R": envf("TRAIL_STEP_R", 0.25),   # on ne deplace le stop que par pas de X R
-    "MAX_HOLD_MIN": envf("MAX_HOLD_MIN", 240),    # duree max d'un trade (minutes)
+    "MAX_HOLD_MIN": envf("MAX_HOLD_MIN", 720),    # duree max d'un trade (minutes) : 12 h, intraday
     "ATR_PERIOD": envf("ATR_PERIOD", 14),
     "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),
     "FILL_TOL": envf("FILL_TOL", 1.25),
@@ -135,6 +137,7 @@ CFG = {
     "SLOW_SEC": envf("SLOW_SEC", 15),             # positions Kraken / stops / TP
     "SUMMARY_HOURS": envf("SUMMARY_HOURS", 6.0),
 }
+CFG["BAR_SEC"] = TF_SEC.get(CFG["BAR_TF"], 900)
 CFG["SYMS"] = []
 CFG["RR_ADOPT"] = CFG["RR"]
 LIVE = CFG["MODE"].lower() == "live"
@@ -687,7 +690,7 @@ def event(st, txt):
 
 
 class Flow:
-    """Un actif : bougies footprint 1 minute, VWAP du jour (UTC), gros ordres, et la
+    """Un actif : bougies footprint (BAR_TF, 15 min), VWAP du jour (UTC), gros ordres, et la
        checklist en cours pour chaque sens."""
 
     def __init__(self, sym):
@@ -709,9 +712,11 @@ class Flow:
     def seed(self, now=None):
         now = now or time.time()
         day0 = int(now // 86400 * 86400)
-        frm = min(day0, int(now) - 120 * 60)       # au moins 2 h de contexte, VWAP depuis 0 h UTC
-        j = pub("/api/charts/v1/trade/%s/1m" % self.sym, {"from": frm, "to": int(now)})
-        cur_min = int(now // 60 * 60)
+        B = CFG["BAR_SEC"]
+        # contexte de tendance (TREND_BARS + marge) et VWAP depuis 0 h UTC
+        frm = min(day0, int(now) - (CFG["TREND_BARS"] + 8) * B)
+        j = pub("/api/charts/v1/trade/%s/%s" % (self.sym, CFG["BAR_TF"]), {"from": frm, "to": int(now)})
+        cur_min = int(now // B * B)
         self.bars.clear()
         self.day, self.pv, self.vv = None, 0.0, 0.0
         for r in j.get("candles") or []:
@@ -743,7 +748,7 @@ class Flow:
             self.seq = max(self.seq, n)
             if t < self.seed_until or qty <= 0:
                 continue                           # deja compte dans l'historique
-            minute = int(t // 60 * 60)
+            minute = int(t // CFG["BAR_SEC"] * CFG["BAR_SEC"])
             if self.cur and minute > self.cur["t"]:
                 closed.append(self._close())
             d = int(t // 86400)
@@ -766,8 +771,8 @@ class Flow:
             self.pv += price * qty
             self.vv += qty
             self.last_px, self.last_ts = price, t
-        # minute terminee sans nouveau trade : on cloture quand meme
-        if self.cur and now >= self.cur["t"] + 60 + 3:
+        # bougie terminee sans nouveau trade : on cloture quand meme
+        if self.cur and now >= self.cur["t"] + CFG["BAR_SEC"] + 3:
             closed.append(self._close())
         return [b for b in closed if b]
 
@@ -835,7 +840,7 @@ def _start(fl, b, prev, d, L):
 
 
 def evaluate(fl, b, st, C):
-    """Appelee a chaque bougie 1 minute cloturee. Construit la checklist avec des criteres
+    """Appelee a chaque bougie cloturee (BAR_TF). Construit la checklist avec des criteres
        SOUPLES, puis l'IA (gate) decide avec les criteres appris si l'entree est prise.
        Renvoie un signal (avec "take") ou None."""
     if not b.get("live"):
@@ -864,7 +869,7 @@ def evaluate(fl, b, st, C):
                 continue
             if S:
                 # pire cloture sous la VWAP pendant la sequence : jugee par l'IA avec la
-                # meme tolerance que le contact (0,06 % au depart, comme la video)
+                # meme tolerance que le contact (0,15 % au depart en 15 min)
                 pen = ((v - b["c"]) if d > 0 else (b["c"] - v)) / v * 100.0
                 S["touch"] = max(S["touch"], pen)
             if not S:
@@ -935,10 +940,10 @@ def evaluate(fl, b, st, C):
 #     reglage, jamais de levier en plus).
 GRID = {
     "ABS_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini de l'absorption
-    "BIG_MULT": [5.0, 7.0, 10.0, 15.0, 20.0, 30.0],       # taille mini du big trade (x mediane)
+    "BIG_MULT": [7.0, 10.0, 15.0, 20.0, 30.0, 50.0],      # taille mini du big trade (x mediane)
     "BUY_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini du retour des acheteurs
     "TREND_MIN": [0.6, 0.7, 0.8, 0.9],                   # tendance mini avant le retour a la VWAP
-    "TOUCH_PCT": [0.10, 0.08, 0.06, 0.04, 0.03],         # distance maxi a la VWAP (%)
+    "TOUCH_PCT": [0.30, 0.25, 0.20, 0.15, 0.10, 0.06],   # distance maxi a la VWAP (%)
 }
 FEAT = {"ABS_DELTA": 2, "BIG_MULT": 3, "BUY_DELTA": 4, "TREND_MIN": 5, "TOUCH_PCT": 6}
 LEARN_NMIN = 30
@@ -962,8 +967,8 @@ def _snap(k, v):
 
 def learn_st(st, C):
     lr = st.get("learn")
-    if not isinstance(lr, dict):
-        lr = st["learn"] = {}
+    if not isinstance(lr, dict) or lr.get("tf") != C["BAR_TF"]:
+        lr = st["learn"] = {"tf": C["BAR_TF"]}     # autre unite de temps : on reapprend
     if not isinstance(lr.get("params"), dict):
         lr["params"] = {k: _snap(k, C[k]) for k in GRID}   # depart : criteres de la video
     lr.setdefault("open", [])
@@ -1251,12 +1256,12 @@ def enter(st, sym, sig, fl, C):
     else:
         st["paper"] -= C["FEE_TAKER"] * e * qty
     if (e - sl) * d <= 0 or qty * (abs(e - sl) + 2 * C["FEE_TAKER"] * e) > C["FILL_TOL"] * risk_plan:
-        p = {"dir": d, "entry": e, "qty": qty, "sl": sl, "tp": tp, "tf": "1m", "adopted": True,
+        p = {"dir": d, "entry": e, "qty": qty, "sl": sl, "tp": tp, "tf": CFG["BAR_TF"], "adopted": True,
              "risk0": abs(e - sl), "bar_ts": int(time.time()), "stop_id": None, "tp_id": None}
         st["pos"][sym] = p
         close_mkt(st, sym, p, price, "SORTIE immediate (prix obtenu trop loin du plan)")
         return None
-    p = {"dir": d, "entry": e, "sl": sl, "tp": tp, "qty": qty, "tf": "1m", "risk0": abs(e - sl),
+    p = {"dir": d, "entry": e, "sl": sl, "tp": tp, "qty": qty, "tf": CFG["BAR_TF"], "risk0": abs(e - sl),
          "bar_ts": int(time.time()), "stop_id": None, "tp_id": None}
     st["pos"][sym] = p
     st.get("pending", {}).pop(sym, None)

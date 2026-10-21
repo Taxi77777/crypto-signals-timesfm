@@ -1,28 +1,28 @@
-# 📈 Bot Kraken « VWAP ORDER FLOW » (footprint 1 min) — `kraken_vwap_flow.py`
+# 📈 Bot Kraken « VWAP ORDER FLOW » (footprint 15 min, intraday) — `kraken_vwap_flow.py`
 
 Stratégie de la vidéo *Comment confirmer une entrée sur la VWAP*
 (Dualis Flow, partie 2). Tourne 24 h/24 sur GitHub Actions (`.github/workflows/kraken_vwap_flow.yml`),
 sur tous les perpétuels Kraken Pro crypto avec du volume (≥ 1 M$/24 h, 60 max). Une bougie n'est lue
-que si elle contient au moins 15 trades : les actifs trop calmes sont ignorés d'eux-mêmes.
+que si elle contient au moins 60 trades : les actifs trop calmes sont ignorés d'eux-mêmes.
 
 Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-même des bougies **footprint
-1 minute** : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
-exécutions d'une même milliseconde ; « gros » = ≥ 10× la taille médiane des 3000 derniers ordres).
+15 minutes** (intraday ; `BAR_TF`, le 1 minute donnait trop de bruit) : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
+exécutions d'une même milliseconde ; « gros » = ≥ 15× au départ la taille médiane des 3000 derniers ordres).
 
 | Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT ; seuils de départ, ajustés ensuite par l'IA) |
 |---|---|
-| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 15 bougies précédentes, ≥ 70 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,06 %) et clôture sur ou au-dessus. |
-| **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −20 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
+| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 12 bougies précédentes (3 h), ≥ 70 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,15 %) et clôture sur ou au-dessus. |
+| **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −15 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
 | **3 · Big trade respecté** | Un gros **acheteur** dans la zone de la bougie d'absorption, et la bougie **clôture au-dessus** de son prix. |
-| **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +20 % et clôture plus haute → **entrée confirmée**. |
+| **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +15 % et clôture plus haute → **entrée confirmée**. |
 
-Annulation : clôture **sous** la VWAP, ou séquence de plus de 5 bougies. **Vente** : exactement l'inverse.
+Annulation : clôture **sous** la VWAP, ou séquence de plus de 4 bougies (1 h). **Vente** : exactement l'inverse.
 
 **Sortie** : stop **sous la bougie d'absorption** (`STOP_MODE=safe`, défaut) ou **sous le big trade**
 (`STOP_MODE=aggressive`), au moins 0,25 % et au minimum imposé par les frais Kraken (frais ≤ ⅓ du risque) ;
 TP = 2 × le risque (`RR`) ; à +1 R le stop remonte à l'entrée + frais, puis **trailing stop** : le stop suit le
 meilleur prix à 1 R de distance (`TRAIL_R`, par pas de 0,25 R). Stop et TP posés chez Kraken (reposés si refusés).
-Une seule position. Si Kraken refuse pour marge insuffisante : nouvel essai à 84 / 68 / 53 % de la taille.
+Durée max d'un trade : 12 h. Une seule position. Si Kraken refuse pour marge insuffisante : nouvel essai à 84 / 68 / 53 % de la taille.
 
 **🧠 IA d'apprentissage** (`LEARN=1` par défaut, `LEARN=0` = critères fixes de la vidéo) :
 - le bot repère les checklists avec des critères **souples**, puis l'IA décide avec les critères **appris** ;

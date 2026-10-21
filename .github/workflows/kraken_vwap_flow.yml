@@ -1,4 +1,4 @@
-name: Bot VWAP ORDER FLOW (footprint 1 min, perpetuels Kraken Pro)
+name: Bot VWAP ORDER FLOW (footprint 15 min intraday, perpetuels Kraken Pro)
 
 # Strategie de la video "Comment confirmer une
 # entree sur la VWAP" : prix sur la VWAP + vendeurs absorbes + big trade respecte
@@ -56,6 +56,7 @@ jobs:
           VWAP_MIN_VOL:       ${{ vars.VWAP_MIN_VOL }}
           TRAIL_R:            ${{ vars.TRAIL_R }}
           LEARN:              ${{ vars.LEARN }}
+          BAR_TF:             ${{ vars.BAR_TF }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
           RISK_PCT:           ${{ vars.RISK_PCT }}
