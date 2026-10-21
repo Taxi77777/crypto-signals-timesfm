@@ -90,9 +90,9 @@ CFG = {
     # unite de temps des bougies footprint : 15 min = intraday (1 min = trop de bruit)
     "BAR_TF": envf("BAR_TF", "15m"),
     # 1. prix sur la VWAP
-    "TOUCH_PCT": envf("TOUCH_PCT", 0.15),         # "sur la VWAP" = a +/- X % de la VWAP
+    "TOUCH_PCT": envf("TOUCH_PCT", 0.30),         # "sur la VWAP" = a +/- X % de la VWAP
     "TREND_BARS": envf("TREND_BARS", 12),         # tendance : sur les X bougies precedentes (3 h)...
-    "TREND_MIN": envf("TREND_MIN", 0.7),          # ...au moins X du bon cote de la VWAP
+    "TREND_MIN": envf("TREND_MIN", 0.65),          # ...au moins X du bon cote de la VWAP
     # 2. vendeurs absorbes
     "ABS_DELTA": envf("ABS_DELTA", 0.15),         # delta de la bougie <= -X du volume (achat)
     "MIN_BAR_TRADES": envf("MIN_BAR_TRADES", 60), # bougie avec assez de trades pour etre lue
@@ -100,7 +100,7 @@ CFG = {
     # en crypto la taille MEDIANE d'un ordre est minuscule (particuliers) : comparer a la
     # mediane rendait "gros" presque tout ordre (x19000 observes). Reference = le seuil des
     # 1 % plus gros ordres recents (99e centile) : x1 = deja dans le top 1 %.
-    "BIG_MULT": envf("BIG_MULT", 2.0),            # gros ordre = >= X fois le 99e centile
+    "BIG_MULT": envf("BIG_MULT", 1.3),            # gros ordre = >= X fois le 99e centile
     "BIG_SAMPLE": envf("BIG_SAMPLE", 5000),       # centile calcule sur les X derniers ordres
     "BIG_WARMUP": envf("BIG_WARMUP", 200),        # ordres observes avant de juger "gros"
     # 4. acheteurs de retour
@@ -1099,9 +1099,9 @@ def evaluate(fl, b, st, C):
 #     reglage, jamais de levier en plus).
 GRID = {
     "ABS_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini de l'absorption
-    "BIG_MULT": [1.0, 1.5, 2.0, 3.0, 5.0, 8.0],          # taille mini du big trade (x 99e centile)
+    "BIG_MULT": [1.0, 1.3, 1.5, 2.0, 3.0, 5.0, 8.0],          # taille mini du big trade (x 99e centile)
     "BUY_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini du retour des acheteurs
-    "TREND_MIN": [0.6, 0.7, 0.8, 0.9],                   # tendance mini avant le retour a la VWAP
+    "TREND_MIN": [0.6, 0.65, 0.7, 0.8, 0.9],                   # tendance mini avant le retour a la VWAP
     "TOUCH_PCT": [0.30, 0.25, 0.20, 0.15, 0.10, 0.06],   # distance maxi a la VWAP (%)
 }
 FEAT = {"ABS_DELTA": 2, "BIG_MULT": 3, "BUY_DELTA": 4, "TREND_MIN": 5, "TOUCH_PCT": 6}
@@ -1130,8 +1130,10 @@ def learn_st(st, C):
     lr = st.get("learn")
     if not isinstance(lr, dict) or lr.get("tf") != C["BAR_TF"] or lr.get("v") != LEARN_V:
         lr = st["learn"] = {"tf": C["BAR_TF"], "v": LEARN_V}   # autre unite / autre mesure : on reapprend
-    if not isinstance(lr.get("params"), dict):
-        lr["params"] = {k: _snap(k, C[k]) for k in GRID}   # depart : criteres de la video
+    base = {k: _snap(k, C[k]) for k in GRID}
+    if not isinstance(lr.get("params"), dict) or lr.get("base") != base:
+        lr["params"] = dict(base)        # depart (ou reglage change a la main) : criteres du reglage
+        lr["base"] = base                # l'historique appris est conserve
     lr.setdefault("open", [])
     lr.setdefault("done", [])
     lr.setdefault("paused", {})

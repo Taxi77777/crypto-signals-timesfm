@@ -12,7 +12,7 @@ derniers : en crypto la taille médiane est minuscule, la comparer à la médian
 
 | Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT ; seuils de départ, ajustés ensuite par l'IA) |
 |---|---|
-| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 12 bougies précédentes (3 h), ≥ 70 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,15 %) et clôture sur ou au-dessus. |
+| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 12 bougies précédentes (3 h), ≥ 65 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,30 %) et clôture sur ou au-dessus. |
 | **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −15 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
 | **3 · Big trade respecté** | Un gros **acheteur** dans la zone de la bougie d'absorption, et la bougie **clôture au-dessus** de son prix. |
 | **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +15 % et clôture plus haute → **entrée confirmée**. |
