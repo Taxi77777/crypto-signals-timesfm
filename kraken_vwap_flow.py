@@ -291,6 +291,8 @@ class TradeFeed:
                     elif ev in ("error", "alert"):
                         log.warning("flux trades (Kraken) : %s", m)
                     elif m.get("feed") == "trade" and "price" in m and "qty" in m:
+                        if (m.get("type") or "fill") in ("block", "termination"):
+                            continue                   # hors carnet : ne dit rien de l'agressivite
                         sym = (m.get("product_id") or "").upper()
                         with self.lock:
                             self.n += 1
