@@ -2,8 +2,8 @@
 
 Stratégie de la vidéo *Comment confirmer une entrée sur la VWAP*
 (Dualis Flow, partie 2). Tourne 24 h/24 sur GitHub Actions (`.github/workflows/kraken_vwap_flow.yml`),
-sur les perpétuels Kraken Pro crypto les plus liquides (≥ 5 M$/24 h, 15 max) : l'order flow n'a de sens
-que sur un carnet très actif.
+sur tous les perpétuels Kraken Pro crypto avec du volume (≥ 1 M$/24 h, 60 max). Une bougie n'est lue
+que si elle contient au moins 15 trades : les actifs trop calmes sont ignorés d'eux-mêmes.
 
 Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-même des bougies **footprint
 1 minute** : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les

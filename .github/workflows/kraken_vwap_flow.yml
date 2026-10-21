@@ -52,6 +52,8 @@ jobs:
           VWAP_SYMBOLS:       ${{ vars.VWAP_SYMBOLS }}
           STOP_MODE:          ${{ vars.STOP_MODE }}
           RR:                 ${{ vars.RR }}
+          VWAP_TOP_N:         ${{ vars.VWAP_TOP_N }}
+          VWAP_MIN_VOL:       ${{ vars.VWAP_MIN_VOL }}
           TRAIL_R:            ${{ vars.TRAIL_R }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}

@@ -78,9 +78,10 @@ def envf(name, default):
 CFG = {
     "MODE": envf("KRAKEN_MODE", "paper"),
     "SYMBOLS": envf("VWAP_SYMBOLS", ""),          # vide = les perpetuels les plus liquides
-    # l'order flow n'a de sens que sur un carnet tres actif : seulement les plus liquides
-    "MIN_QUOTE_VOL": envf("VWAP_MIN_VOL", 5000000.0),   # volume 24 h minimum (USD)
-    "TOP_N": envf("VWAP_TOP_N", 15),
+    # tous les perpetuels crypto avec du volume ; une bougie n'est lue que si elle a assez
+    # de trades (MIN_BAR_TRADES), donc les actifs trop calmes sont ignores d'eux-memes
+    "MIN_QUOTE_VOL": envf("VWAP_MIN_VOL", 1000000.0),   # volume 24 h minimum (USD)
+    "TOP_N": envf("VWAP_TOP_N", 60),
     # 1. prix sur la VWAP
     "TOUCH_PCT": envf("TOUCH_PCT", 0.06),         # "sur la VWAP" = a +/- X % de la VWAP
     "TREND_BARS": envf("TREND_BARS", 15),         # tendance : sur les X bougies precedentes...
