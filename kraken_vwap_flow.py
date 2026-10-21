@@ -426,8 +426,10 @@ def nm(sym):
 
 def notify(st, msg):
     # journaux GitHub publics : on masque le capital et le P&L (Telegram recoit tout)
-    log.info(re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)",
-                    re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", msg)))
+    pub_msg = re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", msg)
+    pub_msg = re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)", pub_msg)
+    pub_msg = re.sub(r"perte max ~[0-9.]+ \$", "perte max ~(masque)", pub_msg)   # = % du capital
+    log.info(pub_msg)
     st["log"] = (st.get("log") or [])[-59:] + [time.strftime("%d/%m %H:%M") + " " + msg]
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
     if not tok or not chat:
@@ -1425,15 +1427,21 @@ def fast_step(st, C):
             fl.cur["partial"] = True               # flux coupe : bougie incomplete, pas lue
         for b in fl.ingest(new, now):
             stats["bougies"] = stats.get("bougies", 0) + 1
-            try:
+            try:                                   # l'IA ne doit JAMAIS bloquer le trading
                 learn_track(st, sym, b, C)
+            except Exception as e:
+                log.warning("IA suivi %s : %s", sym, e)
+            try:
                 sig = evaluate(fl, b, st, C)
-                if sig and sig.get("new_sample"):
-                    learn_record(st, sig, C)
-                    stats["setups appris"] = stats.get("setups appris", 0) + 1
             except Exception as e:
                 log.warning("checklist %s : %s", sym, e)
                 continue
+            if sig and sig.get("new_sample"):
+                try:
+                    learn_record(st, sig, C)
+                    stats["setups appris"] = stats.get("setups appris", 0) + 1
+                except Exception as e:
+                    log.warning("IA enregistrement %s : %s", sym, e)
             if not sig or not sig.get("take"):
                 continue
             stats["entrees confirmees"] = stats.get("entrees confirmees", 0) + 1
