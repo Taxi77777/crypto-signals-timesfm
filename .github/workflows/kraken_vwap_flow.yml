@@ -1,9 +1,10 @@
-name: Bot MURS & BULLES (carnet d'ordres reel, perpetuels Kraken Pro)
+name: Bot VWAP ORDER FLOW (footprint 1 min, perpetuels Kraken Pro)
 
-# Remplace l'ancien bot "PIEGE PDH/PDL -> MA50".
-# Le bot tourne EN CONTINU : chaque job dure ~5 h 20, lit le carnet d'ordres
-# Kraken toutes les 60 s, puis le workflow se relance lui-meme. Le cron horaire
-# n'est qu'un filet de securite (les crons GitHub sont souvent retardes).
+# Remplace le bot "MURS & BULLES". Strategie de la video "Comment confirmer une
+# entree sur la VWAP" : prix sur la VWAP + vendeurs absorbes + big trade respecte
+# + acheteurs de retour. Le bot lit CHAQUE trade Kraken en direct (WebSocket).
+# Chaque job dure ~5 h 20 puis le workflow se relance lui-meme ; le cron horaire
+# n'est qu'un filet de securite.
 on:
   schedule:
     - cron: '23 * * * *'
@@ -19,9 +20,9 @@ on:
         default: ''
 
 concurrency:
-  # un seul bot a la fois ; un lancement en attente patiente au lieu de TUER
-  # le job en cours (sinon position ouverte + etat perime)
-  group: kraken-murs
+  # un seul bot a la fois ; un lancement en attente patiente au lieu de TUER le job
+  # en cours (sinon position ouverte + etat perime)
+  group: kraken-vwap
   cancel-in-progress: false
 
 jobs:
@@ -42,14 +43,15 @@ jobs:
       - name: Dependances
         run: pip install requests websocket-client
 
-      - name: Bot MURS & BULLES
+      - name: Bot VWAP ORDER FLOW
         env:
           KRAKEN_KEY:         ${{ secrets.KRAKEN_KEY || secrets.CLE_PUBLIQUE }}
           KRAKEN_SECRET:      ${{ secrets.KRAKEN_SECRET || secrets.CLE_PRIVEE }}
           # "paper" = fictif. REEL : variable KRAKEN_MODE = live
           KRAKEN_MODE:        ${{ inputs.mode || vars.KRAKEN_MODE || 'paper' }}
-          KRAKEN_SYMBOLS:     ${{ vars.KRAKEN_SYMBOLS }}
-          KRAKEN_TF:          ${{ vars.KRAKEN_TF_MURS }}
+          VWAP_SYMBOLS:       ${{ vars.VWAP_SYMBOLS }}
+          STOP_MODE:          ${{ vars.STOP_MODE }}
+          RR:                 ${{ vars.RR }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
           RISK_PCT:           ${{ vars.RISK_PCT }}
@@ -57,14 +59,35 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
-          INTERVAL:           '60'
           PYTHONUNBUFFERED:   '1'
-        run: python kraken_murs.py
+        run: |
+          # sauvegarde de l'etat (sans capital ni P&L) toutes les 15 min pendant le job :
+          # on peut suivre ce que le bot voit sans attendre la fin des 5 h 20
+          save() {
+            F=kraken_vwap_state.json
+            [ -f "$F" ] || return 0
+            cp "$F" /tmp/state.json
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            for i in 1 2 3 4 5; do
+              git fetch -q origin main && git reset -q --hard origin/main
+              cp /tmp/state.json "$F"
+              git add -f "$F"
+              git diff --cached --quiet && return 0
+              git commit -qm "chore: etat bot vwap [skip ci]"
+              git push -q origin HEAD:main && return 0
+              sleep $((RANDOM % 5 + 2))
+            done
+          }
+          python kraken_vwap_flow.py &
+          PID=$!
+          ( while kill -0 $PID 2>/dev/null; do sleep 900; kill -0 $PID 2>/dev/null && save || true; done ) &
+          wait $PID
 
-      - name: Sauvegarde de l'etat (positions / murs)
+      - name: Sauvegarde de l'etat (positions)
         if: always()
         run: |
-          F=kraken_murs_state.json
+          F=kraken_vwap_state.json
           [ -f "$F" ] || exit 0
           cp "$F" /tmp/state.json
           git config user.name "GitHub Actions"
@@ -74,7 +97,7 @@ jobs:
             cp /tmp/state.json "$F"
             git add -f "$F"
             git diff --cached --quiet && exit 0
-            git commit -qm "chore: etat bot murs [skip ci]"
+            git commit -qm "chore: etat bot vwap [skip ci]"
             git push -q origin HEAD:main && exit 0
             sleep $((RANDOM % 5 + 2))
           done
@@ -92,4 +115,4 @@ jobs:
       - name: Relance du bot (fonctionnement 24h/24)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run kraken_murs.yml --repo "${{ github.repository }}" --ref main
+        run: gh workflow run kraken_vwap_flow.yml --repo "${{ github.repository }}" --ref main

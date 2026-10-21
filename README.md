@@ -1,25 +1,35 @@
-# 🧱 Bot Kraken « MURS & BULLES » (carnet d'ordres réel) — `kraken_murs.py`
+# 📈 Bot Kraken « VWAP ORDER FLOW » (footprint 1 min) — `kraken_vwap_flow.py`
 
-Remplace l'ancien bot Kraken « PIÈGE PDH/PDL → MA50 ». Tourne 24 h/24 sur GitHub Actions
-(`.github/workflows/kraken_murs.yml`) en **réel** (`KRAKEN_MODE=live`), sur les perpétuels Kraken Pro crypto
-échangeant ≥ 0,5 M$/24 h (≈ 45-55, 60 max), en **15m / 30m / 1h**. Scan du carnet toutes les 60 s.
+Remplace le bot « MURS & BULLES ». Stratégie de la vidéo *Comment confirmer une entrée sur la VWAP*
+(Dualis Flow, partie 2). Tourne 24 h/24 sur GitHub Actions (`.github/workflows/kraken_vwap_flow.yml`),
+sur les perpétuels Kraken Pro crypto les plus liquides (≥ 5 M$/24 h, 15 max) : l'order flow n'a de sens
+que sur un carnet très actif.
 
-| Élément de la vidéo | Ce que fait le bot |
+Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-même des bougies **footprint
+1 minute** : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
+exécutions d'une même milliseconde ; « gros » = ≥ 10× la taille médiane des 3000 derniers ordres).
+
+| Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT) |
 |---|---|
-| **Mur** (ordres passifs) | Vrai carnet Kraken lu chaque minute. Mur = niveau ≥ 8× la médiane de son côté, top 3 par côté, présent depuis ≥ 5 min et sur ≥ 80 % des lectures. Un côté qui retire 4 murs à l'approche en 30 min n'est plus cru (anti-spoofing), sauf un mur présent depuis ≥ 15 min. |
-| **Bulle** (ordres actifs) | Bougie dont le volume ≥ 1,8× la moyenne **ou** agresseurs mesurés par le flux ≥ 25 % de la taille du mur. **Flux en direct** (WebSocket) de tous les trades : absorption = volume des vendeurs (mur d'achat) / acheteurs (mur de vente) qui frappent le mur. |
-| **1 · Il tient** | Contact sans traverser + rebond sur bougie fermée + bulle + absorption ≥ 5 % + **preuve** : zone de volume (heatmap) **ou** mur confirmé sur **OKX** **ou** **ICEBERG** (a encaissé ≥ sa taille et se recharge, sans bulle exigée). Agresseurs dans le sens du trade (5 min) et funding pas surchargé de ce côté. |
-| **2 · Mangé** | Désactivé par défaut (`SIGNAL_MANGE=0`). En position : mur tombé **et** traversé → sortie. |
-| **3 · Retiré** | Avant l'impact : pas de trade. En position : en perte → sortie ; en gain → stop à l'entrée + frais (vrai zéro perte). |
+| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 15 bougies précédentes, ≥ 70 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,06 %) et clôture sur ou au-dessus. |
+| **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −20 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
+| **3 · Big trade respecté** | Un gros **acheteur** dans la zone de la bougie d'absorption, et la bougie **clôture au-dessus** de son prix. |
+| **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +20 % et clôture plus haute → **entrée confirmée**. |
 
-**Risque** : levier **x10** (choix de l'utilisateur), **1 % du capital par trade frais compris**, une seule position.
-SL derrière le mur, au moins 0,30 % (frais ≤ ⅓ du risque), au plus 3,5 % ; TP = 1,5 × le risque, coupé avant un mur
-opposé ≥ 1,5× plus fort (ignoré si ce côté retire ses murs : spoofing) (refus si gain/risque < 1). Stop et TP posés chez Kraken (reduceOnly). Durée max 24 h.
+Annulation : clôture **sous** la VWAP, ou séquence de plus de 5 bougies. **Vente** : exactement l'inverse.
 
-**Telegram** : trades (preuve, absorption, funding, open interest 1 h), alertes ICEBERG, résumé toutes les 6 h.
+**Sortie** : stop **sous la bougie d'absorption** (`STOP_MODE=safe`, défaut) ou **sous le big trade**
+(`STOP_MODE=aggressive`), au moins 0,25 % et au minimum imposé par les frais Kraken (frais ≤ ⅓ du risque) ;
+TP = 2 × le risque (`RR`) ; à +1 R le stop remonte à l'entrée + frais. Stop et TP posés chez Kraken.
+Une seule position. Si Kraken refuse pour marge insuffisante : nouvel essai à 84 / 68 / 53 % de la taille.
 
-⚠️ Stratégie non prouvée : l'équivalent MT4 (murs estimés au tick-volume) perdait après frais au backtest, et le
-carnet Kraken n'a pas d'historique pour la tester sur le passé. Juger sur plusieurs semaines de trades réels.
+**Suivi** : Telegram (entrée avec la checklist, sorties, résumé toutes les 6 h). Le fichier
+`kraken_vwap_state.json` est mis à jour dans le dépôt toutes les 15 min, avec le journal des checklists
+(`events`) sans capital ni P&L.
+
+⚠️ Stratégie non prouvée en automatique : dans la vidéo elle est appliquée à la main sur le Nasdaq (NQ), un
+marché centralisé. Sur la crypto, Kraken ne voit qu'une partie des trades mondiaux : le delta et les gros
+ordres y sont plus bruités. Juger sur plusieurs semaines de trades réels.
 
 ---
 
