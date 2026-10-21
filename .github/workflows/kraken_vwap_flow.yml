@@ -1,6 +1,6 @@
 name: Bot VWAP ORDER FLOW (footprint 1 min, perpetuels Kraken Pro)
 
-# Remplace le bot "MURS & BULLES". Strategie de la video "Comment confirmer une
+# Strategie de la video "Comment confirmer une
 # entree sur la VWAP" : prix sur la VWAP + vendeurs absorbes + big trade respecte
 # + acheteurs de retour. Le bot lit CHAQUE trade Kraken en direct (WebSocket).
 # Chaque job dure ~5 h 20 puis le workflow se relance lui-meme ; le cron horaire
@@ -52,6 +52,7 @@ jobs:
           VWAP_SYMBOLS:       ${{ vars.VWAP_SYMBOLS }}
           STOP_MODE:          ${{ vars.STOP_MODE }}
           RR:                 ${{ vars.RR }}
+          TRAIL_R:            ${{ vars.TRAIL_R }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
           RISK_PCT:           ${{ vars.RISK_PCT }}

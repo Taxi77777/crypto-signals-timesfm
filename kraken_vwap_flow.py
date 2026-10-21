@@ -4,7 +4,7 @@
 ==========================================================================
   BOT "VWAP ORDER FLOW"  -  perpetuels Kraken Pro (Futures)
   Strategie de la video "Comment confirmer une entree sur la VWAP"
-  (Dualis Flow, partie 2). Remplace le bot "MURS & BULLES".
+  (Dualis Flow, partie 2).
 ==========================================================================
   Le bot recoit CHAQUE trade Kraken en direct (WebSocket) et construit
   lui-meme des bougies FOOTPRINT 1 minute : volume, acheteurs agressifs,
@@ -28,7 +28,8 @@
 
   Sortie : stop SOUS LA BOUGIE d'absorption ("safe", defaut) ou SOUS LE BIG
   TRADE ("aggressive"), elargi au minimum impose par les frais Kraken.
-  TP = RR x risque. A +BE_AT_R x risque, stop remonte a l'entree + frais.
+  TP = RR x risque. A +BE_AT_R x risque, stop remonte a l'entree + frais,
+  puis TRAILING STOP : le stop suit le meilleur prix a TRAIL_R x risque.
   Stop et TP poses CHEZ KRAKEN. Une seule position a la fois.
 
   Variables d'environnement (GitHub Secrets / Variables) :
@@ -102,6 +103,8 @@ CFG = {
     "RR": envf("RR", 2.0),                        # TP = RR x risque
     "BE_AT_R": envf("BE_AT_R", 1.0),              # a +X R : stop a l'entree + frais
     "BE_EXTRA_PCT": envf("BE_EXTRA_PCT", 0.02),
+    "TRAIL_R": envf("TRAIL_R", 1.0),              # trailing : stop a X R derriere le meilleur prix (0 = off)
+    "TRAIL_STEP_R": envf("TRAIL_STEP_R", 0.25),   # on ne deplace le stop que par pas de X R
     "MAX_HOLD_MIN": envf("MAX_HOLD_MIN", 240),    # duree max d'un trade (minutes)
     "ATR_PERIOD": envf("ATR_PERIOD", 14),
     "ADOPT_ORPHANS": envf("ADOPT_ORPHANS", 1),
@@ -481,12 +484,19 @@ def atr(h, l, c, p):
 # =========================================================================
 #  ORDRES : STOP / TP / SORTIE
 # =========================================================================
-def place_exits(st, sym, p):
-    """Pose le stop et le TP. Le NOUVEL ordre est pose AVANT d'annuler l'ancien :
+def place_exits(st, sym, p, stop=True, tp=True):
+    """Pose le stop et/ou le TP. Le NOUVEL ordre est pose AVANT d'annuler l'ancien :
        la position n'est jamais sans protection, meme une seconde."""
     if p["qty"] <= 0:
         return
     old_stop, old_tp = p.get("stop_id"), p.get("tp_id")
+    if stop:
+        _place_stop(st, sym, p, old_stop)
+    if tp:
+        _place_tp(st, sym, p, old_tp)
+
+
+def _place_stop(st, sym, p, old_stop):
     try:
         new = order({"orderType": "stp", "symbol": sym, "side": side_of(-p["dir"]),
                      "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["sl"]),
@@ -501,16 +511,22 @@ def place_exits(st, sym, p):
         if not p.get("warned"):                    # un seul message, pas un par minute
             p["warned"] = True
             notify(st, "%s stop Kraken NON pose (%s) -> nouvel essai, fermeture si 2e echec" % (nm(sym), e))
+
+
+def _place_tp(st, sym, p, old_tp):
     try:
         new = order({"orderType": "take_profit", "symbol": sym, "side": side_of(-p["dir"]),
                      "size": qty_str(st, sym, p["qty"]), "stopPrice": px_str(st, sym, p["tp"]),
                      "triggerSignal": "last", "reduceOnly": "true"})
-        p["tp_id"] = new
+        p["tp_id"], p["tpfail"] = new, 0
         if old_tp and old_tp != new:
             cancel(old_tp)
     except Exception as e:
         p["tp_id"] = old_tp
+        p["tpfail"] = p.get("tpfail", 0) + 1
         log.warning("TP : %s", e)
+        if p["tpfail"] == 1:
+            notify(st, "%s TP Kraken NON pose (%s) -> nouvel essai ; le bot surveille le TP lui-meme" % (nm(sym), e))
 
 
 def cancel_all(sym):
@@ -1003,8 +1019,11 @@ def manage(st, sym, price, pos_ex, C):
             return
         if not ex or ex["dir"] != d or ex["size"] <= 0:
             cancel_all(sym)
-            why = ("stop a l'entree, ~0 $" if p.get("be") and abs(price - p["entry"]) < p.get("risk0", 0)
-                   else "TP" if (price - p["entry"]) * d > 0 else "STOP")
+            r0 = p.get("risk0", abs(p["entry"] - p["sl"])) or 1e-12
+            why = ("TP" if (price - p["tp"]) * d >= -0.25 * r0
+                   else "trailing stop, gain ~ %+.1f R" % ((p["sl"] - p["entry"]) * d / r0)
+                   if p.get("be") and (p["sl"] - p["entry"]) * d > 0.1 * r0
+                   else "stop a l'entree, ~0 $" if p.get("be") else "STOP")
             notify(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             event(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             st["pos"].pop(sym, None)
@@ -1015,6 +1034,8 @@ def manage(st, sym, price, pos_ex, C):
             if not p.get("stop_id") and p.get("stopfail", 0) >= 2:
                 close_mkt(st, sym, p, price, "SORTIE : stop impossible a poser chez Kraken")
                 return
+        if not p.get("tp_id") and p.get("tpfail", 0) < 20:
+            place_exits(st, sym, p, stop=False)    # TP refuse ou absent : on le repose
     r0 = p.get("risk0", abs(p["entry"] - p["sl"]))
     if not p.get("be") and (p["sl"] - price) * d > 0.15 * r0:
         close_mkt(st, sym, p, price, "STOP (securite bot)")
@@ -1025,12 +1046,29 @@ def manage(st, sym, price, pos_ex, C):
         if (price - be_px) * d > 0:
             old = p["sl"]
             p["sl"] = be_px
-            place_exits(st, sym, p)
+            place_exits(st, sym, p, tp=False)
             if not LIVE or (p.get("stop_id") and p.get("stop_px") == p["sl"]):
                 p["be"] = True
+                p["best"] = price
                 save_state(st)
                 notify(st, "%s +%.1f R -> stop deplace a %s (entree + frais : zero perte)"
                        % (nm(sym), C["BE_AT_R"], px_str(st, sym, be_px)))
+            else:
+                p["sl"] = old
+    # trailing stop : apres le passage a zero perte, le stop suit le meilleur prix
+    if p.get("be") and C["TRAIL_R"] > 0:
+        best = p.get("best", price)
+        best = max(best, price) if d > 0 else min(best, price)
+        p["best"] = best
+        new_sl = best - d * C["TRAIL_R"] * r0
+        if (new_sl - p["sl"]) * d >= C["TRAIL_STEP_R"] * r0 and (price - new_sl) * d > 0:
+            old = p["sl"]
+            p["sl"] = new_sl
+            place_exits(st, sym, p, tp=False)
+            if not LIVE or (p.get("stop_id") and p.get("stop_px") == p["sl"]):
+                save_state(st)
+                notify(st, "%s trailing stop -> %s (gain protege ~ %+.1f R)"
+                       % (nm(sym), px_str(st, sym, new_sl), (new_sl - p["entry"]) * d / r0))
             else:
                 p["sl"] = old
     if not p.get("adopted") and time.time() - p.get("bar_ts", time.time()) > C["MAX_HOLD_MIN"] * 60:
