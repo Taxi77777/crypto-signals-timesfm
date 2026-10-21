@@ -147,7 +147,7 @@ CFG["RR_ADOPT"] = CFG["RR"]
 LIVE = CFG["MODE"].lower() == "live"
 try:                                               # duree d'un job : bornee sous le timeout (340 min)
     CFG["LOOP_MINUTES"] = max(5, min(330, int(float(os.environ.get("LOOP_MINUTES") or 320))))
-except ValueError:
+except (ValueError, OverflowError):
     CFG["LOOP_MINUTES"] = 320
 # un fichier d'etat par mode : un essai en fictif n'efface JAMAIS les positions reelles
 STATE_FILE = "kraken_vwap_state.json" if LIVE else "kraken_vwap_state_paper.json"
@@ -239,6 +239,7 @@ class TradeFeed:
         self.last_msg = 0.0                        # dernier message (heartbeat compris)
         self.gaps = deque(maxlen=50)               # coupures (debut, fin) : bougies incompletes
         self.gap_start = None
+        self.overflowed = set()                    # symboles dont des trades ont ete perdus
 
     def set_symbols(self, syms):
         with self.lock:
@@ -253,10 +254,14 @@ class TradeFeed:
         """Trades plus recents que seq0 (lecture depuis la fin : rapide meme liste pleine)."""
         out = []
         with self.lock:
-            for x in reversed(self.trades.get(sym, ())):
+            dq = self.trades.get(sym, ())
+            for x in reversed(dq):
                 if x[4] <= seq0:
                     break
                 out.append(x)
+            else:                                  # jamais rejoint seq0 : tampon deborde,
+                if seq0 > 0 and dq and len(dq) == dq.maxlen:   # des trades sont perdus
+                    self.overflowed.add(sym)
         out.reverse()
         return out
 
@@ -338,7 +343,7 @@ class TradeFeed:
                             self.n += 1
                             rec = (float(m["time"]) / 1000.0, float(m["price"]), float(m["qty"]),
                                    m.get("side"), self.n)
-                            self.trades.setdefault(sym, deque(maxlen=5000)).append(rec)
+                            self.trades.setdefault(sym, deque(maxlen=20000)).append(rec)
                             self.alive = time.time()
             except Exception as e:
                 with self.lock:
@@ -748,6 +753,11 @@ def save_state(st):
             except Exception:
                 pass
         os.replace(tmp, STATE_FILE)
+        d = os.environ.get("STATE_DIR")            # copie hors du depot pour le workflow :
+        if d:                                      # jamais ecrasee par un git reset
+            os.makedirs(d, exist_ok=True)
+            shutil.copy2(STATE_FILE, os.path.join(d, STATE_FILE + ".tmp"))
+            os.replace(os.path.join(d, STATE_FILE + ".tmp"), os.path.join(d, STATE_FILE))
     except Exception as e:
         log.warning("etat non sauvegarde : %s", e)
     finally:
@@ -936,7 +946,7 @@ def _start(fl, b, prev, d, L):
     """Points 1 + 2 (criteres SOUPLES : l'IA trie ensuite). Renvoie la checklist ou None."""
     if b.get("partial") or b["n"] < L["MIN_BAR_TRADES"] or len(prev) < L["TREND_BARS"]:
         return None
-    if b["t"] % 86400 < 4 * CFG["BAR_SEC"]:
+    if b["t"] % 86400 < 3600:
         return None                                # 1re heure du jour : VWAP pas encore formee
     v = b["vwap"]
     last = prev[-L["TREND_BARS"]:]
@@ -1491,9 +1501,14 @@ def manage(st, sym, price, pos_ex, C, oo=None):
                         p[key + "_miss"] = 0
                         if key == "stop_id":
                             notify(st, "%s stop ABSENT chez Kraken -> repose immediatement" % nm(sym))
-                        # nouvel ordre D'ABORD, puis annulation de l'ancien (sans effet s'il a
-                        # vraiment disparu) : jamais de trou, jamais d'ordres empiles
+                        # l'ancien id n'existe plus : on l'efface (si Kraken refuse le nouveau
+                        # stop, la fermeture de secours apres 2 echecs peut alors jouer), on pose
+                        # le nouveau, puis on annule l'ancien au cas ou (jamais d'empilement)
+                        p[key] = None
+                        p.pop("warned", None)
                         place_exits(st, sym, p, stop=key == "stop_id", tp=key == "tp_id")
+                        if p.get(key) and p[key] != oid:
+                            cancel(oid)
                 else:
                     p[key + "_miss"] = 0
         if resized and p.get("stop_id"):
@@ -1616,6 +1631,10 @@ def fast_step(st, C):
         if not FEED:
             continue
         new = FEED.since(sym, fl.seq)              # (coupures : jugees a la cloture de la bougie)
+        if sym in getattr(FEED, "overflowed", ()):
+            FEED.overflowed.discard(sym)           # trades perdus (boucle bloquee) : bougie
+            if fl.cur:                             # en cours incomplete, pas lue
+                fl.cur["partial"] = True
         for b in fl.ingest(new, now):
             stats["bougies"] = stats.get("bougies", 0) + 1
             try:                                   # l'IA ne doit JAMAIS bloquer le trading
@@ -1718,7 +1737,27 @@ def main():
     if LIVE and not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
         sys.exit("MODE live sans cles Kraken Futures")
     st = load_state(C)
+    end = time.time() + C["LOOP_MINUTES"] * 60     # duree du job comptee des le depart
     global FEED
+
+    def _arret(signum, frame):
+        for sg2 in (signal.SIGTERM, signal.SIGINT):
+            try:
+                signal.signal(sg2, signal.SIG_IGN)
+            except Exception:
+                pass
+        if _SAVING[0]:                             # sauvegarde deja en cours : la boucle
+            STOP[0] = True                         # sortira juste apres, proprement
+            return
+        save_state(st)
+        log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
+        sys.exit(0)
+    for sg in (signal.SIGTERM, signal.SIGINT):
+        try:
+            signal.signal(sg, _arret)
+        except Exception:
+            pass
+
     if websocket is None:
         sys.exit("module websocket-client absent : cette strategie a besoin du flux des trades")
     FEED = TradeFeed()
@@ -1749,25 +1788,6 @@ def main():
            % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["BAR_TF"],
               len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"])))
 
-    def _arret(signum, frame):
-        for sg2 in (signal.SIGTERM, signal.SIGINT):
-            try:
-                signal.signal(sg2, signal.SIG_IGN)
-            except Exception:
-                pass
-        if _SAVING[0]:                             # sauvegarde deja en cours : la boucle
-            STOP[0] = True                         # sortira juste apres, proprement
-            return
-        save_state(st)
-        log.info("Arret demande (signal %s) : etat sauvegarde.", signum)
-        sys.exit(0)
-    for sg in (signal.SIGTERM, signal.SIGINT):
-        try:
-            signal.signal(sg, _arret)
-        except Exception:
-            pass
-
-    end = time.time() + C["LOOP_MINUTES"] * 60
     t_slow = t_beat = t_save = 0.0
     while True:
         t0 = time.time()
