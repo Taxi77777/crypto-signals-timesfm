@@ -26,6 +26,10 @@
   mais cloture en dessous = pas de long), ou plus de SEQ_BARS bougies.
   VENTE : exactement l'inverse.
 
+  IA D'APPRENTISSAGE (LEARN=1) : les seuils ci-dessus sont les valeurs de DEPART.
+  Chaque setup (pris ou non) est suivi jusqu'a son resultat ; l'IA ajuste les seuils
+  d'un cran a la fois, seulement sur preuve statistique (voir la section "IA").
+
   Sortie : stop SOUS LA BOUGIE d'absorption ("safe", defaut) ou SOUS LE BIG
   TRADE ("aggressive"), elargi au minimum impose par les frais Kraken.
   TP = RR x risque. A +BE_AT_R x risque, stop remonte a l'entree + frais,
@@ -120,6 +124,11 @@ CFG = {
     "FEE_TAKER": envf("FEE_TAKER", 0.0005),
     "MAX_FEE_R": envf("MAX_FEE_R", 0.35),
     "PAPER_BALANCE": envf("PAPER_BALANCE", 1000.0),
+    # IA d'apprentissage (voir la section "IA" plus bas)
+    "LEARN": envf("LEARN", 1),                    # 0 = criteres fixes de la video
+    "LEARN_MIN": envf("LEARN_MIN", 40),           # resultats necessaires avant le 1er reglage
+    "LEARN_EVERY_MIN": envf("LEARN_EVERY_MIN", 30),
+    "LEARN_KEEP": envf("LEARN_KEEP", 1500),       # memoire : les X derniers setups
     # boucle
     "LOOP_MINUTES": envf("LOOP_MINUTES", 320),
     "FAST_SEC": envf("FAST_SEC", 2),              # lecture du flux / cloture des bougies
@@ -779,8 +788,9 @@ class Flow:
             agg[k] = (q + qty, pq + price * qty)
         med = statistics.median(self.prints) if len(self.prints) >= CFG["BIG_WARMUP"] else None
         b["big"] = []
+        mult = min(CFG["BIG_MULT"], GRID["BIG_MULT"][0])   # l'IA juge ensuite le multiple utile
         for (ms, side), (q, pq) in agg.items():
-            if med and q >= CFG["BIG_MULT"] * med:
+            if med and q >= mult * med:
                 b["big"].append({"price": pq / q, "side": side, "size": q, "x": q / med})
         self.prints.extend(q for q, _ in agg.values())
         b["live"] = True
@@ -799,80 +809,352 @@ class Flow:
 # =========================================================================
 #  LA CHECKLIST EN 4 POINTS
 # =========================================================================
-def _big_in(b, d, lo, hi):
+def _big_in(b, d, lo, hi, min_x):
     """Gros ordre agressif DANS NOTRE SENS (acheteur pour un achat) dans la zone [lo, hi]."""
     want = "buy" if d > 0 else "sell"
-    c = [x for x in b.get("big") or [] if x["side"] == want and lo <= x["price"] <= hi]
+    c = [x for x in b.get("big") or [] if x["side"] == want and lo <= x["price"] <= hi and x["x"] >= min_x]
     return max(c, key=lambda x: x["size"]) if c else None
 
 
-def evaluate(fl, b, st, C):
-    """Appelee a chaque bougie 1 minute cloturee. Renvoie un signal d'entree ou None."""
-    if not b.get("live"):
+def _start(fl, b, prev, d, L):
+    """Points 1 + 2 (criteres SOUPLES : l'IA trie ensuite). Renvoie la checklist ou None."""
+    if b.get("partial") or b["n"] < L["MIN_BAR_TRADES"] or len(prev) < L["TREND_BARS"]:
         return None
     v = b["vwap"]
-    tol = v * C["TOUCH_PCT"] / 100.0
+    last = prev[-L["TREND_BARS"]:]
+    trend = sum(1 for x in last if (x["c"] - x["vwap"]) * d > 0) / float(len(last))
+    if trend < L["TREND_MIN"]:
+        return None
+    # distance a la VWAP en % : meche jusqu'a la VWAP + cloture pas au-dela
+    touch = (max(b["l"] - v, v - b["c"]) if d > 0 else max(v - b["h"], b["c"] - v)) / v * 100.0
+    a = -b["dpct"] * d                             # force de l'absorption (vendeurs pour un achat)
+    if touch > L["TOUCH_PCT"] or a < L["ABS_DELTA"]:
+        return None
+    return {"stage": 1, "t": b["t"], "lo": b["l"], "hi": b["h"], "age": 0, "abs": b["dpct"],
+            "a": a, "trend": trend, "touch": max(touch, 0.0)}
+
+
+def evaluate(fl, b, st, C):
+    """Appelee a chaque bougie 1 minute cloturee. Construit la checklist avec des criteres
+       SOUPLES, puis l'IA (gate) decide avec les criteres appris si l'entree est prise.
+       Renvoie un signal (avec "take") ou None."""
+    if not b.get("live"):
+        return None
+    L = loose(C)
+    v = b["vwap"]
+    tol = v * L["TOUCH_PCT"] / 100.0
     prev = [x for x in list(fl.bars)[:-1] if x.get("vwap")]
-    signal_out = None
     for d in (1, -1):
         side_txt = "ACHAT" if d > 0 else "VENTE"
         S = fl.setup[d]
         if S:
             S["age"] += 1
-            if (b["c"] - (v - d * tol)) * d < 0:
+            fresh = _start(fl, b, prev, d, L) if S["stage"] == 1 else None
+            if fresh and fresh["a"] > S["a"]:
+                fl.setup[d] = S = None             # absorption plus forte : on repart de celle-ci
+            elif (b["c"] - (v - d * tol)) * d < 0:
                 # cloture du mauvais cote de la VWAP : "gros acheteur sur la VWAP...
                 # cloture en dessous. Pas d'absorption. Pas de long."
                 event(st, "%s %s annule : cloture %s la VWAP" % (nm(fl.sym), side_txt,
                                                                 "sous" if d > 0 else "au-dessus de"))
                 fl.setup[d] = None
-                S = None
+                continue
             elif S["age"] > C["SEQ_BARS"]:
                 fl.setup[d] = None
-                S = None
+                continue
+            if S:
+                # pire cloture sous la VWAP pendant la sequence : jugee par l'IA avec la
+                # meme tolerance que le contact (0,06 % au depart, comme la video)
+                pen = ((v - b["c"]) if d > 0 else (b["c"] - v)) / v * 100.0
+                S["touch"] = max(S["touch"], pen)
+            if not S:
+                pass
             elif S["stage"] == 1:
-                big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol)
+                big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol, L["BIG_MULT"])
                 if big and (b["c"] - big["price"]) * d > 0:      # bougie cloture au-dela : RESPECTE
                     S.update(stage=2, big=big["price"], big_x=big["x"])
                     event(st, "%s %s 3/4 : big trade x%.0f respecte a %s"
                           % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
+                continue
             elif S["stage"] == 2:
+                big = _big_in(b, d, S["lo"] - tol, S["hi"] + tol, L["BIG_MULT"])
+                if big and big["x"] > S.get("big_x", 0) and (b["c"] - big["price"]) * d > 0:
+                    S.update(big=big["price"], big_x=big["x"])   # un plus gros defenseur
                 pc = prev[-1]["c"] if prev else b["o"]
-                if b["dpct"] * d >= C["BUY_DELTA"] and (b["c"] - pc) * d > 0:
-                    event(st, "%s %s 4/4 : %s de retour (delta %+d%%) -> ENTREE CONFIRMEE"
-                          % (nm(fl.sym), side_txt, "acheteurs" if d > 0 else "vendeurs",
-                             int(100 * b["dpct"])))
-                    signal_out = {"dir": d, "close": b["c"], "vwap": v, "lo": S["lo"], "hi": S["hi"],
-                                  "big": S["big"], "big_x": S.get("big_x", 0), "abs": S["abs"],
-                                  "conf": b["dpct"], "atr": fl.atr()}
-                    fl.setup = {1: None, -1: None}
-                    return signal_out
-        if S or fl.setup[-d]:
+                if b["dpct"] * d >= L["BUY_DELTA"] and (b["c"] - pc) * d > 0:
+                    sig = {"dir": d, "close": b["c"], "vwap": v, "lo": S["lo"], "hi": S["hi"],
+                           "big": S["big"], "big_x": S.get("big_x", 0), "abs": S["abs"],
+                           "conf": b["dpct"], "atr": fl.atr(), "trend": S["trend"],
+                           "touch": S["touch"], "sym": fl.sym, "t": b["t"],
+                           "new_sample": not S.get("sampled")}
+                    S["sampled"] = True
+                    ok, why = gate(sig, st, C)
+                    sig["take"] = ok
+                    if ok:
+                        event(st, "%s %s 4/4 : %s de retour (delta %+d%%) -> ENTREE CONFIRMEE"
+                              % (nm(fl.sym), side_txt, "acheteurs" if d > 0 else "vendeurs",
+                                 int(100 * b["dpct"])))
+                        fl.setup = {1: None, -1: None}
+                    elif sig["new_sample"]:
+                        event(st, "%s %s 4/4 souple, pas retenu par l'IA (%s) : suivi pour apprendre"
+                              % (nm(fl.sym), side_txt, why))
+                    return sig
+                continue
+        if fl.setup[d] or fl.setup[-d]:
             continue                               # une seule checklist a la fois par actif
-        # nouveau depart : 1. prix sur la VWAP (apres une tendance) + 2. vendeurs absorbes
-        if b.get("partial") or b["n"] < C["MIN_BAR_TRADES"] or len(prev) < C["TREND_BARS"]:
+        S = _start(fl, b, prev, d, L)
+        if not S:
             continue
-        last = prev[-C["TREND_BARS"]:]
-        trend = sum(1 for x in last if (x["c"] - x["vwap"]) * d > 0) / float(len(last))
-        if trend < C["TREND_MIN"]:
-            continue
-        if d > 0:
-            touch = b["l"] <= v + tol and b["c"] >= v - tol
-        else:
-            touch = b["h"] >= v - tol and b["c"] <= v + tol
-        absorbed = b["dpct"] * d <= -C["ABS_DELTA"]
-        if not (touch and absorbed):
-            continue
-        S = {"stage": 1, "t": b["t"], "lo": b["l"], "hi": b["h"], "age": 0, "abs": b["dpct"]}
         event(st, "%s %s 1-2/4 : prix sur la VWAP %s, %s absorbes (delta %+d%%)"
               % (nm(fl.sym), side_txt, px_str(st, fl.sym, v), "vendeurs" if d > 0 else "acheteurs",
                  int(100 * b["dpct"])))
-        big = _big_in(b, d, b["l"] - tol, b["h"] + tol)  # le big trade peut etre dans la meme bougie
+        big = _big_in(b, d, b["l"] - tol, b["h"] + tol, L["BIG_MULT"])  # peut etre dans la meme bougie
         if big and (b["c"] - big["price"]) * d > 0:
             S.update(stage=2, big=big["price"], big_x=big["x"])
             event(st, "%s %s 3/4 : big trade x%.0f respecte a %s"
                   % (nm(fl.sym), side_txt, big["x"], px_str(st, fl.sym, big["price"])))
         fl.setup[d] = S
-    return signal_out
+    return None
+
+
+# =========================================================================
+#  IA D'APPRENTISSAGE  -  le bot s'ameliore seul, avec des garde-fous
+# =========================================================================
+#  1. Chaque checklist 4/4 trouvee avec des criteres SOUPLES devient un "setup" (pris
+#     ou non). Le bot suit ensuite son resultat comme si le trade avait ete pris (stop,
+#     TP, stop a zero perte, trailing, frais) : il apprend aussi des trades NON pris.
+#  2. Toutes les LEARN_EVERY_MIN minutes, des que LEARN_MIN resultats sont connus, l'IA
+#     cherche les criteres (force d'absorption, taille du big trade, retour des acheteurs,
+#     tendance, distance a la VWAP) qui auraient donne le meilleur resultat, en jugeant
+#     sur la borne BASSE de l'esperance (moyenne - incertitude) : pas sur la chance.
+#     Un reglage n'est adopte que si cette borne basse est POSITIVE (preuve d'un avantage).
+#  3. Garde-fous : un seul cran de reglage par parametre et par cycle, plages bornees,
+#     amelioration minimale exigee, au moins 20 setups par jeu de criteres.
+#     Un actif qui perd nettement est mis en pause 24 h. Si la strategie perd sur la
+#     periode recente, le risque par trade est divise par 2 (jamais augmente au-dela du
+#     reglage, jamais de levier en plus).
+GRID = {
+    "ABS_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini de l'absorption
+    "BIG_MULT": [5.0, 7.0, 10.0, 15.0, 20.0, 30.0],       # taille mini du big trade (x mediane)
+    "BUY_DELTA": [0.10, 0.15, 0.20, 0.25, 0.30, 0.40],   # force mini du retour des acheteurs
+    "TREND_MIN": [0.6, 0.7, 0.8, 0.9],                   # tendance mini avant le retour a la VWAP
+    "TOUCH_PCT": [0.10, 0.08, 0.06, 0.04, 0.03],         # distance maxi a la VWAP (%)
+}
+FEAT = {"ABS_DELTA": 2, "BIG_MULT": 3, "BUY_DELTA": 4, "TREND_MIN": 5, "TOUCH_PCT": 6}
+LEARN_NMIN = 30
+
+
+def loose(C):
+    """Criteres les plus souples de la grille : le bot voit tout, l'IA trie."""
+    L = dict(C)
+    L["ABS_DELTA"] = min(C["ABS_DELTA"], GRID["ABS_DELTA"][0])
+    L["BIG_MULT"] = min(C["BIG_MULT"], GRID["BIG_MULT"][0])
+    L["BUY_DELTA"] = min(C["BUY_DELTA"], GRID["BUY_DELTA"][0])
+    L["TREND_MIN"] = min(C["TREND_MIN"], GRID["TREND_MIN"][0])
+    L["TOUCH_PCT"] = max(C["TOUCH_PCT"], GRID["TOUCH_PCT"][0])
+    return L
+
+
+def _snap(k, v):
+    g = GRID[k]
+    return min(g, key=lambda x: abs(x - v))
+
+
+def learn_st(st, C):
+    lr = st.get("learn")
+    if not isinstance(lr, dict):
+        lr = st["learn"] = {}
+    if not isinstance(lr.get("params"), dict):
+        lr["params"] = {k: _snap(k, C[k]) for k in GRID}   # depart : criteres de la video
+    lr.setdefault("open", [])
+    lr.setdefault("done", [])
+    lr.setdefault("paused", {})
+    lr.setdefault("risk_mult", 1.0)
+    lr.setdefault("hist", [])
+    lr.setdefault("ts", 0)
+    return lr
+
+
+def active(st, C):
+    """Criteres en vigueur (appris par l'IA, ou ceux de la video si LEARN=0)."""
+    if not C["LEARN"]:
+        return {k: C[k] for k in GRID}
+    return learn_st(st, C)["params"]
+
+
+def _feat(sig):
+    d = sig["dir"]
+    return [-sig["abs"] * d, sig.get("big_x") or 0.0, sig["conf"] * d, sig["trend"], sig["touch"]]
+
+
+def _passes(fe, P):
+    a, x, c, tr, to = fe
+    return (a >= P["ABS_DELTA"] - 1e-9 and x >= P["BIG_MULT"] - 1e-9 and c >= P["BUY_DELTA"] - 1e-9
+            and tr >= P["TREND_MIN"] - 1e-9 and to <= P["TOUCH_PCT"] + 1e-9)
+
+
+def gate(sig, st, C):
+    """L'IA decide : le setup passe-t-il les criteres appris ? (renvoie ok, raison)"""
+    P = active(st, C)
+    a, x, c, tr, to = _feat(sig)
+    if a < P["ABS_DELTA"] - 1e-9:
+        return False, "absorption %d%% < %d%%" % (100 * a, 100 * P["ABS_DELTA"])
+    if x < P["BIG_MULT"] - 1e-9:
+        return False, "big trade x%.0f < x%.0f" % (x, P["BIG_MULT"])
+    if c < P["BUY_DELTA"] - 1e-9:
+        return False, "retour %d%% < %d%%" % (100 * c, 100 * P["BUY_DELTA"])
+    if tr < P["TREND_MIN"] - 1e-9:
+        return False, "tendance %d%% < %d%%" % (100 * tr, 100 * P["TREND_MIN"])
+    if to > P["TOUCH_PCT"] + 1e-9:
+        return False, "trop loin de la VWAP (%.2f%%)" % to
+    if C["LEARN"]:
+        until = learn_st(st, C)["paused"].get(sig["sym"], 0)
+        if time.time() < until:
+            return False, "actif en pause (il perdait)"
+    return True, ""
+
+
+def learn_record(st, sig, C):
+    """Nouveau setup : suivi virtuel de son resultat (meme stop / TP que le bot)."""
+    if not C["LEARN"]:
+        return
+    lr = learn_st(st, C)
+    pl = plan(sig, sig["close"], C)
+    if not pl:
+        return
+    e, sl, tp = pl
+    lr["open"] = lr["open"][-299:] + [{"s": sig["sym"], "t": sig["t"], "d": sig["dir"], "e": e, "sl": sl,
+                                      "tp": tp, "r": abs(e - sl), "best": e, "be": 0,
+                                      "f": [round(v, 4) for v in _feat(sig)]}]
+
+
+def learn_track(st, sym, b, C):
+    """A chaque bougie cloturee : fait avancer les setups suivis (prudent : si le stop et
+       le TP sont touches dans la meme bougie, c'est le stop qui compte)."""
+    if not C["LEARN"]:
+        return
+    lr = learn_st(st, C)
+    keep = []
+    for o in lr["open"]:
+        if o["s"] != sym or b["t"] <= o["t"]:
+            if time.time() - o["t"] < (C["MAX_HOLD_MIN"] + 120) * 60:
+                keep.append(o)                     # sans nouvelles trop longtemps : oublie
+            continue
+        d, e, r = o["d"], o["e"], o["r"]
+        fee = 2 * C["FEE_TAKER"] * e
+        res = None
+        worst, fav = (b["l"], b["h"]) if d > 0 else (b["h"], b["l"])
+        if (worst - o["sl"]) * d <= 0:
+            res = (o["sl"] - e) * d - fee
+        elif (fav - o["tp"]) * d >= 0:
+            res = (o["tp"] - e) * d - fee
+        else:
+            o["best"] = max(o["best"], fav) if d > 0 else min(o["best"], fav)
+            if not o["be"] and (o["best"] - e) * d >= C["BE_AT_R"] * r:
+                o["sl"], o["be"] = e + d * e * (2 * C["FEE_TAKER"] + C["BE_EXTRA_PCT"] / 100), 1
+            if o["be"] and C["TRAIL_R"] > 0:
+                nsl = o["best"] - d * C["TRAIL_R"] * r
+                if (nsl - o["sl"]) * d >= C["TRAIL_STEP_R"] * r:
+                    o["sl"] = nsl
+            if b["t"] - o["t"] >= C["MAX_HOLD_MIN"] * 60:
+                res = (b["c"] - e) * d - fee
+        if res is None:
+            keep.append(o)
+            continue
+        R = res / r if r else 0.0
+        lr["done"] = lr["done"][-(int(C["LEARN_KEEP"]) - 1):] + [[int(o["t"]), o["s"]] + o["f"] + [round(R, 3)]]
+    lr["open"] = keep
+
+
+def _score(Rs):
+    n = len(Rs)
+    if n < LEARN_NMIN:
+        return None
+    m = sum(Rs) / n
+    sd = statistics.pstdev(Rs) if n > 1 else 1.0
+    return m - sd / math.sqrt(n)                   # borne basse : on ne croit pas a la chance
+
+
+def _Rs(done, P, paused=None):
+    return [x[7] for x in done if _passes(x[2:7], P) and not (paused and x[1] in paused)]
+
+
+def learn_update(st, C):
+    """Le cycle d'apprentissage. Ne change rien tant qu'il n'y a pas assez de preuves."""
+    if not C["LEARN"]:
+        return
+    lr = learn_st(st, C)
+    now = time.time()
+    if now - lr["ts"] < C["LEARN_EVERY_MIN"] * 60:
+        return
+    lr["ts"] = now
+    done = lr["done"]
+    if len(done) < C["LEARN_MIN"]:
+        return
+    P = dict(lr["params"])
+    changes = []
+    for k in GRID:                                 # un cran maximum par parametre et par cycle
+        g = GRID[k]
+        i = g.index(P[k]) if P[k] in g else g.index(_snap(k, P[k]))
+        base = _score(_Rs(done, P))
+        best_i, best_s = i, base
+        for j in (i - 1, i + 1):
+            if 0 <= j < len(g):
+                Q = dict(P, **{k: g[j]})
+                sc = _score(_Rs(done, Q))
+                # on ne bouge que si le nouveau reglage a une esperance POSITIVE meme dans le
+                # pire cas (borne basse > 0) : sur du bruit, l'IA ne touche a rien
+                if sc is not None and sc > 0 and (best_s is None or sc > best_s + 0.02):
+                    best_i, best_s = j, sc
+        if best_i != i:
+            changes.append("%s %s -> %s" % (k, P[k], g[best_i]))
+            P[k] = g[best_i]
+    # pause des actifs qui perdent nettement (re-evalues a chaque cycle)
+    paused = {s: u for s, u in lr["paused"].items() if u > now}
+    by = {}
+    for x in done:
+        if _passes(x[2:7], P):
+            by.setdefault(x[1], []).append(x[7])
+    for sym, Rs in by.items():
+        if len(Rs) >= 12 and sym not in paused:
+            m = sum(Rs) / len(Rs)
+            if m < -0.25 and m + statistics.pstdev(Rs) / math.sqrt(len(Rs)) < 0:
+                paused[sym] = now + 24 * 3600
+                changes.append("pause 24 h %s (%+.2f R en moyenne sur %d setups)" % (nm(sym), m, len(Rs)))
+    lr["paused"] = paused
+    # risque : divise par 2 si la strategie perd sur la periode recente, jamais augmente
+    Rs = _Rs(done[-300:], P)
+    if len(Rs) < 30:
+        Rs = _Rs(done, P)[-300:]
+    if len(Rs) >= 30:
+        m = sum(Rs) / len(Rs)
+        up = m + statistics.pstdev(Rs) / math.sqrt(len(Rs))
+        rm = 0.5 if up < 0 else 1.0 if m >= 0 else lr["risk_mult"]
+        if rm != lr["risk_mult"]:
+            changes.append("risque par trade x%.1f (%+.2f R en moyenne recemment)" % (rm, m))
+            lr["risk_mult"] = rm
+    lr["params"] = P
+    if changes:
+        allR = _Rs(done, P)
+        txt = "IA : %s | %d setups appris, esperance avec ces criteres %+.2f R (%d setups)" % (
+            " ; ".join(changes), len(done), sum(allR) / len(allR) if allR else 0.0, len(allR))
+        lr["hist"] = lr["hist"][-29:] + [time.strftime("%d/%m %H:%M ") + txt]
+        event(st, txt)
+        notify(st, txt)
+
+
+def learn_summary(st, C):
+    if not C["LEARN"]:
+        return "IA desactivee (criteres fixes de la video)"
+    lr = learn_st(st, C)
+    P = lr["params"]
+    Rs = _Rs(lr["done"], P)
+    return ("IA : %d setups appris, %d en cours | absorption >= %d%%, big trade >= x%.0f, retour >= %d%%, "
+            "tendance >= %d%%, VWAP +/- %.2f%% | esperance %s | risque x%.1f%s" % (
+                len(lr["done"]), len(lr["open"]), 100 * P["ABS_DELTA"], P["BIG_MULT"], 100 * P["BUY_DELTA"],
+                100 * P["TREND_MIN"], P["TOUCH_PCT"],
+                ("%+.2f R (%d)" % (sum(Rs) / len(Rs), len(Rs))) if Rs else "pas encore de resultat",
+                lr["risk_mult"], (" | en pause : " + ", ".join(nm(s) for s in lr["paused"])) if lr["paused"] else ""))
 
 
 def plan(sig, price, C):
@@ -1139,20 +1421,31 @@ def fast_step(st, C):
         for b in fl.ingest(new, now):
             stats["bougies"] = stats.get("bougies", 0) + 1
             try:
+                learn_track(st, sym, b, C)
                 sig = evaluate(fl, b, st, C)
+                if sig and sig.get("new_sample"):
+                    learn_record(st, sig, C)
+                    stats["setups appris"] = stats.get("setups appris", 0) + 1
             except Exception as e:
                 log.warning("checklist %s : %s", sym, e)
                 continue
-            if not sig:
+            if not sig or not sig.get("take"):
                 continue
             stats["entrees confirmees"] = stats.get("entrees confirmees", 0) + 1
-            why = enter(st, sym, sig, fl, C)
+            Ce = C
+            if C["LEARN"] and learn_st(st, C)["risk_mult"] < 1.0:
+                Ce = dict(C, RISK_PCT=C["RISK_PCT"] * learn_st(st, C)["risk_mult"])
+            why = enter(st, sym, sig, fl, Ce)
             if why:
                 motif = why.split("(")[0].split(":")[0].strip()[:40]
                 stats["refus: " + motif] = stats.get("refus: " + motif, 0) + 1
                 event(st, "%s %s confirme mais NON pris : %s" % (nm(sym), "ACHAT" if sig["dir"] > 0 else "VENTE", why))
             else:
                 stats["trades"] = stats.get("trades", 0) + 1
+    try:
+        learn_update(st, C)
+    except Exception as e:
+        log.warning("IA : %s", e)
 
 
 def slow_step(st, C):
@@ -1184,14 +1477,16 @@ def heartbeat(st, C):
     log.info("flux %s : %d/%d actifs vivants, %d bougies lues, checklists en cours : %s, %d position(s)",
              "OK" if FEED and FEED.ok() else "COUPE", len(actifs), len(FLOWS), stats.get("bougies", 0),
              ", ".join(en_cours) or "aucune", len(st["pos"]))
+    log.info(learn_summary(st, C))
     if not st.get("stats_ts"):
         st["stats_ts"] = now
     elif now - st["stats_ts"] >= C["SUMMARY_HOURS"] * 3600:
         lignes = ["%s : %d" % (k, v) for k, v in sorted(stats.items(), key=lambda x: -x[1])
                   if k.startswith("refus")]
-        notify(st, "Resume %gh VWAP : %d bougies lues, %d entrees confirmees, %d trades\n%s"
-               % (C["SUMMARY_HOURS"], stats.get("bougies", 0), stats.get("entrees confirmees", 0),
-                  stats.get("trades", 0), "\n".join(lignes)[:900] or "aucun refus"))
+        notify(st, "Resume %gh VWAP : %d bougies lues, %d setups appris, %d entrees confirmees, %d trades\n%s\n%s"
+               % (C["SUMMARY_HOURS"], stats.get("bougies", 0), stats.get("setups appris", 0),
+                  stats.get("entrees confirmees", 0), stats.get("trades", 0),
+                  "\n".join(lignes)[:900] or "aucun refus", learn_summary(st, C)))
         st["stats"], st["stats_ts"] = {}, now
 
 
@@ -1218,6 +1513,7 @@ def main():
             st["pos"] = {}
         st["mode"] = C["MODE"]
     refresh_symbols(st, C)
+    log.info(learn_summary(st, C))
     notify(st, "Bot VWAP ORDER FLOW [%s] x%s %s %s%% | %d perpetuels : %s"
            % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["SIZING"], C["RISK_PCT"],
               len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"])))

@@ -55,6 +55,7 @@ jobs:
           VWAP_TOP_N:         ${{ vars.VWAP_TOP_N }}
           VWAP_MIN_VOL:       ${{ vars.VWAP_MIN_VOL }}
           TRAIL_R:            ${{ vars.TRAIL_R }}
+          LEARN:              ${{ vars.LEARN }}
           LEVERAGE:           ${{ vars.LEVERAGE }}
           SIZING:             ${{ vars.SIZING }}
           RISK_PCT:           ${{ vars.RISK_PCT }}

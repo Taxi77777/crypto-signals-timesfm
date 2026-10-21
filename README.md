@@ -9,7 +9,7 @@ Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-m�
 1 minute** : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
 exécutions d'une même milliseconde ; « gros » = ≥ 10× la taille médiane des 3000 derniers ordres).
 
-| Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT) |
+| Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT ; seuils de départ, ajustés ensuite par l'IA) |
 |---|---|
 | **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 15 bougies précédentes, ≥ 70 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,06 %) et clôture sur ou au-dessus. |
 | **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −20 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
@@ -23,6 +23,17 @@ Annulation : clôture **sous** la VWAP, ou séquence de plus de 5 bougies. **Ven
 TP = 2 × le risque (`RR`) ; à +1 R le stop remonte à l'entrée + frais, puis **trailing stop** : le stop suit le
 meilleur prix à 1 R de distance (`TRAIL_R`, par pas de 0,25 R). Stop et TP posés chez Kraken (reposés si refusés).
 Une seule position. Si Kraken refuse pour marge insuffisante : nouvel essai à 84 / 68 / 53 % de la taille.
+
+**🧠 IA d'apprentissage** (`LEARN=1` par défaut, `LEARN=0` = critères fixes de la vidéo) :
+- le bot repère les checklists avec des critères **souples**, puis l'IA décide avec les critères **appris** ;
+- **chaque** setup, pris ou non, est suivi jusqu'à son résultat virtuel (stop, TP, zéro perte, trailing,
+  frais) : l'IA apprend aussi des trades qu'elle n'a pas pris ;
+- toutes les 30 min, dès 40 résultats, elle ajuste les 5 critères (absorption, taille du big trade, retour
+  des acheteurs, tendance, distance à la VWAP) d'**un cran maximum**, et seulement si la borne **basse** de
+  l'espérance est positive : sur du hasard, elle ne touche à rien ;
+- un actif qui perd nettement est mis en pause 24 h ; si la stratégie perd sur la période récente, le risque
+  par trade est divisé par 2 (jamais augmenté, jamais de levier en plus) ;
+- chaque réglage est annoncé sur Telegram et gardé dans `kraken_vwap_state.json` (`learn`).
 
 **Suivi** : Telegram (entrée avec la checklist, sorties, résumé toutes les 6 h). Le fichier
 `kraken_vwap_state.json` est mis à jour dans le dépôt toutes les 15 min, avec le journal des checklists
