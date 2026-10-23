@@ -1,0 +1,95 @@
+name: Scanner ACTIONS + FOREX (strategies de la video, signaux Telegram)
+
+# Strategie SEPAREE du bot crypto VWAP : cassure de la plage d'ouverture 15 min + plan de
+# sortie + time machine (10 000 simulations) + historique, d'apres le pack open-source
+# dan-ai-lab/day-trader-fr. SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
+# Actif du lundi au vendredi de 6 h a 21 h 15 UTC (ouverture de Londres -> cloture de New York).
+on:
+  schedule:
+    - cron: '7 6-20 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Duree de ce job en minutes (330 max)'
+        type: string
+        default: ''
+
+concurrency:
+  group: scanner-actions-forex
+  cancel-in-progress: false
+
+jobs:
+  scanner:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Dependances
+        run: pip install requests==2.32.3 tzdata
+
+      - name: Scanner actions + forex
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCAN_STOCKS:        ${{ vars.SCAN_STOCKS }}
+          SCAN_FX:            ${{ vars.SCAN_FX }}
+          SHORTS:             ${{ vars.SCAN_SHORTS }}
+          RR:                 ${{ vars.SCAN_RR }}
+          LOOP_MINUTES:       ${{ inputs.minutes || '330' }}
+          STATE_DIR:          /tmp/etat_scanner
+          PYTHONUNBUFFERED:   '1'
+        run: |
+          save() {
+            exec 9>/tmp/scanner.lock
+            flock 9
+            ls /tmp/etat_scanner/*.json >/dev/null 2>&1 || { flock -u 9; return 0; }
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            for i in 1 2 3 4 5; do
+              git fetch -q origin main && git reset -q --hard origin/main
+              cp /tmp/etat_scanner/scanner_af_state.json .
+              git add -f scanner_af_state.json
+              git diff --cached --quiet && break
+              git commit -qm "chore: etat scanner actions forex [skip ci]"
+              git push -q origin HEAD:main && break
+              sleep $((RANDOM % 5 + 2))
+            done
+            flock -u 9
+          }
+          python scanner_actions_forex.py &
+          PID=$!
+          trap 'kill -TERM $PID 2>/dev/null; wait $PID' INT TERM
+          ( while kill -0 $PID 2>/dev/null; do sleep 600; kill -0 $PID 2>/dev/null && save || true; done ) &
+          SAVER=$!
+          RC=0
+          wait $PID || RC=$?
+          kill $SAVER 2>/dev/null || true
+          exit $RC
+
+      - name: Sauvegarde de l'etat
+        if: always()
+        run: |
+          exec 9>/tmp/scanner.lock
+          flock -w 120 9 || true
+          ls /tmp/etat_scanner/*.json >/dev/null 2>&1 || exit 0
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/etat_scanner/scanner_af_state.json . || continue
+            git add -f scanner_af_state.json || continue
+            git diff --cached --quiet && exit 0
+            git commit -qm "chore: etat scanner actions forex [skip ci]" || continue
+            git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "::warning::etat du scanner non sauvegarde"
