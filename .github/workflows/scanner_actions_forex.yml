@@ -50,6 +50,7 @@ jobs:
           SCAN_CRYPTO:        ${{ vars.SCAN_CRYPTO }}
           SHORTS:             ${{ vars.SCAN_SHORTS }}
           ONLY_FAVORABLE:     ${{ vars.SCAN_ONLY_FAVORABLE }}
+          TREND:              ${{ vars.SCAN_TREND }}
           RR:                 ${{ vars.SCAN_RR }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           STATE_DIR:          /tmp/etat_scanner

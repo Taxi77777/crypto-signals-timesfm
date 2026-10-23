@@ -24,6 +24,10 @@ de Jakeschincariol/day-trader-skill, licence MIT) :
      ce symbole d'au moins 15 signaux, resultat moyen > 0, et part de TP parmi TP+SL dont la
      borne basse (Wilson, 90 %) depasse l'equilibre (le pack previent qu'une simulation seule
      n'est pas un avantage demontre).
+  + FILTRE DE TENDANCE (ajout, TREND=1) : achat seulement si le prix est au-dessus de la VWAP du
+     jour (actions : depuis 9 h 30 ; forex / crypto : depuis minuit UTC, comme MT4) ET de la
+     moyenne des 20 dernieres clotures quotidiennes,
+     vente seulement en dessous des deux ; l'historique applique le meme filtre.
   4. WATCHLIST DU JOUR (avant l'ouverture)                                trader-scanner daily
      cassure 20 jours, drapeau haussier, reprise de la moyenne 20 j, survente (RSI 14 < 30),
      rebond de survente - calcule sur les clotures quotidiennes.
@@ -121,6 +125,8 @@ CFG = {
     "MAX_AGE_BARS": max(1, envf("MAX_AGE_BARS", 1)),  # alerte seulement si la cassure date de <= X bougies
     "MAX_CHASE_R": envf("MAX_CHASE_R", 0.25),   # prix deja parti de plus de X R dans le sens : trop tard
     "MAX_AGAINST_R": envf("MAX_AGAINST_R", 0.5),  # prix deja revenu de plus de X R vers le SL : annule
+    "TREND": envf("TREND", 1),                  # 1 = cassures DANS le sens de la tendance seulement :
+                                                #     achat au-dessus de la VWAP de seance ET de la MM20 jours
     "SIMS": max(1000, envf("SIMS", 10000)),
     "MIN_HIST": envf("MIN_HIST", 15),           # FAVORABLE : au moins X signaux passes de la meme regle
     "Z": envf("Z", 1.28),                       # exigence statistique sur l'historique (1.28 = 90 %)
@@ -380,6 +386,88 @@ def orb_rule(sb, n_or, last_k, now_ts, t0, d_want=None, shorts=True):
     return out, orh, orl
 
 
+def anchored_vwap(sb, k):
+    """VWAP ancree a l'ouverture de la seance, jusqu'a la bougie k incluse (prix typique,
+       pondere par le volume ; volume absent (forex Yahoo) = moyenne simple)."""
+    pv = vv = 0.0
+    n = 0
+    tp_sum = 0.0
+    for j in range(0, k + 1):
+        b = sb.get(j)
+        if not b:
+            continue
+        tp3 = (b[2] + b[3] + b[4]) / 3.0
+        pv += tp3 * b[5]
+        vv += b[5]
+        tp_sum += tp3
+        n += 1
+    if vv > 0:
+        return pv / vv
+    return tp_sum / n if n else None
+
+
+def day_start(market_key, d, tz, open_t):
+    """Debut de la VWAP du jour : ouverture de seance (actions), minuit UTC (forex, crypto)."""
+    if market_key == "stocks":
+        return at(d, open_t, tz)
+    return int(datetime.datetime.combine(d, hm(0), tzinfo=UTC).timestamp())
+
+
+def day_vwap(bars, t_start, t_last):
+    """VWAP des bougies 5 min dont le debut est entre t_start et t_last inclus (prix typique,
+       pondere par le volume ; sans volume (forex Yahoo) = moyenne simple)."""
+    pv = vv = tp_sum = 0.0
+    n = 0
+    for b in bars:
+        if b[0] < t_start or b[0] > t_last:
+            continue
+        tp3 = (b[2] + b[3] + b[4]) / 3.0
+        pv += tp3 * b[5]
+        vv += b[5]
+        tp_sum += tp3
+        n += 1
+    if vv > 0:
+        return pv / vv
+    return tp_sum / n if n else None
+
+
+def ma20_map(daily_bars, tz):
+    """{date: moyenne des 20 clotures quotidiennes PRECEDENTES} (tendance de fond)."""
+    closes = {}
+    for b in daily_bars:
+        closes[local_dt(b[0], tz).date()] = b[4]
+    days = sorted(closes)
+    out = {}
+    for i, d in enumerate(days):
+        prev = [closes[x] for x in days[max(0, i - 20):i]]
+        if len(prev) == 20:
+            out[d] = sum(prev) / 20.0
+    return out
+
+
+def ma_asof(mmap, d):
+    """MM20 valable le jour d (calculee sur les 20 clotures avant d)."""
+    if not mmap:
+        return None
+    if d in mmap:
+        return mmap[d]
+    past = [x for x in mmap if x <= d]
+    if not past:
+        return None
+    last = max(past)
+    return mmap[last]
+
+
+def with_trend(d, price, vwap, ma):
+    """Achat : prix au-dessus de la VWAP de seance et de la MM20 jours ; vente : en dessous."""
+    if vwap is None:
+        return True
+    ok = (price - vwap) * d > 0
+    if ma is not None:
+        ok = ok and (price - ma) * d > 0
+    return ok
+
+
 def exit_plan(e, orh, orl, d, rr, cents=False):
     """trader-exit : stop au milieu de la plage, objectif RR x risque. Actions (cents=True) :
        stop arrondi au cent en s'eloignant de l'entree, objectif au cent le plus proche."""
@@ -468,9 +556,9 @@ def simulate(sessions, e, sl, tp, d, k0, n_end, sims, seed, window=2):
             "mean_r": sum(rs) / len(rs), "p_green": sum(1 for x in rs if x > 0) / len(rs)}
 
 
-def history_replay(sessions, tz, sess_fn, n_or, d_want, rr):
-    """La MEME regle (meme sens) rejouee sur chaque seance passee complete."""
-    res = {"tp": 0, "sl": 0, "flat": 0, "none": 0, "rs": []}
+def history_replay(sessions, tz, sess_fn, n_or, d_want, rr, mmap=None, bars=None, mkey="stocks"):
+    """La MEME regle (meme sens, meme filtre de tendance) rejouee sur chaque seance passee."""
+    res = {"tp": 0, "sl": 0, "flat": 0, "none": 0, "trend_out": 0, "rs": []}
     for d, sb, n in sessions:
         open_t, last_t, flat_t = sess_fn(d)
         t0 = at(d, open_t, tz)
@@ -482,6 +570,10 @@ def history_replay(sessions, tz, sess_fn, n_or, d_want, rr):
         trig, orh, orl = r
         _, k, b, _, _ = trig[0]
         e = b[4]
+        vw = day_vwap(bars, day_start(mkey, d, tz, open_t), b[0]) if bars else anchored_vwap(sb, k)
+        if CFG["TREND"] and not with_trend(d_want, e, vw, ma_asof(mmap, d) if mmap else None):
+            res["trend_out"] += 1                 # cassure contre la tendance : non prise
+            continue
         pl = exit_plan(e, orh, orl, d_want, rr)
         if not pl:
             res["none"] += 1
@@ -739,7 +831,8 @@ def decide(mc, hist, rr):
     return em, v, pt, be, warn, []
 
 
-def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px=None, age=1):
+def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px=None, age=1, sb=None,
+                   day_bars=None):
     tz = m["tz"]
     open_t, last_t, flat_t = sess
     ysym = yahoo_symbol(sym, m["key"])
@@ -749,6 +842,17 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
     sig_paris = local_dt(b[0] + BAR, PARIS).strftime("%H:%M")
     flat_paris = datetime.datetime.combine(day, flat_t, tzinfo=tz).astimezone(PARIS).strftime("%H:%M")
     mc, hist, ctx, n_ses, ok = None, None, "", 0, True
+    mmap, info, tags = {}, {}, []
+    try:
+        daily = yahoo_chart(ysym, "3mo", "1d")
+        mmap = ma20_map([x for x in daily if x[0] + 86400 <= now_ts], tz)
+        tags, info = find_setups(daily_closes(daily, tz, day, now_ts))
+    except Exception as ex:
+        log.warning("contexte %s : %s", sym, ex)
+    vwap = day_vwap(day_bars or [], day_start(m["key"], day, tz, open_t), b[0]) if day_bars else (
+        anchored_vwap(sb, k) if sb else None)
+    ma = ma_asof(mmap, day)
+    trend_ok = with_trend(d, b[4], vwap, ma)
     try:
         bars = hist_5m(ysym)
         sessions = full_sessions(bars, tz, m["sess"], day)
@@ -758,20 +862,17 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
         n_or = CFG["OR_MIN"] * 60 // BAR
         if n_ses >= 20:
             mc = simulate(sessions, e, sl, tp, d, k, n_end, int(CFG["SIMS"]), int(CFG["SEED"]))
-        hist = history_replay(sessions, tz, m["sess"], n_or, d, rr)
+        hist = history_replay(sessions, tz, m["sess"], n_or, d, rr, mmap, bars, m["key"])
     except Exception as ex:
         ok = False                                # erreur reseau : on reessaiera au prochain passage
         log.warning("analyse %s : %s", sym, ex)
-    try:
-        daily = yahoo_chart(ysym, "3mo", "1d")
-        tags, info = find_setups(daily_closes(daily, tz, day, now_ts))
-        lbls = [lbl for key, lbl in SETUP_FR if key in tags]
-        if info.get("rsi") is not None:
-            ctx = "RSI %.0f" % info["rsi"] + ("".join(" · " + x for x in lbls))
-    except Exception as ex:
-        log.warning("contexte %s : %s", sym, ex)
+    lbls = [lbl for key, lbl in SETUP_FR if key in tags]
+    if info.get("rsi") is not None:
+        ctx = "RSI %.0f" % info["rsi"] + ("".join(" · " + x for x in lbls))
     sgn = -1 if d > 0 else 1
     em, vtxt, pt, be, warn, why = decide(mc, hist, rr)
+    if CFG["TREND"] and not trend_ok:
+        em, vtxt = "🔴", "CONTRE-TENDANCE"
     L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", esc(label(sym))),
          "%s %s · cassure de la plage d'ouverture %d min" % (icon(m["key"]), m["name"], CFG["OR_MIN"]),
          SEP,
@@ -784,6 +885,11 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
     if last_px:
         L.append("⏱️ Envoyé à %s · prix actuel <code>%s</code>" % (
             local_dt(time.time(), PARIS).strftime("%H:%M:%S"), fmt(last_px)))
+    if vwap is not None:
+        L.append("📐 Tendance : prix %s la VWAP du jour (<code>%s</code>)%s → %s" % (
+            "au-dessus de" if b[4] > vwap else "sous", fmt(vwap),
+            (" et %s la MM20 jours (<code>%s</code>)" % ("au-dessus de" if b[4] > ma else "sous", fmt(ma))) if ma else "",
+            "✅ dans le sens du trade" if trend_ok else "❌ contre le trade"))
     L.append(SEP)
     if mc:
         L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
@@ -797,7 +903,7 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
     if hist:
         nt = hist["tp"] + hist["sl"] + hist["flat"]
         if nt:
-            L.append("📜 %d dernières séances : %d signaux → %d 🎯 · %d 🛑 · %d ⏰ (moy. %+.2f R)" % (
+            L.append("📜 %d dernières séances : %d signaux dans la tendance → %d 🎯 · %d 🛑 · %d ⏰ (moy. %+.2f R)" % (
                 n_ses, nt, hist["tp"], hist["sl"], hist["flat"], sum(hist["rs"]) / nt))
     for w in why:
         L.append("🟡 non confirmé : " + esc(w))
@@ -900,12 +1006,12 @@ def scan_market(m, st, now_ts):
                     log.info("%s %s : prix deja a %+.2f R de l'entree, signal trop tard / annule", sym, d, move)
                     continue
             msg, vtxt, analysed = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts,
-                                                 last_px=last_px, age=age)
+                                                 last_px=last_px, age=age, sb=sb, day_bars=bars)
             if not analysed:
                 log.info("%s %s : analyse impossible (reseau), nouvel essai au prochain passage", sym, d)
                 continue                          # la cle n'est PAS posee : on reessaie
             st["alerts"][key] = time.time()       # une seule fois par jour et par sens
-            if CFG["ONLY_FAVORABLE"] and vtxt != "FAVORABLE":
+            if vtxt == "CONTRE-TENDANCE" or (CFG["ONLY_FAVORABLE"] and vtxt != "FAVORABLE"):
                 hidden += 1
                 log.info("%s %s : verdict %s, signal non envoye (favorables seulement)", sym, d, vtxt)
                 continue

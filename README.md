@@ -13,6 +13,7 @@ Règles reprises du pack open-source [dan-ai-lab/day-trader-fr](https://github.c
 | **Cassure de la plage d'ouverture** | Plage = plus haut / plus bas des 15 premières minutes de la séance. Signal = 1re bougie 5 min **terminée** qui clôture au-dessus du plus haut (**achat**) ou sous le plus bas (**vente**). Une seule fois par jour et par sens. |
 | **Plan de sortie** | SL au milieu de la plage, TP = 2 × le risque, sortie au plus tard à l'heure limite. Signal refusé si le risque est < 0,05 % du prix (trop serré face au spread). |
 | **Time machine** | 10 000 fins de séance reconstruites à partir des bougies 5 min des 60 derniers jours (même heure ± 2 bougies, SL testé avant le TP), puis la même règle rejouée sur chaque séance passée. |
+| **Filtre de tendance** (ajout) | Achat seulement si le prix est au-dessus de la VWAP du jour (actions : depuis 9 h 30 ; forex et crypto : depuis minuit UTC, comme MT4) **et** de la moyenne des 20 dernières clôtures quotidiennes ; vente seulement en dessous des deux. Un signal contre la tendance n'est jamais envoyé, et l'historique applique le même filtre. |
 | **Verdict** | 🟢 favorable / 🟡 neutre / 🔴 défavorable : le TP est-il touché avant le SL plus souvent que le seuil de rentabilité (33 % à 2R) ? |
 | **Watchlist du jour** | Avant l'ouverture : cassure du plus haut 20 jours, drapeau haussier, reprise de la moyenne 20 jours, survente (RSI 14 < 30), rebond de survente. |
 
@@ -53,6 +54,7 @@ prix actuel, les probabilités, l'historique, le contexte quotidien et les avert
 | `SCAN_ONLY_FAVORABLE` | `0` = recevoir aussi les signaux neutres / défavorables | `1` |
 | `SCAN_SHORTS` | `0` = achats seulement (comme le pack d'origine) | `1` |
 | `SCAN_RR` | TP en multiple du risque | `2` |
+| `SCAN_TREND` | `0` = désactiver le filtre de tendance | `1` |
 
 Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Le job se relance lui-même à la fin de sa durée maximale,
 avec un filet de sécurité toutes les 15 minutes.
