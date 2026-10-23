@@ -123,10 +123,10 @@ CFG = {
     # risque (memes valeurs prudentes que le bot precedent)
     "LEVERAGE": envf("LEVERAGE", 5),
     "SIZING": envf("SIZING", "RISK"),             # RISK = RISK_PCT du capital perdu au stop
-    "RISK_PCT": envf("RISK_PCT", 1.0),
+    "RISK_PCT": envf("RISK_PCT", 0.5),
     "CAPITAL_PCT": envf("CAPITAL_PCT", 95.0),
     "LIQ_SAFETY": envf("LIQ_SAFETY", 0.75),
-    "MAX_OPEN": envf("MAX_OPEN", 1),
+    "MAX_OPEN": envf("MAX_OPEN", 5),
     "FEE_TAKER": envf("FEE_TAKER", 0.0005),
     "MAX_FEE_R": envf("MAX_FEE_R", 0.35),
     "PAPER_BALANCE": envf("PAPER_BALANCE", 1000.0),
@@ -455,10 +455,14 @@ def open_order_ids():
 
 
 def equity(st):
+    """(capital total, marge disponible) : le risque se calcule sur le total, la taille
+    maxi sur la marge encore libre (plusieurs positions en meme temps)."""
     if not LIVE:
-        return st["paper"]
+        return st["paper"], st["paper"]
     f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
-    return float(f.get("availableMargin") or f.get("marginEquity") or f.get("portfolioValue") or 0)
+    av = float(f.get("availableMargin") or 0)
+    tot = float(f.get("marginEquity") or f.get("portfolioValue") or av or 0)
+    return tot, (av if f.get("availableMargin") is not None else tot)
 
 
 
@@ -1423,8 +1427,8 @@ def _enter(st, sym, sig, fl, C):
     if not sl_ok(e, sl, C):
         return "stop trop loin (> %.1f %%)" % min(C["SL_MAX_PCT"], 100 * C["LIQ_SAFETY"] / C["LEVERAGE"])
     d = sig["dir"]
-    eq = equity(st)
-    full = eq * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / e
+    eq, avail = equity(st)
+    full = avail * C["CAPITAL_PCT"] / 100 * C["LEVERAGE"] / e
     fees = 2 * C["FEE_TAKER"] * e
     qty = rq(st, sym, full if C["SIZING"] == "FULL" else min(eq * C["RISK_PCT"] / 100 / (abs(e - sl) + fees), full))
     if qty <= 0:
