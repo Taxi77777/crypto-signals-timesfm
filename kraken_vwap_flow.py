@@ -47,6 +47,7 @@ import base64
 import datetime
 import hashlib
 import hmac
+import html as _html
 import json
 import logging
 import math
@@ -506,7 +507,7 @@ def nm(sym):
 
 def notify(st, msg, html=False):
     # journaux GitHub publics : on masque le capital et le P&L (Telegram recoit tout)
-    pub_msg = re.sub(r"<[^>]+>", "", msg) if html else msg
+    pub_msg = _html.unescape(re.sub(r"<[^>]+>", "", msg)) if html else msg
     pub_msg = re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", pub_msg)
     pub_msg = re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)", pub_msg)
     pub_msg = re.sub(r"perte max ~[0-9.]+ \$", "perte max ~(masque)", pub_msg)   # = % du capital
@@ -521,6 +522,19 @@ def notify(st, msg, html=False):
     threading.Thread(target=_send_telegram, args=(tok, chat, msg, html), daemon=True).start()
 
 
+def esc(t):
+    return _html.escape(str(t), quote=False)
+
+
+def alert(st, txt):
+    """Message d'alerte (probleme technique) : bien visible."""
+    notify(st, "⚠️ <b>ALERTE · bot crypto</b>\n" + esc(txt), html=True)
+
+
+def info(st, icon, title, body=""):
+    notify(st, "%s <b>%s</b>%s" % (icon, title, ("\n" + body) if body else ""), html=True)
+
+
 def _send_telegram(tok, chat, msg, html=False):
     for essai in range(3):                       # Telegram coupe parfois : 3 essais
         try:
@@ -532,7 +546,7 @@ def _send_telegram(tok, chat, msg, html=False):
                 return
             log.warning("telegram HTTP %s", r.status_code)
             if html and r.status_code == 400:    # mise en forme refusee : texte brut
-                html, msg = False, re.sub(r"<[^>]+>", "", msg)
+                html, msg = False, _html.unescape(re.sub(r"<[^>]+>", "", msg))
                 continue
         except Exception as e:
             log.warning("telegram (essai %d) : %s", essai + 1, e)
@@ -613,7 +627,7 @@ def _place_stop(st, sym, p, old_stop):
         p["stopfail"] = p.get("stopfail", 0) + 1
         if not p.get("warned"):                    # un seul message, pas un par minute
             p["warned"] = True
-            notify(st, "%s stop Kraken NON pose (%s) -> nouvel essai, fermeture si 2e echec" % (nm(sym), e))
+            alert(st, "%s : stop Kraken NON pose (%s) -> nouvel essai, fermeture si 2e echec" % (nm(sym), e))
 
 
 def _place_tp(st, sym, p, old_tp):
@@ -629,7 +643,7 @@ def _place_tp(st, sym, p, old_tp):
         p["tpfail"] = p.get("tpfail", 0) + 1
         log.warning("TP : %s", e)
         if p["tpfail"] == 1:
-            notify(st, "%s TP Kraken NON pose (%s) -> nouvel essai ; le bot surveille le TP lui-meme" % (nm(sym), e))
+            alert(st, "%s : TP Kraken NON pose (%s) -> nouvel essai ; le bot surveille le TP lui-meme" % (nm(sym), e))
 
 
 def cancel_all(sym):
@@ -660,7 +674,7 @@ def _close_mkt(st, sym, p, price, why):
             order({"orderType": "mkt", "symbol": sym, "side": side_of(-p["dir"]),
                    "size": qty_str(st, sym, qty), "reduceOnly": "true"})
         except Exception as e:
-            notify(st, "%s ERREUR fermeture (stop Kraken conserve) : %s" % (nm(sym), e))
+            alert(st, "%s : ERREUR de fermeture (stop Kraken conserve) : %s" % (nm(sym), e))
             if LIVE and not p.get("stop_id") and p.get("sl"):
                 place_exits(st, sym, p)
             return False
@@ -679,7 +693,7 @@ def _close_mkt(st, sym, p, price, why):
             if rem is None or rem > 0:
                 if rem:
                     p["qty"] = rem
-                    notify(st, "%s fermeture PARTIELLE : reste %s, stop / TP Kraken conserves" % (nm(sym), rem))
+                    alert(st, "%s : fermeture PARTIELLE, reste %s, stop / TP Kraken conserves" % (nm(sym), rem))
                 return False                       # suivi au prochain tour (stop toujours pose)
     cancel_all(sym)
     pnl = (price - p["entry"]) * p["dir"] * qty - CFG["FEE_TAKER"] * price * qty
@@ -687,7 +701,12 @@ def _close_mkt(st, sym, p, price, why):
         st["paper"] += pnl
     st["pos"].pop(sym, None)
     st.get("pending", {}).pop(sym, None)
-    notify(st, "%s %s @ %s  P&L ~ %+.2f $" % (nm(sym), why, rp(st, sym, price), pnl))
+    icon = "🎯" if "TP" in why else "🛑" if "STOP" in why else "⏰" if "duree" in why else "⚠️"
+    title = ("TP TOUCHÉ" if "TP" in why else "SL TOUCHÉ" if why == "STOP" else why.split(" (")[0].split(" :")[0].upper())
+    notify(st, "%s <b>%s · %s</b>\nSortie <code>%s</code> · P&amp;L ~ %+.2f $%s" % (
+        icon, esc(title), nm(sym), rp(st, sym, price), pnl,
+        ("\n<i>%s</i>" % esc(why)) if title.upper() != why.upper() and why not in ("STOP", "TP atteint") else ""),
+        html=True)
     save_state(st)                                 # un redemarrage ne doit rien perdre
     return True
 
@@ -703,7 +722,7 @@ def adopt_orphans(st, pos_ex, px, C):
         if sym not in st["inst"]:                  # pas une crypto suivie : precision inconnue
             if sym not in st.setdefault("adopt_skip", []):
                 st["adopt_skip"].append(sym)
-                notify(st, "%s position Kraken hors liste crypto : le bot n'y touche pas" % nm(sym))
+                info(st, "ℹ️", "%s · position hors liste crypto" % nm(sym), "le bot n'y touche pas")
             continue
         price = px.get(sym) or ex["price"]
         try:
@@ -731,8 +750,9 @@ def adopt_orphans(st, pos_ex, px, C):
         # pas de cancel_all : on ne touche pas aux ordres poses a la main ou par un autre outil
         st["pos"][sym] = p
         place_exits(st, sym, p)
-        notify(st, "%s position Kraken inconnue reprise (%s qte %s) -> stop d'urgence %s, TP %s"
-               % (nm(sym), "ACHAT" if d > 0 else "VENTE", ex["size"], rp(st, sym, sl), rp(st, sym, p["tp"])))
+        info(st, "⚠️", "%s · position Kraken inconnue reprise" % nm(sym),
+             "%s qte %s\n🛑 SL d'urgence <code>%s</code> · 🎯 TP <code>%s</code>"
+             % ("ACHAT" if d > 0 else "VENTE", ex["size"], rp(st, sym, sl), rp(st, sym, p["tp"])))
 
 
 
@@ -799,17 +819,17 @@ def save_state(st):
 
 def check_keys(st):
     if not (os.environ.get("KRAKEN_KEY") and os.environ.get("KRAKEN_SECRET")):
-        notify(st, "ATTENTION : aucune cle Kraken Futures -> le mode REEL ne pourra pas trader.")
+        alert(st, "aucune cle Kraken Futures -> le mode REEL ne pourra pas trader.")
         return False
     try:
         f = (priv("GET", "/api/v3/accounts").get("accounts") or {}).get("flex") or {}
         eq = float(f.get("marginEquity") or f.get("portfolioValue") or 0)
-        notify(st, "Cles Kraken FUTURES valides. Capital du compte : %.2f USD" % eq)
+        info(st, "🔑", "Cles Kraken Futures valides", "Capital du compte : %.2f USD" % eq)
         if eq <= 0:
-            notify(st, "ATTENTION : capital a 0 sur le compte Futures -> aucun ordre possible.")
+            alert(st, "capital a 0 sur le compte Futures -> aucun ordre possible.")
         return True
     except Exception as e:
-        notify(st, "ATTENTION : cles Kraken REFUSEES (%s)" % e)
+        alert(st, "cles Kraken REFUSEES (%s)" % e)
         return False
 
 
@@ -1366,7 +1386,7 @@ def learn_update(st, C):
             " ; ".join(changes), len(done), sum(allR) / len(allR) if allR else 0.0, len(allR))
         lr["hist"] = lr["hist"][-29:] + [time.strftime("%d/%m %H:%M ") + txt]
         event(st, txt)
-        notify(st, txt)
+        info(st, "🤖", "IA · reglage mis a jour", esc(txt.replace("IA : ", "", 1)))
 
 
 def learn_summary(st, C):
@@ -1714,21 +1734,13 @@ def _enter(st, sym, sig, fl, C):
     save_state(st)
     event(st, "%s %s ENTREE @ %s  SL %s  TP %s" % (nm(sym), "ACHAT" if d > 0 else "VENTE",
                                                   px_str(st, sym, e), px_str(st, sym, sl), px_str(st, sym, tp)))
-    notify(st, "%s %s @ %s  qte %s  (levier max x%s)\n"
-               "CHECKLIST VWAP 4/4 :\n"
-               " 1. prix sur la VWAP %s\n"
-               " 2. %s absorbes (delta %+d%%)\n"
-               " 3. big trade x%.1f (vs top 1 %%) respecte a %s\n"
-               " 4. %s de retour (delta %+d%%)\n"
-               "SL %s (%s)   TP %s (%.1f R)\nperte max ~%.2f $ frais compris"
-           % (nm(sym), "ACHAT" if d > 0 else "VENTE", px_str(st, sym, e), qty, C["LEVERAGE"],
-              px_str(st, sym, sig["vwap"]),
-              "vendeurs" if d > 0 else "acheteurs", int(100 * sig["abs"]),
-              sig.get("big_x", 0), px_str(st, sym, sig["big"]) if sig.get("big") else "?",
-              "acheteurs" if d > 0 else "vendeurs", int(100 * sig["conf"]),
-              px_str(st, sym, sl), "sous le big trade" if C["STOP_MODE"].lower().startswith("agg")
-              else ("sous la bougie" if d > 0 else "au-dessus de la bougie"),
-              px_str(st, sym, tp), C["RR"], qty * (abs(e - sl) + 2 * C["FEE_TAKER"] * e)))
+    notify(st, "%s <b>POSITION OUVERTE · %s %s</b>\n"
+               "▶️ Entrée <code>%s</code> · 🛑 SL <code>%s</code> · 🎯 TP <code>%s</code>\n"
+               "📦 qte %s · perte max ~%.2f $ frais compris · levier max x%s\n"
+               "<i>analyse détaillée juste après</i>"
+           % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", nm(sym), px_str(st, sym, e),
+              px_str(st, sym, sl), px_str(st, sym, tp), qty,
+              qty * (abs(e - sl) + 2 * C["FEE_TAKER"] * e), C["LEVERAGE"]), html=True)
     return None
 
 
@@ -1763,7 +1775,10 @@ def manage(st, sym, price, pos_ex, C, oo=None):
                    else "trailing stop, gain ~ %+.1f R" % ((p["sl"] - p["entry"]) * d / r0)
                    if p.get("be") and (p["sl"] - p["entry"]) * d > 0.1 * r0
                    else "stop a l'entree, ~0 $" if p.get("be") else "STOP")
-            notify(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
+            icon = "🎯" if why == "TP" else "🔒" if "trailing" in why or "entree" in why else "🛑"
+            notify(st, "%s <b>%s · %s</b>\nposition fermée par Kraken (%s probable)" % (
+                icon, "TP TOUCHÉ" if why == "TP" else "SL TOUCHÉ" if why == "STOP" else "SORTIE", nm(sym), esc(why)),
+                html=True)
             event(st, "%s position fermee par Kraken (%s probable)" % (nm(sym), why))
             st["pos"].pop(sym, None)
             return
@@ -1780,7 +1795,7 @@ def manage(st, sym, price, pos_ex, C, oo=None):
                     if p[key + "_miss"] >= 2:
                         p[key + "_miss"] = 0
                         if key == "stop_id":
-                            notify(st, "%s stop ABSENT chez Kraken -> repose immediatement" % nm(sym))
+                            alert(st, "%s : stop ABSENT chez Kraken -> repose immediatement" % nm(sym))
                         # l'ancien id n'existe plus : on l'efface (si Kraken refuse le nouveau
                         # stop, la fermeture de secours apres 2 echecs peut alors jouer), on pose
                         # le nouveau, puis on annule l'ancien au cas ou (jamais d'empilement)
@@ -1815,8 +1830,9 @@ def manage(st, sym, price, pos_ex, C, oo=None):
                 p["be"] = True
                 p["best"] = price
                 save_state(st)
-                notify(st, "%s +%.1f R -> stop deplace a %s (entree + frais : zero perte)"
-                       % (nm(sym), C["BE_AT_R"], px_str(st, sym, be_px)))
+                info(st, "🔒", "SL À L'ENTRÉE · %s" % nm(sym),
+                     "+%.1f R → SL déplacé à <code>%s</code> (entrée + frais : zéro perte)"
+                     % (C["BE_AT_R"], px_str(st, sym, be_px)))
             else:
                 p["sl"] = old
     # trailing stop : apres le passage a zero perte, le stop suit le meilleur prix
@@ -1831,8 +1847,9 @@ def manage(st, sym, price, pos_ex, C, oo=None):
             place_exits(st, sym, p, tp=False)
             if not LIVE or (p.get("stop_id") and p.get("stop_px") == p["sl"]):
                 save_state(st)
-                notify(st, "%s trailing stop -> %s (gain protege ~ %+.1f R)"
-                       % (nm(sym), px_str(st, sym, new_sl), (new_sl - p["entry"]) * d / r0))
+                info(st, "🔒", "TRAILING STOP · %s" % nm(sym),
+                     "SL → <code>%s</code> (gain protégé ~ %+.1f R)"
+                     % (px_str(st, sym, new_sl), (new_sl - p["entry"]) * d / r0))
             else:
                 p["sl"] = old
     if not p.get("adopted") and time.time() - p.get("bar_ts", time.time()) > C["MAX_HOLD_MIN"] * 60:
@@ -2017,11 +2034,11 @@ def heartbeat(st, C):
         FEED_DOWN[0] = FEED_DOWN[0] or now
         if now - FEED_DOWN[0] > 300 and not FEED_DOWN[1]:
             FEED_DOWN[1] = True
-            notify(st, "ALERTE : flux des trades Kraken coupe depuis plus de 5 min -> aucun "
-                       "nouveau trade possible (positions ouvertes toujours protegees)")
+            alert(st, "flux des trades Kraken coupe depuis plus de 5 min -> aucun "
+                      "nouveau trade possible (positions ouvertes toujours protegees)")
     else:
         if FEED_DOWN[1]:
-            notify(st, "Flux des trades Kraken retabli")
+            info(st, "✅", "Flux des trades Kraken rétabli")
         FEED_DOWN[0], FEED_DOWN[1] = None, False
     stats = st.setdefault("stats", {})
     actifs = [s for s, f in FLOWS.items() if f.last_ts and now - f.last_ts < 300]
@@ -2036,10 +2053,12 @@ def heartbeat(st, C):
     elif now - st["stats_ts"] >= C["SUMMARY_HOURS"] * 3600:
         lignes = ["%s : %d" % (k, v) for k, v in sorted(stats.items(), key=lambda x: -x[1])
                   if k.startswith("refus")]
-        notify(st, "Resume %gh VWAP : %d bougies lues, %d setups appris, %d entrees confirmees, %d trades\n%s\n%s"
-               % (C["SUMMARY_HOURS"], stats.get("bougies", 0), stats.get("setups appris", 0),
-                  stats.get("entrees confirmees", 0), stats.get("trades", 0),
-                  "\n".join(lignes)[:900] or "aucun refus", learn_summary(st, C)))
+        info(st, "📊", "RÉSUMÉ %g h · bot crypto" % C["SUMMARY_HOURS"],
+             "🕯️ %d bougies lues · 🧩 %d setups appris\n✅ %d entrées confirmées · 💼 %d trades · 📂 %d position(s) ouverte(s)\n"
+             "⛔ %s\n🤖 %s"
+             % (stats.get("bougies", 0), stats.get("setups appris", 0), stats.get("entrees confirmees", 0),
+                stats.get("trades", 0), len(st["pos"]),
+                esc(" · ".join(lignes)[:600]) or "aucun refus", esc(learn_summary(st, C))))
         st["stats"], st["stats_ts"] = {}, now
 
 
@@ -2080,7 +2099,7 @@ def main():
     mode = C["MODE"].lower()
     if (st.get("mode") or "").lower() != mode:     # (un fichier d'etat par mode desormais)
         if (st.get("mode") or "").lower() == "live" and st["pos"]:
-            notify(st, "ATTENTION : passage en mode fictif avec des positions REELLES ouvertes (%s) : "
+            alert(st, "passage en mode fictif avec des positions REELLES ouvertes (%s) : "
                        "leurs stops/TP restent poses chez Kraken." % ", ".join(nm(x) for x in st["pos"]))
         st["pos"] = {}
         st["mode"] = mode
@@ -2095,9 +2114,9 @@ def main():
         save_state(st)
         sys.exit("Kraken injoignable au demarrage")
     log.info(learn_summary(st, C))
-    notify(st, "Bot VWAP ORDER FLOW [%s] x%s | bougies %s | %d perpetuels : %s"
-           % ("REEL" if LIVE else "PAPER", C["LEVERAGE"], C["BAR_TF"],
-              len(C["SYMS"]), ", ".join(nm(s) for s in C["SYMS"])))
+    info(st, "🤖", "Bot crypto démarré · %s" % ("RÉEL" if LIVE else "FICTIF"),
+         "VWAP order flow %s · levier max x%s · %d positions max · risque %.1f %% par trade\n%d perpétuels surveillés"
+         % (C["BAR_TF"], C["LEVERAGE"], int(C["MAX_OPEN"]), C["RISK_PCT"], len(C["SYMS"])))
 
     t_slow = t_beat = t_save = 0.0
     while True:
