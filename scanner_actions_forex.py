@@ -10,7 +10,8 @@ de Jakeschincariol/day-trader-skill, licence MIT) :
   1. CASSURE DE LA PLAGE D'OUVERTURE (ORB 15 min, bougies 5 min)       trader-scanner/entry
      plage = plus haut / plus bas des 15 premieres minutes de la seance ;
      signal = 1re bougie 5 min TERMINEE qui cloture strictement au-dessus du plus haut
-     (achat) ou, en option, sous le plus bas (vente). Une seule fois par jour et par sens.
+     (achat) ou sous le plus bas (vente, active par defaut ; SHORTS=0 = achats seulement
+     comme le pack d'origine). Une seule fois par jour et par sens.
   2. PLAN DE SORTIE                                                      trader-exit
      stop = milieu de la plage (defaut du pack), objectif = 2R, sortie a l'heure limite.
      Refus si le risque est < 0.05 % du prix (trop serre face au spread).
@@ -18,6 +19,11 @@ de Jakeschincariol/day-trader-skill, licence MIT) :
      10 000 fins de seance reconstruites a partir des bougies 5 min des 60 derniers jours
      (meme heure +/- 2 bougies), stop teste avant l'objectif ; puis la MEME regle rejouee
      sur chaque seance passee. Verdict compare a l'equilibre 1/(1+R).
+     FAVORABLE (seul envoye par defaut) = simulation >= equilibre + 5 points, resultat moyen
+     simule > 0, moins de 40 % de trajectoires sans issue ET historique reel de la regle sur
+     ce symbole d'au moins 15 signaux, resultat moyen > 0, et part de TP parmi TP+SL dont la
+     borne basse (Wilson, 90 %) depasse l'equilibre (le pack previent qu'une simulation seule
+     n'est pas un avantage demontre).
   4. WATCHLIST DU JOUR (avant l'ouverture)                                trader-scanner daily
      cassure 20 jours, drapeau haussier, reprise de la moyenne 20 j, survente (RSI 14 < 30),
      rebond de survente - calcule sur les clotures quotidiennes.
@@ -34,7 +40,9 @@ Donnees : API graphiques Yahoo Finance (gratuite, non officielle, retard possibl
 Ce n'est pas un conseil financier ; un signal correspond a une regle, pas a un achat.
 """
 import datetime
+import html as _html
 import json
+import math
 import logging
 import os
 import random
@@ -59,7 +67,11 @@ def envf(name, default):
         return default
     if isinstance(default, str):
         return v
-    return type(default)(float(v))
+    try:
+        return type(default)(float(v.replace(",", ".")))
+    except ValueError:
+        logging.warning("variable %s=%r invalide : valeur par defaut %s", name, v, default)
+        return default
 
 
 DEFAULT_STOCKS = (
@@ -75,7 +87,7 @@ DEFAULT_STOCKS = (
     "JPM,BAC,WFC,C,GS,MS,SCHW,BLK,AXP,V,MA,COF,USB,PNC,"
     # consommation, industrie, energie
     "WMT,COST,TGT,HD,LOW,MCD,SBUX,CMG,NKE,LULU,KO,PEP,PG,DIS,CMCSA,T,VZ,TMUS,"
-    "BA,CAT,DE,GE,HON,LMT,RTX,NOC,UPS,FDX,XOM,CVX,COP,OXY,SLB,HAL,DVN,FCX,NEM,AA,X,CLF,"
+    "BA,CAT,DE,GE,HON,LMT,RTX,NOC,UPS,FDX,XOM,CVX,COP,OXY,SLB,HAL,DVN,FCX,NEM,AA,CLF,"
     "DAL,UAL,AAL,CCL,RCL,NCLH,"
     # ETF tres liquides
     "SPY,QQQ,IWM,DIA,SMH,XLF,XLE,TLT,GLD,SLV,ARKK,SOXL,TQQQ")
@@ -92,9 +104,10 @@ DEFAULT_FX = (
     "XAUUSD,XAGUSD")
 DEFAULT_CRYPTO = ("BTC,ETH,XRP,BNB,SOL,DOGE,ADA,TRX,LINK,AVAX,XLM,BCH,DOT,LTC,HBAR,SHIB,NEAR,ICP,ETC,"
                   "FIL,ATOM,ALGO,VET,AAVE,XMR,INJ,MKR,QNT,EGLD,SAND,MANA,AXS,CHZ,CRV,KAVA,ZEC,DASH,"
-                  "XTZ,EOS,NEO,THETA,FLOW,GALA,ENJ,BAT,ZIL,COMP,SNX,YFI,SUSHI,KSM,RUNE,LRC,1INCH")
+                  "XTZ,EOS,NEO,THETA,FLOW,GALA,ENJ,BAT,ZIL,SNX,YFI,SUSHI,KSM,RUNE,LRC,1INCH")
 STABLES = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDE", "PYUSD", "USDD", "BUSD", "USDS", "USD1",
-           "WBTC", "WETH", "STETH", "WSTETH", "WEETH", "CBBTC", "RETH", "WBETH", "EETH", "LBTC"}
+           "WBTC", "WETH", "STETH", "WSTETH", "WEETH", "CBBTC", "RETH", "WBETH", "EETH", "LBTC",
+           "USDG", "RLUSD", "USDF", "USDX", "EURC", "XAUT", "PAXG"}
 
 CFG = {
     "STOCKS": [s.strip().upper() for s in envf("SCAN_STOCKS", DEFAULT_STOCKS).split(",") if s.strip()],
@@ -105,11 +118,13 @@ CFG = {
     "SHORTS": envf("SHORTS", 1),                # 1 = aussi les cassures du plus bas (vente)
     "ONLY_FAVORABLE": envf("ONLY_FAVORABLE", 1),  # 1 = n'envoyer QUE les signaux au verdict FAVORABLE
     "CRYPTO_TOP": envf("CRYPTO_TOP", 80),       # + les plus grosses cryptos du classement Yahoo
-    "MAX_AGE_BARS": envf("MAX_AGE_BARS", 2),    # alerte seulement si la cassure date de <= X bougies
-    "SIMS": envf("SIMS", 10000),
+    "MAX_AGE_BARS": max(1, envf("MAX_AGE_BARS", 2)),  # alerte seulement si la cassure date de <= X bougies
+    "SIMS": max(1000, envf("SIMS", 10000)),
+    "MIN_HIST": envf("MIN_HIST", 15),           # FAVORABLE : au moins X signaux passes de la meme regle
+    "Z": envf("Z", 1.28),                       # exigence statistique sur l'historique (1.28 = 90 %)
     "SEED": envf("SEED", 19),
     "WATCHLIST": envf("WATCHLIST", 1),          # message "watchlist du jour" avant l'ouverture
-    "LOOP_MINUTES": min(envf("LOOP_MINUTES", 330), 340),
+    "LOOP_MINUTES": min(envf("LOOP_MINUTES", 320), 320),
     "STATE_DIR": envf("STATE_DIR", "."),
     "PAUSE": envf("PAUSE", 0.25),               # politesse envers Yahoo entre deux requetes
 }
@@ -182,6 +197,10 @@ def yahoo_symbol(sym, market_key):
     return sym + "=X"
 
 
+def esc(t):
+    return _html.escape(str(t), quote=False)
+
+
 def label(sym):
     if sym.endswith("-USD"):                      # crypto Yahoo (ex. SUI20947-USD -> SUI)
         return re.sub(r"\d+$", "", sym[:-4]) or sym
@@ -214,6 +233,8 @@ def yahoo_chart(ysym, rng, interval):
                                 params={"range": rng, "interval": interval}, timeout=15)
                 if r.status_code == 429 or r.status_code >= 500:
                     last = "HTTP %d" % r.status_code
+                    if r.status_code == 429:
+                        backoff(r)
                     continue
                 j = r.json()
                 res = ((j.get("chart") or {}).get("result") or [None])[0]
@@ -227,8 +248,19 @@ def yahoo_chart(ysym, rng, interval):
     raise RuntimeError("Yahoo %s : %s" % (ysym, last))
 
 
-def yahoo_spark(ysyms, rng, interval):
-    """Clotures de 20 symboles par requete (comme trader-scanner) -> {ysym: [(ts, c)]}."""
+def backoff(r):
+    """Yahoo limite le debit (429) : on respecte Retry-After (max 30 s)."""
+    try:
+        wait = float(r.headers.get("Retry-After") or 5)
+    except ValueError:
+        wait = 5.0
+    STATS["limites_429"] = STATS.get("limites_429", 0) + 1
+    time.sleep(min(30.0, max(2.0, wait)))
+
+
+def yahoo_spark(ysyms, rng, interval, failed=None):
+    """Clotures de 20 symboles par requete (comme trader-scanner) -> {ysym: [(ts, c)]}.
+       Les symboles des lots en echec sont ajoutes a `failed` (ils ne sont pas "inconnus")."""
     out = {}
     for i in range(0, len(ysyms), 20):
         batch = ysyms[i:i + 20]
@@ -239,6 +271,8 @@ def yahoo_spark(ysyms, rng, interval):
                 r = SESSION.get("%s/v7/finance/spark" % host,
                                 params={"symbols": ",".join(batch), "range": rng, "interval": interval}, timeout=20)
                 if r.status_code == 429 or r.status_code >= 500:
+                    if r.status_code == 429:
+                        backoff(r)
                     continue
                 got = (r.json().get("spark") or {}).get("result") or []
                 break
@@ -246,6 +280,8 @@ def yahoo_spark(ysyms, rng, interval):
                 log.warning("spark : %s", str(e)[:100])
         if got is None:
             STATS["erreurs"] += 1
+            if failed is not None:
+                failed.update(batch)
         for item in got or []:
             resp = item.get("response") or []
             if not resp:
@@ -270,7 +306,7 @@ def crypto_universe():
                 q = ((r.json().get("finance") or {}).get("result") or [{}])[0].get("quotes") or []
                 for x in q:
                     ys = x.get("symbol") or ""
-                    if ys.endswith("-USD") and label(ys).upper() not in STABLES:
+                    if ys.endswith("-USD") and label(ys).upper() not in STABLES and ys[:-4].upper() not in STABLES:
                         base = ys[:-4]
                         if base not in syms and ys not in syms:
                             syms.append(ys)
@@ -328,7 +364,9 @@ def orb_rule(sb, n_or, last_k, now_ts, t0, d_want=None, shorts=True):
     for k in range(n_or, last_k + 1):
         b = sb.get(k)
         if b is None:
-            break                                 # bougie absente (trou ou pas encore publiee)
+            if any(j > k for j in sb):
+                continue                          # bougie vide (aucun echange) : on passe
+            break                                 # pas encore publiee
         if b[0] + BAR > now_ts:
             break                                 # bougie pas terminee
         for d in ((1, -1) if shorts else (1,)):
@@ -340,10 +378,16 @@ def orb_rule(sb, n_or, last_k, now_ts, t0, d_want=None, shorts=True):
     return out, orh, orl
 
 
-def exit_plan(e, orh, orl, d, rr):
-    """trader-exit : stop au milieu de la plage, objectif RR x risque."""
+def exit_plan(e, orh, orl, d, rr, cents=False):
+    """trader-exit : stop au milieu de la plage, objectif RR x risque. Actions (cents=True) :
+       stop arrondi au cent en s'eloignant de l'entree, objectif au cent le plus proche."""
     sl = (orh + orl) / 2.0
+    if cents:
+        e = math.floor(e * 100 + 0.5) / 100       # entree au cent (prix de cloture affiche)
+        sl = math.floor(sl * 100 + 1e-9) / 100 if d > 0 else math.ceil(sl * 100 - 1e-9) / 100
     risk = (e - sl) * d
+    if cents and risk > 0 and risk >= e * 0.0005:
+        return sl, math.floor((e + d * rr * risk) * 100 + 0.5) / 100
     if risk <= 0 or risk < e * 0.0005:
         return None
     return sl, e + d * rr * risk
@@ -358,7 +402,7 @@ def full_sessions(bars, tz, sess_fn, before_day):
         if d >= before_day:
             continue
         s = sess_fn(d)
-        if not s:
+        if not s or d.isoformat() in NYSE_EARLY_CLOSE and sess_fn is stock_session:
             continue
         open_t, last_t, flat_t = s
         sb = session_bars(bars, d, tz, open_t, flat_t)
@@ -489,7 +533,7 @@ def rsi(c, n=14):
 
 
 SETUP_FR = [("breakout_20d", "Cassure du plus haut 20 jours"), ("bull_flag", "Drapeau haussier"),
-            ("reclaim_ma20", "Reprise de la moyenne 20 jours"), ("oversold", "Survente (RSI 14 < 30)"),
+            ("reclaim_ma20", "Reprise de la moyenne 20 jours"), ("oversold", "Survente (RSI 14 sous 30)"),
             ("oversold_bounce", "Rebond de survente")]
 
 
@@ -518,19 +562,24 @@ def find_setups(c):
     return tags, {"rsi": r, "ma20": ma20, "hi20": hi20}
 
 
-def daily_closes(bars, tz, today):
-    """Clotures quotidiennes COMPLETES (la journee en cours est exclue)."""
+def daily_closes(bars, tz, today, now_ts=None):
+    """Clotures quotidiennes COMPLETES (la bougie du jour en cours est exclue, y compris pour
+       la crypto et le forex dont la bougie quotidienne commence a minuit UTC)."""
     out = {}
+    now_ts = now_ts or time.time()
     for b in bars:
         d = local_dt(b[0], tz).date()
-        if d < today:
+        if d < today and b[0] + 86400 <= now_ts:
             out[d] = b[4]
     return [out[d] for d in sorted(out)]
 
 
 # --------------------------------------------------------------- Telegram / etat
 def strip_tags(t):
-    return re.sub(r"<[^>]+>", "", t)
+    return _html.unescape(re.sub(r"</?(b|i|code)>", "", t))
+
+
+LAST_TG = [0.0]
 
 
 def telegram(msg, html=True):
@@ -538,7 +587,12 @@ def telegram(msg, html=True):
     log.info("\n" + strip_tags(msg))
     if not tok or not chat:
         return
-    for essai in range(3):
+    if len(msg) > 4000:                           # limite Telegram : 4096 caracteres
+        msg = msg[:3990].rsplit("\n", 1)[0] + "\n…"
+    gap = 3.1 if str(chat).startswith("-") else 1.1   # groupe : 20 messages / min maximum
+    for essai in range(4):
+        time.sleep(max(0.0, LAST_TG[0] + gap - time.time()))
+        LAST_TG[0] = time.time()
         try:
             body = {"chat_id": chat, "text": msg, "disable_web_page_preview": True}
             if html:
@@ -547,11 +601,18 @@ def telegram(msg, html=True):
             if r.ok:
                 return
             log.warning("telegram HTTP %s", r.status_code)
+            if r.status_code == 429:              # trop de messages : on attend ce que Telegram demande
+                try:
+                    wait = float((r.json().get("parameters") or {}).get("retry_after") or 5)
+                except Exception:
+                    wait = 5.0
+                time.sleep(min(60.0, wait + 1))
+                continue
             if html and r.status_code == 400:     # mise en forme refusee : texte brut
                 html, msg = False, strip_tags(msg)
                 continue
         except Exception as e:
-            log.warning("telegram : %s", e)
+            log.warning("telegram : %s", str(e).replace(tok, "***"))
         time.sleep(2 + 3 * essai)
 
 
@@ -601,9 +662,12 @@ FMT = [2]
 
 
 def fmt(x):
-    """actions et or : 2 decimales ; paires JPY : 3 ; autres paires : 5"""
+    """actions et or : 2 decimales ; paires JPY : 3 ; autres paires : 5 ; tres petits prix
+       (SHIB, PEPE...) : assez de chiffres significatifs pour distinguer entree, SL et TP."""
+    if 0 < x < 1:
+        return "%.*f" % (max(4 if FMT[0] == 2 else 5, 4 - int(math.floor(math.log10(x)))), x)
     if FMT[0] == 2 or x >= 1000:
-        return "%.2f" % x if x >= 1 else "%.4f" % x
+        return "%.2f" % x
     return "%.3f" % x if x >= 20 else "%.5f" % x
 
 
@@ -612,7 +676,7 @@ PARIS = ZoneInfo("Europe/Paris")
 
 
 def badge(mc, rr):
-    """Verdict lisible : objectif touche avant le stop, compare au seuil de rentabilite."""
+    """Verdict de la simulation : objectif touche avant le stop, compare a l'equilibre."""
     if not mc:
         return "⚪", "NON CALCULÉ", None, None
     hit = mc["p_tp"] + mc["p_sl"]
@@ -626,7 +690,54 @@ def badge(mc, rr):
     return "🟡", "NEUTRE", pt, be
 
 
-def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
+def wilson_low(k, n, z):
+    """Borne basse de l'intervalle de Wilson d'une proportion k/n."""
+    if n <= 0:
+        return 0.0
+    p = k / n
+    den = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    r = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return (c - r) / den
+
+
+def decide(mc, hist, rr):
+    """Verdict final + avertissements. FAVORABLE seulement si la simulation ET l'historique
+       reel de la regle sur ce symbole vont dans le meme sens (sinon : NON CONFIRMÉ)."""
+    em, v, pt, be = badge(mc, rr)
+    warn = []
+    nt = (hist["tp"] + hist["sl"] + hist["flat"]) if hist else 0
+    hm_r = (sum(hist["rs"]) / nt) if nt else None
+    if mc:
+        if mc["p_none"] > 0.40:
+            warn.append("plus de 40 % des trajectoires ne touchent ni le SL ni le TP : le prix de sortie compte")
+        if v == "FAVORABLE" and mc["mean_r"] <= 0:
+            warn.append("résultat moyen simulé négatif malgré le verdict")
+        if v == "DÉFAVORABLE" and mc["mean_r"] > 0:
+            warn.append("résultat moyen simulé positif malgré le verdict")
+    if nt and hm_r is not None and v in ("FAVORABLE", "DÉFAVORABLE") and (hm_r > 0) != (v == "FAVORABLE"):
+        warn.append("l'historique réel de la règle dit l'inverse de la simulation")
+    if v == "FAVORABLE":
+        why = []
+        if mc["mean_r"] <= 0:
+            why.append("résultat moyen simulé ≤ 0")
+        if mc["p_none"] > 0.40:
+            why.append("trop de trajectoires sans issue")
+        if nt < CFG["MIN_HIST"]:
+            why.append("historique trop court (%d signaux)" % nt)
+        elif hm_r <= 0:
+            why.append("historique réel négatif")
+        else:                                     # l'historique doit battre l'equilibre de facon
+            hits = hist["tp"] + hist["sl"]        # statistiquement nette (borne basse de Wilson)
+            lb = wilson_low(hist["tp"], hits, CFG["Z"]) if hits else 0.0
+            if 100 * lb < be:
+                why.append("historique pas assez net (%d TP / %d SL)" % (hist["tp"], hist["sl"]))
+        if why:
+            return "🟡", "NON CONFIRMÉ", pt, be, warn, why
+    return em, v, pt, be, warn, []
+
+
+def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px=None, age=1):
     tz = m["tz"]
     open_t, last_t, flat_t = sess
     ysym = yahoo_symbol(sym, m["key"])
@@ -635,7 +746,7 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
     rr = CFG["RR"]
     sig_paris = local_dt(b[0] + BAR, PARIS).strftime("%H:%M")
     flat_paris = datetime.datetime.combine(day, flat_t, tzinfo=tz).astimezone(PARIS).strftime("%H:%M")
-    mc, hist, ctx, n_ses = None, None, "", 0
+    mc, hist, ctx, n_ses, ok = None, None, "", 0, True
     try:
         bars = hist_5m(ysym)
         sessions = full_sessions(bars, tz, m["sess"], day)
@@ -647,31 +758,36 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
             mc = simulate(sessions, e, sl, tp, d, k, n_end, int(CFG["SIMS"]), int(CFG["SEED"]))
         hist = history_replay(sessions, tz, m["sess"], n_or, d, rr)
     except Exception as ex:
+        ok = False                                # erreur reseau : on reessaiera au prochain passage
         log.warning("analyse %s : %s", sym, ex)
     try:
         daily = yahoo_chart(ysym, "3mo", "1d")
-        tags, info = find_setups(daily_closes(daily, tz, day))
+        tags, info = find_setups(daily_closes(daily, tz, day, now_ts))
         lbls = [lbl for key, lbl in SETUP_FR if key in tags]
         if info.get("rsi") is not None:
             ctx = "RSI %.0f" % info["rsi"] + ("".join(" · " + x for x in lbls))
     except Exception as ex:
         log.warning("contexte %s : %s", sym, ex)
     sgn = -1 if d > 0 else 1
-    em, vtxt, pt, be = badge(mc, rr)
-    L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", label(sym)),
+    em, vtxt, pt, be, warn, why = decide(mc, hist, rr)
+    L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", esc(label(sym))),
          "%s %s · cassure de la plage d'ouverture %d min" % (icon(m["key"]), m["name"], CFG["OR_MIN"]),
          SEP,
          "▶️ Entrée    <code>%s</code>" % fmt(e),
          "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
          "🎯 TP        <code>%s</code>  (%+.2f %% · %gR)" % (fmt(tp), -sgn * 100 * abs(tp - e) / e, rr),
-         "⏰ Signal %s · sortie avant %s (heure de Paris)" % (sig_paris, flat_paris),
-         SEP]
+         "⏰ Signal %s · sortie avant %s (heure de Paris)" % (sig_paris, flat_paris)]
+    if last_px:
+        L.append("⏱️ Cassure clôturée il y a %d bougie%s · prix actuel <code>%s</code>" % (
+            age, "s" if age > 1 else "", fmt(last_px)))
+    L.append(SEP)
     if mc:
         L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
         if pt is not None:
             L.append("TP touché avant le SL dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
-        L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %%" % (
-            "{:,}".format(int(CFG["SIMS"])).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
+        L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %% · moy. %+.2f R" % (
+            "{:,}".format(int(CFG["SIMS"])).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"],
+            100 * mc["p_none"], mc["mean_r"]))
     else:
         L.append("⚪ <b>Verdict : non calculé</b> (historique insuffisant : %d séances)" % n_ses)
     if hist:
@@ -679,10 +795,14 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
         if nt:
             L.append("📜 %d dernières séances : %d signaux → %d 🎯 · %d 🛑 · %d ⏰ (moy. %+.2f R)" % (
                 n_ses, nt, hist["tp"], hist["sl"], hist["flat"], sum(hist["rs"]) / nt))
+    for w in why:
+        L.append("🟡 non confirmé : " + esc(w))
+    for w in warn:
+        L.append("⚠️ " + esc(w))
     if ctx:
-        L.append("📈 Contexte : " + ctx)
+        L.append("📈 Contexte : " + esc(ctx))
     L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
-    return "\n".join(L), vtxt
+    return "\n".join(L), vtxt, ok and mc is not None
 
 
 # --------------------------------------------------------------- scans
@@ -704,15 +824,22 @@ def scan_market(m, st, now_ts):
     hidden = 0
     rng_ = "1d" if m["key"] == "stocks" else "2d"
     ymap = {yahoo_symbol(x, m["key"]): x for x in CFG[m["list"]]}
-    spark = yahoo_spark(list(ymap), rng_, "5m")
+    failed = set()
+    spark = yahoo_spark(list(ymap), rng_, "5m", failed)
+    if not spark:
+        log.warning("%s : Yahoo ne repond pas (spark vide), passage saute", m["key"])
+        return 0                                  # pas de verification symbole par symbole (429)
     cands = []
+    kdir = lambda sym, d: "%s|%s|%s|%d" % (m["key"], day.isoformat(), sym, d)  # noqa: E731
     for ysym, sym in ymap.items():
-        if all("%s|%s|%s|%d" % (m["key"], day.isoformat(), sym, d) in st["alerts"] for d in (1, -1)):
+        if STOP[0]:
+            break
+        need_l = kdir(sym, 1) not in st["alerts"]
+        need_s = bool(CFG["SHORTS"]) and kdir(sym, -1) not in st["alerts"]
+        if not (need_l or need_s):
             continue
         cl = spark.get(ysym)
         if cl is None:
-            if not spark:
-                cands.append(sym)                 # spark indisponible : verification complete
             continue
         scanned += 1
         byk = {(ts - t0) // BAR: c for ts, c in cl if t0 <= ts and (ts - t0) % BAR == 0}
@@ -723,9 +850,12 @@ def scan_market(m, st, now_ts):
         done = [k for k in sorted(byk) if n_or <= k <= last_k and t0 + (k + 1) * BAR <= now_ts]
         recent = done[-int(CFG["MAX_AGE_BARS"]):]
         # necessaire pour une cassure recente : une cloture recente au-dela des clotures de la plage
-        if any(byk[k] >= top for k in recent) or (CFG["SHORTS"] and any(byk[k] <= bot for k in recent)):
+        # (seulement pour un sens pas encore traite aujourd'hui)
+        if (need_l and any(byk[k] >= top for k in recent)) or (need_s and any(byk[k] <= bot for k in recent)):
             cands.append(sym)
-    for sym in cands[:150]:
+    for sym in cands:
+        if STOP[0]:
+            break
         ysym = yahoo_symbol(sym, m["key"])
         try:
             bars = yahoo_chart(ysym, rng_, "5m")
@@ -740,22 +870,30 @@ def scan_market(m, st, now_ts):
             continue
         trig, orh, orl = r
         for d, k, b, _, _ in trig:
-            key = "%s|%s|%s|%d" % (m["key"], day.isoformat(), sym, d)
+            key = kdir(sym, d)
             if key in st["alerts"]:
                 continue
-            st["alerts"][key] = time.time()       # une seule fois par jour et par sens
             age = (now_ts - (b[0] + BAR)) // BAR + 1
             if age > CFG["MAX_AGE_BARS"]:
+                st["alerts"][key] = time.time()   # 1re cassure du jour deja ancienne : definitif
                 log.info("%s %s : cassure ancienne (%d bougies), pas d'alerte", sym, d, age)
                 continue
-            pl = exit_plan(b[4], orh, orl, d, CFG["RR"])
+            pl = exit_plan(b[4], orh, orl, d, CFG["RR"], cents=(m["key"] == "stocks"))
             if not pl:
+                st["alerts"][key] = time.time()   # plage trop etroite : definitif
                 continue
             sl, tp = pl
             later = [sb[j] for j in range(k + 1, last_k + 40) if j in sb and sb[j][0] + BAR <= now_ts]
             if any((d > 0 and (x[3] <= sl or x[2] >= tp)) or (d < 0 and (x[2] >= sl or x[3] <= tp)) for x in later):
-                continue                          # deja au stop / a l'objectif : plus jouable
-            msg, vtxt = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts)
+                st["alerts"][key] = time.time()   # deja au stop / a l'objectif : plus jouable
+                continue
+            last_px = next((x[4] for x in reversed(bars) if x[0] <= now_ts), None)
+            msg, vtxt, analysed = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts,
+                                                 last_px=last_px, age=age)
+            if not analysed:
+                log.info("%s %s : analyse impossible (reseau), nouvel essai au prochain passage", sym, d)
+                continue                          # la cle n'est PAS posee : on reessaie
+            st["alerts"][key] = time.time()       # une seule fois par jour et par sens
             if CFG["ONLY_FAVORABLE"] and vtxt != "FAVORABLE":
                 hidden += 1
                 log.info("%s %s : verdict %s, signal non envoye (favorables seulement)", sym, d, vtxt)
@@ -785,7 +923,6 @@ def watchlist(m, st, now_ts):
         return
     if st["watch"].get(m["key"]) == day.isoformat():
         return
-    st["watch"][m["key"]] = day.isoformat()
     groups = {k: [] for k, _ in SETUP_FR}
     n = 0
     ymap = {yahoo_symbol(x, m["key"]): x for x in CFG[m["list"]]}
@@ -795,10 +932,12 @@ def watchlist(m, st, now_ts):
         if not cl:
             continue
         bars = [(ts, c, c, c, c, 0.0) for ts, c in cl]
-        tags, _ = find_setups(daily_closes(bars, tz, day))
+        tags, _ = find_setups(daily_closes(bars, tz, day, now_ts))
         n += 1
         for t in tags:
-            groups[t].append(label(sym))
+            groups[t].append(esc(label(sym)))
+    if n == 0:
+        return                                    # Yahoo indisponible : nouvel essai au tour suivant
     ico = {"breakout_20d": "🚀", "bull_flag": "🚩", "reclaim_ma20": "📈", "oversold": "📉",
             "oversold_bounce": "↩️"}
     lines = ["📋 <b>WATCHLIST DU JOUR · %s %s</b>" % (icon(m["key"]), m["name"].split(" ouverture")[0]),
@@ -814,6 +953,7 @@ def watchlist(m, st, now_ts):
               start.astimezone(PARIS).strftime("%H:%M"),
               "<i>Graphiques qui correspondent à une règle, pas une liste d'achats</i>"]
     telegram("\n".join(lines))
+    st["watch"][m["key"]] = day.isoformat()
     save_state(st)
 
 
@@ -825,9 +965,17 @@ def _arret(*_):
     STOP[0] = True
 
 
+def in_hours(now):
+    g = time.gmtime(now)
+    return 6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 15)
+
+
 def main():
     signal.signal(signal.SIGTERM, _arret)
     signal.signal(signal.SIGINT, _arret)
+    if not in_hours(time.time()):
+        log.info("hors des fenetres de ce scanner (6 h - 21 h 15 UTC) : rien a faire")
+        return
     st = load_state()
     end = time.time() + CFG["LOOP_MINUTES"] * 60
     log.info("scanner actions + forex + crypto : %d actions, %d forex, %d crypto, ORB %d min, %gR, ventes %s",
@@ -839,10 +987,11 @@ def main():
         bad = {}
         for mk, lst in (("stocks", "STOCKS"), ("fx_ldn", "FX"), ("cr_ldn", "CRYPTO")):
             ymap = {yahoo_symbol(x, mk): x for x in CFG[lst]}
-            got = yahoo_spark(list(ymap), "5d", "1d")
-            if got:
-                bad[lst] = [ymap[y] for y in ymap if y not in got]
-                CFG[lst] = [ymap[y] for y in ymap if y in got] or CFG[lst]
+            failed = set()
+            got = yahoo_spark(list(ymap), "5d", "1d", failed)
+            if got:                               # inconnu = absent d'un lot qui a REPONDU
+                bad[lst] = [ymap[y] for y in ymap if y not in got and y not in failed]
+                CFG[lst] = [ymap[y] for y in ymap if y in got or y in failed] or CFG[lst]
         st["univers"] = {"actions": len(CFG["STOCKS"]), "forex": len(CFG["FX"]), "crypto": len(CFG["CRYPTO"]),
                          "inconnus": bad}
         log.info("univers : %s", st["univers"])
@@ -857,8 +1006,7 @@ def main():
     save_state(st)
     while not STOP[0] and time.time() < end:
         now = time.time()
-        g = time.gmtime(now)
-        if not (6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 15)):
+        if not in_hours(now):
             log.info("hors des fenetres de ce scanner (6 h - 21 h 15 UTC) : fin du job")
             break
         for m in MARKETS:
@@ -880,6 +1028,13 @@ def main():
         time.sleep(5)
     save_state(st)
     log.info("fin du job (%d requetes, %d erreurs)", STATS["requetes"], STATS["erreurs"])
+    # fin normale (duree max atteinte) en pleine journee : le workflow relance un job
+    if not STOP[0] and time.time() >= end and in_hours(time.time() + 600):
+        try:
+            with open(os.path.join(CFG["STATE_DIR"], "relance"), "w") as f:
+                f.write("1")
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

@@ -1,16 +1,18 @@
 name: Scanner ACTIONS + FOREX + CRYPTO (strategies de la video, signaux Telegram)
 
-# Strategie SEPAREE du bot crypto VWAP : cassure de la plage d'ouverture 15 min + plan de
+# Cassure de la plage d'ouverture 15 min + plan de
 # sortie + time machine (10 000 simulations) + historique, d'apres le pack open-source
 # dan-ai-lab/day-trader-fr. SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
 # Actif tous les jours de 6 h a 21 h 15 UTC (actions et forex en semaine, crypto 7 j/7).
 on:
   schedule:
-    - cron: '7 6-20 * * *'
+    # GitHub saute souvent des crons : un tick toutes les 15 min (un seul job en attente a la
+    # fois) + le job se relance lui-meme quand il atteint sa duree maximale
+    - cron: '*/15 6-20 * * *'
   workflow_dispatch:
     inputs:
       minutes:
-        description: 'Duree de ce job en minutes (330 max)'
+        description: 'Duree de ce job en minutes (320 max)'
         type: string
         default: ''
 
@@ -23,7 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 345
+    timeout-minutes: 340
+    outputs:
+      relance: ${{ steps.scan.outputs.relance }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -34,9 +38,10 @@ jobs:
           python-version: '3.11'
 
       - name: Dependances
-        run: pip install requests==2.32.3 tzdata
+        run: pip install -r requirements.txt
 
-      - name: Scanner actions + forex
+      - name: Scanner actions + forex + crypto
+        id: scan
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -46,7 +51,7 @@ jobs:
           SHORTS:             ${{ vars.SCAN_SHORTS }}
           ONLY_FAVORABLE:     ${{ vars.SCAN_ONLY_FAVORABLE }}
           RR:                 ${{ vars.SCAN_RR }}
-          LOOP_MINUTES:       ${{ inputs.minutes || '330' }}
+          LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           STATE_DIR:          /tmp/etat_scanner
           PYTHONUNBUFFERED:   '1'
         run: |
@@ -75,6 +80,7 @@ jobs:
           RC=0
           wait $PID || RC=$?
           kill $SAVER 2>/dev/null || true
+          if [ -f /tmp/etat_scanner/relance ]; then echo "relance=1" >> "$GITHUB_OUTPUT"; fi
           exit $RC
 
       - name: Sauvegarde de l'etat
@@ -95,3 +101,16 @@ jobs:
             sleep $((RANDOM % 5 + 2))
           done
           echo "::warning::etat du scanner non sauvegarde"
+
+  relance:
+    needs: scanner
+    # le job a atteint sa duree maximale en pleine journee : on en relance un tout de suite
+    if: ${{ needs.scanner.outputs.relance == '1' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Relance du scanner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run scanner_actions_forex.yml --repo "${{ github.repository }}" --ref main

@@ -21,22 +21,41 @@ contre 29,4 % / 25,5 % / 45,1 % ; historique identique : 33 signaux, 13 TP, 15 S
 
 ## Marchés (heures de Paris)
 
-| Marché | Séance | Signaux possibles | Watchlist |
+| Marché | Séance | Premiers signaux possibles → dernière entrée | Watchlist |
 |---|---|---|---|
-| 🇺🇸 Actions US (~190 titres et ETF les plus liquides, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 45 – 21 h 30 | 15 h 00 |
-| 💱 Forex : 28 majeures et croisées, 21 exotiques, or et argent (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 15 – 12 h 00 | 8 h 30 |
-| 💱 Forex + or, ouverture de New York | 14 h – 22 h, en semaine | 14 h 15 – 17 h 00 | — |
-| 🪙 Crypto (54 + les 80 plus grosses du classement Yahoo, sans stablecoins, `SCAN_CRYPTO`), ouverture de Londres | 7 j/7 | 9 h 15 – 12 h 00 | 8 h 30 |
-| 🪙 Crypto, ouverture de Wall Street | 7 j/7 | 15 h 45 – 18 h 00 | — |
+| 🇺🇸 Actions US (~190 titres et ETF les plus liquides, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 50 → 21 h 30 | 15 h 00 |
+| 💱 Forex : 28 majeures et croisées, 21 exotiques, or et argent (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 20 → 12 h 00 | 8 h 30 |
+| 💱 Forex, ouverture de New York | 14 h – 22 h, en semaine | 14 h 20 → 17 h 00 | — |
+| 🪙 Crypto : liste de base + les plus grosses du classement Yahoo, sans stablecoins (~95, `SCAN_CRYPTO`), ouverture de Londres | **7 j/7** | 9 h 20 → 12 h 00 | 8 h 30 |
+| 🪙 Crypto, ouverture de Wall Street | **7 j/7** | 15 h 50 → 18 h 00 | — |
 
-Un signal n'est envoyé que s'il date des **2 dernières bougies**, que le prix n'a touché ni le SL ni le TP depuis, et **que son verdict est 🟢 FAVORABLE** (variable `SCAN_ONLY_FAVORABLE=0` pour tout recevoir).
+Pendant les semaines où l'Europe et les États-Unis ne changent pas d'heure en même temps (fin octobre / début
+novembre, mars), les heures « New York » arrivent une heure plus tôt à Paris (actions 14 h 30 – 21 h).
 
-Les cours sont lus par paquets de 20 symboles (comme trader-scanner) ; seuls les candidats à une cassure récente sont vérifiés en détail.
+## Ce qui est envoyé
+
+Un signal part seulement si :
+- la cassure date des **2 dernières bougies** et le prix n'a touché ni le SL ni le TP depuis ;
+- le verdict est **🟢 FAVORABLE** : simulation au moins 5 points au-dessus du seuil de rentabilité, résultat
+  moyen simulé positif, moins de 40 % de trajectoires sans issue, **et** historique réel de la même règle sur
+  ce symbole d'au moins 15 signaux, gagnant en moyenne, avec une part de TP nettement au-dessus du seuil
+  (borne basse de Wilson à 90 %). Sur des prix purement aléatoires, ce filtre laisse passer environ 3 % des
+  cassures, contre 11 à 14 % pour la simulation seule.
+
+Chaque message donne l'entrée, le SL et le TP (copiables), l'heure limite de sortie, le retard éventuel et le
+prix actuel, les probabilités, l'historique, le contexte quotidien et les avertissements du pack.
 
 ## Réglages (variables GitHub facultatives)
 
-`SCAN_STOCKS`, `SCAN_FX`, `SCAN_CRYPTO` (listes séparées par des virgules), `SCAN_SHORTS` (1 = ventes aussi),
-`SCAN_RR` (2 par défaut). Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `SCAN_STOCKS`, `SCAN_FX`, `SCAN_CRYPTO` | listes de symboles séparés par des virgules | listes intégrées |
+| `SCAN_ONLY_FAVORABLE` | `0` = recevoir aussi les signaux neutres / défavorables | `1` |
+| `SCAN_SHORTS` | `0` = achats seulement (comme le pack d'origine) | `1` |
+| `SCAN_RR` | TP en multiple du risque | `2` |
+
+Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Le job se relance lui-même à la fin de sa durée maximale,
+avec un filet de sécurité toutes les 15 minutes.
 
 Données : API graphiques Yahoo Finance (gratuite, non officielle, retard possible). Simulation statistique,
 pas une prévision ni un conseil financier.
