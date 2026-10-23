@@ -103,18 +103,35 @@
    "objectif": 0.5769100189208984
   }
  ],
- "yahoo": "ok : 391 bougies SPY lues a 12:57 UTC",
+ "yahoo": "ok : 391 bougies SPY lues a 13:14 UTC",
  "stats": {
-  "requetes": 265,
+  "requetes": 162,
   "erreurs": 0,
-  "maj": "23/10 13:14 UTC"
+  "maj": "23/10 13:20 UTC"
  },
  "scans": {
   "fx_ny": {
-   "heure": "23/10 09:10",
+   "jour": "2026-10-23",
+   "envoyes": 0,
+   "non_favorables": 0,
+   "heure": "23/10 09:20",
    "lus": 50,
    "symboles": 51,
-   "signaux": 0
+   "candidats": 44
+  }
+ },
+ "univers": {
+  "actions": 191,
+  "forex": 51,
+  "crypto": 96,
+  "inconnus": {
+   "STOCKS": [
+    "X"
+   ],
+   "FX": [],
+   "CRYPTO": [
+    "COMP"
+   ]
   }
  }
 }
