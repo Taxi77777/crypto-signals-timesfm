@@ -387,7 +387,10 @@
   "cr_ny|2026-10-23|LEO-USD|-1": 1792769501.109612,
   "cr_ny|2026-10-23|LEO-USD|1": 1792769501.1097596,
   "cr_ny|2026-10-23|BTW39158-USD|-1": 1792769501.897046,
-  "cr_ny|2026-10-23|USDGO-USD|1": 1792769502.203506
+  "cr_ny|2026-10-23|USDGO-USD|1": 1792769502.203506,
+  "stocks|2026-10-23|IBM|1": 1792770332.1543543,
+  "cr_ny|2026-10-23|BCH|1": 1792770639.857665,
+  "cr_ny|2026-10-23|KAVA|-1": 1792770640.597356
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -518,13 +521,22 @@
    "entree": 1.9072757959365845,
    "stop": 1.9025026559829712,
    "objectif": 1.916822075843811
+  },
+  {
+   "t": "23/10 15:45",
+   "marche": "stocks",
+   "sym": "IBM",
+   "sens": "ACHAT",
+   "entree": 253.56739807128906,
+   "stop": 250.46,
+   "objectif": 259.79
   }
  ],
  "yahoo": "ok : 338 bougies SPY lues a 15:31 UTC",
  "stats": {
-  "requetes": 165,
+  "requetes": 256,
   "erreurs": 0,
-  "maj": "23/10 15:40 UTC"
+  "maj": "23/10 15:50 UTC"
  },
  "scans": {
   "fx_ny": {
@@ -538,21 +550,21 @@
   },
   "stocks": {
    "jour": "2026-10-23",
-   "envoyes": 0,
+   "envoyes": 1,
    "non_favorables": 178,
-   "heure": "23/10 11:40",
-   "lus": 175,
+   "heure": "23/10 11:50",
+   "lus": 174,
    "symboles": 191,
-   "candidats": 30
+   "candidats": 23
   },
   "cr_ny": {
    "jour": "2026-10-23",
    "envoyes": 8,
-   "non_favorables": 88,
-   "heure": "23/10 11:40",
+   "non_favorables": 90,
+   "heure": "23/10 11:50",
    "lus": 31,
    "symboles": 89,
-   "candidats": 2
+   "candidats": 3
   }
  },
  "univers": {
