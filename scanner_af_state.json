@@ -376,7 +376,9 @@
   "cr_ny|2026-10-23|SUSHI|1": 1792767345.1855283,
   "stocks|2026-10-23|U|1": 1792767630.910373,
   "cr_ny|2026-10-23|U39120-USD|1": 1792767641.876422,
-  "stocks|2026-10-23|HON|1": 1792767936.248904
+  "stocks|2026-10-23|HON|1": 1792767936.248904,
+  "stocks|2026-10-23|TEAM|1": 1792768232.7638557,
+  "cr_ny|2026-10-23|AETHUSDT-USD|1": 1792768240.6744328
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -511,9 +513,9 @@
  ],
  "yahoo": "ok : 320 bougies SPY lues a 14:05 UTC",
  "stats": {
-  "requetes": 1260,
+  "requetes": 1352,
   "erreurs": 0,
-  "maj": "23/10 15:05 UTC"
+  "maj": "23/10 15:15 UTC"
  },
  "scans": {
   "fx_ny": {
@@ -528,20 +530,20 @@
   "stocks": {
    "jour": "2026-10-23",
    "envoyes": 0,
-   "non_favorables": 173,
-   "heure": "23/10 11:05",
-   "lus": 178,
+   "non_favorables": 174,
+   "heure": "23/10 11:15",
+   "lus": 177,
    "symboles": 191,
-   "candidats": 26
+   "candidats": 29
   },
   "cr_ny": {
    "jour": "2026-10-23",
    "envoyes": 8,
    "non_favorables": 87,
-   "heure": "23/10 11:05",
-   "lus": 37,
+   "heure": "23/10 11:15",
+   "lus": 36,
    "symboles": 91,
-   "candidats": 3
+   "candidats": 2
   }
  },
  "univers": {
