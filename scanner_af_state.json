@@ -42,7 +42,11 @@
   "fx_ny|2026-10-23|EURSEK|-1": 1792760293.5318627,
   "fx_ny|2026-10-23|EURNOK|-1": 1792760293.8869183,
   "fx_ny|2026-10-23|XAGUSD|-1": 1792760295.7098484,
-  "fx_ny|2026-10-23|EURPLN|1": 1792760444.3875759
+  "fx_ny|2026-10-23|EURPLN|1": 1792760444.3875759,
+  "fx_ny|2026-10-23|EURGBP|1": 1792762828.1723137,
+  "fx_ny|2026-10-23|GBPAUD|-1": 1792763127.5340931,
+  "fx_ny|2026-10-23|CADCHF|1": 1792763128.557842,
+  "fx_ny|2026-10-23|NZDCAD|-1": 1792763129.326441
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -103,35 +107,31 @@
    "objectif": 0.5769100189208984
   }
  ],
- "yahoo": "ok : 391 bougies SPY lues a 13:14 UTC",
+ "yahoo": "ok : 315 bougies SPY lues a 13:36 UTC",
  "stats": {
-  "requetes": 308,
+  "requetes": 61,
   "erreurs": 0,
-  "maj": "23/10 13:35 UTC"
+  "maj": "23/10 13:45 UTC"
  },
  "scans": {
   "fx_ny": {
    "jour": "2026-10-23",
    "envoyes": 0,
-   "non_favorables": 0,
-   "heure": "23/10 09:35",
+   "non_favorables": 3,
+   "heure": "23/10 09:45",
    "lus": 50,
    "symboles": 51,
-   "candidats": 45
+   "candidats": 10
   }
  },
  "univers": {
   "actions": 191,
   "forex": 51,
-  "crypto": 96,
+  "crypto": 91,
   "inconnus": {
-   "STOCKS": [
-    "X"
-   ],
+   "STOCKS": [],
    "FX": [],
-   "CRYPTO": [
-    "COMP"
-   ]
+   "CRYPTO": []
   }
  }
 }
