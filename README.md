@@ -35,13 +35,16 @@ novembre, mars), les heures « New York » arrivent une heure plus tôt à Paris
 
 ## Ce qui est envoyé
 
-Un signal part seulement si :
-- la cassure vient de la **dernière bougie clôturée** (5 min), le prix n'a touché ni le SL ni le TP et n'est pas déjà parti (plus de 0,25 R dans le sens du trade, ou 0,5 R vers le SL = trop tard) ; le message indique jusqu'à quelle heure il reste valable ;
-- le verdict est **🟢 FAVORABLE** : simulation au moins 5 points au-dessus du seuil de rentabilité, résultat
-  moyen simulé positif, moins de 40 % de trajectoires sans issue, **et** historique réel de la même règle sur
-  ce symbole d'au moins 15 signaux, gagnant en moyenne, avec une part de TP nettement au-dessus du seuil
-  (borne basse de Wilson à 90 %). Sur des prix purement aléatoires, ce filtre laisse passer environ 3 % des
-  cassures, contre 11 à 14 % pour la simulation seule.
+Comme dans le pack d'origine, **toutes les cassures** sont envoyées avec leur verdict, et c'est toi qui choisis :
+- la cassure vient de la **dernière bougie clôturée** (5 min), le prix n'a touché ni le SL ni le TP et n'est pas
+  déjà parti (plus de 0,25 R dans le sens du trade, ou 0,5 R vers le SL = trop tard) ; le message indique
+  jusqu'à quelle heure il reste valable ;
+- **jamais contre la tendance** (VWAP du jour et MM20 jours) ;
+- verdict affiché : 🟢 **FAVORABLE** (simulation au moins 5 points au-dessus du seuil de rentabilité, résultat
+  moyen simulé positif, moins de 40 % de trajectoires sans issue, **et** historique réel de la règle sur ce
+  symbole d'au moins 15 signaux, gagnant en moyenne et nettement au-dessus du seuil — borne de Wilson à 90 %),
+  🟡 **NEUTRE / NON CONFIRMÉ**, 🔴 **DÉFAVORABLE**. Sur des prix aléatoires, environ 3 % des cassures sortent
+  FAVORABLE. `SCAN_ONLY_FAVORABLE=1` pour ne recevoir que les 🟢.
 
 Chaque message donne l'entrée, le SL et le TP (copiables), l'heure limite de sortie, le retard éventuel et le
 prix actuel, les probabilités, l'historique, le contexte quotidien et les avertissements du pack.
@@ -51,7 +54,7 @@ prix actuel, les probabilités, l'historique, le contexte quotidien et les avert
 | Variable | Rôle | Défaut |
 |---|---|---|
 | `SCAN_STOCKS`, `SCAN_FX`, `SCAN_CRYPTO` | listes de symboles séparés par des virgules | listes intégrées |
-| `SCAN_ONLY_FAVORABLE` | `0` = recevoir aussi les signaux neutres / défavorables | `1` |
+| `SCAN_ONLY_FAVORABLE` | `1` = ne recevoir que les signaux 🟢 FAVORABLES | `0` |
 | `SCAN_SHORTS` | `0` = achats seulement (comme le pack d'origine) | `1` |
 | `SCAN_RR` | TP en multiple du risque | `2` |
 | `SCAN_TREND` | `0` = désactiver le filtre de tendance | `1` |

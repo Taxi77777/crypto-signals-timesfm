@@ -19,7 +19,7 @@ de Jakeschincariol/day-trader-skill, licence MIT) :
      10 000 fins de seance reconstruites a partir des bougies 5 min des 60 derniers jours
      (meme heure +/- 2 bougies), stop teste avant l'objectif ; puis la MEME regle rejouee
      sur chaque seance passee. Verdict compare a l'equilibre 1/(1+R).
-     FAVORABLE (seul envoye par defaut) = simulation >= equilibre + 5 points, resultat moyen
+     FAVORABLE (affiche ; envoi de TOUTES les cassures dans la tendance par defaut) = simulation >= equilibre + 5 points, resultat moyen
      simule > 0, moins de 40 % de trajectoires sans issue ET historique reel de la regle sur
      ce symbole d'au moins 15 signaux, resultat moyen > 0, et part de TP parmi TP+SL dont la
      borne basse (Wilson, 90 %) depasse l'equilibre (le pack previent qu'une simulation seule
@@ -111,7 +111,9 @@ DEFAULT_CRYPTO = ("BTC,ETH,XRP,BNB,SOL,DOGE,ADA,TRX,LINK,AVAX,XLM,BCH,DOT,LTC,HB
                   "XTZ,EOS,NEO,THETA,FLOW,GALA,ENJ,BAT,ZIL,SNX,YFI,SUSHI,KSM,RUNE,LRC,1INCH")
 STABLES = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDE", "PYUSD", "USDD", "BUSD", "USDS", "USD1",
            "WBTC", "WETH", "STETH", "WSTETH", "WEETH", "CBBTC", "RETH", "WBETH", "EETH", "LBTC",
-           "USDG", "RLUSD", "USDF", "USDX", "EURC", "XAUT", "PAXG"}
+           "USDG", "RLUSD", "USDF", "USDX", "EURC", "XAUT", "PAXG",
+           "BTCB", "WBNB", "WTRX", "WAVAX", "WSOL", "WHBAR", "WMATIC", "WPOL", "SOLVBTC", "CLBTC", "BNSOL",
+           "JITOSOL", "MSOL", "JUPSOL", "WEETH", "EZETH", "RSETH", "METH", "SUSDE", "SUSDS", "SDAI"}
 
 CFG = {
     "STOCKS": [s.strip().upper() for s in envf("SCAN_STOCKS", DEFAULT_STOCKS).split(",") if s.strip()],
@@ -120,7 +122,8 @@ CFG = {
     "OR_MIN": envf("OR_MIN", 15),               # plage d'ouverture (minutes)
     "RR": envf("RR", 2.0),                      # objectif = RR x risque
     "SHORTS": envf("SHORTS", 1),                # 1 = aussi les cassures du plus bas (vente)
-    "ONLY_FAVORABLE": envf("ONLY_FAVORABLE", 1),  # 1 = n'envoyer QUE les signaux au verdict FAVORABLE
+    "ONLY_FAVORABLE": envf("ONLY_FAVORABLE", 0),  # 0 = toutes les cassures dans la tendance, avec leur verdict
+                                                  #     (comme le pack) ; 1 = FAVORABLES seulement
     "CRYPTO_TOP": envf("CRYPTO_TOP", 80),       # + les plus grosses cryptos du classement Yahoo
     "MAX_AGE_BARS": max(1, envf("MAX_AGE_BARS", 1)),  # alerte seulement si la cassure date de <= X bougies
     "MAX_CHASE_R": envf("MAX_CHASE_R", 0.25),   # prix deja parti de plus de X R dans le sens : trop tard
