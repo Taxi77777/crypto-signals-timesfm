@@ -348,7 +348,21 @@
   "cr_ny|2026-10-23|RUNE|-1": 1792765851.1539888,
   "cr_ny|2026-10-23|RAIN38341-USD|-1": 1792765851.4470365,
   "cr_ny|2026-10-23|RWUSD-USD|-1": 1792765851.7504075,
-  "cr_ny|2026-10-23|VVV35509-USD|-1": 1792765852.3810825
+  "cr_ny|2026-10-23|VVV35509-USD|-1": 1792765852.3810825,
+  "stocks|2026-10-23|NFLX|-1": 1792766131.2969813,
+  "stocks|2026-10-23|SNAP|-1": 1792766135.1886103,
+  "stocks|2026-10-23|GE|1": 1792766141.6633935,
+  "fx_ny|2026-10-23|EURCZK|1": 1792766145.770337,
+  "cr_ny|2026-10-23|BAT|1": 1792766148.2111225,
+  "stocks|2026-10-23|AMAT|1": 1792766432.6173077,
+  "stocks|2026-10-23|SMCI|1": 1792766434.558922,
+  "stocks|2026-10-23|CHWY|-1": 1792766435.6872396,
+  "stocks|2026-10-23|EBAY|-1": 1792766436.442651,
+  "fx_ny|2026-10-23|USDJPY|1": 1792766442.207727,
+  "stocks|2026-10-23|KLAC|1": 1792766729.6618521,
+  "stocks|2026-10-23|ADI|1": 1792766730.2848392,
+  "stocks|2026-10-23|DELL|1": 1792766731.4096885,
+  "stocks|2026-10-23|LCID|1": 1792766734.2159512
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -483,37 +497,37 @@
  ],
  "yahoo": "ok : 320 bougies SPY lues a 14:05 UTC",
  "stats": {
-  "requetes": 818,
+  "requetes": 1024,
   "erreurs": 0,
-  "maj": "23/10 14:30 UTC"
+  "maj": "23/10 14:45 UTC"
  },
  "scans": {
   "fx_ny": {
    "jour": "2026-10-23",
    "envoyes": 0,
-   "non_favorables": 10,
-   "heure": "23/10 10:30",
-   "lus": 39,
+   "non_favorables": 11,
+   "heure": "23/10 10:45",
+   "lus": 35,
    "symboles": 51,
-   "candidats": 10
+   "candidats": 4
   },
   "stocks": {
    "jour": "2026-10-23",
    "envoyes": 0,
-   "non_favorables": 154,
-   "heure": "23/10 10:30",
-   "lus": 184,
+   "non_favorables": 165,
+   "heure": "23/10 10:45",
+   "lus": 182,
    "symboles": 191,
-   "candidats": 42
+   "candidats": 33
   },
   "cr_ny": {
    "jour": "2026-10-23",
    "envoyes": 8,
-   "non_favorables": 82,
-   "heure": "23/10 10:30",
-   "lus": 45,
+   "non_favorables": 83,
+   "heure": "23/10 10:45",
+   "lus": 42,
    "symboles": 91,
-   "candidats": 6
+   "candidats": 4
   }
  },
  "univers": {
