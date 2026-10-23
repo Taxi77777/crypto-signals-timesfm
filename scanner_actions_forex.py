@@ -555,14 +555,14 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
                                                       m["name"], CFG["OR_MIN"]),
          SEP,
          "▶️ Entrée    <code>%s</code>" % fmt(e),
-         "🛑 Stop      <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
-         "🎯 Objectif  <code>%s</code>  (%+.2f %% · %gR)" % (fmt(tp), -sgn * 100 * abs(tp - e) / e, rr),
+         "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
+         "🎯 TP        <code>%s</code>  (%+.2f %% · %gR)" % (fmt(tp), -sgn * 100 * abs(tp - e) / e, rr),
          "⏰ Signal %s · sortie avant %s (heure de Paris)" % (sig_paris, flat_paris),
          SEP]
     if mc:
         L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
         if pt is not None:
-            L.append("objectif avant le stop dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
+            L.append("TP touché avant le SL dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
         L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %%" % (
             "{:,}".format(int(CFG["SIMS"])).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
     else:

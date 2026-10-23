@@ -1555,7 +1555,7 @@ def analysis_text(st, sym, sig, decision, C, ia_line=""):
         log.warning("analyse %s : %s", sym, ex)
         mc = None
     if decision.startswith("PRIS"):
-        dec = "✅ <b>PRIS par le bot</b> (ordre, stop et objectif chez Kraken)"
+        dec = "✅ <b>PRIS par le bot</b> (ordre, SL et TP posés chez Kraken)"
     elif "filtre" in decision:
         dec = "👀 <b>NON PRIS</b> : écarté par le filtre de l'IA (suivi pour apprendre)"
     else:
@@ -1568,14 +1568,14 @@ def analysis_text(st, sym, sig, decision, C, ia_line=""):
          SEP,
          dec,
          "▶️ Entrée    <code>%s</code>" % px_str(st, sym, e),
-         "🛑 Stop      <code>%s</code>  (%+.2f %%)" % (px_str(st, sym, sl), sgn * 100 * abs(e - sl) / e),
-         "🎯 Objectif  <code>%s</code>  (%+.2f %% · %gR)" % (px_str(st, sym, tp), -sgn * 100 * abs(tp - e) / e, rr),
+         "🛑 SL        <code>%s</code>  (%+.2f %%)" % (px_str(st, sym, sl), sgn * 100 * abs(e - sl) / e),
+         "🎯 TP        <code>%s</code>  (%+.2f %% · %gR)" % (px_str(st, sym, tp), -sgn * 100 * abs(tp - e) / e, rr),
          "⏰ Signal %s (Paris) · sortie max %d h" % (paris_hm(t_sig), C["MAX_HOLD_MIN"] // 60),
          SEP]
     if mc:
         L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
         if pt is not None:
-            L.append("objectif avant le stop dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
+            L.append("TP touché avant le SL dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
         L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %%" % (
             "{:,}".format(mc["sims"]).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
     else:
