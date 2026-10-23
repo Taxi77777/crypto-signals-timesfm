@@ -35,7 +35,7 @@ novembre, mars), les heures « New York » arrivent une heure plus tôt à Paris
 ## Ce qui est envoyé
 
 Un signal part seulement si :
-- la cassure date des **2 dernières bougies** et le prix n'a touché ni le SL ni le TP depuis ;
+- la cassure vient de la **dernière bougie clôturée** (5 min), le prix n'a touché ni le SL ni le TP et n'est pas déjà parti (plus de 0,25 R dans le sens du trade, ou 0,5 R vers le SL = trop tard) ; le message indique jusqu'à quelle heure il reste valable ;
 - le verdict est **🟢 FAVORABLE** : simulation au moins 5 points au-dessus du seuil de rentabilité, résultat
   moyen simulé positif, moins de 40 % de trajectoires sans issue, **et** historique réel de la même règle sur
   ce symbole d'au moins 15 signaux, gagnant en moyenne, avec une part de TP nettement au-dessus du seuil

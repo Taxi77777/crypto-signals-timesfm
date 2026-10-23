@@ -118,7 +118,9 @@ CFG = {
     "SHORTS": envf("SHORTS", 1),                # 1 = aussi les cassures du plus bas (vente)
     "ONLY_FAVORABLE": envf("ONLY_FAVORABLE", 1),  # 1 = n'envoyer QUE les signaux au verdict FAVORABLE
     "CRYPTO_TOP": envf("CRYPTO_TOP", 80),       # + les plus grosses cryptos du classement Yahoo
-    "MAX_AGE_BARS": max(1, envf("MAX_AGE_BARS", 2)),  # alerte seulement si la cassure date de <= X bougies
+    "MAX_AGE_BARS": max(1, envf("MAX_AGE_BARS", 1)),  # alerte seulement si la cassure date de <= X bougies
+    "MAX_CHASE_R": envf("MAX_CHASE_R", 0.25),   # prix deja parti de plus de X R dans le sens : trop tard
+    "MAX_AGAINST_R": envf("MAX_AGAINST_R", 0.5),  # prix deja revenu de plus de X R vers le SL : annule
     "SIMS": max(1000, envf("SIMS", 10000)),
     "MIN_HIST": envf("MIN_HIST", 15),           # FAVORABLE : au moins X signaux passes de la meme regle
     "Z": envf("Z", 1.28),                       # exigence statistique sur l'historique (1.28 = 90 %)
@@ -777,9 +779,11 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
          "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
          "🎯 TP        <code>%s</code>  (%+.2f %% · %gR)" % (fmt(tp), -sgn * 100 * abs(tp - e) / e, rr),
          "⏰ Signal %s · sortie avant %s (heure de Paris)" % (sig_paris, flat_paris)]
+    valid = local_dt(b[0] + 2 * BAR, PARIS).strftime("%H:%M")
+    L.append("⌛ <b>Valable jusqu'à %s</b> (Paris) · après, ne pas entrer" % valid)
     if last_px:
-        L.append("⏱️ Cassure clôturée il y a %d bougie%s · prix actuel <code>%s</code>" % (
-            age, "s" if age > 1 else "", fmt(last_px)))
+        L.append("⏱️ Envoyé à %s · prix actuel <code>%s</code>" % (
+            local_dt(time.time(), PARIS).strftime("%H:%M:%S"), fmt(last_px)))
     L.append(SEP)
     if mc:
         L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
@@ -888,6 +892,13 @@ def scan_market(m, st, now_ts):
                 st["alerts"][key] = time.time()   # deja au stop / a l'objectif : plus jouable
                 continue
             last_px = next((x[4] for x in reversed(bars) if x[0] <= now_ts), None)
+            risk = abs(b[4] - sl)
+            if last_px and risk > 0:
+                move = (last_px - b[4]) * d / risk   # > 0 : parti dans le sens du trade
+                if move > CFG["MAX_CHASE_R"] or move < -CFG["MAX_AGAINST_R"]:
+                    st["alerts"][key] = time.time()
+                    log.info("%s %s : prix deja a %+.2f R de l'entree, signal trop tard / annule", sym, d, move)
+                    continue
             msg, vtxt, analysed = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts,
                                                  last_px=last_px, age=age)
             if not analysed:
