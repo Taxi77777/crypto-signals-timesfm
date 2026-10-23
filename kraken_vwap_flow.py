@@ -127,6 +127,9 @@ CFG = {
     "CAPITAL_PCT": envf("CAPITAL_PCT", 95.0),
     "LIQ_SAFETY": envf("LIQ_SAFETY", 0.75),
     "MAX_OPEN": envf("MAX_OPEN", 5),
+    "ANALYSE": envf("ANALYSE", 1),                # 1 = chaque signal 4/4 analyse (10 000 simulations) sur Telegram
+    "ANALYSE_DAYS": envf("ANALYSE_DAYS", 30),     # historique utilise par les simulations (jours)
+    "ANALYSE_SIMS": envf("ANALYSE_SIMS", 10000),
     "FEE_TAKER": envf("FEE_TAKER", 0.0005),
     "MAX_FEE_R": envf("MAX_FEE_R", 0.35),
     "PAPER_BALANCE": envf("PAPER_BALANCE", 1000.0),
@@ -1398,6 +1401,198 @@ def sl_ok(entry, sl, C):
 
 
 # =========================================================================
+#  SIGNAL ANALYSE (Telegram) : chaque signal 4/4, pris ou non, est envoye avec une
+#  simulation de Monte Carlo inspiree de "trader-timemachine" (dan-ai-lab/day-trader-fr) :
+#  10 000 trajectoires reconstruites a partir des bougies 15 min des 30 derniers jours
+#  du meme actif, a la meme heure (+/- 2 bougies). Stop teste avant le TP dans chaque
+#  bougie (prudent). C'est une simulation statistique, pas une prevision.
+# =========================================================================
+import queue
+import random
+
+ANALYSIS_Q = queue.Queue()
+_HIST = {}                                       # sym -> (date de lecture, bougies)
+
+
+def hist_candles(sym, tf, days):
+    """Bougies cloturees des `days` derniers jours (par paquets), cache 6 h."""
+    c = _HIST.get(sym)
+    if c and time.time() - c[0] < 6 * 3600:
+        return c[1]
+    tfs = TF_SEC[tf]
+    now = int(time.time())
+    frm, out = now - int(days * 86400), {}
+    for _ in range(12):
+        j = pub("/api/charts/v1/trade/%s/%s" % (sym, tf), {"from": frm, "to": now})
+        rows = j.get("candles") or []
+        last = frm
+        for r in rows:
+            ts = int(r["time"]) // 1000
+            if ts + tfs <= now:
+                out[ts] = (float(r["open"]), float(r["high"]), float(r["low"]), float(r["close"]))
+            last = max(last, ts)
+        if not rows or last + tfs >= now - tfs or last <= frm:
+            break
+        frm = last + tfs
+    bars = [(ts,) + out[ts] for ts in sorted(out)]
+    _HIST[sym] = (time.time(), bars)
+    return bars
+
+
+def monte_carlo(bars, t_entry, e, sl, tp, d, steps, tfs, sims=10000, seed=19, window=2):
+    """Trajectoires : chaque bougie future = une bougie passee tiree au hasard a la meme
+       heure (+/- window), appliquee en ratios OHLC a la cloture precedente."""
+    per_day = 86400 // tfs
+    pool = [[] for _ in range(per_day)]
+    for k in range(1, len(bars)):
+        ts, o, h, l, c = bars[k]
+        pc = bars[k - 1][4]
+        if pc <= 0 or ts - bars[k - 1][0] != tfs:
+            continue                              # trou dans l'historique : ignore
+        pool[(ts % 86400) // tfs].append((h / pc, l / pc, c / pc))
+    if sum(len(x) for x in pool) < 20 * per_day // 2:
+        return None                               # pas assez d'historique
+    near = []
+    for sl_i in range(per_day):
+        z = []
+        for w in range(-window, window + 1):
+            z.extend(pool[(sl_i + w) % per_day])
+        near.append(z)
+    rng = random.Random(seed)
+    first = ((t_entry % 86400) // tfs + 1) % per_day      # 1re bougie APRES l'entree
+    risk = (e - sl) * d
+    n_tp = n_sl = 0
+    rs, finals = [], []
+    for _ in range(sims):
+        p = e
+        res = None
+        for st_i in range(steps):
+            z = near[(first + st_i) % per_day]
+            if not z:
+                continue
+            hr, lr, cr = z[int(rng.random() * len(z))]
+            hi, lo = p * hr, p * lr
+            if d > 0:
+                if lo <= sl:
+                    res = -1.0
+                    break
+                if hi >= tp:
+                    res = (tp - e) / risk
+                    break
+            else:
+                if hi >= sl:
+                    res = -1.0
+                    break
+                if lo <= tp:
+                    res = (e - tp) / risk
+                    break
+            p = p * cr
+        if res is None:
+            rs.append((p - e) * d / risk)
+            finals.append(p)
+        elif res < 0:
+            n_sl += 1
+            rs.append(res)
+        else:
+            n_tp += 1
+            rs.append(res)
+    return {"p_tp": n_tp / sims, "p_sl": n_sl / sims, "p_none": 1 - (n_tp + n_sl) / sims,
+            "mean_r": sum(rs) / len(rs), "sims": sims, "seed": seed,
+            "p_green": sum(1 for x in rs if x > 0) / len(rs)}
+
+
+def _verdict(mc, rr):
+    hit = mc["p_tp"] + mc["p_sl"]
+    if hit <= 0:
+        return "aucune trajectoire ne touche le stop ou le TP dans le delai"
+    pt = mc["p_tp"] / hit
+    be = 1.0 / (1.0 + rr)
+    gap = 100 * (pt - be)
+    if abs(gap) < 5:
+        v = "proche de l'equilibre"
+    elif abs(gap) < 15:
+        v = "biais vers le %s" % ("TP" if gap > 0 else "stop")
+    else:
+        v = "biais MARQUE vers le %s" % ("TP" if gap > 0 else "stop")
+    return "%s : TP d'abord dans %.0f %% des cas qui touchent un niveau (equilibre a %.0fR = %.0f %%)" % (
+        v, 100 * pt, rr, 100 * be)
+
+
+def analysis_text(st, sym, sig, decision, C, ia_line=""):
+    d = sig["dir"]
+    pl = plan(sig, sig["close"], C)
+    if not pl:
+        return None
+    e, sl, tp = pl
+    tfs = TF_SEC[C["BAR_TF"]]
+    steps = max(1, int(C["MAX_HOLD_MIN"] * 60 // tfs))
+    rr = C["RR"]
+    lines = ["SIGNAL ANALYSE - %s %s (%s)" % (nm(sym), "ACHAT" if d > 0 else "VENTE", C["BAR_TF"]),
+             "Entree %s | SL %s (%.2f %%) | TP %s (%.2f %%, %gR)" % (
+                 px_str(st, sym, e), px_str(st, sym, sl), 100 * abs(e - sl) / e,
+                 px_str(st, sym, tp), 100 * abs(tp - e) / e, rr),
+             "Checklist : tendance %d %% | absorption %+d %% | big trade x%.1f | retour %+d %% | distance VWAP %.2f %%" % (
+                 int(100 * sig.get("trend", 0)), int(100 * sig.get("abs", 0)),
+                 sig.get("big_x") or 0, int(100 * sig.get("conf", 0)), sig.get("touch", 0))]
+    try:
+        bars = hist_candles(sym, C["BAR_TF"], C["ANALYSE_DAYS"])
+        mc = monte_carlo(bars, int(sig.get("t") or time.time()), e, sl, tp, d, steps, tfs,
+                         sims=int(C["ANALYSE_SIMS"]))
+    except Exception as ex:
+        log.warning("analyse %s : %s", sym, ex)
+        mc = None
+    if mc:
+        lines.append("%d simulations (%d j de bougies %s, meme heure, %d h max) :" % (
+            mc["sims"], C["ANALYSE_DAYS"], C["BAR_TF"], C["MAX_HOLD_MIN"] // 60))
+        lines.append("  TP d'abord %.1f %% | stop d'abord %.1f %% | ni l'un ni l'autre %.1f %%" % (
+            100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
+        lines.append("  resultat moyen %+.2f R | trajectoires gagnantes %.0f %%" % (mc["mean_r"], 100 * mc["p_green"]))
+        lines.append("  verdict : " + _verdict(mc, rr))
+        if mc["p_none"] > 0.4:
+            lines.append("  attention : plus de 40 % des trajectoires ne touchent rien, le prix final compte")
+    else:
+        lines.append("Simulation : historique insuffisant")
+    if ia_line:
+        lines.append(ia_line)
+    lines.append("Decision du bot : " + decision)
+    lines.append("(simulation statistique sans trailing stop, pas une prevision ni un conseil)")
+    return "\n".join(lines)
+
+
+def analyse_async(st, sym, sig, decision, C):
+    """Calcul en arriere-plan (lecture de l'historique + 10 000 trajectoires) : le
+       trading n'attend jamais. Le texte est envoye par la boucle principale."""
+    if not C.get("ANALYSE"):
+        return
+    sig = dict(sig)
+    ia_line = ""
+    try:                                          # lu ici (boucle principale), pas dans le thread
+        rs = [x[-1] for x in (st.get("learn") or {}).get("done", [])]
+        if rs:
+            ia_line = "IA : %d setups suivis jusqu'au bout, resultat moyen %+.2f R" % (len(rs), sum(rs) / len(rs))
+    except Exception:
+        pass
+
+    def work():
+        try:
+            txt = analysis_text(st, sym, sig, decision, C, ia_line)
+            if txt:
+                ANALYSIS_Q.put(txt)
+        except Exception as ex:
+            log.warning("analyse %s : %s", sym, ex)
+    threading.Thread(target=work, daemon=True).start()
+
+
+def flush_analyses(st):
+    while True:
+        try:
+            txt = ANALYSIS_Q.get_nowait()
+        except queue.Empty:
+            return
+        notify(st, txt)
+
+
+# =========================================================================
 #  ENTREE
 # =========================================================================
 def enter(st, sym, sig, fl, C):
@@ -1691,6 +1886,7 @@ def resync(st, sym, fl, C):
 
 
 def fast_step(st, C):
+    flush_analyses(st)
     """Toutes les FAST_SEC s : lecture du flux, cloture des bougies, checklist."""
     now = time.time()
     stats = st.setdefault("stats", {})
@@ -1729,6 +1925,8 @@ def fast_step(st, C):
                     stats["setups appris"] = stats.get("setups appris", 0) + 1
                 except Exception as e:
                     log.warning("IA enregistrement %s : %s", sym, e)
+            if sig and not sig.get("take"):
+                analyse_async(st, sym, sig, "NON pris : pas retenu par le filtre de l'IA", C)
             if not sig or not sig.get("take"):
                 continue
             stats["entrees confirmees"] = stats.get("entrees confirmees", 0) + 1
@@ -1740,8 +1938,10 @@ def fast_step(st, C):
                 motif = why.split("(")[0].split(":")[0].strip()[:40]
                 stats["refus: " + motif] = stats.get("refus: " + motif, 0) + 1
                 event(st, "%s %s confirme mais NON pris : %s" % (nm(sym), "ACHAT" if sig["dir"] > 0 else "VENTE", why))
+                analyse_async(st, sym, sig, "NON pris : " + why, C)
             else:
                 stats["trades"] = stats.get("trades", 0) + 1
+                analyse_async(st, sym, sig, "PRIS (ordre, stop et TP envoyes a Kraken)", C)
     try:
         learn_update(st, C)
     except Exception as e:
