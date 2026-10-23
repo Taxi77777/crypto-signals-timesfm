@@ -373,7 +373,10 @@
   "fx_ny|2026-10-23|EURGBP|-1": 1792767341.1704917,
   "cr_ny|2026-10-23|SAND|1": 1792767343.7492702,
   "cr_ny|2026-10-23|AXS|1": 1792767344.174577,
-  "cr_ny|2026-10-23|SUSHI|1": 1792767345.1855283
+  "cr_ny|2026-10-23|SUSHI|1": 1792767345.1855283,
+  "stocks|2026-10-23|U|1": 1792767630.910373,
+  "cr_ny|2026-10-23|U39120-USD|1": 1792767641.876422,
+  "stocks|2026-10-23|HON|1": 1792767936.248904
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -508,37 +511,37 @@
  ],
  "yahoo": "ok : 320 bougies SPY lues a 14:05 UTC",
  "stats": {
-  "requetes": 1153,
+  "requetes": 1260,
   "erreurs": 0,
-  "maj": "23/10 14:55 UTC"
+  "maj": "23/10 15:05 UTC"
  },
  "scans": {
   "fx_ny": {
    "jour": "2026-10-23",
    "envoyes": 0,
    "non_favorables": 11,
-   "heure": "23/10 10:55",
-   "lus": 35,
+   "heure": "23/10 11:05",
+   "lus": 34,
    "symboles": 51,
    "candidats": 3
   },
   "stocks": {
    "jour": "2026-10-23",
    "envoyes": 0,
-   "non_favorables": 171,
-   "heure": "23/10 10:55",
+   "non_favorables": 173,
+   "heure": "23/10 11:05",
    "lus": 178,
    "symboles": 191,
-   "candidats": 28
+   "candidats": 26
   },
   "cr_ny": {
    "jour": "2026-10-23",
    "envoyes": 8,
    "non_favorables": 87,
-   "heure": "23/10 10:55",
-   "lus": 41,
+   "heure": "23/10 11:05",
+   "lus": 37,
    "symboles": 91,
-   "candidats": 5
+   "candidats": 3
   }
  },
  "univers": {
