@@ -40,7 +40,10 @@ Marches :
   CRYPTO     : 7 j/7, meme regle aux ouvertures de Londres (8 h) et de Wall Street (9 h 30 NY) ;
                entrees jusqu'a 11 h / 12 h, sortie 16 h locale.
 
-Donnees : API graphiques Yahoo Finance (gratuite, non officielle, retard possible).
+Donnees : bougies via l'API graphiques Yahoo Finance (gratuite, non officielle, retard possible),
+lues par paquets de 20 ; contexte via OpenBB (open source, gratuit, alternative a Bloomberg) :
+actualites de l'actif, dates de resultats des entreprises (actions), calendrier economique
+(annonces importantes sur les devises de la paire, et sur l'USD pour la crypto).
 Ce n'est pas un conseil financier ; un signal correspond a une regle, pas a un achat.
 """
 import datetime
@@ -58,6 +61,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 NY = ZoneInfo("America/New_York")
+PARIS = ZoneInfo("Europe/Paris")
 LDN = ZoneInfo("Europe/London")
 UTC = datetime.timezone.utc
 
@@ -742,6 +746,153 @@ def save_state(st):
         os.replace(tmp, p)
 
 
+# --------------------------------------------------------------- OpenBB (contexte gratuit)
+OBB = {"mod": None, "err": None, "cache": {}}
+COUNTRY = {"USD": ("united states", "us"), "EUR": ("euro", "eurozone", "euro area", "germany"),
+           "GBP": ("united kingdom", "uk"), "JPY": ("japan",), "CHF": ("switzerland",),
+           "CAD": ("canada",), "AUD": ("australia",), "NZD": ("new zealand",), "CNH": ("china",),
+           "MXN": ("mexico",), "ZAR": ("south africa",), "TRY": ("turkey", "türkiye"),
+           "SEK": ("sweden",), "NOK": ("norway",), "DKK": ("denmark",), "PLN": ("poland",),
+           "HUF": ("hungary",), "CZK": ("czech",), "SGD": ("singapore",), "HKD": ("hong kong",),
+           "THB": ("thailand",), "INR": ("india",)}
+MAJOR = ("nonfarm", "non-farm", "payroll", "cpi", "inflation", "interest rate", "rate decision", "fomc",
+         "fed ", "ecb", "boe", "boj", "snb", "rba", "rbnz", "boc", "gdp", "unemployment", "retail sales",
+         "pmi", "pce", "jobless", "employment change", "press conference", "monetary policy")
+
+
+def openbb():
+    """Module OpenBB, charge une seule fois (None si absent : le scanner fonctionne sans)."""
+    if OBB["mod"] is None and OBB["err"] is None:
+        try:
+            from openbb import obb as _obb
+            OBB["mod"] = _obb
+        except Exception as ex:
+            OBB["err"] = str(ex)[:150]
+            log.warning("OpenBB indisponible : %s", OBB["err"])
+    return OBB["mod"]
+
+
+def _rows(res):
+    r = getattr(res, "results", res)
+    return list(r or [])
+
+
+def _get(x, *names):
+    for n in names:
+        v = x.get(n) if isinstance(x, dict) else getattr(x, n, None)
+        if v not in (None, ""):
+            return v
+    return None
+
+
+def _cached(key, ttl, fn):
+    c = OBB["cache"].get(key)
+    if c and time.time() - c[0] < ttl:
+        return c[1]
+    try:
+        val = fn()
+    except Exception as ex:
+        log.warning("OpenBB %s : %s", key, str(ex)[:120])
+        val = None
+    OBB["cache"][key] = (time.time(), val)
+    return val
+
+
+def obb_news(ysym, n=2):
+    """Derniers titres d'actualite de l'actif (fournisseur gratuit yfinance)."""
+    o = openbb()
+    if not o:
+        return []
+
+    def f():
+        rows = _rows(o.news.company(symbol=ysym, provider="yfinance", limit=6))
+        out = []
+        for x in rows:
+            t = _get(x, "title", "headline")
+            if t and t not in out:
+                out.append(str(t).strip())
+        return out
+    return (_cached("news|" + ysym, 1800, f) or [])[:n]
+
+
+def obb_earnings(day):
+    """{SYMBOLE: date} des publications de resultats aujourd'hui et demain (Nasdaq, gratuit)."""
+    o = openbb()
+    if not o:
+        return {}
+
+    def f():
+        rows = _rows(o.equity.calendar.earnings(start_date=day.isoformat(),
+                                                end_date=(day + datetime.timedelta(days=1)).isoformat(),
+                                                provider="nasdaq"))
+        out = {}
+        for x in rows:
+            sym = _get(x, "symbol")
+            d = _get(x, "report_date", "date")
+            if sym:
+                out[str(sym).upper()] = str(d)[:10] if d else ""
+        return out
+    return _cached("earn|" + day.isoformat(), 6 * 3600, f) or {}
+
+
+def obb_econ(day):
+    """Annonces economiques du jour [(heure Paris ou '', pays, evenement)] (Nasdaq, gratuit)."""
+    o = openbb()
+    if not o:
+        return []
+
+    def f():
+        rows = _rows(o.economy.calendar(start_date=day.isoformat(), end_date=day.isoformat(),
+                                        provider="nasdaq"))
+        out = []
+        for x in rows:
+            ev = str(_get(x, "event", "name") or "")
+            ctry = str(_get(x, "country", "currency") or "")
+            dt = _get(x, "date", "datetime")
+            hhmm, ts = "", None
+            if isinstance(dt, datetime.datetime):
+                dt2 = dt if dt.tzinfo else dt.replace(tzinfo=NY)   # Nasdaq : heure de New York
+                ts = dt2.timestamp()
+                hhmm = dt2.astimezone(PARIS).strftime("%H:%M")
+            out.append((hhmm, ts, ctry, ev))
+        return out
+    return _cached("econ|" + day.isoformat(), 3600, f) or []
+
+
+def context_lines(m, sym, ysym, day, now_ts):
+    """Lignes OpenBB du message : actualites, resultats, annonces economiques."""
+    L = []
+    try:
+        for t in obb_news(ysym):
+            L.append("📰 " + esc(t[:110]))
+        if m["key"] == "stocks":
+            d = obb_earnings(day).get(sym.upper())
+            if d is not None:
+                L.append("📅 ⚠️ <b>Résultats de l'entreprise</b> %s : prix très volatil" % esc(d or "aujourd'hui/demain"))
+        else:
+            if m["key"].startswith("fx"):
+                ccys = {sym[:3], sym[3:6]} if len(sym) >= 6 and not sym.startswith("XA") else {"USD"}
+            else:
+                ccys = {"USD"}                    # crypto : les annonces americaines la font bouger
+            keys = [k for c in ccys for k in COUNTRY.get(c, ())]
+            hits = []
+            for hhmm, ts, ctry, ev in obb_econ(day):
+                c, e = ctry.lower(), ev.lower()
+                if not any(c == k or c.startswith(k + " ") or (len(k) > 3 and k in c) for k in keys):
+                    continue
+                if not any(k in e for k in MAJOR):
+                    continue
+                if ts is not None and not (now_ts - 1800 <= ts <= now_ts + 3 * 3600):
+                    continue                      # deja loin derriere / trop loin devant
+                soon = ts is not None and 0 <= ts - now_ts <= 1800
+                hits.append("%s%s %s" % ("⚠️ " if soon else "", hhmm or "aujourd'hui", ev[:60]))
+            if hits:
+                L.append("🏦 Annonces (%s) : %s" % ("/".join(sorted(ccys)), esc(" · ".join(hits[:3]))))
+    except Exception as ex:
+        log.warning("contexte OpenBB %s : %s", sym, str(ex)[:120])
+    return L
+
+
 # --------------------------------------------------------------- analyse d'un signal
 _HIST = {}
 
@@ -769,7 +920,6 @@ def fmt(x):
 
 
 SEP = "━━━━━━━━━━━━━━━"
-PARIS = ZoneInfo("Europe/Paris")
 
 
 def badge(mc, rr):
@@ -914,6 +1064,7 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts, last_px
         L.append("⚠️ " + esc(w))
     if ctx:
         L.append("📈 Contexte : " + esc(ctx))
+    L += context_lines(m, sym, ysym, day, now_ts)
     L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
     return "\n".join(L), vtxt, ok and mc is not None
 
@@ -1123,6 +1274,14 @@ def main():
     except Exception as ex:
         st["yahoo"] = "ERREUR : %s" % str(ex)[:150]
     log.info("Yahoo : %s", st["yahoo"])
+    try:                                          # diagnostic OpenBB (visible dans l'etat)
+        today = datetime.datetime.now(NY).date()
+        st["openbb"] = {"module": "ok" if openbb() else "ERREUR : %s" % OBB["err"],
+                        "actus_SPY": len(obb_news("SPY", 5)), "resultats": len(obb_earnings(today)),
+                        "annonces_eco": len(obb_econ(today))}
+    except Exception as ex:
+        st["openbb"] = "ERREUR : %s" % str(ex)[:150]
+    log.info("OpenBB : %s", st["openbb"])
     save_state(st)
     while not STOP[0] and time.time() < end:
         now = time.time()

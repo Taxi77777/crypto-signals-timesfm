@@ -14,6 +14,7 @@ Règles reprises du pack open-source [dan-ai-lab/day-trader-fr](https://github.c
 | **Plan de sortie** | SL au milieu de la plage, TP = 2 × le risque, sortie au plus tard à l'heure limite. Signal refusé si le risque est < 0,05 % du prix (trop serré face au spread). |
 | **Time machine** | 10 000 fins de séance reconstruites à partir des bougies 5 min des 60 derniers jours (même heure ± 2 bougies, SL testé avant le TP), puis la même règle rejouée sur chaque séance passée. |
 | **Filtre de tendance** (ajout) | Achat seulement si le prix est au-dessus de la VWAP du jour (actions : depuis 9 h 30 ; forex et crypto : depuis minuit UTC, comme MT4) **et** de la moyenne des 20 dernières clôtures quotidiennes ; vente seulement en dessous des deux. Un signal contre la tendance n'est jamais envoyé, et l'historique applique le même filtre. |
+| **Contexte OpenBB** (gratuit, alternative open source à Bloomberg) | 📰 dernières actualités de l'actif ; 📅 avertissement si l'entreprise publie ses résultats aujourd'hui ou demain (actions) ; 🏦 annonces économiques importantes du jour sur les devises de la paire (forex) ou sur l'USD (crypto), avec ⚠️ si elles tombent dans la demi-heure. |
 | **Verdict** | 🟢 favorable / 🟡 neutre / 🔴 défavorable : le TP est-il touché avant le SL plus souvent que le seuil de rentabilité (33 % à 2R) ? |
 | **Watchlist du jour** | Avant l'ouverture : cassure du plus haut 20 jours, drapeau haussier, reprise de la moyenne 20 jours, survente (RSI 14 < 30), rebond de survente. |
 
@@ -62,5 +63,5 @@ prix actuel, les probabilités, l'historique, le contexte quotidien et les avert
 Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Le job se relance lui-même à la fin de sa durée maximale,
 avec un filet de sécurité toutes les 15 minutes.
 
-Données : API graphiques Yahoo Finance (gratuite, non officielle, retard possible). Simulation statistique,
+Données : bougies via l'API graphiques Yahoo Finance (gratuite, non officielle, retard possible) ; contexte via [OpenBB](https://github.com/OpenBB-finance/OpenBB) (fournisseurs gratuits yfinance et Nasdaq). Simulation statistique,
 pas une prévision ni un conseil financier.
