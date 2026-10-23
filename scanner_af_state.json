@@ -383,7 +383,11 @@
   "stocks|2026-10-23|APP|1": 1792768835.5071495,
   "stocks|2026-10-23|DE|1": 1792768841.3225365,
   "stocks|2026-10-23|ABBV|1": 1792769137.1880362,
-  "cr_ny|2026-10-23|RWUSD-USD|1": 1792769144.9903548
+  "cr_ny|2026-10-23|RWUSD-USD|1": 1792769144.9903548,
+  "cr_ny|2026-10-23|LEO-USD|-1": 1792769501.109612,
+  "cr_ny|2026-10-23|LEO-USD|1": 1792769501.1097596,
+  "cr_ny|2026-10-23|BTW39158-USD|-1": 1792769501.897046,
+  "cr_ny|2026-10-23|USDGO-USD|1": 1792769502.203506
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -516,11 +520,11 @@
    "objectif": 1.916822075843811
   }
  ],
- "yahoo": "ok : 320 bougies SPY lues a 14:05 UTC",
+ "yahoo": "ok : 338 bougies SPY lues a 15:31 UTC",
  "stats": {
-  "requetes": 1508,
+  "requetes": 165,
   "erreurs": 0,
-  "maj": "23/10 15:30 UTC"
+  "maj": "23/10 15:40 UTC"
  },
  "scans": {
   "fx_ny": {
@@ -536,7 +540,7 @@
    "jour": "2026-10-23",
    "envoyes": 0,
    "non_favorables": 178,
-   "heure": "23/10 11:30",
+   "heure": "23/10 11:40",
    "lus": 175,
    "symboles": 191,
    "candidats": 30
@@ -544,17 +548,17 @@
   "cr_ny": {
    "jour": "2026-10-23",
    "envoyes": 8,
-   "non_favorables": 87,
-   "heure": "23/10 11:30",
-   "lus": 35,
-   "symboles": 91,
-   "candidats": 3
+   "non_favorables": 88,
+   "heure": "23/10 11:40",
+   "lus": 31,
+   "symboles": 89,
+   "candidats": 2
   }
  },
  "univers": {
   "actions": 191,
   "forex": 51,
-  "crypto": 91,
+  "crypto": 89,
   "inconnus": {
    "STOCKS": [],
    "FX": [],
