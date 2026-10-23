@@ -24,7 +24,7 @@ contre 29,4 % / 25,5 % / 45,1 % ; historique identique : 33 signaux, 13 TP, 15 S
 | Marché | Séance | Signaux possibles | Watchlist |
 |---|---|---|---|
 | 🇺🇸 Actions US (58 titres, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 45 – 21 h 30 | 15 h 00 |
-| 💱 Forex + or (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 15 – 12 h 00 | 8 h 30 |
+| 💱 Forex : 28 majeures et croisées, 21 exotiques, or et argent (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 15 – 12 h 00 | 8 h 30 |
 | 💱 Forex + or, ouverture de New York | 14 h – 22 h, en semaine | 14 h 15 – 17 h 00 | — |
 | 🪙 Crypto (`SCAN_CRYPTO`), ouverture de Londres | 7 j/7 | 9 h 15 – 12 h 00 | 8 h 30 |
 | 🪙 Crypto, ouverture de Wall Street | 7 j/7 | 15 h 45 – 18 h 00 | — |
