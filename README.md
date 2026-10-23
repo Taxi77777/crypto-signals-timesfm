@@ -23,13 +23,15 @@ contre 29,4 % / 25,5 % / 45,1 % ; historique identique : 33 signaux, 13 TP, 15 S
 
 | Marché | Séance | Signaux possibles | Watchlist |
 |---|---|---|---|
-| 🇺🇸 Actions US (58 titres, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 45 – 21 h 30 | 15 h 00 |
+| 🇺🇸 Actions US (~190 titres et ETF les plus liquides, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 45 – 21 h 30 | 15 h 00 |
 | 💱 Forex : 28 majeures et croisées, 21 exotiques, or et argent (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 15 – 12 h 00 | 8 h 30 |
 | 💱 Forex + or, ouverture de New York | 14 h – 22 h, en semaine | 14 h 15 – 17 h 00 | — |
-| 🪙 Crypto (`SCAN_CRYPTO`), ouverture de Londres | 7 j/7 | 9 h 15 – 12 h 00 | 8 h 30 |
+| 🪙 Crypto (54 + les 80 plus grosses du classement Yahoo, sans stablecoins, `SCAN_CRYPTO`), ouverture de Londres | 7 j/7 | 9 h 15 – 12 h 00 | 8 h 30 |
 | 🪙 Crypto, ouverture de Wall Street | 7 j/7 | 15 h 45 – 18 h 00 | — |
 
-Un signal n'est envoyé que s'il date des **2 dernières bougies** et que le prix n'a touché ni le SL ni le TP depuis.
+Un signal n'est envoyé que s'il date des **2 dernières bougies**, que le prix n'a touché ni le SL ni le TP depuis, et **que son verdict est 🟢 FAVORABLE** (variable `SCAN_ONLY_FAVORABLE=0` pour tout recevoir).
+
+Les cours sont lus par paquets de 20 symboles (comme trader-scanner) ; seuls les candidats à une cassure récente sont vérifiés en détail.
 
 ## Réglages (variables GitHub facultatives)
 

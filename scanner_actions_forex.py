@@ -62,10 +62,23 @@ def envf(name, default):
     return type(default)(float(v))
 
 
-DEFAULT_STOCKS = ("AAPL,MSFT,NVDA,AMZN,META,GOOGL,TSLA,AMD,NFLX,AVGO,PLTR,COIN,MSTR,SMCI,INTC,MU,"
-                  "ORCL,CRM,ADBE,UBER,SHOP,PYPL,BABA,NIO,RIVN,SOFI,HOOD,ARM,QCOM,BA,DIS,JPM,BAC,"
-                  "GS,XOM,CVX,WMT,COST,KO,MCD,NKE,F,GM,PFE,LLY,UNH,ABNB,SNOW,CRWD,PANW,NET,"
-                  "DDOG,RBLX,MARA,RIOT,SPY,QQQ,IWM")
+DEFAULT_STOCKS = (
+    # geants tech et croissance
+    "AAPL,MSFT,NVDA,AMZN,META,GOOGL,GOOG,TSLA,AVGO,AMD,NFLX,ORCL,CRM,ADBE,INTC,QCOM,TXN,MU,AMAT,LRCX,"
+    "KLAC,ADI,MRVL,NXPI,ON,MCHP,ARM,SMCI,DELL,HPQ,IBM,CSCO,ANET,PANW,CRWD,FTNT,ZS,NET,DDOG,SNOW,"
+    "MDB,PLTR,NOW,INTU,WDAY,TEAM,SHOP,UBER,LYFT,ABNB,DASH,BKNG,EXPE,PYPL,XYZ,COIN,HOOD,SOFI,AFRM,UPST,"
+    "MSTR,MARA,RIOT,CLSK,HUT,IREN,CIFR,RBLX,U,SNAP,PINS,SPOT,ROKU,TTD,APP,DUOL,CVNA,CHWY,ETSY,EBAY,"
+    # chine, VE, IA, biotech
+    "BABA,JD,PDD,BIDU,NIO,XPEV,LI,RIVN,LCID,F,GM,TM,STLA,AI,SOUN,BBAI,IONQ,RGTI,QBTS,OKLO,SMR,"
+    "MRNA,BNTX,PFE,LLY,NVO,JNJ,ABBV,MRK,BMY,AMGN,GILD,REGN,VRTX,UNH,CVS,HUM,ISRG,DXCM,"
+    # finance
+    "JPM,BAC,WFC,C,GS,MS,SCHW,BLK,AXP,V,MA,COF,USB,PNC,"
+    # consommation, industrie, energie
+    "WMT,COST,TGT,HD,LOW,MCD,SBUX,CMG,NKE,LULU,KO,PEP,PG,DIS,CMCSA,T,VZ,TMUS,"
+    "BA,CAT,DE,GE,HON,LMT,RTX,NOC,UPS,FDX,XOM,CVX,COP,OXY,SLB,HAL,DVN,FCX,NEM,AA,X,CLF,"
+    "DAL,UAL,AAL,CCL,RCL,NCLH,"
+    # ETF tres liquides
+    "SPY,QQQ,IWM,DIA,SMH,XLF,XLE,TLT,GLD,SLV,ARKK,SOXL,TQQQ")
 DEFAULT_FX = (
     # majeures
     "EURUSD,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,"
@@ -77,7 +90,11 @@ DEFAULT_FX = (
     "USDTHB,USDINR,EURTRY,EURPLN,EURSEK,EURNOK,EURHUF,EURCZK,GBPZAR,"
     # metaux
     "XAUUSD,XAGUSD")
-DEFAULT_CRYPTO = "BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,DOT,LTC,TRX,BCH,NEAR"
+DEFAULT_CRYPTO = ("BTC,ETH,XRP,BNB,SOL,DOGE,ADA,TRX,LINK,AVAX,XLM,BCH,DOT,LTC,HBAR,SHIB,NEAR,ICP,ETC,"
+                  "FIL,ATOM,ALGO,VET,AAVE,XMR,INJ,MKR,QNT,EGLD,SAND,MANA,AXS,CHZ,CRV,KAVA,ZEC,DASH,"
+                  "XTZ,EOS,NEO,THETA,FLOW,GALA,ENJ,BAT,ZIL,COMP,SNX,YFI,SUSHI,KSM,RUNE,LRC,1INCH")
+STABLES = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDE", "PYUSD", "USDD", "BUSD", "USDS", "USD1",
+           "WBTC", "WETH", "STETH", "WSTETH", "WEETH", "CBBTC", "RETH", "WBETH", "EETH", "LBTC"}
 
 CFG = {
     "STOCKS": [s.strip().upper() for s in envf("SCAN_STOCKS", DEFAULT_STOCKS).split(",") if s.strip()],
@@ -86,6 +103,8 @@ CFG = {
     "OR_MIN": envf("OR_MIN", 15),               # plage d'ouverture (minutes)
     "RR": envf("RR", 2.0),                      # objectif = RR x risque
     "SHORTS": envf("SHORTS", 1),                # 1 = aussi les cassures du plus bas (vente)
+    "ONLY_FAVORABLE": envf("ONLY_FAVORABLE", 1),  # 1 = n'envoyer QUE les signaux au verdict FAVORABLE
+    "CRYPTO_TOP": envf("CRYPTO_TOP", 80),       # + les plus grosses cryptos du classement Yahoo
     "MAX_AGE_BARS": envf("MAX_AGE_BARS", 2),    # alerte seulement si la cassure date de <= X bougies
     "SIMS": envf("SIMS", 10000),
     "SEED": envf("SEED", 19),
@@ -155,7 +174,7 @@ def yahoo_symbol(sym, market_key):
     if market_key == "stocks":
         return sym.replace(".", "-")
     if market_key.startswith("cr"):
-        return sym + "-USD"
+        return sym if "-" in sym else sym + "-USD"
     if sym in ("XAUUSD", "GOLD"):
         return "GC=F"                             # or : contrat a terme COMEX (proche du spot)
     if sym in ("XAGUSD", "SILVER"):
@@ -164,6 +183,8 @@ def yahoo_symbol(sym, market_key):
 
 
 def label(sym):
+    if sym.endswith("-USD"):                      # crypto Yahoo (ex. SUI20947-USD -> SUI)
+        return re.sub(r"\d+$", "", sym[:-4]) or sym
     return {"XAUUSD": "XAUUSD (or)", "XAGUSD": "XAGUSD (argent)"}.get(sym, sym)
 
 
@@ -204,6 +225,59 @@ def yahoo_chart(ysym, rng, interval):
         time.sleep(3)
     STATS["erreurs"] += 1
     raise RuntimeError("Yahoo %s : %s" % (ysym, last))
+
+
+def yahoo_spark(ysyms, rng, interval):
+    """Clotures de 20 symboles par requete (comme trader-scanner) -> {ysym: [(ts, c)]}."""
+    out = {}
+    for i in range(0, len(ysyms), 20):
+        batch = ysyms[i:i + 20]
+        got = None
+        for host in HOSTS:
+            try:
+                STATS["requetes"] += 1
+                r = SESSION.get("%s/v7/finance/spark" % host,
+                                params={"symbols": ",".join(batch), "range": rng, "interval": interval}, timeout=20)
+                if r.status_code == 429 or r.status_code >= 500:
+                    continue
+                got = (r.json().get("spark") or {}).get("result") or []
+                break
+            except Exception as e:
+                log.warning("spark : %s", str(e)[:100])
+        if got is None:
+            STATS["erreurs"] += 1
+        for item in got or []:
+            resp = item.get("response") or []
+            if not resp:
+                continue
+            ys = item.get("symbol") or (resp[0].get("meta") or {}).get("symbol")
+            t = resp[0].get("timestamp") or []
+            c = (((resp[0].get("indicators") or {}).get("quote") or [{}])[0] or {}).get("close") or []
+            out[ys] = [(int(t[j]), float(c[j])) for j in range(min(len(t), len(c))) if c[j]]
+        time.sleep(CFG["PAUSE"])
+    return out
+
+
+def crypto_universe():
+    """Liste crypto : la liste de base + les plus grosses du classement Yahoo (sans stablecoins)."""
+    syms = list(CFG["CRYPTO"])
+    try:
+        for host in HOSTS:
+            r = SESSION.get("%s/v1/finance/screener/predefined/saved" % host,
+                            params={"scrIds": "all_cryptocurrencies_us", "count": int(CFG["CRYPTO_TOP"])},
+                            timeout=20)
+            if r.ok:
+                q = ((r.json().get("finance") or {}).get("result") or [{}])[0].get("quotes") or []
+                for x in q:
+                    ys = x.get("symbol") or ""
+                    if ys.endswith("-USD") and label(ys).upper() not in STABLES:
+                        base = ys[:-4]
+                        if base not in syms and ys not in syms:
+                            syms.append(ys)
+                break
+    except Exception as e:
+        log.warning("classement crypto : %s", str(e)[:100])
+    return syms
 
 
 def parse_result(res):
@@ -608,7 +682,7 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
     if ctx:
         L.append("📈 Contexte : " + ctx)
     L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
-    return "\n".join(L)
+    return "\n".join(L), vtxt
 
 
 # --------------------------------------------------------------- scans
@@ -627,10 +701,34 @@ def scan_market(m, st, now_ts):
     last_k = (at(day, last_t, tz) - t0) // BAR - 1
     found = 0
     scanned = 0
-    for sym in CFG[m["list"]]:
+    hidden = 0
+    rng_ = "1d" if m["key"] == "stocks" else "2d"
+    ymap = {yahoo_symbol(x, m["key"]): x for x in CFG[m["list"]]}
+    spark = yahoo_spark(list(ymap), rng_, "5m")
+    cands = []
+    for ysym, sym in ymap.items():
+        if all("%s|%s|%s|%d" % (m["key"], day.isoformat(), sym, d) in st["alerts"] for d in (1, -1)):
+            continue
+        cl = spark.get(ysym)
+        if cl is None:
+            if not spark:
+                cands.append(sym)                 # spark indisponible : verification complete
+            continue
+        scanned += 1
+        byk = {(ts - t0) // BAR: c for ts, c in cl if t0 <= ts and (ts - t0) % BAR == 0}
+        if any(k not in byk for k in range(n_or)):
+            continue
+        top = max(byk[k] for k in range(n_or))
+        bot = min(byk[k] for k in range(n_or))
+        done = [k for k in sorted(byk) if n_or <= k <= last_k and t0 + (k + 1) * BAR <= now_ts]
+        recent = done[-int(CFG["MAX_AGE_BARS"]):]
+        # necessaire pour une cassure recente : une cloture recente au-dela des clotures de la plage
+        if any(byk[k] >= top for k in recent) or (CFG["SHORTS"] and any(byk[k] <= bot for k in recent)):
+            cands.append(sym)
+    for sym in cands[:150]:
         ysym = yahoo_symbol(sym, m["key"])
         try:
-            bars = yahoo_chart(ysym, "1d" if m["key"] == "stocks" else "2d", "5m")
+            bars = yahoo_chart(ysym, rng_, "5m")
         except Exception as ex:
             log.warning("%s : %s", sym, ex)
             continue
@@ -640,7 +738,6 @@ def scan_market(m, st, now_ts):
         r = orb_rule(sb, n_or, last_k, now_ts, t0, shorts=bool(CFG["SHORTS"]))
         if not r:
             continue
-        scanned += 1
         trig, orh, orl = r
         for d, k, b, _, _ in trig:
             key = "%s|%s|%s|%d" % (m["key"], day.isoformat(), sym, d)
@@ -658,15 +755,23 @@ def scan_market(m, st, now_ts):
             later = [sb[j] for j in range(k + 1, last_k + 40) if j in sb and sb[j][0] + BAR <= now_ts]
             if any((d > 0 and (x[3] <= sl or x[2] >= tp)) or (d < 0 and (x[2] >= sl or x[3] <= tp)) for x in later):
                 continue                          # deja au stop / a l'objectif : plus jouable
-            msg = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts)
+            msg, vtxt = signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts)
+            if CFG["ONLY_FAVORABLE"] and vtxt != "FAVORABLE":
+                hidden += 1
+                log.info("%s %s : verdict %s, signal non envoye (favorables seulement)", sym, d, vtxt)
+                continue
             telegram(msg)
             found += 1
             st["signals"].append({"t": time.strftime("%d/%m %H:%M", time.gmtime()), "marche": m["key"],
                                   "sym": sym, "sens": "ACHAT" if d > 0 else "VENTE", "entree": b[4],
                                   "stop": sl, "objectif": tp})
             save_state(st)
-    st.setdefault("scans", {})[m["key"]] = {"heure": now.strftime("%d/%m %H:%M"), "lus": scanned,
-                                            "symboles": len(CFG[m["list"]]), "signaux": found}
+    sc = st.setdefault("scans", {}).get(m["key"]) or {}
+    if sc.get("jour") != day.isoformat():
+        sc = {"jour": day.isoformat(), "envoyes": 0, "non_favorables": 0}
+    sc.update(heure=now.strftime("%d/%m %H:%M"), lus=scanned, symboles=len(CFG[m["list"]]),
+              candidats=len(cands), envoyes=sc["envoyes"] + found, non_favorables=sc["non_favorables"] + hidden)
+    st["scans"][m["key"]] = sc
     return found
 
 
@@ -683,14 +788,13 @@ def watchlist(m, st, now_ts):
     st["watch"][m["key"]] = day.isoformat()
     groups = {k: [] for k, _ in SETUP_FR}
     n = 0
-    for sym in CFG[m["list"]]:
-        try:
-            bars = yahoo_chart(yahoo_symbol(sym, m["key"]), "3mo", "1d")
-        except Exception as ex:
-            log.warning("watchlist %s : %s", sym, ex)
+    ymap = {yahoo_symbol(x, m["key"]): x for x in CFG[m["list"]]}
+    spark = yahoo_spark(list(ymap), "3mo", "1d")
+    for ysym, sym in ymap.items():
+        cl = spark.get(ysym)
+        if not cl:
             continue
-        finally:
-            time.sleep(CFG["PAUSE"])
+        bars = [(ts, c, c, c, c, 0.0) for ts, c in cl]
         tags, _ = find_setups(daily_closes(bars, tz, day))
         n += 1
         for t in tags:
@@ -730,6 +834,20 @@ def main():
              len(CFG["STOCKS"]), len(CFG["FX"]), len(CFG["CRYPTO"]), CFG["OR_MIN"], CFG["RR"],
              "oui" if CFG["SHORTS"] else "non")
     done_slot = 0
+    CFG["CRYPTO"] = crypto_universe()
+    try:                                          # symboles que Yahoo ne connait pas (a corriger)
+        bad = {}
+        for mk, lst in (("stocks", "STOCKS"), ("fx_ldn", "FX"), ("cr_ldn", "CRYPTO")):
+            ymap = {yahoo_symbol(x, mk): x for x in CFG[lst]}
+            got = yahoo_spark(list(ymap), "5d", "1d")
+            if got:
+                bad[lst] = [ymap[y] for y in ymap if y not in got]
+                CFG[lst] = [ymap[y] for y in ymap if y in got] or CFG[lst]
+        st["univers"] = {"actions": len(CFG["STOCKS"]), "forex": len(CFG["FX"]), "crypto": len(CFG["CRYPTO"]),
+                         "inconnus": bad}
+        log.info("univers : %s", st["univers"])
+    except Exception as ex:
+        log.warning("univers : %s", ex)
     try:                                          # diagnostic : Yahoo repond-il depuis GitHub ?
         st["yahoo"] = "ok : %d bougies SPY lues a %s UTC" % (len(yahoo_chart("SPY", "5d", "5m")),
                                                             time.strftime("%H:%M", time.gmtime()))
