@@ -37,6 +37,7 @@ import json
 import logging
 import os
 import random
+import re
 import signal
 import time
 from zoneinfo import ZoneInfo
@@ -420,18 +421,27 @@ def daily_closes(bars, tz, today):
 
 
 # --------------------------------------------------------------- Telegram / etat
-def telegram(msg):
+def strip_tags(t):
+    return re.sub(r"<[^>]+>", "", t)
+
+
+def telegram(msg, html=True):
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
-    log.info("\n" + msg)
+    log.info("\n" + strip_tags(msg))
     if not tok or not chat:
         return
     for essai in range(3):
         try:
-            r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok,
-                             json={"chat_id": chat, "text": msg}, timeout=10)
+            body = {"chat_id": chat, "text": msg, "disable_web_page_preview": True}
+            if html:
+                body["parse_mode"] = "HTML"
+            r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok, json=body, timeout=10)
             if r.ok:
                 return
             log.warning("telegram HTTP %s", r.status_code)
+            if html and r.status_code == 400:     # mise en forme refusee : texte brut
+                html, msg = False, strip_tags(msg)
+                continue
         except Exception as e:
             log.warning("telegram : %s", e)
         time.sleep(2 + 3 * essai)
@@ -489,6 +499,25 @@ def fmt(x):
     return "%.3f" % x if x >= 20 else "%.5f" % x
 
 
+SEP = "━━━━━━━━━━━━━━━"
+PARIS = ZoneInfo("Europe/Paris")
+
+
+def badge(mc, rr):
+    """Verdict lisible : objectif touche avant le stop, compare au seuil de rentabilite."""
+    if not mc:
+        return "⚪", "NON CALCULÉ", None, None
+    hit = mc["p_tp"] + mc["p_sl"]
+    if hit <= 0:
+        return "⚪", "INDÉCIS", None, None
+    pt, be = 100 * mc["p_tp"] / hit, 100.0 / (1.0 + rr)
+    if pt - be >= 5:
+        return "🟢", "FAVORABLE", pt, be
+    if pt - be <= -5:
+        return "🔴", "DÉFAVORABLE", pt, be
+    return "🟡", "NEUTRE", pt, be
+
+
 def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
     tz = m["tz"]
     open_t, last_t, flat_t = sess
@@ -496,57 +525,57 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
     FMT[0] = 2 if m["key"] == "stocks" else 5
     e = b[4]
     rr = CFG["RR"]
-    close_t = local_dt(b[0] + BAR, tz)
-    paris = local_dt(b[0] + BAR, ZoneInfo("Europe/Paris"))
-    lines = ["%s SIGNAL - %s %s" % (m["tag"], label(sym), "ACHAT" if d > 0 else "VENTE"),
-             "Strategie : cassure de la plage d'ouverture %d min (%s)" % (CFG["OR_MIN"], m["name"]),
-             "Plage %s - %s | cloture %s a %s (%s heure %s, %s Paris)" % (
-                 fmt(orl), fmt(orh), "au-dessus" if d > 0 else "en dessous",
-                 fmt(e), close_t.strftime("%H:%M"), "NY" if tz is NY else "Londres", paris.strftime("%H:%M")),
-             "Entree %s | Stop %s (milieu de plage, %.2f %%) | Objectif %s (%gR)" % (
-                 fmt(e), fmt(sl), 100 * abs(e - sl) / e, fmt(tp), rr),
-             "Sortie au plus tard : %s heure %s" % (flat_t.strftime("%H:%M"), "NY" if tz is NY else "Londres")]
+    sig_paris = local_dt(b[0] + BAR, PARIS).strftime("%H:%M")
+    flat_paris = datetime.datetime.combine(day, flat_t, tzinfo=tz).astimezone(PARIS).strftime("%H:%M")
+    mc, hist, ctx, n_ses = None, None, "", 0
     try:
         bars = hist_5m(ysym)
         sessions = full_sessions(bars, tz, m["sess"], day)
+        n_ses = len(sessions)
         t0 = at(day, open_t, tz)
         n_end = (at(day, flat_t, tz) - t0) // BAR
         n_or = CFG["OR_MIN"] * 60 // BAR
-        if len(sessions) >= 20:
+        if n_ses >= 20:
             mc = simulate(sessions, e, sl, tp, d, k, n_end, int(CFG["SIMS"]), int(CFG["SEED"]))
-        else:
-            mc = None
-        if mc:
-            lines.append("Time machine : %d simulations (%d seances de 60 j, meme heure) :" % (
-                int(CFG["SIMS"]), len(sessions)))
-            lines.append("  objectif d'abord %.1f %% | stop d'abord %.1f %% | aucun des deux %.1f %%" % (
-                100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
-            lines.append("  resultat moyen %+.2f R | trajectoires gagnantes %.0f %%" % (
-                mc["mean_r"], 100 * mc["p_green"]))
-            lines.append("  verdict : " + verdict(mc, rr))
-            if mc["p_none"] > 0.4:
-                lines.append("  attention : plus de 40 % des trajectoires ne touchent rien, le prix de sortie compte")
-        else:
-            lines.append("Time machine : historique insuffisant (%d seances completes)" % len(sessions))
-        hr = history_replay(sessions, tz, m["sess"], n_or, d, rr)
-        nt = hr["tp"] + hr["sl"] + hr["flat"]
-        if nt:
-            lines.append("Historique (meme regle, %d dernieres seances) : %d signaux -> %d objectifs, %d stops, "
-                         "%d sorties a l'heure | moyenne %+.2f R" % (
-                             len(sessions), nt, hr["tp"], hr["sl"], hr["flat"], sum(hr["rs"]) / nt))
+        hist = history_replay(sessions, tz, m["sess"], n_or, d, rr)
     except Exception as ex:
         log.warning("analyse %s : %s", sym, ex)
-        lines.append("Time machine : donnees indisponibles (%s)" % str(ex)[:60])
     try:
         daily = yahoo_chart(ysym, "3mo", "1d")
         tags, info = find_setups(daily_closes(daily, tz, day))
-        ctx = ", ".join(lbl for key, lbl in SETUP_FR if key in tags)
+        lbls = [lbl for key, lbl in SETUP_FR if key in tags]
         if info.get("rsi") is not None:
-            lines.append("Contexte quotidien : RSI 14 = %.0f%s" % (info["rsi"], (" | " + ctx) if ctx else ""))
+            ctx = "RSI %.0f" % info["rsi"] + ("".join(" · " + x for x in lbls))
     except Exception as ex:
         log.warning("contexte %s : %s", sym, ex)
-    lines.append("(signal seulement, aucun ordre envoye ; simulation statistique, pas une prevision ni un conseil)")
-    return "\n".join(lines)
+    sgn = -1 if d > 0 else 1
+    em, vtxt, pt, be = badge(mc, rr)
+    L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", label(sym)),
+         "%s %s · cassure de la plage d'ouverture %d min" % ("🇺🇸" if m["key"] == "stocks" else "💱",
+                                                      m["name"], CFG["OR_MIN"]),
+         SEP,
+         "▶️ Entrée    <code>%s</code>" % fmt(e),
+         "🛑 Stop      <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
+         "🎯 Objectif  <code>%s</code>  (%+.2f %% · %gR)" % (fmt(tp), -sgn * 100 * abs(tp - e) / e, rr),
+         "⏰ Signal %s · sortie avant %s (heure de Paris)" % (sig_paris, flat_paris),
+         SEP]
+    if mc:
+        L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
+        if pt is not None:
+            L.append("objectif avant le stop dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
+        L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %%" % (
+            "{:,}".format(int(CFG["SIMS"])).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
+    else:
+        L.append("⚪ <b>Verdict : non calculé</b> (historique insuffisant : %d séances)" % n_ses)
+    if hist:
+        nt = hist["tp"] + hist["sl"] + hist["flat"]
+        if nt:
+            L.append("📜 %d dernières séances : %d signaux → %d 🎯 · %d 🛑 · %d ⏰ (moy. %+.2f R)" % (
+                n_ses, nt, hist["tp"], hist["sl"], hist["flat"], sum(hist["rs"]) / nt))
+    if ctx:
+        L.append("📈 Contexte : " + ctx)
+    L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
+    return "\n".join(L)
 
 
 # --------------------------------------------------------------- scans
@@ -633,18 +662,20 @@ def watchlist(m, st, now_ts):
         n += 1
         for t in tags:
             groups[t].append(label(sym))
-    lines = ["%s WATCHLIST DU JOUR - %s (%d/%d graphiques lus)" % (m["tag"], m["name"].split(" ouverture")[0], n,
-                                                                  len(CFG[m["list"]]))]
+    icon = {"breakout_20d": "🚀", "bull_flag": "🚩", "reclaim_ma20": "📈", "oversold": "📉",
+            "oversold_bounce": "↩️"}
+    lines = ["📋 <b>WATCHLIST DU JOUR · %s</b>" % m["name"].split(" ouverture")[0],
+             "%s · %d/%d graphiques lus" % (day.strftime("%d/%m"), n, len(CFG[m["list"]])), SEP]
     for key, lbl in SETUP_FR:
         if groups[key]:
-            lines.append("%s : %s" % (lbl, ", ".join(groups[key])))
-    if len(lines) == 1:
+            lines.append("%s <b>%s</b> : %s" % (icon[key], lbl, ", ".join(groups[key])))
+    if len(lines) == 3:
         lines.append("aucune configuration aujourd'hui")
     o = m["sess"](day)[0]
-    lines.append("Cassures de la plage d'ouverture surveillees des %s heure %s." % (
-        (datetime.datetime.combine(day, o) + datetime.timedelta(minutes=CFG["OR_MIN"])).strftime("%H:%M"),
-        "NY" if tz is NY else "Londres"))
-    lines.append("(une liste de graphiques qui correspondent a une regle, pas une liste d'achats)")
+    start = datetime.datetime.combine(day, o, tzinfo=tz) + datetime.timedelta(minutes=CFG["OR_MIN"])
+    lines += [SEP, "⏰ Cassures de la plage d'ouverture surveillées dès %s (heure de Paris)" %
+              start.astimezone(PARIS).strftime("%H:%M"),
+              "<i>Graphiques qui correspondent a une regle, pas une liste d'achats</i>"]
     telegram("\n".join(lines))
     save_state(st)
 

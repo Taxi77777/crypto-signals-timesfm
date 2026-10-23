@@ -44,6 +44,7 @@
 ==========================================================================
 """
 import base64
+import datetime
 import hashlib
 import hmac
 import json
@@ -503,9 +504,10 @@ def nm(sym):
     return sym.replace("PF_", "").replace("USD", "").replace("XBT", "BTC").replace("XDG", "DOGE") + " PERP"
 
 
-def notify(st, msg):
+def notify(st, msg, html=False):
     # journaux GitHub publics : on masque le capital et le P&L (Telegram recoit tout)
-    pub_msg = re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", msg)
+    pub_msg = re.sub(r"<[^>]+>", "", msg) if html else msg
+    pub_msg = re.sub(r"Capital du compte : [0-9.]+", "Capital du compte : (masque)", pub_msg)
     pub_msg = re.sub(r"P&L ~ [+-]?[0-9.]+ \$", "P&L ~ (masque)", pub_msg)
     pub_msg = re.sub(r"perte max ~[0-9.]+ \$", "perte max ~(masque)", pub_msg)   # = % du capital
     pub_msg = re.sub(r"qte [0-9.]+", "qte (masque)", pub_msg)          # qte x risque = capital
@@ -516,17 +518,22 @@ def notify(st, msg):
     if not tok or not chat:
         return
     # envoi en arriere-plan : une panne Telegram ne retarde plus la gestion des positions
-    threading.Thread(target=_send_telegram, args=(tok, chat, msg), daemon=True).start()
+    threading.Thread(target=_send_telegram, args=(tok, chat, msg, html), daemon=True).start()
 
 
-def _send_telegram(tok, chat, msg):
+def _send_telegram(tok, chat, msg, html=False):
     for essai in range(3):                       # Telegram coupe parfois : 3 essais
         try:
-            r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok,
-                             json={"chat_id": chat, "text": msg}, timeout=8)
+            body = {"chat_id": chat, "text": msg, "disable_web_page_preview": True}
+            if html:
+                body["parse_mode"] = "HTML"
+            r = SESSION.post("https://api.telegram.org/bot%s/sendMessage" % tok, json=body, timeout=8)
             if r.ok:
                 return
             log.warning("telegram HTTP %s", r.status_code)
+            if html and r.status_code == 400:    # mise en forme refusee : texte brut
+                html, msg = False, re.sub(r"<[^>]+>", "", msg)
+                continue
         except Exception as e:
             log.warning("telegram (essai %d) : %s", essai + 1, e)
         time.sleep(2 + 3 * essai)
@@ -1501,21 +1508,34 @@ def monte_carlo(bars, t_entry, e, sl, tp, d, steps, tfs, sims=10000, seed=19, wi
             "p_green": sum(1 for x in rs if x > 0) / len(rs)}
 
 
-def _verdict(mc, rr):
+SEP = "━━━━━━━━━━━━━━━"
+
+
+def badge(mc, rr):
+    """Verdict lisible : objectif touche avant le stop, compare au seuil de rentabilite."""
+    if not mc:
+        return "⚪", "NON CALCULÉ", None, None
     hit = mc["p_tp"] + mc["p_sl"]
     if hit <= 0:
-        return "aucune trajectoire ne touche le stop ou le TP dans le delai"
-    pt = mc["p_tp"] / hit
-    be = 1.0 / (1.0 + rr)
-    gap = 100 * (pt - be)
-    if abs(gap) < 5:
-        v = "proche de l'equilibre"
-    elif abs(gap) < 15:
-        v = "biais vers le %s" % ("TP" if gap > 0 else "stop")
-    else:
-        v = "biais MARQUE vers le %s" % ("TP" if gap > 0 else "stop")
-    return "%s : TP d'abord dans %.0f %% des cas qui touchent un niveau (equilibre a %.0fR = %.0f %%)" % (
-        v, 100 * pt, rr, 100 * be)
+        return "⚪", "INDÉCIS", None, None
+    pt, be = 100 * mc["p_tp"] / hit, 100.0 / (1.0 + rr)
+    if pt - be >= 5:
+        return "🟢", "FAVORABLE", pt, be
+    if pt - be <= -5:
+        return "🔴", "DÉFAVORABLE", pt, be
+    return "🟡", "NEUTRE", pt, be
+
+
+def paris_hm(ts):
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.datetime.fromtimestamp(ts, ZoneInfo("Europe/Paris")).strftime("%H:%M")
+    except Exception:
+        return time.strftime("%H:%M UTC", time.gmtime(ts))
+
+
+def html_esc(t):
+    return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def analysis_text(st, sym, sig, decision, C, ia_line=""):
@@ -1527,13 +1547,6 @@ def analysis_text(st, sym, sig, decision, C, ia_line=""):
     tfs = TF_SEC[C["BAR_TF"]]
     steps = max(1, int(C["MAX_HOLD_MIN"] * 60 // tfs))
     rr = C["RR"]
-    lines = ["SIGNAL ANALYSE - %s %s (%s)" % (nm(sym), "ACHAT" if d > 0 else "VENTE", C["BAR_TF"]),
-             "Entree %s | SL %s (%.2f %%) | TP %s (%.2f %%, %gR)" % (
-                 px_str(st, sym, e), px_str(st, sym, sl), 100 * abs(e - sl) / e,
-                 px_str(st, sym, tp), 100 * abs(tp - e) / e, rr),
-             "Checklist : tendance %d %% | absorption %+d %% | big trade x%.1f | retour %+d %% | distance VWAP %.2f %%" % (
-                 int(100 * sig.get("trend", 0)), int(100 * sig.get("abs", 0)),
-                 sig.get("big_x") or 0, int(100 * sig.get("conf", 0)), sig.get("touch", 0))]
     try:
         bars = hist_candles(sym, C["BAR_TF"], C["ANALYSE_DAYS"])
         mc = monte_carlo(bars, int(sig.get("t") or time.time()), e, sl, tp, d, steps, tfs,
@@ -1541,22 +1554,39 @@ def analysis_text(st, sym, sig, decision, C, ia_line=""):
     except Exception as ex:
         log.warning("analyse %s : %s", sym, ex)
         mc = None
-    if mc:
-        lines.append("%d simulations (%d j de bougies %s, meme heure, %d h max) :" % (
-            mc["sims"], C["ANALYSE_DAYS"], C["BAR_TF"], C["MAX_HOLD_MIN"] // 60))
-        lines.append("  TP d'abord %.1f %% | stop d'abord %.1f %% | ni l'un ni l'autre %.1f %%" % (
-            100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
-        lines.append("  resultat moyen %+.2f R | trajectoires gagnantes %.0f %%" % (mc["mean_r"], 100 * mc["p_green"]))
-        lines.append("  verdict : " + _verdict(mc, rr))
-        if mc["p_none"] > 0.4:
-            lines.append("  attention : plus de 40 % des trajectoires ne touchent rien, le prix final compte")
+    if decision.startswith("PRIS"):
+        dec = "✅ <b>PRIS par le bot</b> (ordre, stop et objectif chez Kraken)"
+    elif "filtre" in decision:
+        dec = "👀 <b>NON PRIS</b> : écarté par le filtre de l'IA (suivi pour apprendre)"
     else:
-        lines.append("Simulation : historique insuffisant")
+        dec = "⛔ <b>NON PRIS</b> : " + html_esc(decision.replace("NON pris : ", ""))
+    sgn = -1 if d > 0 else 1
+    t_sig = int(sig.get("t") or time.time()) + tfs
+    em, vtxt, pt, be = badge(mc, rr)
+    L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", nm(sym)),
+         "🪙 Crypto · bot Kraken · VWAP order flow %s" % C["BAR_TF"],
+         SEP,
+         dec,
+         "▶️ Entrée    <code>%s</code>" % px_str(st, sym, e),
+         "🛑 Stop      <code>%s</code>  (%+.2f %%)" % (px_str(st, sym, sl), sgn * 100 * abs(e - sl) / e),
+         "🎯 Objectif  <code>%s</code>  (%+.2f %% · %gR)" % (px_str(st, sym, tp), -sgn * 100 * abs(tp - e) / e, rr),
+         "⏰ Signal %s (Paris) · sortie max %d h" % (paris_hm(t_sig), C["MAX_HOLD_MIN"] // 60),
+         SEP]
+    if mc:
+        L.append("%s <b>Verdict : %s</b>" % (em, vtxt))
+        if pt is not None:
+            L.append("objectif avant le stop dans <b>%.0f %%</b> des cas (rentable dès %.0f %%)" % (pt, be))
+        L.append("📊 %s simulations : 🎯 %.0f %% · 🛑 %.0f %% · ➖ %.0f %%" % (
+            "{:,}".format(mc["sims"]).replace(",", " "), 100 * mc["p_tp"], 100 * mc["p_sl"], 100 * mc["p_none"]))
+    else:
+        L.append("⚪ <b>Verdict : non calculé</b> (historique Kraken indisponible)")
+    L.append("🧠 Checklist : tendance %d %% · absorption %+d %% · big trade x%.1f · retour %+d %%" % (
+        int(100 * sig.get("trend", 0)), int(100 * sig.get("abs", 0)), sig.get("big_x") or 0,
+        int(100 * sig.get("conf", 0))))
     if ia_line:
-        lines.append(ia_line)
-    lines.append("Decision du bot : " + decision)
-    lines.append("(simulation statistique sans trailing stop, pas une prevision ni un conseil)")
-    return "\n".join(lines)
+        L.append("🤖 " + ia_line)
+    L.append("<i>Simulation statistique, pas une prévision ni un conseil</i>")
+    return "\n".join(L)
 
 
 def analyse_async(st, sym, sig, decision, C):
@@ -1569,7 +1599,7 @@ def analyse_async(st, sym, sig, decision, C):
     try:                                          # lu ici (boucle principale), pas dans le thread
         rs = [x[-1] for x in (st.get("learn") or {}).get("done", [])]
         if rs:
-            ia_line = "IA : %d setups suivis jusqu'au bout, resultat moyen %+.2f R" % (len(rs), sum(rs) / len(rs))
+            ia_line = "IA : %d setups suivis jusqu'au bout · moyenne %+.2f R" % (len(rs), sum(rs) / len(rs))
     except Exception:
         pass
 
@@ -1589,7 +1619,7 @@ def flush_analyses(st):
             txt = ANALYSIS_Q.get_nowait()
         except queue.Empty:
             return
-        notify(st, txt)
+        notify(st, txt, html=True)
 
 
 # =========================================================================
