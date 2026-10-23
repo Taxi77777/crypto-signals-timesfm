@@ -7,7 +7,8 @@
   "fx_ny|2026-10-23|USDCHF|-1": 1792758032.8107622,
   "fx_ny|2026-10-23|NZDUSD|1": 1792758033.1272376,
   "fx_ny|2026-10-23|EURJPY|-1": 1792758033.475046,
-  "fx_ny|2026-10-23|GBPJPY|-1": 1792758034.240369
+  "fx_ny|2026-10-23|GBPJPY|-1": 1792758034.240369,
+  "fx_ny|2026-10-23|GBPUSD|1": 1792758325.949057
  },
  "watch": {},
  "signals": [
@@ -50,16 +51,16 @@
  ],
  "yahoo": "ok : 391 bougies SPY lues a 10:32 UTC",
  "stats": {
-  "requetes": 20,
+  "requetes": 42,
   "erreurs": 0,
-  "maj": "23/10 12:20 UTC"
+  "maj": "23/10 12:30 UTC"
  },
  "scans": {
   "fx_ny": {
-   "heure": "23/10 08:20",
+   "heure": "23/10 08:30",
    "lus": 11,
    "symboles": 11,
-   "signaux": 4
+   "signaux": 0
   }
  }
 }
