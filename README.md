@@ -1,171 +1,40 @@
-# 📈 Bot Kraken « VWAP ORDER FLOW » (footprint 15 min, intraday) — `kraken_vwap_flow.py`
+# 📈 Scanner ACTIONS · FOREX · CRYPTO — stratégies de la vidéo
 
-Stratégie de la vidéo *Comment confirmer une entrée sur la VWAP*
-(Dualis Flow, partie 2). Tourne 24 h/24 sur GitHub Actions (`.github/workflows/kraken_vwap_flow.yml`),
-sur tous les perpétuels Kraken Pro crypto avec du volume (≥ 1 M$/24 h, 60 max). Une bougie n'est lue
-que si elle contient au moins 60 trades : les actifs trop calmes sont ignorés d'eux-mêmes.
+Signaux **Telegram uniquement** : ce scanner n'envoie **aucun ordre**. Il tourne sur GitHub Actions
+(`.github/workflows/scanner_actions_forex.yml`), tous les jours de 6 h à 21 h 15 UTC.
 
-Le bot reçoit **chaque trade Kraken en direct** (WebSocket) et construit lui-même des bougies **footprint
-15 minutes** (intraday ; `BAR_TF`, le 1 minute donnait trop de bruit) : volume, acheteurs et vendeurs agressifs, **delta**, et les **gros ordres** (un ordre = les
-exécutions d'une même milliseconde ; « gros » = ≥ 2× au départ le seuil des **1 % plus gros ordres** des 5000
-derniers : en crypto la taille médiane est minuscule, la comparer à la médiane rendait « gros » presque tout ordre).
+Règles reprises du pack open-source [dan-ai-lab/day-trader-fr](https://github.com/dan-ai-lab/day-trader-fr)
+(adaptation française de [day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill), licence MIT).
 
-| Checklist (il faut les 4) | Règle du bot (exemple à l'ACHAT ; seuils de départ, ajustés ensuite par l'IA) |
+## La stratégie
+
+| Étape | Règle |
 |---|---|
-| **1 · Prix sur la VWAP** | VWAP du jour (depuis 0 h UTC). Sur les 12 bougies précédentes (3 h), ≥ 65 % au-dessus de la VWAP, puis une bougie touche la VWAP (± 0,30 %) et clôture sur ou au-dessus. |
-| **2 · Vendeurs absorbés** | Sur cette bougie : delta ≤ −15 % du volume (les vendeurs frappent)… mais le prix ne descend plus. |
-| **3 · Big trade respecté** | Un gros **acheteur** dans la zone de la bougie d'absorption, et la bougie **clôture au-dessus** de son prix. |
-| **4 · Acheteurs de retour** | Bougie suivante : delta ≥ +15 % et clôture plus haute → **entrée confirmée**. |
+| **Cassure de la plage d'ouverture** | Plage = plus haut / plus bas des 15 premières minutes de la séance. Signal = 1re bougie 5 min **terminée** qui clôture au-dessus du plus haut (**achat**) ou sous le plus bas (**vente**). Une seule fois par jour et par sens. |
+| **Plan de sortie** | SL au milieu de la plage, TP = 2 × le risque, sortie au plus tard à l'heure limite. Signal refusé si le risque est < 0,05 % du prix (trop serré face au spread). |
+| **Time machine** | 10 000 fins de séance reconstruites à partir des bougies 5 min des 60 derniers jours (même heure ± 2 bougies, SL testé avant le TP), puis la même règle rejouée sur chaque séance passée. |
+| **Verdict** | 🟢 favorable / 🟡 neutre / 🔴 défavorable : le TP est-il touché avant le SL plus souvent que le seuil de rentabilité (33 % à 2R) ? |
+| **Watchlist du jour** | Avant l'ouverture : cassure du plus haut 20 jours, drapeau haussier, reprise de la moyenne 20 jours, survente (RSI 14 < 30), rebond de survente. |
 
-Annulation : clôture **sous** la VWAP, séquence de plus de 4 bougies (1 h), ou nouveau jour UTC. **Vente** : exactement
-l'inverse. Chaque bougie de la séquence doit être complète et avoir au moins 60 trades (sinon elle n'est pas lue) ;
-la 1re heure du jour UTC est ignorée (VWAP pas encore formée) ; la 1re confirmation décide (prise ou non).
+Le moteur reproduit l'exemple publié par le pack d'origine (TSLA, 19/10/2026 : 29,7 % / 25,3 % / 45,0 %
+contre 29,4 % / 25,5 % / 45,1 % ; historique identique : 33 signaux, 13 TP, 15 SL, 5 sorties à l'heure).
 
-**Sortie** : stop **sous la bougie d'absorption** (`STOP_MODE=safe`, défaut) ou **sous le big trade**
-(`STOP_MODE=aggressive`), au moins 0,25 % et au minimum imposé par les frais Kraken (frais ≤ ⅓ du risque) ;
-TP = 2 × le risque (`RR`) ; à +1 R le stop remonte à l'entrée + frais, puis **trailing stop** : le stop suit le
-meilleur prix à 1 R de distance (`TRAIL_R`, par pas de 0,25 R). Stop et TP posés chez Kraken (reposés si refusés).
-Durée max d'un trade : 12 h. Une seule position. Si Kraken refuse pour marge insuffisante : nouvel essai à 84 / 68 / 53 % de la taille.
+## Marchés (heures de Paris)
 
-**🧠 IA d'apprentissage** (`LEARN=1` par défaut, `LEARN=0` = critères fixes de la vidéo) :
-- le bot repère les checklists avec des critères **souples**, puis l'IA décide avec les critères **appris** ;
-- **chaque** setup, pris ou non, est suivi jusqu'à son résultat virtuel (stop, TP, zéro perte, trailing,
-  frais) : l'IA apprend aussi des trades qu'elle n'a pas pris ;
-- toutes les 30 min, dès 40 résultats, elle ajuste les 5 critères (absorption, taille du big trade, retour
-  des acheteurs, tendance, distance à la VWAP) d'**un cran maximum**, seulement avec une preuve à 2,5 écarts-types
-  sur au moins 30 bougies **distinctes** (10 cryptos qui sortent ensemble ne font pas 10 preuves), **confirmée**
-  sur les 30 % de setups les plus récents qu'elle n'a pas utilisés. Testé : sur du pur hasard, 1 changement
-  sur 200 ; sur un vrai avantage caché, elle le retrouve ;
-- un actif qui perd nettement (30 bougies, 2 écarts-types) est mis en pause 24 h, jugé ensuite seulement sur ses
-  nouveaux setups ; si la stratégie perd sur la période récente, le risque par trade est divisé par 2 (jamais
-  augmenté, jamais de levier en plus) ;
-- chaque réglage est annoncé sur Telegram et gardé dans `kraken_vwap_state.json` (`learn`).
+| Marché | Séance | Signaux possibles | Watchlist |
+|---|---|---|---|
+| 🇺🇸 Actions US (58 titres, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 45 – 21 h 30 | 15 h 00 |
+| 💱 Forex + or (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 15 – 12 h 00 | 8 h 30 |
+| 💱 Forex + or, ouverture de New York | 14 h – 22 h, en semaine | 14 h 15 – 17 h 00 | — |
+| 🪙 Crypto (`SCAN_CRYPTO`), ouverture de Londres | 7 j/7 | 9 h 15 – 12 h 00 | 8 h 30 |
+| 🪙 Crypto, ouverture de Wall Street | 7 j/7 | 15 h 45 – 18 h 00 | — |
 
-**Sécurité d'exécution** : toutes les 15 s le bot vérifie chez Kraken que son stop existe **vraiment** (sinon il le
-repose), redimensionne stop et TP si la taille de la position change, ne retire le stop qu'une fois la position
-**réellement** fermée, et ferme lui-même si le prix dépasse le stop (même après le passage à zéro perte). Flux des
-trades surveillé (reconnexion si muet 60 s, alerte Telegram après 5 min). Un fichier d'état par mode : un essai en
-fictif n'efface jamais les positions réelles. Dépôt public : ni capital, ni P&L, ni quantités dans les logs ou l'état.
+Un signal n'est envoyé que s'il date des **2 dernières bougies** et que le prix n'a touché ni le SL ni le TP depuis.
 
-**Suivi** : Telegram (entrée avec la checklist, sorties, résumé toutes les 6 h). Le fichier
-`kraken_vwap_state.json` est mis à jour dans le dépôt toutes les 15 min, avec le journal des checklists
-(`events`) sans capital ni P&L.
+## Réglages (variables GitHub facultatives)
 
-⚠️ Stratégie non prouvée en automatique : dans la vidéo elle est appliquée à la main sur le Nasdaq (NQ), un
-marché centralisé. Sur la crypto, Kraken ne voit qu'une partie des trades mondiaux : le delta et les gros
-ordres y sont plus bruités. Juger sur plusieurs semaines de trades réels.
+`SCAN_STOCKS`, `SCAN_FX`, `SCAN_CRYPTO` (listes séparées par des virgules), `SCAN_SHORTS` (1 = ventes aussi),
+`SCAN_RR` (2 par défaut). Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
----
-
-# 🌐 INSTITUTIONAL HUNTER PRO v3.0 — Multi-Exchange OBI & Trend Consensus
-
-> **Stratégie d'Analyse Institutionnelle Multi-Échange & Tendance Long Terme**
-> Interroge le carnet d'ordres (Order Book Imbalance) en temps réel sur **6 grands échanges mondiaux (MEXC, Bitget, Bybit, OKX, Binance, Kraken)** et exécute les trades sur **MEXC Futures** uniquement lorsque tous les échanges confirment la même direction !
-
----
-
-## 🎯 Concept & Stratégie Institutionnelle
-
-### 1. Le Déséquilibre du Carnet d'Ordres (Order Book Imbalance - OBI)
-L'**OBI** mesure la pression nette réelle entre acheteurs et vendeurs dans la profondeur du carnet d'ordres (depth 20) :
-
-$$\text{OBI} = \frac{\sum \text{Volume Bids (Acheteurs)}}{\sum \text{Volume Bids} + \sum \text{Volume Asks (Vendeurs)}}$$
-
-- **$\text{OBI} \ge 0.58$ (58%)** $\rightarrow$ Domination nette des **Acheteurs** (Buy Pressure).
-- **$\text{OBI} \le 0.42$ (42%)** $\rightarrow$ Domination nette des **Vendeurs** (Sell Pressure).
-
-### 2. Consensus Multi-Échange (6 APIs 100% Gratuites)
-Au lieu de se fier au carnet d'un seul échange, le bot analyse simultanément :
-1. **MEXC** (`api.mexc.com`)
-2. **Bitget** (`api.bitget.com`)
-3. **Bybit** (`api.bybit.com`)
-4. **OKX** (`www.okx.com`)
-5. **Binance** (`data-api.binance.vision`)
-6. **Kraken** (`api.kraken.com`)
-
-Un trade est déclenché sur **MEXC Futures** **UNIQUEMENT SI au moins 70% des échanges** (ex: 4/5 ou 5/6) affichent un déséquilibre dans le même sens !
-
-### 3. Filtre de Tendance Long Terme (Trend Filter)
-Pour du trading long terme/tendance, le bot vérifie que la tendance globale (1H/4H) est alignée :
-- **Condition BUY** : Consensus Multi-Échange ACHAT + Prix $\ge$ VWAP + EMA 50 $\ge$ EMA 200.
-- **Condition SELL** : Consensus Multi-Échange VENTE + Prix $\le$ VWAP + EMA 50 $\le$ EMA 200.
-
----
-
-## 📁 Architecture du Projet
-
-```
-├── bot.py           # Orchestrateur principal & boucle de trading
-├── strategy.py      # Moteur de décision Consensus OBI + Tendance
-├── exchanges.py     # Connecteur multi-échange (MEXC, Bitget, Bybit, OKX, Binance, Kraken)
-├── indicators.py    # Tendance Long Terme (EMA 50/200, VWAP, ATR, RSI)
-├── mexc_api.py      # Client API MEXC Futures pour l'exécution des ordres
-├── scanner.py       # Scanner automatique des plus gros volumes USDT
-├── doh_patch.py     # Patch DNS Over HTTPS (1.1.1.1) pour 100% de fiabilité API
-├── config.py        # Configuration centralisée (Levier, Risque, Seuil %)
-├── requirements.txt # Dépendances Python
-└── LANCER_BOT.bat   # Script de démarrage rapide pour Windows
-```
-
----
-
-## ⚙️ Configuration (`config.py`)
-
-```python
-# Levier et Gestion du Risque
-LEVERAGE            = 10      # Levier conseillé (5x à 20x)
-RISK_PER_TRADE_PCT  = 1.0     # 1% du capital risqué par trade
-MIN_RR              = 1.5     # Ratio Risque/Rendement minimum (1:1.5)
-MIN_CONSENSUS_PCT   = 70.0    # 70% de consensus minimum entre les échanges
-
-# Clés API MEXC (pour passer les ordres)
-MEXC_API_KEY        = "votre_clé_api"
-MEXC_SECRET_KEY     = "votre_clé_secrète"
-```
-
----
-
-## 🚀 Lancement du Bot
-
-### Étape 1 : Dépendances
-```bash
-pip install -r requirements.txt
-```
-
-### Étape 2 : Lancer
-```bash
-# Sur Windows : Double-cliquer sur LANCER_BOT.bat
-# Ou en ligne de commande :
-python bot.py
-```
-
----
-
-## 📱 Alertes Telegram
-
-Pour chaque opportunité validée par le consensus institutionnel, une alerte est émise :
-
-```
-🟢 ACHAT ⭐⭐⭐ — BTC_USDT (Multi-Exchange OBI & Trend)
-───────────────────────────────────────────────────────
-  Consensus Multi-Échange : 83% (5/6 échanges)
-  OBI Moyen Global       : 0.684 (Domination Acheteurs)
-  Tendance Long Terme    : BULLISH (Prix:65420.00 | VWAP:65100.00)
-───────────────────────────────────────────────────────
-   • MEXC     | OBI: 0.710 | BUY
-   • Bitget   | OBI: 0.650 | BUY
-   • Bybit    | OBI: 0.690 | BUY
-   • OKX      | OBI: 0.640 | BUY
-   • Binance  | OBI: 0.730 | BUY
-   • Kraken   | OBI: 0.490 | NEUTRE
-───────────────────────────────────────────────────────
-  Prix Entrée : 65420.00
-  Take Profit : 66800.00 (TP)
-  Stop Loss   : 64500.00 (SL)
-  Ratio R/R   : 1:1.52
-```
-
----
-
-## ⚖️ Licence
-MIT License — Institutional Hunter Pro v3.0
+Données : API graphiques Yahoo Finance (gratuite, non officielle, retard possible). Simulation statistique,
+pas une prévision ni un conseil financier.

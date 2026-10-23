@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-SCANNER ACTIONS + FOREX  -  strategies de la video (pack "day-trader-fr")
-===========================================================================
-Strategie SEPAREE du bot crypto VWAP (kraken_vwap_flow.py), qui n'est pas modifie.
+SCANNER ACTIONS + FOREX + CRYPTO  -  strategies de la video (pack "day-trader-fr")
+=================================================================================
 SIGNAUX UNIQUEMENT : ce scanner n'envoie AUCUN ordre, il previent sur Telegram.
 
 Regles reprises du pack open-source dan-ai-lab/day-trader-fr (adaptation francaise
@@ -28,6 +27,8 @@ Marches :
                entrees jusqu'a 15 h 30, sortie 15 h 55.
   FOREX      : adaptation de l'ORB aux ouvertures de Londres (8 h heure de Londres) et de
                New York (8 h heure de New York) ; entrees jusqu'a 11 h, sortie 16 h locale.
+  CRYPTO     : 7 j/7, meme regle aux ouvertures de Londres (8 h) et de Wall Street (9 h 30 NY) ;
+               entrees jusqu'a 11 h / 12 h, sortie 16 h locale.
 
 Donnees : API graphiques Yahoo Finance (gratuite, non officielle, retard possible).
 Ce n'est pas un conseil financier ; un signal correspond a une regle, pas a un achat.
@@ -66,10 +67,12 @@ DEFAULT_STOCKS = ("AAPL,MSFT,NVDA,AMZN,META,GOOGL,TSLA,AMD,NFLX,AVGO,PLTR,COIN,M
                   "GS,XOM,CVX,WMT,COST,KO,MCD,NKE,F,GM,PFE,LLY,UNH,ABNB,SNOW,CRWD,PANW,NET,"
                   "DDOG,RBLX,MARA,RIOT,SPY,QQQ,IWM")
 DEFAULT_FX = "EURUSD,GBPUSD,USDJPY,AUDUSD,USDCAD,USDCHF,NZDUSD,EURJPY,GBPJPY,EURGBP,XAUUSD"
+DEFAULT_CRYPTO = "BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,DOT,LTC,TRX,BCH,NEAR"
 
 CFG = {
     "STOCKS": [s.strip().upper() for s in envf("SCAN_STOCKS", DEFAULT_STOCKS).split(",") if s.strip()],
     "FX": [s.strip().upper() for s in envf("SCAN_FX", DEFAULT_FX).split(",") if s.strip()],
+    "CRYPTO": [s.strip().upper() for s in envf("SCAN_CRYPTO", DEFAULT_CRYPTO).split(",") if s.strip()],
     "OR_MIN": envf("OR_MIN", 15),               # plage d'ouverture (minutes)
     "RR": envf("RR", 2.0),                      # objectif = RR x risque
     "SHORTS": envf("SHORTS", 1),                # 1 = aussi les cassures du plus bas (vente)
@@ -113,6 +116,16 @@ def fx_session(d):
     return hm(8), hm(11), hm(16)
 
 
+def crypto_ldn(d):
+    """Crypto (7 j/7) : meme regle a l'ouverture de Londres."""
+    return hm(8), hm(11), hm(16)
+
+
+def crypto_ny(d):
+    """Crypto (7 j/7) : meme regle a l'ouverture de Wall Street (9 h 30 NY, pic de volume)."""
+    return hm(9, 30), hm(12), hm(16)
+
+
 MARKETS = [
     # nom, fuseau, fonction de seance, liste de symboles, prefixe des messages
     {"key": "stocks", "name": "ACTIONS US", "tz": NY, "sess": stock_session, "list": "STOCKS",
@@ -121,12 +134,18 @@ MARKETS = [
      "tag": "[FOREX]", "watch_at": hm(7, 30)},
     {"key": "fx_ny", "name": "FOREX ouverture New York", "tz": NY, "sess": fx_session, "list": "FX",
      "tag": "[FOREX]", "watch_at": None},
+    {"key": "cr_ldn", "name": "CRYPTO ouverture Londres", "tz": LDN, "sess": crypto_ldn, "list": "CRYPTO",
+     "tag": "[CRYPTO]", "watch_at": hm(7, 30)},
+    {"key": "cr_ny", "name": "CRYPTO ouverture New York", "tz": NY, "sess": crypto_ny, "list": "CRYPTO",
+     "tag": "[CRYPTO]", "watch_at": None},
 ]
 
 
 def yahoo_symbol(sym, market_key):
     if market_key == "stocks":
         return sym.replace(".", "-")
+    if market_key.startswith("cr"):
+        return sym + "-USD"
     if sym in ("XAUUSD", "GOLD"):
         return "GC=F"                             # or : contrat a terme COMEX (proche du spot)
     if sym in ("XAGUSD", "SILVER"):
@@ -136,6 +155,13 @@ def yahoo_symbol(sym, market_key):
 
 def label(sym):
     return {"XAUUSD": "XAUUSD (or)", "XAGUSD": "XAGUSD (argent)"}.get(sym, sym)
+
+
+ICON = {"stocks": "🇺🇸", "fx": "💱", "cr": "🪙"}
+
+
+def icon(market_key):
+    return ICON["cr"] if market_key.startswith("cr") else ICON["fx"] if market_key.startswith("fx") else ICON["stocks"]
 
 
 # --------------------------------------------------------------- Yahoo
@@ -218,9 +244,7 @@ def orb_rule(sb, n_or, last_k, now_ts, t0, d_want=None, shorts=True):
     for k in range(n_or, last_k + 1):
         b = sb.get(k)
         if b is None:
-            if t0 + (k + 1) * BAR <= now_ts:
-                break                             # trou dans les donnees : on s'arrete la
-            break
+            break                                 # bougie absente (trou ou pas encore publiee)
         if b[0] + BAR > now_ts:
             break                                 # bougie pas terminee
         for d in ((1, -1) if shorts else (1,)):
@@ -551,8 +575,7 @@ def signal_message(m, sym, d, k, b, orh, orl, sl, tp, day, sess, now_ts):
     sgn = -1 if d > 0 else 1
     em, vtxt, pt, be = badge(mc, rr)
     L = ["%s <b>%s %s</b>" % ("🟢" if d > 0 else "🔴", "ACHAT" if d > 0 else "VENTE", label(sym)),
-         "%s %s · cassure de la plage d'ouverture %d min" % ("🇺🇸" if m["key"] == "stocks" else "💱",
-                                                      m["name"], CFG["OR_MIN"]),
+         "%s %s · cassure de la plage d'ouverture %d min" % (icon(m["key"]), m["name"], CFG["OR_MIN"]),
          SEP,
          "▶️ Entrée    <code>%s</code>" % fmt(e),
          "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(sl), sgn * 100 * abs(e - sl) / e),
@@ -662,20 +685,20 @@ def watchlist(m, st, now_ts):
         n += 1
         for t in tags:
             groups[t].append(label(sym))
-    icon = {"breakout_20d": "🚀", "bull_flag": "🚩", "reclaim_ma20": "📈", "oversold": "📉",
+    ico = {"breakout_20d": "🚀", "bull_flag": "🚩", "reclaim_ma20": "📈", "oversold": "📉",
             "oversold_bounce": "↩️"}
-    lines = ["📋 <b>WATCHLIST DU JOUR · %s</b>" % m["name"].split(" ouverture")[0],
+    lines = ["📋 <b>WATCHLIST DU JOUR · %s %s</b>" % (icon(m["key"]), m["name"].split(" ouverture")[0]),
              "%s · %d/%d graphiques lus" % (day.strftime("%d/%m"), n, len(CFG[m["list"]])), SEP]
     for key, lbl in SETUP_FR:
         if groups[key]:
-            lines.append("%s <b>%s</b> : %s" % (icon[key], lbl, ", ".join(groups[key])))
+            lines.append("%s <b>%s</b> : %s" % (ico[key], lbl, ", ".join(groups[key])))
     if len(lines) == 3:
         lines.append("aucune configuration aujourd'hui")
     o = m["sess"](day)[0]
     start = datetime.datetime.combine(day, o, tzinfo=tz) + datetime.timedelta(minutes=CFG["OR_MIN"])
     lines += [SEP, "⏰ Cassures de la plage d'ouverture surveillées dès %s (heure de Paris)" %
               start.astimezone(PARIS).strftime("%H:%M"),
-              "<i>Graphiques qui correspondent a une regle, pas une liste d'achats</i>"]
+              "<i>Graphiques qui correspondent à une règle, pas une liste d'achats</i>"]
     telegram("\n".join(lines))
     save_state(st)
 
@@ -693,8 +716,9 @@ def main():
     signal.signal(signal.SIGINT, _arret)
     st = load_state()
     end = time.time() + CFG["LOOP_MINUTES"] * 60
-    log.info("scanner actions + forex : %d actions, %d forex, ORB %d min, %gR, ventes %s",
-             len(CFG["STOCKS"]), len(CFG["FX"]), CFG["OR_MIN"], CFG["RR"], "oui" if CFG["SHORTS"] else "non")
+    log.info("scanner actions + forex + crypto : %d actions, %d forex, %d crypto, ORB %d min, %gR, ventes %s",
+             len(CFG["STOCKS"]), len(CFG["FX"]), len(CFG["CRYPTO"]), CFG["OR_MIN"], CFG["RR"],
+             "oui" if CFG["SHORTS"] else "non")
     done_slot = 0
     try:                                          # diagnostic : Yahoo repond-il depuis GitHub ?
         st["yahoo"] = "ok : %d bougies SPY lues a %s UTC" % (len(yahoo_chart("SPY", "5d", "5m")),
@@ -706,8 +730,8 @@ def main():
     while not STOP[0] and time.time() < end:
         now = time.time()
         g = time.gmtime(now)
-        if g.tm_wday >= 5 or not (6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 15)):
-            log.info("marches fermes (actions et forex de ce scanner) : fin du job")
+        if not (6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 15)):
+            log.info("hors des fenetres de ce scanner (6 h - 21 h 15 UTC) : fin du job")
             break
         for m in MARKETS:
             try:
