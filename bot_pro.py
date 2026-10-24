@@ -945,10 +945,10 @@ def save_state(st):
     st["track"] = st["track"][-1000:]
     st["stats"] = dict(STATS, maj=time.strftime("%d/%m %H:%M UTC", time.gmtime()))
     os.makedirs(CFG["STATE_DIR"], exist_ok=True)
-    for p in {os.path.join(CFG["STATE_DIR"], STATE_FILE), STATE_FILE}:
-        with open(p + ".tmp", "w") as f:
-            json.dump(st, f, indent=1)
-        os.replace(p + ".tmp", p)
+    p = os.path.join(CFG["STATE_DIR"], STATE_FILE)     # uniquement STATE_DIR (le workflow le copie dans le repo)
+    with open(p + ".tmp", "w") as f:
+        json.dump(st, f, indent=1)
+    os.replace(p + ".tmp", p)
 
 
 def count(st, key):
