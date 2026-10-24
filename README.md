@@ -2,7 +2,7 @@
 
 # 📈 Bot Pro — signaux intraday de niveau institutionnel
 
-**Actions US · Forex · Or · Crypto — sur Telegram, 100 % gratuit, 100 % open source**
+**Actions US · Forex · Or · 58 cryptos 7 j/7 — sur Telegram, 100 % gratuit, 100 % open source**
 
 [![Tests](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml)
 [![Bot](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml)
@@ -10,10 +10,11 @@
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
 ![Coût](https://img.shields.io/badge/co%C3%BBt-0%20%E2%82%AC-brightgreen)
 
-*Trois stratégies intraday parmi les mieux documentées par la recherche, un filtre de régime façon
-terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulations Monte Carlo.*
+*Trois stratégies intraday parmi les mieux documentées par la recherche, une couche « desks
+institutionnels » et « terminal Bloomberg », un backtest frais inclus pour chaque signal, et un
+**bilan public** : chaque signal est suivi jusqu'à son résultat, gagnant ou perdant.*
 
-**[English summary](#-english-summary)** · **[Stratégies](docs/STRATEGIES.md)** · **[Démarrage en 5 min](#-démarrage-en-5-minutes)**
+**[English summary](#-english-summary)** · **[Stratégies et sources](docs/STRATEGIES.md)** · **[Démarrage en 5 min](#-démarrage-en-5-minutes)**
 
 </div>
 
@@ -25,113 +26,131 @@ terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulation
 🟢 ACHAT SOL · 🪙 Crypto
 ⚡ Momentum intraday (zone de bruit + VWAP)
 ━━━━━━━━━━━━━━━
-▶️ Entrée    187.91
-🛑 SL        185.40  (-1.34 %)
-🎯 TP        192.93  (2R indicatif)
-🔁 Stop suiveur : remonter le SL à max(borne, VWAP) toutes les 30 min
+▶️ Entrée    187.910
+🛑 SL        185.400  (-1.34 %)
+🎯 Objectif 192.930  (2R, indicatif : la règle étudiée sort au stop suiveur ou en fin de séance)
+🔁 Stop suiveur : toutes les 30 min, SL = max(borne de la zone, VWAP) ; il ne recule jamais
 ⏰ Sortie au plus tard 22:55 · ⌛ valable jusqu'à 10:10 (Paris)
+📦 Taille : 3.900 unités pour risquer 10 € (1.00 % du capital)
 ━━━━━━━━━━━━━━━
-🟢 SIGNAL FORT · score 87/100 ▰▰▰▰▰▰▰▰▰▱
+🟢 SIGNAL FORT · score 77/100 ▰▰▰▰▰▰▰▰▱▱
 ✅ Sortie de la zone de bruit
 ✅ Tendance 1 h (EMA 20/50)
 ✅ Force relative vs BTC
-✅ Volume relatif 30 min
-✅ Régime de marché
+➖ Volume relatif 30 min
+❌ Régime de marché
 ✅ Backtest de l'actif
-📜 Backtest de la règle sur l'actif : 23 trades · 26 % gagnants · moy. +0.30 R · PF 1.44
-🎲 10 000 simulations des 20 prochains trades : gagnant dans 69 % des cas · médiane +5.3 R
-🧭 Régime : RISK-ON (S&P au-dessus de sa MM50, VIX calme)
-📰 Dernière actualité de l'actif
+📜 Backtest de la règle sur l'actif (frais inclus) : 23 trades · 30 % gagnants · moy. +0.28 R · PF 1.41
+📏 R moyen, intervalle 90 % : [-0.10 ; +0.69] → avantage NON démontré (échantillon court)
+🎲 10 000 rejeux de 20 trades passés : positif dans 70 % · médiane +5.4 R (rejeu du passé, pas une prévision)
+🧭 Régime : RISK-OFF (S&P sous sa MM50)
+💸 Funding Kraken +0.0010 %/h · open interest 412 M$
 ```
 
-| Message | Quand (heure de Paris) |
-|---|---|
-| 🏛 **Briefing marché** façon terminal : indices mondiaux, VIX, DXY, taux 10 ans, or, pétrole, BTC, rotation sectorielle, agenda économique, régime risk-on / risk-off | chaque matin à 8 h |
-| 🌅 **Pré-ouverture** : les plus gros gaps haussiers / baissiers avant l'ouverture de Wall Street | 15 h 15, jours de bourse |
-| 🇺🇸 **Stocks in Play** : les actions « en jeu » du jour, avec ordre stop, SL et TP | 15 h 36, jours de bourse |
-| 🔔 **Déclenché** : quand le prix touche un ordre Stocks in Play | jusqu'à 17 h |
-| ⚡ **Momentum intraday** : ETF et grandes actions, forex et or, crypto 7 j/7 | toutes les 30 min |
-| ⏱ **Dernière demi-heure** : SPY, QQQ, IWM, DIA | 21 h 30 (20 h 30 l'été US décalé) |
-| ✅🛑 **Résultat** : chaque signal est suivi jusqu'à sa sortie (TP, stop, fin de séance) et noté en R | dès la sortie |
-| 📊 **Résumé du jour** + 📒 bilan des trades (bilan de la semaine le dimanche) | 22 h 05 |
+Le bot dit aussi quand il n'y a pas d'avantage démontré : c'est voulu.
 
-## 🧠 Les stratégies (sources dans [docs/STRATEGIES.md](docs/STRATEGIES.md))
+| Message | Quand (heure de Paris*) |
+|---|---|
+| 🏛 **Briefing marché** : indices mondiaux, VIX, DXY, taux, or, pétrole, BTC, rotation sectorielle, courbe des taux, Fear & Greed, funding crypto, Fed (FOMC), agenda économique, régime risk-on / risk-off | 8 h |
+| 🌅 **Pré-ouverture** : plus gros gaps haussiers / baissiers de Wall Street avec volume | 15 h 15 (9 h 15 New York) |
+| 🇺🇸 **Stocks in Play** : actions « en jeu » du jour, ordre stop, SL, taille | 15 h 36 (9 h 36 NY) |
+| 🔔 **Déclenché** : un ordre Stocks in Play est touché | jusqu'à 21 h 30 (15 h 30 NY) |
+| ⚡ **Momentum intraday** : ETF et grandes actions US, 11 paires forex + or / argent, 58 cryptos 7 j/7 | toutes les 30 min |
+| ⏱ **Dernière demi-heure** : le meilleur de SPY, QQQ, IWM, DIA | 21 h 30 (15 h 30 NY) |
+| ✅🛑 **Résultat** : chaque signal suivi jusqu'à sa sortie (stop, stop suiveur, fin de séance), noté en R frais inclus | dès la sortie |
+| 📊 **Résumé du jour** + 📒 bilan (bilan de la semaine le dimanche) | 22 h 02 (23 h 02 l'été) |
+
+\* Les heures de Wall Street sont calculées depuis New York : pendant les semaines où l'Europe et
+les États-Unis ne changent pas d'heure le même jour (fin mars, fin octobre), elles arrivent 1 h plus tôt à Paris.
+
+## 🧠 Les stratégies (détails et sources : [docs/STRATEGIES.md](docs/STRATEGIES.md))
 
 | | Stratégie | Source | Résultat publié |
 |---|---|---|---|
-| 1 | **Stocks in Play** : cassure de la 1re bougie 5 min sur les actions au plus fort volume relatif, stop à 10 % de l'ATR 14 j, sortie en fin de séance | Zarattini, Barbon & Aziz (2024), SSRN 4729284 | Sharpe 2,81 avec le filtre de volume contre 0,48 sans (2016-2023, frais inclus, sans glissement) |
-| 2 | **Momentum intraday** : sortie de la « zone de bruit » (déplacement moyen à la même heure sur 14 jours) du bon côté de la VWAP, décision toutes les 30 min, stop suiveur, sortie en fin de séance | Zarattini, Aziz & Barbon (2024) « Beat the Market » ; Gao, Han, Li & Zhou (2018) « Market intraday momentum » | momentum intraday documenté sur le SPY et sur 16 ETF internationaux |
-| 3 | **Dernière demi-heure** : à 15 h 30 New York, SPY / QQQ / IWM / DIA dans le sens du mouvement depuis la clôture de la veille, sortie à la clôture | Gao et al. (2018) ; Baltussen, Da, Lammers & Martens (2021) « Hedging demand and market intraday momentum » | Sharpe 0,87 à 1,73 selon les classes d'actifs (1974-2020), effet renforcé par la couverture gamma des dealers |
+| 1 | **Stocks in Play** : cassure de la 1re bougie 5 min sur les actions au plus fort volume relatif d'ouverture, stop à 10 % de l'ATR 14 j, sortie en fin de séance | Zarattini, Barbon & Aziz (2024), SSRN 4729284 | Sharpe 2,81, 2016-2023, sur tout le marché US |
+| 2 | **Momentum intraday** : sortie de la « zone de bruit » du bon côté de la VWAP, décision toutes les 30 min, stop suiveur max(borne, VWAP), sortie en fin de séance | Zarattini, Aziz & Barbon (2024) « Beat the Market » ; Gao, Han, Li & Zhou (2018) | momentum intraday documenté sur le SPY et 10 autres ETF très échangés |
+| 3 | **Dernière demi-heure** : à 15 h 30 New York, dans le sens du mouvement depuis la clôture de la veille, sortie à la clôture | Baltussen, Da, Lammers & Martens (2021) ; Gao et al. (2018) | Sharpe 0,87 à 1,73 selon les classes d'actifs, 1974-2020 |
 
-**Couche desks institutionnels** (méthodes utilisées par les grandes maisons type BlackRock, JPMorgan, Man Group) :
-ciblage de volatilité (risque ÷ 2 si VIX ≥ 25, Harvey et al. 2018), alerte dérive pré-FOMC (Lucca & Moench, Fed de New York),
-courbe des taux 10 ans − 3 mois, Fear & Greed actions (CNN) et crypto, funding et open interest des perpétuels Kraken,
-pré-ouverture avec les plus gros gaps de Wall Street.
+**Couche desks institutionnels** (sources publiques : Man Group, Fed de New York) : ciblage de volatilité
+(risque ÷ 2 si VIX ≥ 25), dérive pré-FOMC, courbe des taux 10 ans − 3 mois, Fear & Greed (CNN, alternative.me),
+funding et open interest Kraken Futures, pré-ouverture.
 
-**Couche Bloomberg** : régime de marché (S&P vs MM50, VIX), briefing multi-actifs, rotation sectorielle,
-actualités, résultats d'entreprise et calendrier économique (OpenBB / Yahoo).
+**Couche « terminal Bloomberg »** : régime de marché (S&P vs MM50, VIX), briefing multi-actifs, rotation des
+11 secteurs, actualités, résultats d'entreprise et agenda économique (OpenBB / Yahoo).
 
-**Validation de chaque signal** :
-- un **score de confluence sur 100** (cassure, tendance 1 h, VWAP, force relative, volume relatif, régime, backtest) ;
-- un **backtest** de la même règle sur l'actif (60 jours de bougies 5 min) ;
-- un **Monte Carlo de 10 000 tirages** des 20 prochains trades.
-
-Un signal part seulement si le score atteint 60 et si le backtest de l'actif est gagnant en moyenne.
+**Validation et gestion du risque**
+- score de confluence sur 100 (détail par stratégie dans la doc) : un signal part seulement si le score atteint
+  60 **et** si le backtest de la même règle sur l'actif (60 jours, ≥ 12 trades, **frais inclus**) est gagnant en moyenne ;
+- backtest prudent : si la bougie d'entrée touche aussi le stop, c'est une perte ; un gap au-delà du stop s'exécute à l'ouverture ;
+- intervalle à 90 % du R moyen et 10 000 rejeux du passé, affichés pour information ;
+- **garde-fou de corrélation** : au plus 3 positions ouvertes dans le même sens par classe d'actifs, une seule
+  pour la dernière demi-heure (SPY, QQQ, IWM et DIA bougent ensemble) ;
+- **taille de position** (devise du compte, devise de cotation forex, exposition plafonnée à 4× le capital) ;
+- **bilan public** : `bot_pro_state.json` → `track` (résultats en R uniquement, aucun montant).
 
 ## 🏗 Architecture
 
 ```mermaid
 flowchart LR
-    Y[Yahoo Finance<br/>bougies 5 min] --> S1[Stocks in Play<br/>volume relatif + ORB 5 min]
-    Y --> S2[Momentum intraday<br/>zone de bruit + VWAP]
-    O[OpenBB / Yahoo<br/>actus · résultats · agenda] --> C
-    R[Régime Bloomberg<br/>S&P MM50 · VIX] --> C
-    S1 --> C{Score /100<br/>+ backtest<br/>+ Monte Carlo 10 000}
-    S2 --> C
+    Y[Yahoo Finance<br/>bougies 5 min + pré-marché] --> S1[1 · Stocks in Play]
+    Y --> S2[2 · Momentum intraday]
+    Y --> S3[3 · Dernière demi-heure]
+    D[Desks institutionnels<br/>VIX · FOMC · taux · Fear & Greed · funding Kraken] --> C
+    R[Terminal Bloomberg<br/>régime · secteurs · actus · agenda OpenBB] --> C
+    S1 & S2 & S3 --> C{Score /100<br/>+ backtest frais inclus<br/>+ garde-fou corrélation}
     C -->|score ≥ 60 et backtest > 0| T[📱 Telegram]
-    G[GitHub Actions<br/>toutes les 5-30 min] -.-> S1 & S2
+    T --> K[Suivi jusqu'au résultat<br/>bilan public en R]
+    G[GitHub Actions<br/>boucle de 5 s, job de 5 h 20<br/>qui se relance seul] -.-> S1 & S2 & S3
 ```
 
 ## 🚀 Démarrage en 5 minutes
 
-1. **Fork** ce dépôt.
+1. **Fork** ce dépôt, puis onglet **Actions** → *I understand my workflows, go ahead and enable them*
+   (GitHub désactive les workflows planifiés des forks).
 2. Crée un bot Telegram avec [@BotFather](https://t.me/BotFather) et récupère ton `chat_id`.
-3. Dans **Settings → Secrets and variables → Actions**, ajoute `TELEGRAM_BOT_TOKEN` et `TELEGRAM_CHAT_ID`.
-4. Onglet **Actions** → *Bot Pro* → **Run workflow**. C'est tout : le bot se relance tout seul, 6 h – 21 h 15 UTC, 7 j/7.
+3. **Settings → Secrets and variables → Actions → Secrets** : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+   et, si tu veux la taille de position calculée, `CAPITAL` (en secret : il reste masqué dans les journaux publics).
+4. Onglet **Actions** → *Bot Pro* → **Run workflow**. Le bot tourne de 6 h à 21 h 30 UTC, 7 j/7, et se relance seul.
 
 En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `python -m pytest -q`
 
-## ⚙️ Réglages (variables GitHub, toutes facultatives)
+## ⚙️ Réglages (toutes facultatives)
 
-| Variable | Rôle | Défaut |
-|---|---|---|
-| `SIP_STOCKS` | univers Stocks in Play | ~190 actions US liquides |
-| `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | univers momentum | ETF + méga-caps · 11 paires + or/argent · 18 cryptos |
-| `MIN_SCORE` | score mini pour envoyer | `60` |
-| `MAX_SAME` | garde-fou de corrélation : max de signaux dans le même sens, par classe et par passage | `3` |
-| `CAPITAL` | capital pour afficher la taille de position (vide = formule seulement) | — |
-| `RISK_PCT` | risque par trade en % du capital | `1` |
-| `VOL_CUT` | ciblage de volatilité : risque ÷ 2 au-dessus de ce VIX | `25` |
-| `LH_STOCKS` / `LH_MIN` | ETF de la dernière demi-heure / mouvement mini depuis la veille | `SPY,QQQ,IWM,DIA` / `0.004` |
+| Nom | Où | Rôle | Défaut |
+|---|---|---|---|
+| `CAPITAL` | **secret** | capital pour la taille de position (vide = formule seulement) | — |
+| `ACCOUNT_CCY` | variable | devise du capital (`EUR` ou `USD`) | `EUR` |
+| `RISK_PCT` | variable | risque par trade en % du capital | `1` |
+| `MAX_LEV` | variable | exposition maxi par signal, en multiple du capital | `4` |
+| `VOL_CUT` | variable | ciblage de volatilité : risque ÷ 2 au-dessus de ce VIX (actions) | `25` |
+| `MIN_SCORE` | variable | score mini pour envoyer | `60` |
+| `NEED_BT` | variable | `1` = backtest de l'actif gagnant exigé | `1` |
+| `MAX_SAME` | variable | positions max dans le même sens par classe d'actifs | `3` |
+| `SIP_STOCKS` | variable | univers Stocks in Play | 177 actions US liquides |
+| `SIP_TOP` · `SIP_SEND` | variable | candidats retenus (volume relatif) · ordres envoyés (meilleurs scores) | `20` · `10` |
+| `SIP_RVOL` · `SIP_ATR_STOP` | variable | volume relatif mini · stop en fraction d'ATR | `1.0` · `0.10` |
+| `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | variable | univers momentum | 18 ETF / méga-caps · 11 paires + or/argent · 58 cryptos |
+| `LH_STOCKS` · `LH_MIN` · `LH_MAX` | variable | dernière demi-heure : ETF · mouvement mini depuis la veille · signaux par sens | `SPY,QQQ,IWM,DIA` · `0.004` · `1` |
+| `COST_BPS_STOCKS` · `_FX` · `_CR` | variable | frais + écart aller-retour estimés (points de base) | `3` · `1.5` · `10` |
 
 ## ⚠️ Avertissement
 
 Outil **éducatif**. Il n'envoie **aucun ordre** et n'est **pas un conseil financier**. Les études citées
-portent sur le passé, avec leurs propres hypothèses (frais, glissement, exécution) ; un backtest et une
-simulation ne garantissent rien. Le trading avec effet de levier peut faire perdre plus que la mise.
-Utilise toujours un stop-loss et ne risque que ce que tu peux perdre.
+portent sur le passé, avec leurs propres hypothèses ; un backtest sur 60 jours est un petit échantillon et ne
+garantit rien. Le trading avec effet de levier peut faire perdre plus que la mise. Projet indépendant, sans lien
+avec Bloomberg, BlackRock, JPMorgan ni les auteurs cités. Données Yahoo / CNN / Kraken non officielles, avec retard possible.
 
 ## 🌍 English summary
 
-Free, open-source **intraday signal bot** for US stocks, forex, gold and crypto, delivered to Telegram and
-running for free on GitHub Actions. It implements two of the best-documented intraday strategies from
-published research — **Stocks in Play** opening-range breakout (Zarattini, Barbon & Aziz, 2024) and
-**intraday momentum** with a noise boundary and VWAP trailing stop (Zarattini, Aziz & Barbon, 2024;
-Gao et al., 2018) — plus a **Bloomberg-style layer** (morning cross-asset briefing, risk-on/risk-off regime,
-sector rotation, news and economic calendar). Every signal gets a **confluence score /100**, a per-asset
-**backtest** and a **10,000-path Monte Carlo**. Educational only; not financial advice; no orders are sent.
+Free, open-source **intraday signal bot** for US stocks, forex, gold and 58 cryptocurrencies, delivered to Telegram
+and running for free on GitHub Actions. Three published strategies: **Stocks in Play** opening-range breakout
+(Zarattini, Barbon & Aziz, 2024), **intraday momentum** with a noise boundary and VWAP trailing stop
+(Zarattini, Aziz & Barbon, 2024; Gao et al., 2018) and **last-half-hour momentum** (Baltussen et al., 2021).
+An institutional layer adds volatility targeting, pre-FOMC drift alerts, the yield curve, Fear & Greed and
+Kraken perpetual funding; a Bloomberg-style layer adds a cross-asset briefing, market regime, sector rotation,
+news and the economic calendar. Each signal needs a score ≥ 60 and a profitable per-asset backtest **after costs**,
+and is then **tracked to its outcome** in a public R-multiple track record. Educational only; no orders are sent.
 
 ## 🤝 Contribuer
 
-Les idées, issues et pull requests sont les bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md).
-Licence [MIT](LICENSE).
+Idées, issues et pull requests bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md). Licence [MIT](LICENSE).

@@ -76,7 +76,7 @@ def test_backtest_and_monte_carlo():
     days = B.by_day(synth_24h(), B.UTC, B.hm(0))
     rs = B.mom_backtest(days, "cr", DAY, 1)
     st = B.bt_stats(rs)
-    assert st["n"] > 5 and all(r >= -1.5 for r in rs)
+    assert st["n"] > 5 and all(r >= -1.76 for r in rs)  # gap borne a -1.5 R + frais <= 0.25 R
     mc = B.mc_trades([1, -1, 2, -1, 0.5, -1, 3, -1, -1, 1], sims=2000)
     assert 0 <= mc["p_win"] <= 1 and mc["p5"] <= mc["med"]
 
@@ -108,14 +108,13 @@ def test_message_is_valid_telegram_html(monkeypatch):
     monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC"])
     monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
     monkeypatch.setitem(B.CFG, "NEED_BT", 0)
-    monkeypatch.setitem(B.CFG, "STATE_DIR", "/tmp/botpro_test")
     st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
     for hh in range(6, 12):
         for mm in (0, 30):
             B.mom_scan(st, "cr", B.at(DAY, B.hm(hh, mm), B.UTC) + 60)
     assert sent, "aucun signal sur une journee en forte tendance"
     assert all(html_ok(m) for m in sent)
-    assert "score" in sent[0] and "10 000 simulations" in sent[0]
+    assert "score" in sent[0] and "rejeux de 20 trades" in sent[0] and "intervalle 90" in sent[0]
 
 
 def test_price_format():
@@ -135,7 +134,6 @@ def _stub(monkeypatch, bars, sent):
     monkeypatch.setattr(B.time, "sleep", lambda x: None)
     monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
     monkeypatch.setitem(B.CFG, "NEED_BT", 0)
-    monkeypatch.setitem(B.CFG, "STATE_DIR", "/tmp/botpro_test")
     B.HIST.clear()
 
 
@@ -143,6 +141,9 @@ def test_correlation_guard_and_tracking(monkeypatch):
     bars = synth_24h(drift_today=0.0012)
     sent = []
     _stub(monkeypatch, bars, sent)
+    per = {s: synth_24h(drift_today=0.0012, seed=11 + i, p=100.0 * (i + 1))
+           for i, s in enumerate(["BTC", "ETH", "SOL", "XRP", "ADA"])}
+    monkeypatch.setattr(B, "chart", lambda s, r, i, prepost=False, meta=False: per[s.split("-")[0]])
     monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC", "ETH", "SOL", "XRP", "ADA"])
     monkeypatch.setitem(B.CFG, "MAX_SAME", 3)
     st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
@@ -153,8 +154,9 @@ def test_correlation_guard_and_tracking(monkeypatch):
             assert n <= 3
             if n and first is None:
                 first = n
-    assert first == 3 and len(st["open"]) >= 3
-    assert st["day"].get("mom_correles", 0) >= 2
+    day = st["day"]
+    assert first and len(st["open"]) == 3               # jamais plus de 3 positions ouvertes dans le meme sens
+    assert day.get("mom_correles", 0) >= 1 and day.get("mom_envoyes") == 3
     # suivi : on rejoue la fin de journee (tendance haussiere -> resultats positifs ou TP)
     sent.clear()
     end = B.at(DAY, B.hm(12), B.UTC) + 300
@@ -170,8 +172,10 @@ def test_position_size(monkeypatch):
     monkeypatch.setitem(B.CFG, "CAPITAL", 1000.0)
     monkeypatch.setitem(B.CFG, "RISK_PCT", 1.0)
     line = B.size_line(100.0, 98.0, "stocks")
-    assert "5 actions" in line or "5.000 actions" in line
-    assert html_ok(line)
+    # 1000 EUR x 1 % = 10 EUR = 11 USD ; risque 2 USD / action -> 5 actions
+    assert "5 actions" in line and "€" in line and html_ok(line)
+    jpy = B.size_line(150.0, 149.5, "fx", "USDJPY")      # risque 0.5 JPY = 0.0033 USD par unite
+    assert "3300 unités" in jpy and "10 €" in jpy        # risque 0.5 JPY x 3300 = 1650 JPY = 11 $ = 10 EUR
     monkeypatch.setitem(B.CFG, "CAPITAL", 0.0)
     assert "capital" in B.size_line(1.10, 1.098, "fx")
 
@@ -193,7 +197,9 @@ def test_fomc_and_vol_targeting(monkeypatch):
     monkeypatch.setitem(B.CFG, "CAPITAL", 1000.0)
     monkeypatch.setitem(B.REGIME, "vix", 32.0)
     line = B.size_line(100.0, 98.0, "stocks")
-    assert "÷ 2" in line and "risquer 5" in line
+    assert "÷ 2" in line and "2 actions" in line          # 0.5 % du capital
+    monkeypatch.setitem(B.CFG, "MAX_LEV", 1.0)
+    assert "plafonné" in B.size_line(100.0, 99.99, "stocks")
 
 
 def test_institutional_feeds(monkeypatch):

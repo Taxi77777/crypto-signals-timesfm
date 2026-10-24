@@ -1,13 +1,14 @@
 name: Bot Pro - signaux intraday (Telegram)
 
-# Stocks in Play + momentum intraday (zone de bruit + VWAP) + couche Bloomberg (briefing, regime).
+# Stocks in Play + momentum intraday + derniere demi-heure + couches desks institutionnels / Bloomberg.
 # SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
-# Actif tous les jours de 6 h a 21 h 15 UTC (actions et forex en semaine, crypto 7 j/7).
+# Actif tous les jours de 6 h a 21 h 30 UTC (actions et forex en semaine, crypto 7 j/7).
+# CAPITAL se met dans les SECRETS (masques dans les journaux publics), jamais dans les variables.
 on:
   schedule:
     # GitHub saute souvent des crons : un tick toutes les 15 min (un seul job en attente a la
     # fois) + le job se relance lui-meme quand il atteint sa duree maximale
-    - cron: '*/15 6-20 * * *'
+    - cron: '*/15 6-21 * * *'
   workflow_dispatch:
     inputs:
       minutes:
@@ -24,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 340
+    timeout-minutes: 355
     outputs:
       relance: ${{ steps.scan.outputs.relance }}
     steps:
@@ -37,7 +38,7 @@ jobs:
           python-version: '3.11'
 
       - name: Dependances
-        run: pip install "requests>=2.31,<3" tzdata
+        run: pip install -r requirements.txt
 
       # OpenBB (actualites, resultats, calendrier eco) : facultatif. S'il ne s'installe pas,
       # le bot tourne quand meme (les signaux ne doivent jamais dependre de lui).
@@ -57,11 +58,22 @@ jobs:
           MOM_CRYPTO:         ${{ vars.MOM_CRYPTO }}
           MIN_SCORE:          ${{ vars.MIN_SCORE }}
           MAX_SAME:           ${{ vars.MAX_SAME }}
-          CAPITAL:            ${{ vars.CAPITAL }}
+          CAPITAL:            ${{ secrets.CAPITAL }}
           RISK_PCT:           ${{ vars.RISK_PCT }}
+          ACCOUNT_CCY:        ${{ vars.ACCOUNT_CCY }}
+          MAX_LEV:            ${{ vars.MAX_LEV }}
           VOL_CUT:            ${{ vars.VOL_CUT }}
           LH_STOCKS:          ${{ vars.LH_STOCKS }}
           LH_MIN:             ${{ vars.LH_MIN }}
+          LH_MAX:             ${{ vars.LH_MAX }}
+          SIP_TOP:            ${{ vars.SIP_TOP }}
+          SIP_SEND:           ${{ vars.SIP_SEND }}
+          SIP_RVOL:           ${{ vars.SIP_RVOL }}
+          SIP_ATR_STOP:       ${{ vars.SIP_ATR_STOP }}
+          NEED_BT:            ${{ vars.NEED_BT }}
+          COST_BPS_STOCKS:    ${{ vars.COST_BPS_STOCKS }}
+          COST_BPS_FX:        ${{ vars.COST_BPS_FX }}
+          COST_BPS_CR:        ${{ vars.COST_BPS_CR }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           STATE_DIR:          /tmp/etat_bot
           PYTHONUNBUFFERED:   '1'

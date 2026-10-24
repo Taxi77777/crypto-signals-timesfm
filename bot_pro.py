@@ -2,8 +2,9 @@
 """
 BOT PRO  -  signaux intraday "niveau Wall Street / Bloomberg"  (Telegram, AUCUN ordre envoye)
 =============================================================================================
-Deux strategies intraday parmi les mieux documentees par la recherche publiee, un filtre de
-regime de marche facon terminal Bloomberg, une validation statistique de chaque signal.
+Trois strategies intraday parmi les mieux documentees par la recherche publiee, un filtre de
+regime de marche facon terminal Bloomberg, une validation statistique de chaque signal, un suivi
+automatique de chaque signal jusqu'a son resultat (bilan public en R, frais estimes inclus).
 
 1. STOCKS IN PLAY  (actions US)
    Zarattini, Barbon & Aziz (2024) "A Profitable Day Trading Strategy For The U.S. Equity
@@ -42,11 +43,11 @@ COUCHE BLOOMBERG
    - contexte OpenBB / Yahoo : actualites, resultats d'entreprise, calendrier economique.
 
 VALIDATION DE CHAQUE SIGNAL
-   - score de confluence /100 (cassure, tendance 1 h, VWAP, force relative, volume relatif,
-     regime, backtest, actualites) ;
-   - backtest de la MEME regle sur l'actif (60 derniers jours de bougies 5 min) ;
-   - Monte Carlo : 10 000 tirages des resultats du backtest sur les 20 prochains trades
-     (probabilite d'etre gagnant, mediane, pire 5 %).
+   - score de confluence /100 (cassure, tendance 1 h, force relative, volume relatif, regime,
+     backtest ; la VWAP est un filtre) ; les actualites sont affichees, pas notees ;
+   - backtest de la MEME regle sur l'actif (60 derniers jours de bougies 5 min, frais inclus,
+     execution prudente) + intervalle a 90 % du R moyen (bootstrap) ;
+   - rejeu : 10 000 tirages de 20 trades passes (information, pas une probabilite du futur).
 
 Donnees : Yahoo Finance (gratuit, non officiel, retard possible). Ce n'est pas un conseil
 financier : les resultats passes et les etudes ne garantissent rien.
@@ -80,8 +81,11 @@ def envf(name, default):
     if isinstance(default, str):
         return v
     try:
-        return type(default)(float(v.replace(",", ".")))
-    except ValueError:
+        x = float(v.replace(",", "."))
+        if not math.isfinite(x):
+            raise ValueError("non fini")
+        return type(default)(x)
+    except (ValueError, OverflowError):
         logging.warning("variable %s=%r invalide : %s par defaut", name, v, default)
         return default
 
@@ -99,7 +103,9 @@ SIP_STOCKS = (
     "DAL,UAL,AAL,CCL,RCL,NCLH")
 MOM_STOCKS = "SPY,QQQ,IWM,DIA,SMH,NVDA,TSLA,AAPL,MSFT,AMZN,META,GOOGL,AMD,AVGO,NFLX,COIN,MSTR,PLTR"
 MOM_FX = "EURUSD,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,EURJPY,GBPJPY,EURGBP,AUDJPY,XAUUSD,XAGUSD"
-MOM_CRYPTO = "BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,DOT,TRX,BCH,NEAR,XLM,HBAR,ICP,ATOM"
+MOM_CRYPTO = ("BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,DOT,TRX,BCH,NEAR,XLM,HBAR,ICP,ATOM,ETC,FIL,XMR,ALGO,"
+              "VET,EOS,XTZ,AAVE,MKR,INJ,SAND,MANA,AXS,THETA,EGLD,CHZ,CRV,LDO,KAS,SHIB,QNT,GRT,SNX,COMP,ZEC,"
+              "DASH,NEO,KSM,1INCH,BAT,ENJ,ZIL,FET,BSV,HNT,KAVA,ROSE,CELO,ONE,QTUM")
 
 
 def _lst(name, default):
@@ -124,10 +130,20 @@ CFG = {
     "LH_STOCKS": _lst("LH_STOCKS", "SPY,QQQ,IWM,DIA"),
     "LH_MIN": envf("LH_MIN", 0.004),            # derniere 1/2 h : mouvement mini depuis la cloture de la veille
     "VOL_CUT": envf("VOL_CUT", 25.0),           # ciblage de volatilite : risque / 2 au-dessus de ce VIX
+    "LH_MAX": envf("LH_MAX", 1),                # derniere 1/2 h : SPY/QQQ/IWM/DIA sont correles a ~0.9 -> 1 seul
+    "COST_BPS_STOCKS": envf("COST_BPS_STOCKS", 3.0),   # frais + ecart achat/vente aller-retour (points de base)
+    "COST_BPS_FX": envf("COST_BPS_FX", 1.5),
+    "COST_BPS_CR": envf("COST_BPS_CR", 10.0),
+    "ACCOUNT_CCY": envf("ACCOUNT_CCY", "EUR"),  # devise du capital (EUR ou USD)
+    "MAX_LEV": envf("MAX_LEV", 4.0),            # exposition maxi par signal = 4 x capital (comme l'etude)
     "LOOP_MINUTES": min(envf("LOOP_MINUTES", 320), 320),
     "STATE_DIR": envf("STATE_DIR", "."),
     "PAUSE": envf("PAUSE", 0.2),
 }
+for _k, _lo in (("SIP_ATR_STOP", 0.01), ("RISK_PCT", 0.01), ("LOOP_MINUTES", 5), ("MAX_SAME", 1), ("SIMS", 1000),
+                ("LH_MAX", 1), ("MAX_LEV", 0.1)):
+    CFG[_k] = max(CFG[_k], type(CFG[_k])(_lo))
+CFG["CAPITAL"] = max(0.0, CFG["CAPITAL"])
 BAR = 300
 STATE_FILE = "bot_pro_state.json"
 SEP = "━━━━━━━━━━━━━━━"
@@ -221,7 +237,7 @@ def parse_result(res):
     for i, ts in enumerate(t):
         if i >= min(len(o), len(h), len(l), len(c)):
             break
-        if None in (o[i], h[i], l[i], c[i]) or c[i] <= 0:
+        if None in (o[i], h[i], l[i], c[i]) or min(o[i], h[i], l[i], c[i]) <= 0:
             continue
         out[int(ts)] = (int(ts), float(o[i]), float(h[i]), float(l[i]), float(c[i]),
                         float((v[i] if i < len(v) else 0) or 0))
@@ -246,7 +262,10 @@ def chart(sym, rng, interval, prepost=False, meta=False):
                 res = ((r.json().get("chart") or {}).get("result") or [None])[0]
                 if not res:
                     raise ValueError("symbole inconnu ou sans donnees")
-                return (parse_result(res), res.get("meta") or {}) if meta else parse_result(res)
+                bars = parse_result(res)
+                if interval == "5m":
+                    bars = [b for b in bars if b[0] % BAR == 0]   # bougie en cours (horodatage non aligne)
+                return (bars, res.get("meta") or {}) if meta else bars
             except Exception as ex:
                 last = str(ex)[:120]
         time.sleep(2)
@@ -325,11 +344,12 @@ def bt_stats(rs):
 
 
 def mc_trades(rs, n_next=20, sims=10000, seed=7):
-    """Monte Carlo : 10 000 sequences des 20 prochains trades tirees dans le backtest."""
+    """Reechantillonnage (bootstrap) du backtest : 20 trades passes rejoues au hasard, `sims` fois,
+       + intervalle a 90 % du R moyen. C'est un rejeu du passe, pas une probabilite du futur."""
     if len(rs) < 8:
         return None
     rng = random.Random(seed)
-    tots, dds = [], []
+    tots, dds, means = [], [], []
     for _ in range(int(sims)):
         eq = peak = dd = 0.0
         for _ in range(n_next):
@@ -338,10 +358,24 @@ def mc_trades(rs, n_next=20, sims=10000, seed=7):
             dd = max(dd, peak - eq)
         tots.append(eq)
         dds.append(dd)
+    for _ in range(max(1000, int(sims) // 5)):
+        means.append(sum(rs[int(rng.random() * len(rs))] for _ in range(len(rs))) / len(rs))
     tots.sort()
     dds.sort()
+    means.sort()
     return {"p_win": sum(1 for x in tots if x > 0) / len(tots), "med": tots[len(tots) // 2],
-            "p5": tots[int(0.05 * len(tots))], "dd95": dds[int(0.95 * len(dds))], "n": n_next}
+            "p5": tots[int(0.05 * len(tots))], "dd95": dds[int(0.95 * len(dds))], "n": n_next,
+            "sims": int(sims), "m5": means[int(0.05 * len(means))], "m95": means[int(0.95 * len(means))]}
+
+
+def cost_r(kind, entry, risk):
+    """Frais + ecart achat/vente aller-retour, exprimes en R."""
+    bps = {"stocks": CFG["COST_BPS_STOCKS"], "fx": CFG["COST_BPS_FX"], "cr": CFG["COST_BPS_CR"]}.get(kind, 5.0)
+    return entry * bps / 1e4 / risk if risk > 0 else 0.0
+
+
+def nb(n):
+    return "{:,}".format(int(n)).replace(",", " ")
 
 
 # --------------------------------------------------------------- jours / sessions de bougies
@@ -378,13 +412,16 @@ _OFF = {}
 
 
 def day_offsets(days, x, kind):
-    """{decalage depuis le debut du jour (s): bougie} pour la journee x (cache)."""
-    key = (id(days), x)
+    """{decalage depuis le debut du jour (s): bougie} pour la journee x (cache par contenu, plafonne)."""
+    bs = days[x]
+    key = (kind, x, bs[0], bs[-1], len(bs)) if bs else (kind, x)
     m = _OFF.get(key)
     if m is None:
+        if len(_OFF) > 6000:
+            _OFF.clear()
         tz, start_t = MOM_MARKETS[kind][0], MOM_MARKETS[kind][1]
         t0 = at(x, start_t, tz)
-        m = {b[0] - t0: b for b in days[x]}
+        m = {b[0] - t0: b for b in bs}
         _OFF[key] = m
     return m
 
@@ -407,6 +444,8 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
     """Applique la regle a la journee d. Retourne la liste des signaux (au plus 1 par sens) :
        [{dir, k, ts, price, upper, lower, vwap, stop, sigma}] et pour le backtest leur sortie."""
     tz, start_t, first_t, last_t, flat_t, _ = MOM_MARKETS[kind]
+    if kind == "stocks" and stock_close_t(d) != hm(16):          # demi-seance (clôture 13 h)
+        last_t, flat_t = hm(12, 30), hm(12, 55)
     bs = days.get(d) or []
     if len(bs) < 6:
         return []
@@ -434,33 +473,51 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
                 continue
             if (dr > 0 and px > up and px > vw) or (dr < 0 and px < lo and px < vw):
                 stop = max(up, vw) if dr > 0 else min(lo, vw)
-                if (px - stop) * dr <= px * 0.0003:
-                    continue                      # stop collé au prix : signal ignore
+                if (px - stop) * dr <= px * max(0.0003, 4 * cost_r(kind, 1.0, 1.0)):
+                    continue                      # stop trop serre : les frais depasseraient 0.25 R
                 seen.add(dr)
                 out.append({"dir": dr, "k": k, "ts": close_ts, "price": px, "upper": up, "lower": lo,
-                            "vwap": vw, "stop": stop, "sigma": sig, "t_flat": t_flat})
+                            "vwap": vw, "stop": stop, "sigma": sig, "t_flat": t_flat, "kind": kind,
+                            "hi0": max(o, pc), "lo0": min(o, pc)})
     return out
 
 
+def trail_stop(days, d, kind, rec, j, stop, dr):
+    """Stop suiveur de l'etude : max(borne SUPERIEURE ACTUELLE, VWAP) a l'achat (min(borne inf., VWAP)
+       a la vente), recalcule a chaque HH:00 / HH:30 ; il ne recule jamais."""
+    bs = days[d]
+    tz, start_t = MOM_MARKETS[kind][0], MOM_MARKETS[kind][1]
+    sig = noise_sigma(days, d, bs[j][0] - at(d, start_t, tz), kind)
+    up = rec["hi0"] * (1 + sig) if sig and rec.get("hi0") else rec["upper"]
+    lo = rec["lo0"] * (1 - sig) if sig and rec.get("lo0") else rec["lower"]
+    vw = vwap(bs[:j + 1])
+    new = max(up, vw) if dr > 0 else min(lo, vw)
+    return max(stop, new) if dr > 0 else min(stop, new)
+
+
 def mom_exit(days, d, s):
-    """Sortie de la regle : stop suiveur max(borne, VWAP) verifie toutes les 30 min, fin de seance.
-       Retourne le resultat en R (risque initial = entree - stop initial)."""
+    """Sortie de la regle : stop verifie sur chaque bougie 5 min (gap : execution a l'ouverture),
+       stop suiveur mis a jour toutes les 30 min (si le nouveau stop est deja franchi : sortie a la
+       cloture de la bougie), sortie en fin de seance. Resultat en R (risque initial)."""
     bs = days[d]
     dr, e, stop = s["dir"], s["price"], s["stop"]
+    kind = s.get("kind", "stocks")
     risk = (e - stop) * dr
-    tz = MOM_MARKETS["stocks"][0]
+    tz = MOM_MARKETS[kind][0]
     last = e
     for j in range(s["k"] + 1, len(bs)):
         b = bs[j]
         if b[0] + BAR > s["t_flat"]:
             break
         last = b[4]
-        if (b[3] <= stop and dr > 0) or (b[2] >= stop and dr < 0):
-            return ((stop - e) * dr) / risk       # stop touche dans la bougie
-        if local_dt(b[0] + BAR, tz).minute % 30 == 0:  # mise a jour du stop suiveur
-            vw = vwap(bs[:j + 1])
-            new = max(s["upper"], vw) if dr > 0 else min(s["lower"], vw)
-            stop = max(stop, new) if dr > 0 else min(stop, new)
+        if dr > 0 and b[3] <= stop:
+            return (min(b[1], stop) - e) / risk
+        if dr < 0 and b[2] >= stop:
+            return (e - max(b[1], stop)) / risk
+        if local_dt(b[0] + BAR, tz).minute % 30 == 0:
+            stop = trail_stop(days, d, kind, s, j, stop, dr)
+            if (b[4] - stop) * dr <= 0:
+                return ((b[4] - e) * dr) / risk
     return ((last - e) * dr) / risk
 
 
@@ -473,7 +530,8 @@ def mom_backtest(days, kind, before, dr):
         pc = days[keys[i - 1]][-1][4] if i > 0 and days[keys[i - 1]] else None
         for s in mom_eval_day(days, d, kind, None, pc):
             if s["dir"] == dr:
-                rs.append(max(-1.5, mom_exit(days, d, s)))   # glissement de stop borne a -1.5 R
+                r = max(-1.5, mom_exit(days, d, s))          # gap au-dela du stop borne a -1.5 R
+                rs.append(r - cost_r(kind, s["price"], abs(s["price"] - s["stop"])))
     return rs
 
 
@@ -511,8 +569,12 @@ def sip_analyse(sym, bars, d):
             "days": days, "first": first}
 
 
+SIP_ORDER_END = hm(15, 30)        # ordres stop valables jusqu'a 15 h 30 New York (suivis en direct)
+
+
 def sip_backtest(days, d, atr_frac):
-    """La regle sur les jours precedents (volume relatif >= seuil ce jour-la), en R."""
+    """La regle sur les jours precedents (volume relatif >= seuil ce jour-la), en R, frais inclus.
+       Prudent : si la bougie d'entree touche aussi le stop, on compte -1 R ; gap : execution a l'ouverture."""
     rs = []
     keys = sorted(x for x in days if x < d)
     for i, x in enumerate(keys):
@@ -523,7 +585,7 @@ def sip_backtest(days, d, atr_frac):
         if local_dt(f[0], NY).time() != hm(9, 30):
             continue
         p14 = keys[i - 14:i]
-        vo = [days[y][0][5] for y in p14]
+        vo = [days[y][0][5] for y in p14 if local_dt(days[y][0][0], NY).time() == hm(9, 30)]
         if not vo or sum(vo) <= 0 or f[5] / (sum(vo) / len(vo)) < CFG["SIP_RVOL"]:
             continue
         trs = []
@@ -539,26 +601,32 @@ def sip_backtest(days, d, atr_frac):
         e = f[2] if dr > 0 else f[3]
         stop = e - dr * atr_frac * atr
         risk = abs(e - stop)
+        c = stock_close_t(x)
+        t_exit = at(x, hm(15, 55) if c == hm(16) else hm(12, 55), NY)
+        t_order = at(x, SIP_ORDER_END if c == hm(16) else hm(12, 30), NY)
         filled, res = False, None
         for b in bs[1:]:
-            if local_dt(b[0] + BAR, NY).time() > hm(15, 55):
+            if b[0] + BAR > t_exit:
                 break
             if not filled:
+                if b[0] >= t_order:
+                    break
                 if (dr > 0 and b[2] >= e) or (dr < 0 and b[3] <= e):
                     filled = True
-                    # bougie d'entree : l'ordre des prix dans les 5 min est inconnu ; stop compte
-                    # seulement si la bougie CLOTURE au-dela (ni optimiste ni pessimiste)
-                    if (dr > 0 and b[4] <= stop) or (dr < 0 and b[4] >= stop):
-                        res = -1.0
+                    if (dr > 0 and b[3] <= stop) or (dr < 0 and b[2] >= stop):
+                        res = -1.0                # ordre des prix inconnu dans la bougie : prudent
                         break
                     res = (b[4] - e) * dr / risk
                 continue
-            if (dr > 0 and b[3] <= stop) or (dr < 0 and b[2] >= stop):
-                res = -1.0
+            if dr > 0 and b[3] <= stop:
+                res = (min(b[1], stop) - e) / risk
+                break
+            if dr < 0 and b[2] >= stop:
+                res = (e - max(b[1], stop)) / risk
                 break
             res = (b[4] - e) * dr / risk
         if filled and res is not None:
-            rs.append(max(-1.5, res))
+            rs.append(max(-1.5, res) - cost_r("stocks", e, risk))
     return rs
 
 
@@ -590,6 +658,9 @@ def regime_update(force=False):
         spy = daily_perf("SPY")
         vix = daily_perf("^VIX")
         v = vix["last"] if vix else None
+        if not spy:
+            REGIME.update(label="inconnu (données S&P indisponibles)", spy=0, vix=v, ts=time.time() - 3000)
+            return REGIME
         trend = 1 if spy and spy["above50"] else -1
         if v is not None and v >= 30:
             lab = "RISK-OFF (VIX ≥ 30 : marché en panique)"
@@ -614,7 +685,10 @@ def fomc_note(now_ts):
     for k, txt in ((0, "aujourd'hui"), (1, "demain")):
         dd = d + datetime.timedelta(days=k)
         if dd.isoformat() in FOMC_DAYS:
-            h = local_dt(at(dd, hm(14), NY), PARIS).strftime("%H:%M")
+            t_ann = at(dd, hm(14), NY)
+            h = local_dt(t_ann, PARIS).strftime("%H:%M")
+            if now_ts >= t_ann:
+                return "🏦 FOMC (Fed) : annonce faite à %s Paris, volatilité possible jusqu'à la clôture" % h
             return "🏦 FOMC (Fed) %s à %s Paris : forte volatilité autour de l'annonce ; le S&P a historiquement monté dans les 24 h avant (Lucca & Moench, Fed de New York)" % (txt, h)
     return None
 
@@ -655,8 +729,8 @@ def kraken_funding():
     """Funding et open interest des perpetuels Kraken Futures (API publique, sans cle)."""
     j = _get_json("https://futures.kraken.com/derivatives/api/v3/tickers", 900)
     out = {}
-    try:
-        for t in j.get("tickers") or []:
+    for t in ((j or {}).get("tickers") or []) if isinstance(j, dict) else []:
+        try:
             sym = str(t.get("symbol", "")).upper()
             if not (sym.startswith("PF_") and sym.endswith("USD")):
                 continue
@@ -665,8 +739,8 @@ def kraken_funding():
             mark = t.get("markPrice") or 0
             oi = t.get("openInterest") or 0
             out[coin] = {"rel": float(rel) if rel is not None else None, "oi_usd": float(oi) * float(mark)}
-    except Exception as ex:
-        OBB["errors"]["kraken"] = str(ex)[:160]
+        except Exception as ex:
+            OBB["errors"]["kraken"] = str(ex)[:160]
     return out
 
 
@@ -705,8 +779,9 @@ def premarket_gaps(st, now_ts):
     st["done"]["pre"] = d.isoformat()
     t_open = at(d, hm(9, 30), NY)
     rows = []
+    deadline = time.time() + 300
     for sym in CFG["SIP"]:
-        if STOP[0]:
+        if STOP[0] or time.time() > deadline:
             break
         try:
             bars, meta = chart(ysym(sym, "stocks"), "1d", "5m", prepost=True, meta=True)
@@ -739,7 +814,8 @@ def premarket_gaps(st, now_ts):
     fn = fomc_note(now_ts)
     if fn:
         L.append(esc(fn))
-    L += [SEP, "<i>Les actions en gap avec gros volume sont souvent les « Stocks in Play » de 15 h 36. Pas un conseil.</i>"]
+    L += [SEP, "<i>Les actions en gap avec gros volume sont souvent les « Stocks in Play » de %s. Pas un conseil.</i>"
+          % local_dt(at(d, hm(9, 36), NY), PARIS).strftime("%H:%M")]
     telegram("\n".join(L))
     save_state(st)
 
@@ -749,6 +825,7 @@ def pct(x):
 
 
 def briefing():
+    FMT[0] = 2
     reg = regime_update(force=True)
     L = ["🏛 <b>BRIEFING MARCHÉ</b> · %s" % local_dt(time.time(), PARIS).strftime("%d/%m %H:%M"), SEP]
     for s, name in MACRO:
@@ -827,7 +904,7 @@ def _cached(key, ttl, fn):
     except Exception as ex:
         OBB["errors"][key.split("|")[0]] = str(ex)[:160]
         val = None
-    OBB["cache"][key] = (time.time(), val)
+    OBB["cache"][key] = (time.time() - ttl + 120 if val is None else time.time(), val)
     return val
 
 
@@ -892,7 +969,7 @@ def strip_tags(t):
 
 def telegram(msg, html=True):
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
-    log.info("\n" + strip_tags(msg))
+    log.info("\n" + re.sub(r"📦[^\n]*", "📦 taille : (masquée dans le journal public)", strip_tags(msg)))
     if not tok or not chat:
         return
     if len(msg) > 4000:
@@ -918,6 +995,10 @@ def telegram(msg, html=True):
             if html and r.status_code == 400:
                 html, msg = False, strip_tags(msg)
                 continue
+            STATS["telegram_erreurs"] = STATS.get("telegram_erreurs", 0) + 1
+            log.warning("telegram : HTTP %d", r.status_code)
+            if r.status_code in (401, 403, 404):
+                return
         except Exception as ex:
             log.warning("telegram : %s", str(ex).replace(tok, "***"))
         time.sleep(2 + 3 * essai)
@@ -933,8 +1014,13 @@ def load_state():
         except Exception:
             st = None
     st = st if isinstance(st, dict) else {}
-    for k in ("alerts", "done", "sip", "signals", "day", "open", "track"):
-        st.setdefault(k, [] if k in ("signals", "open", "track") else {})
+    for k, t in (("alerts", dict), ("done", dict), ("sip", dict), ("signals", list), ("day", dict),
+                 ("open", list), ("track", list)):
+        if not isinstance(st.get(k), t):
+            st[k] = t()
+    st["alerts"] = {k: v for k, v in st["alerts"].items() if isinstance(v, (int, float))}
+    st["open"] = [o for o in st["open"] if isinstance(o, dict)]
+    st["track"] = [x for x in st["track"] if isinstance(x, dict) and isinstance(x.get("r"), (int, float))]
     return st
 
 
@@ -943,7 +1029,8 @@ def save_state(st):
     st["alerts"] = {k: v for k, v in st["alerts"].items() if v > cut}
     st["signals"] = st["signals"][-80:]
     st["track"] = st["track"][-1000:]
-    st["stats"] = dict(STATS, maj=time.strftime("%d/%m %H:%M UTC", time.gmtime()))
+    st["stats"] = dict(STATS, maj=time.strftime("%d/%m %H:%M UTC", time.gmtime()),
+                       symboles_ko=sorted(k for k, v in BAD.items() if v >= 3)[:80])
     os.makedirs(CFG["STATE_DIR"], exist_ok=True)
     p = os.path.join(CFG["STATE_DIR"], STATE_FILE)     # uniquement STATE_DIR (le workflow le copie dans le repo)
     with open(p + ".tmp", "w") as f:
@@ -974,35 +1061,75 @@ def bt_points(st_):
 def bt_lines(st_, mc):
     L = []
     if st_.get("n"):
-        L.append("📜 Backtest de la règle sur l'actif : %d trades · %.0f %% gagnants · moy. %+.2f R · PF %.2f" % (
+        L.append("📜 Backtest de la règle sur l'actif (frais inclus) : %d trades · %.0f %% gagnants · moy. %+.2f R · PF %.2f" % (
             st_["n"], 100 * st_["win"], st_["avg"], min(st_["pf"], 99)))
     else:
         L.append("📜 Backtest : pas assez d'historique")
     if mc:
-        L.append("🎲 10 000 simulations des %d prochains trades : gagnant dans <b>%.0f %%</b> des cas · médiane %+.1f R · pire 5 %% %+.1f R" % (
-            mc["n"], 100 * mc["p_win"], mc["med"], mc["p5"]))
+        L.append("📏 R moyen, intervalle 90 %% : [%+.2f ; %+.2f] → %s" % (
+            mc["m5"], mc["m95"], "avantage statistique probable" if mc["m5"] > 0 else "avantage NON démontré (échantillon court)"))
+        L.append("🎲 %s rejeux de 20 trades passés : positif dans %.0f %% · médiane %+.1f R · pire 5 %% %+.1f R <i>(rejeu du passé, pas une prévision)</i>" % (
+            nb(mc["sims"]), 100 * mc["p_win"], mc["med"], mc["p5"]))
     return L
 
 
-def size_line(entry, stop, kind):
-    """Taille de position pour risquer RISK_PCT % du capital (ou la formule si capital non renseigne)."""
+def usd_per(ccy):
+    """Valeur de 1 unite de `ccy` en USD (cours Yahoo en cache 1 h)."""
+    ccy = ccy.upper()
+    if ccy == "USD":
+        return 1.0
+    direct = ccy in ("EUR", "GBP", "AUD", "NZD")
+    y = ("%sUSD=X" % ccy) if direct else ("%s=X" % ccy)
+
+    def f():
+        b = chart(y, "5d", "1d")
+        return b[-1][4] if b else None
+    px = _cached("fx|" + y, 3600, f)
+    if not px:
+        return None
+    return px if direct else 1.0 / px
+
+
+def size_line(entry, stop, kind, sym=""):
+    """Taille de position pour risquer RISK_PCT % du capital (ou la formule si capital non renseigne).
+       Ciblage de volatilite : risque / 2 si VIX >= VOL_CUT (actions). Exposition plafonnee a MAX_LEV x capital."""
     risk = abs(entry - stop)
     if risk <= 0:
         return None
     unit = {"stocks": "actions", "fx": "unités de devise", "cr": "unités"}.get(kind, "unités")
     rp = CFG["RISK_PCT"]
     vix = REGIME.get("vix")
-    cut = vix is not None and vix >= CFG["VOL_CUT"]
+    cut = kind == "stocks" and vix is not None and vix >= CFG["VOL_CUT"]
     if cut:
-        rp /= 2.0                                 # ciblage de volatilite : on divise le risque par deux
+        rp /= 2.0
     note = " · risque ÷ 2 (VIX %.0f, ciblage de volatilité)" % vix if cut else ""
-    if CFG["CAPITAL"] > 0:
-        amount = CFG["CAPITAL"] * rp / 100.0
-        q = amount / risk
+    quote = sym[3:6] if kind == "fx" and len(sym) == 6 else "USD"
+    rk = ("%.2f" % risk) if kind == "stocks" else fmt(risk)
+    formula = "📦 Taille = (capital × %.1f %%) ÷ %s %s de risque par %s%s" % (
+        rp, rk, quote, unit[:-1] if unit.endswith("s") else unit, note)
+    if CFG["CAPITAL"] <= 0:
+        return formula
+    acc = str(CFG["ACCOUNT_CCY"]).upper()
+    acc_usd, q_usd = usd_per(acc), usd_per(quote)
+    if not acc_usd or not q_usd:
+        return formula
+    amount = CFG["CAPITAL"] * rp / 100.0                       # en devise du compte
+    q = amount * acc_usd / (risk * q_usd)
+    cap = CFG["MAX_LEV"] * CFG["CAPITAL"] * acc_usd / (entry * q_usd)
+    capped = q > cap
+    q = min(q, cap)
+    if kind == "stocks":
+        if q < 1:
+            return "📦 Taille : moins d'1 action pour ce risque (capital trop petit pour ce signal)"
+        qs = "%d" % int(q)
+    else:
         qs = ("%d" % q) if q >= 10 else ("%.3f" % q if q >= 0.01 else "%.6f" % q)
-        lot = "  (%.2f lot)" % (q / 100000.0) if kind == "fx" and q >= 1000 else ""
-        return "📦 Taille : <b>%s %s</b>%s pour risquer %.0f (%.1f %% du capital)%s" % (qs, unit, lot, amount, rp, note)
-    return "📦 Taille = (capital × %.1f %%) ÷ %s par %s%s" % (rp, fmt(risk), unit[:-1] if unit.endswith("s") else unit, note)
+    lot = "  (%.2f lot)" % (q / 100000.0) if kind == "fx" and q >= 1000 else ""
+    sym_ccy = {"EUR": "€", "USD": "$"}.get(acc, acc)
+    real = q * risk * q_usd / acc_usd
+    return "📦 Taille : <b>%s %s</b>%s pour risquer %.0f %s (%.2f %% du capital)%s%s" % (
+        qs, unit, lot, real, sym_ccy, 100 * real / CFG["CAPITAL"], note,
+        " · plafonné à %.0f× le capital" % CFG["MAX_LEV"] if capped else "")
 
 
 def verdict(score):
@@ -1017,9 +1144,23 @@ def verdict(score):
 HIST = {}
 
 
+BAD = {}
+
+
 def hist(kind, sym):
-    """Bougies 5 min (60 jours) en cache, completees a chaque passage par la journee en cours."""
+    """Bougies 5 min (60 jours) en cache, completees a chaque passage par la journee en cours.
+       Un symbole introuvable 3 fois de suite est ignore pour le reste du passage (liste dans diag)."""
     y = ysym(sym, kind)
+    if BAD.get(y, 0) >= 3 and y not in HIST:
+        raise RuntimeError("symbole ignore (introuvable sur Yahoo)")
+    try:
+        return _hist(kind, y)
+    except Exception:
+        BAD[y] = BAD.get(y, 0) + 1
+        raise
+
+
+def _hist(kind, y):
     c = HIST.get(y)
     if not c or time.time() - c["full"] > 12 * 3600:
         HIST[y] = {"bars": {b[0]: b for b in chart(y, "60d", "5m")}, "full": time.time()}
@@ -1130,7 +1271,7 @@ def mom_scan(st, kind, now_ts):
                 continue
             FMT[0] = 2 if kind == "stocks" else 5
             risk = abs(px - s["stop"])
-            tp = px + dr * 2 * risk
+            tp = px + dr * 2 * risk                   # objectif indicatif : la regle etudiee n'a pas de TP
             em, vt = verdict(score)
             flat_p = local_dt(s["t_flat"], PARIS).strftime("%H:%M")
             L = ["%s <b>%s %s</b> · %s" % ("🟢" if dr > 0 else "🔴", "ACHAT" if dr > 0 else "VENTE", esc(label(sym)),
@@ -1139,15 +1280,16 @@ def mom_scan(st, kind, now_ts):
                  SEP,
                  "▶️ Entrée    <code>%s</code>" % fmt(px),
                  "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(s["stop"]), -dr * 100 * risk / px),
-                 "🎯 TP        <code>%s</code>  (2R indicatif)" % fmt(tp),
-                 "🔁 Stop suiveur : remonter le SL à max(borne %s, VWAP) toutes les 30 min" % fmt(s["upper"] if dr > 0 else s["lower"]),
+                 "🎯 Objectif <code>%s</code>  (2R, indicatif : la règle étudiée sort au stop suiveur ou en fin de séance)" % fmt(tp),
+                 "🔁 Stop suiveur : toutes les 30 min, SL = %s(borne de la zone, VWAP) ; il ne recule jamais (borne actuelle %s)" % (
+                     "max" if dr > 0 else "min", fmt(s["upper"] if dr > 0 else s["lower"])),
                  "⏰ Sortie au plus tard %s · ⌛ valable jusqu'à %s (Paris)" % (
                      flat_p, local_dt(s["ts"] + 600, PARIS).strftime("%H:%M"))]
-            sz = size_line(px, s["stop"], kind)
+            sz = size_line(px, s["stop"], kind, sym)
             if sz:
                 L.append(sz)
             L += [SEP,
-                 "%s <b>%s · score %d/100</b> %s" % (em, vt, score, bar10(score))]
+                  "%s <b>%s · score %d/100</b> %s" % (em, vt, score, bar10(score))]
             L += ["%s %s" % ("✅" if p_ >= mx * 0.7 else "➖" if p_ > 0 else "❌", esc(n_)) for n_, p_, mx in why]
             L += bt_lines(stt, mc)
             L.append("🧭 Régime : %s" % esc(reg["label"]))
@@ -1166,11 +1308,13 @@ def mom_scan(st, kind, now_ts):
             L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
             pending.append((score, dr, sym, "\n".join(L), {
                 "strat": "momentum", "kind": kind, "sym": sym, "dir": dr, "entry": px, "stop": s["stop"],
-                "tp": tp, "upper": s["upper"], "lower": s["lower"], "t_flat": s["t_flat"], "day": d.isoformat(),
-                "sent": s["ts"], "score": score}))
-    # garde-fou de correlation : au plus MAX_SAME signaux dans le meme sens par classe et par passage
+                "upper": s["upper"], "lower": s["lower"], "hi0": s["hi0"], "lo0": s["lo0"], "t_flat": s["t_flat"],
+                "day": d.isoformat(), "sent": s["ts"], "score": score}))
+    # garde-fou de correlation : au plus MAX_SAME positions dans le meme sens par classe d'actifs,
+    # positions encore ouvertes comprises (hors liste Stocks in Play)
     pending.sort(key=lambda x: -x[0])
-    per_dir = {1: 0, -1: 0}
+    per_dir = {dd: sum(1 for o in st["open"] if o.get("kind") == kind and o.get("dir") == dd
+                       and o.get("strat") != "stocks in play") for dd in (1, -1)}
     for score, dr, sym, msg, rec in pending:
         if per_dir[dr] >= CFG["MAX_SAME"]:
             count(st, "mom_correles")
@@ -1193,15 +1337,17 @@ def sip_select(st, now_ts):
     d = local_dt(now_ts, NY).date()
     if st["done"].get("sip") == d.isoformat():
         return
-    st["done"]["sip"] = d.isoformat()
     reg = regime_update()
     cands = []
+    fails = 0
+    deadline = time.time() + 420
     for sym in CFG["SIP"]:
-        if STOP[0]:
+        if STOP[0] or time.time() > deadline:
             break
         try:
             bars = chart(ysym(sym, "stocks"), "60d", "5m")
         except Exception as ex:
+            fails += 1
             log.warning("SIP %s : %s", sym, ex)
             continue
         finally:
@@ -1212,6 +1358,10 @@ def sip_select(st, now_ts):
         if a["price"] < 5 or a["adv"] < 1e6 or a["atr"] < 0.5 or a["rvol"] < CFG["SIP_RVOL"]:
             continue
         cands.append(a)
+    if fails > len(CFG["SIP"]) // 2 and local_dt(time.time(), NY).time() < hm(10, 15):
+        log.warning("SIP : %d echecs Yahoo, nouvel essai plus tard", fails)
+        return                                    # panne de donnees : on reessaie (done non pose)
+    st["done"]["sip"] = d.isoformat()
     cands.sort(key=lambda x: -x["rvol"])
     top = cands[:int(CFG["SIP_TOP"])]
     picks = []
@@ -1227,14 +1377,15 @@ def sip_select(st, now_ts):
         earn = earnings_soon(a["sym"], d)
         pts += 0 if earn else 10
         a.update(score=min(100, pts), bt=stt, mc=mc, rank=rank, earn=earn)
-        if CFG["NEED_BT"] and stt.get("n", 0) >= 8 and stt["avg"] <= 0:
+        if a["score"] < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)):
+            count(st, "sip_rejetes")
             continue
         picks.append(a)
     picks.sort(key=lambda x: -x["score"])
     picks = picks[:int(CFG["SIP_SEND"])]
-    st["sip"] = {"date": d.isoformat(), "picks": [{"sym": a["sym"], "dir": a["dir"], "entry": a["entry"],
-                                                   "stop": a["stop"], "hit": False, "score": a["score"]}
-                                                  for a in picks]}
+    st["sip"] = {"date": d.isoformat(), "sent": now_ts,
+                 "picks": [{"sym": a["sym"], "dir": a["dir"], "entry": a["entry"], "stop": a["stop"],
+                            "hit": False, "score": a["score"]} for a in picks]}
     st["univers_sip"] = {"lus": len(CFG["SIP"]), "en_jeu": len(cands), "envoyes": len(picks)}
     if not picks:
         telegram("🇺🇸 <b>STOCKS IN PLAY</b> · %s\naucune action « en jeu » qui passe tous les filtres aujourd'hui"
@@ -1252,18 +1403,22 @@ def sip_select(st, now_ts):
         risk = abs(a["entry"] - a["stop"])
         L.append("%s <b>%s %s</b> · score %d/100 %s" % ("🟢" if dr > 0 else "🔴", "ACHAT" if dr > 0 else "VENTE",
                                                        esc(a["sym"]), a["score"], bar10(a["score"])))
-        L.append("   ordre %s <code>%s</code> · SL <code>%s</code> · TP 3R <code>%s</code>" % (
+        L.append("   ordre %s <code>%s</code> · SL <code>%s</code> · objectif 3R <code>%s</code> (indicatif)" % (
             "stop achat" if dr > 0 else "stop vente", fmt(a["entry"]), fmt(a["stop"]), fmt(a["entry"] + dr * 3 * risk)))
+        sz = size_line(a["entry"], a["stop"], "stocks")
+        if sz:
+            L.append("   " + sz)
         bt = a["bt"]
         line = "   volume x%.1f · ATR %.2f $" % (a["rvol"], a["atr"])
         if bt.get("n"):
-            line += " · backtest %d trades, %.0f %% gagnants, moy. %+.2f R" % (bt["n"], 100 * bt["win"], bt["avg"])
+            line += " · backtest %d trades, %.0f %% gagnants, moy. %+.2f R (frais inclus)" % (bt["n"], 100 * bt["win"], bt["avg"])
         if a["mc"]:
-            line += " · 10 000 sim. : gagnant %.0f %%" % (100 * a["mc"]["p_win"])
+            line += " · R moyen IC 90 %% [%+.2f ; %+.2f]" % (a["mc"]["m5"], a["mc"]["m95"])
         L.append(esc(line))
         if a["earn"]:
             L.append("   📅 ⚠️ résultats de l'entreprise aujourd'hui/demain")
-    L += [SEP, "⏰ Ordres valables jusqu'à 17h00 · sortie de toutes les positions avant %s (Paris)" % flat,
+    t_ord = local_dt(at(d, SIP_ORDER_END if stock_close_t(d) == hm(16) else hm(12, 30), NY), PARIS).strftime("%H:%M")
+    L += [SEP, "⏰ Ordres valables jusqu'à %s · sortie de toutes les positions à %s (Paris) · pas de TP dans l'étude" % (t_ord, flat),
           "🔔 Tu reçois une alerte quand un ordre se déclenche.",
           "<i>Signaux seulement, aucun ordre envoyé · pas un conseil</i>"]
     telegram("\n".join(L))
@@ -1272,11 +1427,13 @@ def sip_select(st, now_ts):
 
 
 def sip_triggers(st, now_ts):
-    """Alerte quand le prix touche l'ordre d'une action en jeu (jusqu'a 11 h NY)."""
+    """Alerte quand le prix touche l'ordre d'une action en jeu (jusqu'a 15 h 30 NY). Chaque ordre
+       declenche est suivi jusqu'au resultat, y compris s'il est deja stoppe (-1 R compte au bilan)."""
     s = st.get("sip") or {}
     d = local_dt(now_ts, NY).date()
     if s.get("date") != d.isoformat():
         return
+    t_order = at(d, SIP_ORDER_END if stock_close_t(d) == hm(16) else hm(12, 30), NY)
     for p in s.get("picks", []):
         if p["hit"] or STOP[0]:
             continue
@@ -1286,23 +1443,32 @@ def sip_triggers(st, now_ts):
             continue
         finally:
             time.sleep(CFG["PAUSE"])
-        after = [b for b in bars if local_dt(b[0], NY).time() >= hm(9, 35)]
+        after = [b for b in bars if b[0] >= at(d, hm(9, 35), NY) and b[0] < t_order]   # seance du jour seulement
         dr = p["dir"]
         trig = [b for b in after if (dr > 0 and b[2] >= p["entry"]) or (dr < 0 and b[3] <= p["entry"])]
-        if trig:
-            p["hit"] = True
-            stopped = any((dr > 0 and b[3] <= p["stop"]) or (dr < 0 and b[2] >= p["stop"]) for b in after)
-            if not stopped:
-                risk = abs(p["entry"] - p["stop"])
-                st["open"].append({"strat": "stocks in play", "kind": "stocks", "sym": p["sym"], "dir": dr,
-                                   "entry": p["entry"], "stop": p["stop"], "tp": p["entry"] + dr * 3 * risk,
-                                   "t_flat": at(d, hm(15, 55) if stock_close_t(d) == hm(16) else hm(12, 55), NY),
-                                   "day": d.isoformat(), "sent": trig[0][0] + BAR, "score": p.get("score", 0)})
-            FMT[0] = 2
-            telegram("🔔 <b>DÉCLENCHÉ · %s %s</b>\nentrée <code>%s</code> · SL <code>%s</code> · prix actuel <code>%s</code>%s"
-                     % ("ACHAT" if dr > 0 else "VENTE", esc(p["sym"]), fmt(p["entry"]), fmt(p["stop"]),
-                        fmt(after[-1][4]), "\n⚠️ le SL a déjà été touché : ne pas entrer" if stopped else ""))
-            save_state(st)
+        if not trig:
+            if now_ts >= t_order:
+                p["hit"] = True                   # ordre expire sans declenchement
+            continue
+        p["hit"] = True
+        k0 = after.index(trig[0])
+        stopped = any((dr > 0 and b[3] <= p["stop"]) or (dr < 0 and b[2] >= p["stop"]) for b in after[k0:])
+        missed = trig[0][0] + BAR <= s.get("sent", 0)        # declenche avant l'envoi de la liste
+        if not missed:
+            st["open"].append({"strat": "stocks in play", "kind": "stocks", "sym": p["sym"], "dir": dr,
+                               "entry": p["entry"], "stop": p["stop"], "first_bar_stop": True,
+                               "t_flat": at(d, hm(15, 55) if stock_close_t(d) == hm(16) else hm(12, 55), NY),
+                               "day": d.isoformat(), "sent": trig[0][0], "score": p.get("score", 0)})
+        FMT[0] = 2
+        extra = ""
+        if missed:
+            extra = "\nℹ️ déclenché avant l'envoi de la liste : entrée manquée, non comptée au bilan"
+        elif stopped:
+            extra = "\n⚠️ le SL a déjà été touché après l'entrée : ne pas entrer maintenant (compté −1 R au bilan)"
+        telegram("🔔 <b>DÉCLENCHÉ · %s %s</b>\nentrée <code>%s</code> · SL <code>%s</code> · prix actuel <code>%s</code>%s"
+                 % ("ACHAT" if dr > 0 else "VENTE", esc(p["sym"]), fmt(p["entry"]), fmt(p["stop"]),
+                    fmt(after[-1][4]), extra))
+        save_state(st)
 
 
 # --------------------------------------------------------------- DERNIERE DEMI-HEURE
@@ -1326,44 +1492,63 @@ def lh_trade(day_bars, prev_close, d, mean_lh, k_stop=2.0):
     dr = 1 if rod > 0 else -1
     risk = entry * mean_lh * k_stop
     stop = entry - dr * risk
-    out = {"dir": dr, "entry": entry, "stop": stop, "rod": rod, "risk": risk, "r": None}
+    out = {"dir": dr, "entry": entry, "stop": stop, "rod": rod, "risk": risk, "r": None,
+           "last_ts": before[-1][0] + BAR}
     for b in last:
-        if (dr > 0 and b[3] <= stop) or (dr < 0 and b[2] >= stop):
-            out["r"] = -1.0
+        if dr > 0 and b[3] <= stop:
+            out["r"] = (min(b[1], stop) - entry) / risk - cost_r("stocks", entry, risk)
+            return out
+        if dr < 0 and b[2] >= stop:
+            out["r"] = (entry - max(b[1], stop)) / risk - cost_r("stocks", entry, risk)
             return out
     if last and len(last) >= 5:
-        out["r"] = max(-1.5, (last[-1][4] - entry) * dr / risk)
+        out["r"] = max(-1.5, (last[-1][4] - entry) * dr / risk) - cost_r("stocks", entry, risk)
     return out
 
 
-def lh_history(days, before_d):
-    """Backtest de la derniere demi-heure sur les seances completes precedentes."""
-    keys = [x for x in sorted(days) if x < before_d and stock_open(x)]
-    moves = []
+def lh_moves(days, keys):
+    out = {}
     for x in keys:
         t_dec, t_close = lh_times(x)
         a = [b for b in days[x] if b[0] + BAR <= t_dec]
         z = [b for b in days[x] if b[0] + BAR <= t_close]
-        if a and z:
-            moves.append(abs(z[-1][4] / a[-1][4] - 1))
-    mean_lh = sum(moves) / len(moves) if moves else None
+        if a and z and len(z) - len(a) >= 5:
+            out[x] = abs(z[-1][4] / a[-1][4] - 1)
+    return out
+
+
+def lh_mean_before(moves, d, look=20):
+    v = [moves[x] for x in sorted(moves) if x < d][-look:]
+    return sum(v) / len(v) if len(v) >= 10 else None
+
+
+def lh_history(days, before_d):
+    """Backtest de la derniere demi-heure sur les seances precedentes. La largeur du stop de chaque
+       seance n'utilise que les 20 seances d'AVANT (aucun regard vers le futur)."""
+    keys = [x for x in sorted(days) if x < before_d and stock_open(x)]
+    moves = lh_moves(days, keys)
     rs = []
     for i in range(1, len(keys)):
-        tr = lh_trade(days[keys[i]], days[keys[i - 1]][-1][4], keys[i], mean_lh)
+        m = lh_mean_before(moves, keys[i])
+        tr = lh_trade(days[keys[i]], days[keys[i - 1]][-1][4], keys[i], m)
         if tr and tr["r"] is not None:
             rs.append(tr["r"])
-    return rs, mean_lh
+    return rs, lh_mean_before(moves, before_d)
 
 
 def lh_scan(st, now_ts):
+    """Derniere demi-heure : decision a 15 h 30 NY (12 h 30 en demi-seance), essais repetes jusqu'a
+       ce que la bougie de 15 h 30 soit publiee (fenetre 9 min). Un seul ETF par sens (correles ~0.9)."""
     d = local_dt(now_ts, NY).date()
     t_dec, t_close = lh_times(d)
-    if not (t_dec + 45 <= now_ts < t_dec + 600) or st["done"].get("lh") == d.isoformat():
+    if not (t_dec + 45 <= now_ts < t_dec + 540) or st["done"].get("lh") == d.isoformat():
         return 0
-    st["done"]["lh"] = d.isoformat()
+    if int(now_ts // 60) == LHT[0]:
+        return 0
+    LHT[0] = int(now_ts // 60)                    # au plus un essai par minute
     reg = regime_update()
-    sent = 0
     FMT[0] = 2
+    cands, ready = [], 0
     for sym in CFG["LH_STOCKS"]:
         if STOP[0]:
             break
@@ -1377,9 +1562,12 @@ def lh_scan(st, now_ts):
         prevs = [x for x in sorted(days) if x < d]
         if d not in days or not prevs:
             continue
+        if days[d][-1][0] + BAR < t_dec:
+            continue                              # bougie de 15 h 30 pas encore publiee
+        ready += 1
         rs, mean_lh = lh_history(days, d)
         tr = lh_trade(days[d], days[prevs[-1]][-1][4], d, mean_lh)
-        if not tr:
+        if not tr or tr["last_ts"] != t_dec:
             continue
         count(st, "lh_vus")
         stt, mc = bt_stats(rs), mc_trades(rs, sims=CFG["SIMS"])
@@ -1392,19 +1580,32 @@ def lh_scan(st, now_ts):
         if score < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and not (stt.get("n", 0) >= 12 and stt["avg"] > 0)):
             count(st, "lh_rejetes")
             continue
+        cands.append((score, sym, tr, why, stt, mc))
+    if ready < len(CFG["LH_STOCKS"]) and now_ts < t_dec + 420:
+        return 0                                  # on retente a la minute suivante
+    st["done"]["lh"] = d.isoformat()
+    cands.sort(key=lambda x: -x[0])
+    per_dir = {dd: sum(1 for o in st["open"] if o.get("strat") == "dernière 1/2 h" and o.get("dir") == dd
+                       and o.get("day") == d.isoformat()) for dd in (1, -1)}
+    sent = 0
+    for score, sym, tr, why, stt, mc in cands:
         dr, e = tr["dir"], tr["entry"]
+        if per_dir[dr] >= CFG["LH_MAX"]:
+            count(st, "lh_correles")
+            continue
+        per_dir[dr] += 1
         em, vt = verdict(score)
         L = ["⏱ <b>DERNIÈRE DEMI-HEURE · %s %s</b>" % ("🟢 ACHAT" if dr > 0 else "🔴 VENTE", esc(sym)), SEP,
              "💵 Entrée  <code>%s</code>  (maintenant)" % fmt(e),
              "🛑 SL        <code>%s</code>" % fmt(tr["stop"]),
-             "⏰ Sortie à la clôture : %s (Paris)" % local_dt(t_close, PARIS).strftime("%H:%M")]
+             "⏰ Sortie à la clôture : %s (Paris) · pas de TP" % local_dt(t_close, PARIS).strftime("%H:%M")]
         sz = size_line(e, tr["stop"], "stocks")
         if sz:
             L.append(sz)
         L += [SEP, "%s <b>%s · score %d/100</b> %s" % (em, vt, score, bar10(score))]
         L += ["%s %s" % ("✅" if p_ >= mx * 0.7 else "➖" if p_ > 0 else "❌", esc(n_)) for n_, p_, mx in why]
         L += bt_lines(stt, mc)
-        L.append("📚 Gao et al. 2018 · Baltussen et al. 2021 : le sens de la journée se prolonge dans la dernière demi-heure")
+        L.append("📚 Baltussen et al. 2021 (Gao et al. 2018) : le sens de la journée se prolonge souvent dans la dernière demi-heure")
         fn = fomc_note(now_ts)
         if fn:
             L.append(esc(fn))
@@ -1413,68 +1614,95 @@ def lh_scan(st, now_ts):
         sent += 1
         count(st, "lh_envoyes")
         st["open"].append({"strat": "dernière 1/2 h", "kind": "stocks", "sym": sym, "dir": dr, "entry": e,
-                           "stop": tr["stop"], "tp": e + dr * 50 * tr["risk"], "t_flat": t_close,
-                           "day": d.isoformat(), "sent": t_dec, "score": score})
+                           "stop": tr["stop"], "t_flat": t_close, "day": d.isoformat(), "sent": t_dec,
+                           "score": score})
         st["signals"].append({"t": time.strftime("%d/%m %H:%M", time.gmtime()), "strat": "derniere 1/2 h",
                               "sym": sym, "sens": "ACHAT" if dr > 0 else "VENTE", "entree": e,
                               "sl": tr["stop"], "score": score})
-        save_state(st)
+    save_state(st)
     return sent
 
 
-def track_update(st, now_ts):
-    """Suit chaque signal envoye jusqu'a sa sortie (SL / stop suiveur, TP, fin de seance) et
-       annonce le resultat en R. Alimente le bilan (track record) public dans l'etat."""
-    still = []
-    for o in st["open"]:
-        if STOP[0]:
-            still.append(o)
+def _track_one(st, o, now_ts):
+    """Suit un signal. Retourne True si le resultat est connu (publie), False s'il reste ouvert."""
+    kind, dr = o["kind"], o["dir"]
+    allb = hist(kind, o["sym"])
+    tz, start_t = MOM_MARKETS[kind][0], MOM_MARKETS[kind][1]
+    d = datetime.date.fromisoformat(o["day"])
+    days = by_day(allb, tz, start_t)
+    bs = days.get(d) or []
+    e, stop = o["entry"], o["stop"]
+    risk = abs(e - o["stop"]) or 1e-12
+    res = why = None
+    seen = False
+    for j, b in enumerate(bs):
+        if b[0] < o["sent"] or b[0] + BAR > now_ts:
             continue
-        kind, dr = o["kind"], o["dir"]
-        try:
-            allb = hist(kind, o["sym"])
-        except Exception:
-            still.append(o)
-            continue
-        finally:
-            time.sleep(CFG["PAUSE"])
-        bars = [b for b in allb if b[0] >= o["sent"] and b[0] + BAR <= now_ts]
-        tz, start_t = MOM_MARKETS[kind][0], MOM_MARKETS[kind][1]
-        d = datetime.date.fromisoformat(o["day"])
-        day_all = by_day(allb, tz, start_t).get(d) or []
-        e, stop, risk = o["entry"], o["stop"], abs(o["entry"] - o["stop"]) or 1e-12
-        res = why = None
-        for b in bars:
-            if b[0] + BAR > o["t_flat"]:
+        if b[0] + BAR > o["t_flat"]:
+            break
+        first = not seen
+        seen = True
+        if (dr > 0 and b[3] <= stop) or (dr < 0 and b[2] >= stop):
+            fill = stop if (first and o.get("first_bar_stop")) else (min(b[1], stop) if dr > 0 else max(b[1], stop))
+            res = max(-1.5, (fill - e) * dr / risk)
+            why = "stop suiveur" if (stop - o["stop"]) * dr > 0 else "SL"
+            break
+        if o["strat"] == "momentum" and local_dt(b[0] + BAR, tz).minute % 30 == 0:
+            stop = trail_stop(days, d, kind, o, j, stop, dr)
+            if (b[4] - stop) * dr <= 0:
+                res, why = (b[4] - e) * dr / risk, "stop suiveur"
                 break
-            if (dr > 0 and b[3] <= stop) or (dr < 0 and b[2] >= stop):
-                res, why = (stop - e) * dr / risk, "stop suiveur" if (stop - o["stop"]) * dr > 0 else "SL"
-                break
-            if (dr > 0 and b[2] >= o["tp"]) or (dr < 0 and b[3] <= o["tp"]):
-                res, why = (o["tp"] - e) * dr / risk, "TP"
-                break
-            if o["strat"] == "momentum" and local_dt(b[0] + BAR, tz).minute % 30 == 0:
-                vw = vwap([x for x in day_all if x[0] <= b[0]])
-                if vw:
-                    new = max(o["upper"], vw) if dr > 0 else min(o["lower"], vw)
-                    stop = max(stop, new) if dr > 0 else min(stop, new)
-        if res is None and now_ts >= o["t_flat"] and bars:
-            last = [b for b in bars if b[0] + BAR <= o["t_flat"]] or bars
+    if res is None and now_ts >= o["t_flat"]:
+        last = [b for b in bs if o["sent"] <= b[0] and b[0] + BAR <= o["t_flat"]]
+        if last:
             res, why = (last[-1][4] - e) * dr / risk, "fin de séance"
-        if res is None:
-            o["stop_now"] = stop
+    if res is None:
+        o["stop_now"] = stop
+        return False
+    res -= cost_r(kind, e, risk)
+    icon = "✅" if res > 0.05 else "🛑" if res < -0.05 else "➖"
+    st["track"].append({"day": o["day"], "strat": o["strat"], "kind": kind, "sym": o["sym"], "dir": dr,
+                        "r": round(res, 3), "why": why, "score": o.get("score", 0)})
+    tot = [x["r"] for x in st["track"]]
+    telegram("%s <b>RÉSULTAT · %s %s</b> (%s)\n%s : <b>%+.2f R</b> (frais estimés inclus)\n📒 Bilan : %d trades · %.0f %% gagnants · total %+.1f R"
+             % (icon, "ACHAT" if dr > 0 else "VENTE", esc(label(o["sym"])), esc(o["strat"]), esc(why), res,
+                len(tot), 100 * sum(1 for x in tot if x > 0) / len(tot), sum(tot)))
+    count(st, "fermes")
+    return True
+
+
+def track_update(st, now_ts):
+    """Suit chaque signal envoye jusqu'a sa sortie (SL / stop suiveur / fin de seance, comme les
+       backtests : pas de TP) et annonce le resultat en R. Un enregistrement defectueux est ecarte,
+       un signal sans donnees est abandonne 3 jours apres sa fin."""
+    still = []
+    try:
+        for o in st["open"]:
+            if STOP[0]:
+                still.append(o)
+                continue
+            try:
+                done = _track_one(st, o, now_ts)
+            except Exception as ex:
+                log.warning("suivi %s : %s", o.get("sym"), ex)
+                done = None
+            finally:
+                time.sleep(CFG["PAUSE"])
+            if done:
+                continue
+            try:
+                expired = now_ts - float(o.get("t_flat") or 0) > 3 * 86400
+            except (TypeError, ValueError):
+                expired = True
+            if done is None and not isinstance(o.get("day"), str):
+                expired = True
+            if expired:
+                count(st, "suivi_abandonne")
+                log.warning("suivi abandonne : %s", o.get("sym"))
+                continue
             still.append(o)
-            continue
-        icon = "✅" if res > 0.05 else "🛑" if res < -0.05 else "➖"
-        FMT[0] = 2 if kind == "stocks" else 5
-        st["track"].append({"day": o["day"], "strat": o["strat"], "kind": kind, "sym": o["sym"], "dir": dr,
-                            "r": round(res, 3), "why": why, "score": o.get("score", 0)})
-        tot = [x["r"] for x in st["track"]]
-        telegram("%s <b>RÉSULTAT · %s %s</b> (%s)\n%s : <b>%+.2f R</b>\n📒 Bilan : %d trades · %.0f %% gagnants · total %+.1f R"
-                 % (icon, "ACHAT" if dr > 0 else "VENTE", esc(label(o["sym"])), esc(o["strat"]), esc(why), res,
-                    len(tot), 100 * sum(1 for x in tot if x > 0) / len(tot), sum(tot)))
-        count(st, "fermes")
-    st["open"] = still
+    finally:
+        st["open"] = still
 
 
 def scorecard(st, days=None):
@@ -1500,6 +1728,8 @@ def day_recap(st):
     if st["done"].get("recap") == d:
         return
     st["done"]["recap"] = d
+    if st["open"]:
+        track_update(st, time.time())             # resultats des sorties de fin de seance d'abord
     day = st["day"] if st["day"].get("date") == d else {}
     weekly = local_dt(time.time(), PARIS).weekday() == 6
     telegram("📊 <b>RÉSUMÉ DU JOUR</b> · %s\n⚡ Momentum : %d cassures vues, %d envoyées, %d écartées (score / backtest), "
@@ -1514,6 +1744,7 @@ def day_recap(st):
 # --------------------------------------------------------------- boucle
 STOP = [False]
 TRK = [0]
+LHT = [0]
 
 
 def _stop(*_):
@@ -1522,7 +1753,7 @@ def _stop(*_):
 
 def in_hours(now):
     g = time.gmtime(now)
-    return 6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 15)
+    return 6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 30)
 
 
 def main():
@@ -1559,7 +1790,7 @@ def main():
                 lh_scan(st, now)
             if stock_open(ny.date()) and hm(9, 36) <= ny.time() < hm(10, 30):
                 sip_select(st, now)
-            if stock_open(ny.date()) and hm(9, 40) <= ny.time() <= hm(11) and int(now // BAR) != done_5 \
+            if stock_open(ny.date()) and hm(9, 40) <= ny.time() <= hm(15, 35) and int(now // BAR) != done_5 \
                     and now % BAR >= 40:
                 done_5 = int(now // BAR)
                 sip_triggers(st, now)
@@ -1567,8 +1798,8 @@ def main():
                 TRK[0] = int(now // BAR)
                 track_update(st, now)
                 save_state(st)
-            slot = int(now // 1800)
-            if slot != done_mom and now % 1800 >= 45:    # 45 s apres HH:00 / HH:30
+            slot = int(now // 1800) * 2 + (1 if now % 1800 >= 180 else 0)
+            if slot != done_mom and now % 1800 >= 45:    # 45 s puis 3 min apres HH:00 / HH:30
                 done_mom = slot
                 for kind in ("stocks", "fx", "cr"):
                     if STOP[0]:
@@ -1578,7 +1809,8 @@ def main():
                     except Exception as ex:
                         log.warning("momentum %s : %s", kind, ex)
                 save_state(st)
-            if par.time() >= hm(22, 5):
+            g = time.gmtime(now)
+            if g.tm_hour == 21 and g.tm_min >= 2:      # 21 h 02 UTC = 22 h 02 / 23 h 02 Paris
                 day_recap(st)
         except Exception as ex:
             log.warning("boucle : %s", ex)
