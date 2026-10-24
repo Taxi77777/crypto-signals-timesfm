@@ -53,7 +53,9 @@
   "mom|2026-10-24|FIL|-1": 1792859452.1635444,
   "mom|2026-10-24|INJ|-1": 1792859455.421501
  },
- "done": {},
+ "done": {
+  "recap": "2026-10-24"
+ },
  "sip": {},
  "signals": [
   {
@@ -90,7 +92,7 @@
   "mom_rejetes": 5,
   "mom_envoyes": 3,
   "mom_correles": 1,
-  "fermes": 2
+  "fermes": 3
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -109,31 +111,13 @@
   }
  },
  "stats": {
-  "requetes": 12,
+  "requetes": 13,
   "erreurs": 0,
-  "telegram_erreurs": 3,
-  "maj": "24/10 20:50 UTC",
+  "telegram_erreurs": 7,
+  "maj": "24/10 21:02 UTC",
   "symboles_ko": []
  },
- "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "NEO",
-   "dir": -1,
-   "entry": 2.0742995738983154,
-   "stop": 2.1109031294708838,
-   "upper": 2.2308789136620075,
-   "lower": 2.1109031294708838,
-   "hi0": 2.171278715133667,
-   "lo0": 2.1704814434051514,
-   "t_flat": 1792875300,
-   "day": "2026-10-24",
-   "sent": 1792855800,
-   "score": 93,
-   "stop_now": 2.1097998063547365
-  }
- ],
+ "open": [],
  "track": [
   {
    "day": "2026-10-24",
@@ -153,6 +137,16 @@
    "dir": -1,
    "r": -0.876,
    "why": "stop suiveur",
+   "score": 93
+  },
+  {
+   "day": "2026-10-24",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "NEO",
+   "dir": -1,
+   "r": -0.747,
+   "why": "fin de s\u00e9ance",
    "score": 93
   }
  ]
