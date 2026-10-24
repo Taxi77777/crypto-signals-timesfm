@@ -25,12 +25,23 @@
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
   "openbb": "ok",
-  "regime": "RISK-OFF (S&P sous sa MM50)"
+  "regime": "RISK-OFF (S&P sous sa MM50)",
+  "kraken_funding": "209 perpetuels",
+  "fear_greed": {
+   "actions": [
+    21,
+    "extreme fear"
+   ],
+   "crypto": [
+    51,
+    "Neutral"
+   ]
+  }
  },
  "stats": {
-  "requetes": 57,
+  "requetes": 21,
   "erreurs": 0,
-  "maj": "24/10 14:35 UTC"
+  "maj": "24/10 14:36 UTC"
  },
  "open": [],
  "track": []
