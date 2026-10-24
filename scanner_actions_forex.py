@@ -747,7 +747,7 @@ def save_state(st):
 
 
 # --------------------------------------------------------------- OpenBB (contexte gratuit)
-OBB = {"mod": None, "err": None, "cache": {}}
+OBB = {"mod": None, "err": None, "cache": {}, "errors": {}}
 COUNTRY = {"USD": ("united states", "us"), "EUR": ("euro", "eurozone", "euro area", "germany"),
            "GBP": ("united kingdom", "uk"), "JPY": ("japan",), "CHF": ("switzerland",),
            "CAD": ("canada",), "AUD": ("australia",), "NZD": ("new zealand",), "CNH": ("china",),
@@ -793,16 +793,30 @@ def _cached(key, ttl, fn):
         val = fn()
     except Exception as ex:
         log.warning("OpenBB %s : %s", key, str(ex)[:120])
+        OBB["errors"][key.split("|")[0]] = str(ex)[:160]
         val = None
     OBB["cache"][key] = (time.time(), val)
     return val
 
 
+def yahoo_news(ysym):
+    """Secours : titres d'actualite via la recherche Yahoo (meme source que yfinance)."""
+    for host in HOSTS:
+        try:
+            r = SESSION.get("%s/v1/finance/search" % host,
+                            params={"q": ysym, "newsCount": 6, "quotesCount": 0}, timeout=15)
+            if r.ok:
+                return [str(x.get("title")).strip() for x in (r.json().get("news") or []) if x.get("title")]
+        except Exception as ex:
+            log.warning("actus Yahoo %s : %s", ysym, str(ex)[:100])
+    return []
+
+
 def obb_news(ysym, n=2):
-    """Derniers titres d'actualite de l'actif (fournisseur gratuit yfinance)."""
+    """Derniers titres d'actualite de l'actif : OpenBB (yfinance), sinon recherche Yahoo."""
     o = openbb()
     if not o:
-        return []
+        return (_cached("ynews|" + ysym, 1800, lambda: yahoo_news(ysym)) or [])[:n]
 
     def f():
         rows = _rows(o.news.company(symbol=ysym, provider="yfinance", limit=6))
@@ -811,8 +825,8 @@ def obb_news(ysym, n=2):
             t = _get(x, "title", "headline")
             if t and t not in out:
                 out.append(str(t).strip())
-        return out
-    return (_cached("news|" + ysym, 1800, f) or [])[:n]
+        return out or yahoo_news(ysym)
+    return (_cached("news|" + ysym, 1800, f) or _cached("ynews|" + ysym, 1800, lambda: yahoo_news(ysym)) or [])[:n]
 
 
 def obb_earnings(day):
@@ -1278,7 +1292,7 @@ def main():
         today = datetime.datetime.now(NY).date()
         st["openbb"] = {"module": "ok" if openbb() else "ERREUR : %s" % OBB["err"],
                         "actus_SPY": len(obb_news("SPY", 5)), "resultats": len(obb_earnings(today)),
-                        "annonces_eco": len(obb_econ(today))}
+                        "annonces_eco": len(obb_econ(today)), "erreurs": dict(OBB["errors"])}
     except Exception as ex:
         st["openbb"] = "ERREUR : %s" % str(ex)[:150]
     log.info("OpenBB : %s", st["openbb"])
