@@ -1,4 +1,4 @@
-requests==2.32.3
+requests>=2.31,<3
 tzdata
-openbb
-openbb-nasdaq
+# facultatif (contexte des signaux) :
+# openbb-core openbb-yfinance openbb-nasdaq openbb-news openbb-equity openbb-economy

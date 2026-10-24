@@ -38,7 +38,14 @@ jobs:
           python-version: '3.11'
 
       - name: Dependances
-        run: pip install -r requirements.txt
+        run: pip install "requests>=2.31,<3" tzdata
+
+      # OpenBB (actualites, resultats, calendrier eco) : facultatif. S'il ne s'installe pas,
+      # le scanner tourne quand meme (les signaux ne doivent jamais dependre de lui).
+      - name: OpenBB (facultatif)
+        continue-on-error: true
+        timeout-minutes: 12
+        run: pip install --prefer-binary openbb-core openbb-yfinance openbb-nasdaq openbb-news openbb-equity openbb-economy
 
       - name: Scanner actions + forex + crypto
         id: scan
