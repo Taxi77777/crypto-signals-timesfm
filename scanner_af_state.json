@@ -475,7 +475,9 @@
   "cr_ldn|2026-10-24|BTCT9486-USD|1": 1792831831.35176,
   "cr_ldn|2026-10-24|BTCT9486-USD|-1": 1792831833.4864712,
   "cr_ldn|2026-10-24|AETHUSDT-USD|-1": 1792832729.3828797,
-  "cr_ldn|2026-10-24|AETHUSDT-USD|1": 1792832729.382993
+  "cr_ldn|2026-10-24|AETHUSDT-USD|1": 1792832729.382993,
+  "cr_ldn|2026-10-24|BAT|-1": 1792834833.870407,
+  "cr_ldn|2026-10-24|U39120-USD|1": 1792835131.1724455
  },
  "watch": {
   "stocks": "2026-10-23"
@@ -628,9 +630,9 @@
  ],
  "yahoo": "ok : 391 bougies SPY lues a 09:07 UTC",
  "stats": {
-  "requetes": 55,
+  "requetes": 69,
   "erreurs": 0,
-  "maj": "24/10 09:35 UTC"
+  "maj": "24/10 09:45 UTC"
  },
  "scans": {
   "fx_ny": {
@@ -663,9 +665,9 @@
   "cr_ldn": {
    "jour": "2026-10-24",
    "envoyes": 1,
-   "non_favorables": 0,
-   "heure": "24/10 10:35",
-   "lus": 75,
+   "non_favorables": 1,
+   "heure": "24/10 10:45",
+   "lus": 74,
    "symboles": 88,
    "candidats": 1
   }
