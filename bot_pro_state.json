@@ -89,7 +89,8 @@
   "mom_vus": 9,
   "mom_rejetes": 5,
   "mom_envoyes": 3,
-  "mom_correles": 1
+  "mom_correles": 1,
+  "fermes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -108,10 +109,10 @@
   }
  },
  "stats": {
-  "requetes": 525,
+  "requetes": 586,
   "erreurs": 6,
-  "telegram_erreurs": 8,
-  "maj": "24/10 16:50 UTC",
+  "telegram_erreurs": 10,
+  "maj": "24/10 17:01 UTC",
   "symboles_ko": [
    "COMP-USD",
    "GRT-USD"
@@ -133,7 +134,7 @@
    "day": "2026-10-24",
    "sent": 1792855800,
    "score": 93,
-   "stop_now": 0.07927492350690689
+   "stop_now": 0.07918095602989038
   },
   {
    "strat": "momentum",
@@ -151,24 +152,18 @@
    "sent": 1792855800,
    "score": 93,
    "stop_now": 2.1094634290348386
-  },
+  }
+ ],
+ "track": [
   {
+   "day": "2026-10-24",
    "strat": "momentum",
    "kind": "cr",
    "sym": "FIL",
    "dir": -1,
-   "entry": 0.9175999760627747,
-   "stop": 0.9270808338356045,
-   "upper": 0.9897191882896397,
-   "lower": 0.9270808338356045,
-   "hi0": 0.9584000110626221,
-   "lo0": 0.9584000110626221,
-   "t_flat": 1792875300,
-   "day": "2026-10-24",
-   "sent": 1792859400,
-   "score": 92,
-   "stop_now": 0.9270808338356045
+   "r": -1.097,
+   "why": "SL",
+   "score": 92
   }
- ],
- "track": []
+ ]
 }
