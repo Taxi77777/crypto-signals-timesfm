@@ -55,4 +55,13 @@ Journal of Financial Economics.
 | Backtest de la règle sur l'actif (profit factor) | 20 |
 
 Envoi si score ≥ `MIN_SCORE` (60) et backtest de l'actif gagnant en moyenne (≥ 12 trades).
+
+## Gestion du risque et suivi
+
+- **Garde-fou de corrélation** : à chaque passage de 30 min, au plus `MAX_SAME` (3) signaux dans le même sens
+  par classe d'actifs ; on garde les meilleurs scores. Dix cryptos qui cassent ensemble, c'est un seul pari sur le marché.
+- **Taille de position** : `quantité = capital × RISK_PCT % ÷ (entrée − stop)`, affichée dans chaque signal si `CAPITAL` est renseigné.
+- **Suivi automatique (track record)** : chaque signal envoyé est suivi bougie par bougie (stop suiveur, TP, fin de séance) ;
+  le résultat en R est publié sur Telegram, cumulé dans `bot_pro_state.json` (`track`), repris dans le résumé du soir
+  et dans un bilan hebdomadaire le dimanche.
 Monte Carlo : 10 000 séquences de 20 trades tirées dans les résultats du backtest.

@@ -108,7 +108,7 @@ def test_message_is_valid_telegram_html(monkeypatch):
     monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
     monkeypatch.setitem(B.CFG, "NEED_BT", 0)
     monkeypatch.setitem(B.CFG, "STATE_DIR", "/tmp/botpro_test")
-    st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}}
+    st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
     for hh in range(6, 12):
         for mm in (0, 30):
             B.mom_scan(st, "cr", B.at(DAY, B.hm(hh, mm), B.UTC) + 60)
@@ -123,3 +123,52 @@ def test_price_format():
     assert B.fmt(0.0000123) != B.fmt(0.0000124)
     B.FMT[0] = 2
     assert B.fmt(364.176) == "364.18"
+
+
+def _stub(monkeypatch, bars, sent):
+    monkeypatch.setattr(B, "telegram", lambda m, html=True: sent.append(m))
+    monkeypatch.setattr(B, "chart", lambda s, r, i: bars)
+    monkeypatch.setattr(B, "regime_update", lambda force=False: {"label": "neutre", "spy": 1, "vix": 15, "ts": 0})
+    monkeypatch.setattr(B, "news", lambda s, n=2: [])
+    monkeypatch.setattr(B.time, "sleep", lambda x: None)
+    monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
+    monkeypatch.setitem(B.CFG, "NEED_BT", 0)
+    monkeypatch.setitem(B.CFG, "STATE_DIR", "/tmp/botpro_test")
+    B.HIST.clear()
+
+
+def test_correlation_guard_and_tracking(monkeypatch):
+    bars = synth_24h(drift_today=0.0012)
+    sent = []
+    _stub(monkeypatch, bars, sent)
+    monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC", "ETH", "SOL", "XRP", "ADA"])
+    monkeypatch.setitem(B.CFG, "MAX_SAME", 3)
+    st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
+    first = None
+    for hh in range(6, 12):
+        for mm in (0, 30):
+            n = B.mom_scan(st, "cr", B.at(DAY, B.hm(hh, mm), B.UTC) + 60)
+            assert n <= 3
+            if n and first is None:
+                first = n
+    assert first == 3 and len(st["open"]) >= 3
+    assert st["day"].get("mom_correles", 0) >= 2
+    # suivi : on rejoue la fin de journee (tendance haussiere -> resultats positifs ou TP)
+    sent.clear()
+    end = B.at(DAY, B.hm(12), B.UTC) + 300
+    for o in st["open"]:
+        o["t_flat"] = B.at(DAY, B.hm(11, 55), B.UTC)
+    B.track_update(st, end)
+    assert not st["open"] and st["track"]
+    assert all("RÉSULTAT" in m and html_ok(m) for m in sent)
+    assert "Bilan" in B.scorecard(st)
+
+
+def test_position_size(monkeypatch):
+    monkeypatch.setitem(B.CFG, "CAPITAL", 1000.0)
+    monkeypatch.setitem(B.CFG, "RISK_PCT", 1.0)
+    line = B.size_line(100.0, 98.0, "stocks")
+    assert "5 actions" in line or "5.000 actions" in line
+    assert html_ok(line)
+    monkeypatch.setitem(B.CFG, "CAPITAL", 0.0)
+    assert "capital" in B.size_line(1.10, 1.098, "fx")

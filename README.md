@@ -50,7 +50,8 @@ terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulation
 | 🇺🇸 **Stocks in Play** : les actions « en jeu » du jour, avec ordre stop, SL et TP | 15 h 36, jours de bourse |
 | 🔔 **Déclenché** : quand le prix touche un ordre Stocks in Play | jusqu'à 17 h |
 | ⚡ **Momentum intraday** : ETF et grandes actions, forex et or, crypto 7 j/7 | toutes les 30 min |
-| 📊 **Résumé du jour** | 22 h 05 |
+| ✅🛑 **Résultat** : chaque signal est suivi jusqu'à sa sortie (TP, stop, fin de séance) et noté en R | dès la sortie |
+| 📊 **Résumé du jour** + 📒 bilan des trades (bilan de la semaine le dimanche) | 22 h 05 |
 
 ## 🧠 Les stratégies (sources dans [docs/STRATEGIES.md](docs/STRATEGIES.md))
 
@@ -99,6 +100,9 @@ En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `py
 | `SIP_STOCKS` | univers Stocks in Play | ~190 actions US liquides |
 | `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | univers momentum | ETF + méga-caps · 11 paires + or/argent · 18 cryptos |
 | `MIN_SCORE` | score mini pour envoyer | `60` |
+| `MAX_SAME` | garde-fou de corrélation : max de signaux dans le même sens, par classe et par passage | `3` |
+| `CAPITAL` | capital pour afficher la taille de position (vide = formule seulement) | — |
+| `RISK_PCT` | risque par trade en % du capital | `1` |
 
 ## ⚠️ Avertissement
 
