@@ -108,10 +108,10 @@
   }
  },
  "stats": {
-  "requetes": 454,
+  "requetes": 519,
   "erreurs": 6,
   "telegram_erreurs": 8,
-  "maj": "24/10 16:31 UTC",
+  "maj": "24/10 16:40 UTC",
   "symboles_ko": [
    "COMP-USD",
    "GRT-USD"
@@ -166,7 +166,8 @@
    "t_flat": 1792875300,
    "day": "2026-10-24",
    "sent": 1792859400,
-   "score": 92
+   "score": 92,
+   "stop_now": 0.9270808338356045
   }
  ],
  "track": []
