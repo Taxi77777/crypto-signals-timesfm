@@ -1,0 +1,19 @@
+name: Tests
+
+on:
+  push:
+    paths-ignore: ['bot_pro_state.json', '**.md']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt pytest pyflakes
+      - run: python -m pyflakes bot_pro.py tests
+      - run: python -m pytest -q

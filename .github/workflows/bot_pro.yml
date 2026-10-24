@@ -1,8 +1,7 @@
-name: Scanner ACTIONS + FOREX + CRYPTO (strategies de la video, signaux Telegram)
+name: Bot Pro - signaux intraday (Telegram)
 
-# Cassure de la plage d'ouverture 15 min + plan de
-# sortie + time machine (10 000 simulations) + historique, d'apres le pack open-source
-# dan-ai-lab/day-trader-fr. SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
+# Stocks in Play + momentum intraday (zone de bruit + VWAP) + couche Bloomberg (briefing, regime).
+# SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
 # Actif tous les jours de 6 h a 21 h 15 UTC (actions et forex en semaine, crypto 7 j/7).
 on:
   schedule:
@@ -17,11 +16,11 @@ on:
         default: ''
 
 concurrency:
-  group: scanner-actions-forex
+  group: bot-pro
   cancel-in-progress: false
 
 jobs:
-  scanner:
+  bot:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -41,46 +40,44 @@ jobs:
         run: pip install "requests>=2.31,<3" tzdata
 
       # OpenBB (actualites, resultats, calendrier eco) : facultatif. S'il ne s'installe pas,
-      # le scanner tourne quand meme (les signaux ne doivent jamais dependre de lui).
+      # le bot tourne quand meme (les signaux ne doivent jamais dependre de lui).
       - name: OpenBB (facultatif)
         continue-on-error: true
         timeout-minutes: 12
         run: pip install --prefer-binary openbb-core openbb-yfinance openbb-nasdaq openbb-news openbb-equity openbb-economy
 
-      - name: Scanner actions + forex + crypto
+      - name: Bot Pro
         id: scan
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-          SCAN_STOCKS:        ${{ vars.SCAN_STOCKS }}
-          SCAN_FX:            ${{ vars.SCAN_FX }}
-          SCAN_CRYPTO:        ${{ vars.SCAN_CRYPTO }}
-          SHORTS:             ${{ vars.SCAN_SHORTS }}
-          ONLY_FAVORABLE:     ${{ vars.SCAN_ONLY_FAVORABLE }}
-          TREND:              ${{ vars.SCAN_TREND }}
-          RR:                 ${{ vars.SCAN_RR }}
+          SIP_STOCKS:         ${{ vars.SIP_STOCKS }}
+          MOM_STOCKS:         ${{ vars.MOM_STOCKS }}
+          MOM_FX:             ${{ vars.MOM_FX }}
+          MOM_CRYPTO:         ${{ vars.MOM_CRYPTO }}
+          MIN_SCORE:          ${{ vars.MIN_SCORE }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
-          STATE_DIR:          /tmp/etat_scanner
+          STATE_DIR:          /tmp/etat_bot
           PYTHONUNBUFFERED:   '1'
         run: |
           save() {
-            exec 9>/tmp/scanner.lock
+            exec 9>/tmp/bot.lock
             flock 9
-            ls /tmp/etat_scanner/*.json >/dev/null 2>&1 || { flock -u 9; return 0; }
+            ls /tmp/etat_bot/*.json >/dev/null 2>&1 || { flock -u 9; return 0; }
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
             for i in 1 2 3 4 5; do
               git fetch -q origin main && git reset -q --hard origin/main
-              cp /tmp/etat_scanner/scanner_af_state.json .
-              git add -f scanner_af_state.json
+              cp /tmp/etat_bot/bot_pro_state.json .
+              git add -f bot_pro_state.json
               git diff --cached --quiet && break
-              git commit -qm "chore: etat scanner actions forex [skip ci]"
+              git commit -qm "chore: etat bot pro [skip ci]"
               git push -q origin HEAD:main && break
               sleep $((RANDOM % 5 + 2))
             done
             flock -u 9
           }
-          python scanner_actions_forex.py &
+          python bot_pro.py &
           PID=$!
           trap 'kill -TERM $PID 2>/dev/null; wait $PID' INT TERM
           ( while kill -0 $PID 2>/dev/null; do sleep 600; kill -0 $PID 2>/dev/null && save || true; done ) &
@@ -88,37 +85,37 @@ jobs:
           RC=0
           wait $PID || RC=$?
           kill $SAVER 2>/dev/null || true
-          if [ -f /tmp/etat_scanner/relance ]; then echo "relance=1" >> "$GITHUB_OUTPUT"; fi
+          if [ -f /tmp/etat_bot/relance ]; then echo "relance=1" >> "$GITHUB_OUTPUT"; fi
           exit $RC
 
       - name: Sauvegarde de l'etat
         if: always()
         run: |
-          exec 9>/tmp/scanner.lock
+          exec 9>/tmp/bot.lock
           flock -w 120 9 || true
-          ls /tmp/etat_scanner/*.json >/dev/null 2>&1 || exit 0
+          ls /tmp/etat_bot/*.json >/dev/null 2>&1 || exit 0
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           for i in 1 2 3 4 5 6; do
             git fetch -q origin main && git reset -q --hard origin/main
-            cp /tmp/etat_scanner/scanner_af_state.json . || continue
-            git add -f scanner_af_state.json || continue
+            cp /tmp/etat_bot/bot_pro_state.json . || continue
+            git add -f bot_pro_state.json || continue
             git diff --cached --quiet && exit 0
-            git commit -qm "chore: etat scanner actions forex [skip ci]" || continue
+            git commit -qm "chore: etat bot pro [skip ci]" || continue
             git push -q origin HEAD:main && exit 0
             sleep $((RANDOM % 5 + 2))
           done
-          echo "::warning::etat du scanner non sauvegarde"
+          echo "::warning::etat du bot non sauvegarde"
 
   relance:
-    needs: scanner
+    needs: bot
     # le job a atteint sa duree maximale en pleine journee : on en relance un tout de suite
-    if: ${{ needs.scanner.outputs.relance == '1' }}
+    if: ${{ needs.bot.outputs.relance == '1' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
-      - name: Relance du scanner
+      - name: Relance du bot
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run scanner_actions_forex.yml --repo "${{ github.repository }}" --ref main
+        run: gh workflow run bot_pro.yml --repo "${{ github.repository }}" --ref main

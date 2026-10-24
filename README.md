@@ -1,67 +1,123 @@
-# 📈 Scanner ACTIONS · FOREX · CRYPTO — stratégies de la vidéo
+<div align="center">
 
-Signaux **Telegram uniquement** : ce scanner n'envoie **aucun ordre**. Il tourne sur GitHub Actions
-(`.github/workflows/scanner_actions_forex.yml`), tous les jours de 6 h à 21 h 15 UTC.
+# 📈 Bot Pro — signaux intraday de niveau institutionnel
 
-Règles reprises du pack open-source [dan-ai-lab/day-trader-fr](https://github.com/dan-ai-lab/day-trader-fr)
-(adaptation française de [day-trader-skill](https://github.com/Jakeschincariol/day-trader-skill), licence MIT).
+**Actions US · Forex · Or · Crypto — sur Telegram, 100 % gratuit, 100 % open source**
 
-## La stratégie
+[![Tests](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml)
+[![Bot](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![Licence](https://img.shields.io/badge/licence-MIT-green)
+![Coût](https://img.shields.io/badge/co%C3%BBt-0%20%E2%82%AC-brightgreen)
 
-| Étape | Règle |
+*Deux stratégies intraday parmi les mieux documentées par la recherche, un filtre de régime façon
+terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulations Monte Carlo.*
+
+**[English summary](#-english-summary)** · **[Stratégies](docs/STRATEGIES.md)** · **[Démarrage en 5 min](#-démarrage-en-5-minutes)**
+
+</div>
+
+---
+
+## ✨ Ce que tu reçois sur Telegram
+
+```text
+🟢 ACHAT SOL · 🪙 Crypto
+⚡ Momentum intraday (zone de bruit + VWAP)
+━━━━━━━━━━━━━━━
+▶️ Entrée    187.91
+🛑 SL        185.40  (-1.34 %)
+🎯 TP        192.93  (2R indicatif)
+🔁 Stop suiveur : remonter le SL à max(borne, VWAP) toutes les 30 min
+⏰ Sortie au plus tard 22:55 · ⌛ valable jusqu'à 10:10 (Paris)
+━━━━━━━━━━━━━━━
+🟢 SIGNAL FORT · score 87/100 ▰▰▰▰▰▰▰▰▰▱
+✅ Sortie de la zone de bruit
+✅ Tendance 1 h (EMA 20/50)
+✅ Force relative vs BTC
+✅ Volume relatif 30 min
+✅ Régime de marché
+✅ Backtest de l'actif
+📜 Backtest de la règle sur l'actif : 23 trades · 26 % gagnants · moy. +0.30 R · PF 1.44
+🎲 10 000 simulations des 20 prochains trades : gagnant dans 69 % des cas · médiane +5.3 R
+🧭 Régime : RISK-ON (S&P au-dessus de sa MM50, VIX calme)
+📰 Dernière actualité de l'actif
+```
+
+| Message | Quand (heure de Paris) |
 |---|---|
-| **Cassure de la plage d'ouverture** | Plage = plus haut / plus bas des 15 premières minutes de la séance. Signal = 1re bougie 5 min **terminée** qui clôture au-dessus du plus haut (**achat**) ou sous le plus bas (**vente**). Une seule fois par jour et par sens. |
-| **Plan de sortie** | SL au milieu de la plage, TP = 2 × le risque, sortie au plus tard à l'heure limite. Signal refusé si le risque est < 0,05 % du prix (trop serré face au spread). |
-| **Time machine** | 10 000 fins de séance reconstruites à partir des bougies 5 min des 60 derniers jours (même heure ± 2 bougies, SL testé avant le TP), puis la même règle rejouée sur chaque séance passée. |
-| **Filtre de tendance** (ajout) | Achat seulement si le prix est au-dessus de la VWAP du jour (actions : depuis 9 h 30 ; forex et crypto : depuis minuit UTC, comme MT4) **et** de la moyenne des 20 dernières clôtures quotidiennes ; vente seulement en dessous des deux. Un signal contre la tendance n'est jamais envoyé, et l'historique applique le même filtre. |
-| **Contexte OpenBB** (gratuit, alternative open source à Bloomberg) | 📰 dernières actualités de l'actif ; 📅 avertissement si l'entreprise publie ses résultats aujourd'hui ou demain (actions) ; 🏦 annonces économiques importantes du jour sur les devises de la paire (forex) ou sur l'USD (crypto), avec ⚠️ si elles tombent dans la demi-heure. |
-| **Verdict** | 🟢 favorable / 🟡 neutre / 🔴 défavorable : le TP est-il touché avant le SL plus souvent que le seuil de rentabilité (33 % à 2R) ? |
-| **Watchlist du jour** | Avant l'ouverture : cassure du plus haut 20 jours, drapeau haussier, reprise de la moyenne 20 jours, survente (RSI 14 < 30), rebond de survente. |
+| 🏛 **Briefing marché** façon terminal : indices mondiaux, VIX, DXY, taux 10 ans, or, pétrole, BTC, rotation sectorielle, agenda économique, régime risk-on / risk-off | chaque matin à 8 h |
+| 🇺🇸 **Stocks in Play** : les actions « en jeu » du jour, avec ordre stop, SL et TP | 15 h 36, jours de bourse |
+| 🔔 **Déclenché** : quand le prix touche un ordre Stocks in Play | jusqu'à 17 h |
+| ⚡ **Momentum intraday** : ETF et grandes actions, forex et or, crypto 7 j/7 | toutes les 30 min |
+| 📊 **Résumé du jour** | 22 h 05 |
 
-Le moteur reproduit l'exemple publié par le pack d'origine (TSLA, 19/10/2026 : 29,7 % / 25,3 % / 45,0 %
-contre 29,4 % / 25,5 % / 45,1 % ; historique identique : 33 signaux, 13 TP, 15 SL, 5 sorties à l'heure).
+## 🧠 Les stratégies (sources dans [docs/STRATEGIES.md](docs/STRATEGIES.md))
 
-## Marchés (heures de Paris)
-
-| Marché | Séance | Premiers signaux possibles → dernière entrée | Watchlist |
+| | Stratégie | Source | Résultat publié |
 |---|---|---|---|
-| 🇺🇸 Actions US (~190 titres et ETF les plus liquides, `SCAN_STOCKS`) | 15 h 30 – 22 h, calendrier NYSE | 15 h 50 → 21 h 30 | 15 h 00 |
-| 💱 Forex : 28 majeures et croisées, 21 exotiques, or et argent (`SCAN_FX`), ouverture de Londres | 9 h – 17 h, en semaine | 9 h 20 → 12 h 00 | 8 h 30 |
-| 💱 Forex, ouverture de New York | 14 h – 22 h, en semaine | 14 h 20 → 17 h 00 | — |
-| 🪙 Crypto : liste de base + les plus grosses du classement Yahoo, sans stablecoins (~95, `SCAN_CRYPTO`), ouverture de Londres | **7 j/7** | 9 h 20 → 12 h 00 | 8 h 30 |
-| 🪙 Crypto, ouverture de Wall Street | **7 j/7** | 15 h 50 → 18 h 00 | — |
+| 1 | **Stocks in Play** : cassure de la 1re bougie 5 min sur les actions au plus fort volume relatif, stop à 10 % de l'ATR 14 j, sortie en fin de séance | Zarattini, Barbon & Aziz (2024), SSRN 4729284 | Sharpe 2,81 avec le filtre de volume contre 0,48 sans (2016-2023, frais inclus, sans glissement) |
+| 2 | **Momentum intraday** : sortie de la « zone de bruit » (déplacement moyen à la même heure sur 14 jours) du bon côté de la VWAP, décision toutes les 30 min, stop suiveur, sortie en fin de séance | Zarattini, Aziz & Barbon (2024) « Beat the Market » ; Gao, Han, Li & Zhou (2018) « Market intraday momentum » | momentum intraday documenté sur le SPY et sur 16 ETF internationaux |
 
-Pendant les semaines où l'Europe et les États-Unis ne changent pas d'heure en même temps (fin octobre / début
-novembre, mars), les heures « New York » arrivent une heure plus tôt à Paris (actions 14 h 30 – 21 h).
+**Couche Bloomberg** : régime de marché (S&P vs MM50, VIX), briefing multi-actifs, rotation sectorielle,
+actualités, résultats d'entreprise et calendrier économique (OpenBB / Yahoo).
 
-## Ce qui est envoyé
+**Validation de chaque signal** :
+- un **score de confluence sur 100** (cassure, tendance 1 h, VWAP, force relative, volume relatif, régime, backtest) ;
+- un **backtest** de la même règle sur l'actif (60 jours de bougies 5 min) ;
+- un **Monte Carlo de 10 000 tirages** des 20 prochains trades.
 
-Comme dans le pack d'origine, **toutes les cassures** sont envoyées avec leur verdict, et c'est toi qui choisis :
-- la cassure vient de la **dernière bougie clôturée** (5 min), le prix n'a touché ni le SL ni le TP et n'est pas
-  déjà parti (plus de 0,25 R dans le sens du trade, ou 0,5 R vers le SL = trop tard) ; le message indique
-  jusqu'à quelle heure il reste valable ;
-- **jamais contre la tendance** (VWAP du jour et MM20 jours) ;
-- verdict affiché : 🟢 **FAVORABLE** (simulation au moins 5 points au-dessus du seuil de rentabilité, résultat
-  moyen simulé positif, moins de 40 % de trajectoires sans issue, **et** historique réel de la règle sur ce
-  symbole d'au moins 15 signaux, gagnant en moyenne et nettement au-dessus du seuil — borne de Wilson à 90 %),
-  🟡 **NEUTRE / NON CONFIRMÉ**, 🔴 **DÉFAVORABLE**. Sur des prix aléatoires, environ 3 % des cassures sortent
-  FAVORABLE. `SCAN_ONLY_FAVORABLE=1` pour ne recevoir que les 🟢.
+Un signal part seulement si le score atteint 60 et si le backtest de l'actif est gagnant en moyenne.
 
-Chaque message donne l'entrée, le SL et le TP (copiables), l'heure limite de sortie, le retard éventuel et le
-prix actuel, les probabilités, l'historique, le contexte quotidien et les avertissements du pack.
+## 🏗 Architecture
 
-## Réglages (variables GitHub facultatives)
+```mermaid
+flowchart LR
+    Y[Yahoo Finance<br/>bougies 5 min] --> S1[Stocks in Play<br/>volume relatif + ORB 5 min]
+    Y --> S2[Momentum intraday<br/>zone de bruit + VWAP]
+    O[OpenBB / Yahoo<br/>actus · résultats · agenda] --> C
+    R[Régime Bloomberg<br/>S&P MM50 · VIX] --> C
+    S1 --> C{Score /100<br/>+ backtest<br/>+ Monte Carlo 10 000}
+    S2 --> C
+    C -->|score ≥ 60 et backtest > 0| T[📱 Telegram]
+    G[GitHub Actions<br/>toutes les 5-30 min] -.-> S1 & S2
+```
+
+## 🚀 Démarrage en 5 minutes
+
+1. **Fork** ce dépôt.
+2. Crée un bot Telegram avec [@BotFather](https://t.me/BotFather) et récupère ton `chat_id`.
+3. Dans **Settings → Secrets and variables → Actions**, ajoute `TELEGRAM_BOT_TOKEN` et `TELEGRAM_CHAT_ID`.
+4. Onglet **Actions** → *Bot Pro* → **Run workflow**. C'est tout : le bot se relance tout seul, 6 h – 21 h 15 UTC, 7 j/7.
+
+En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `python -m pytest -q`
+
+## ⚙️ Réglages (variables GitHub, toutes facultatives)
 
 | Variable | Rôle | Défaut |
 |---|---|---|
-| `SCAN_STOCKS`, `SCAN_FX`, `SCAN_CRYPTO` | listes de symboles séparés par des virgules | listes intégrées |
-| `SCAN_ONLY_FAVORABLE` | `1` = ne recevoir que les signaux 🟢 FAVORABLES | `0` |
-| `SCAN_SHORTS` | `0` = achats seulement (comme le pack d'origine) | `1` |
-| `SCAN_RR` | TP en multiple du risque | `2` |
-| `SCAN_TREND` | `0` = désactiver le filtre de tendance | `1` |
+| `SIP_STOCKS` | univers Stocks in Play | ~190 actions US liquides |
+| `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | univers momentum | ETF + méga-caps · 11 paires + or/argent · 18 cryptos |
+| `MIN_SCORE` | score mini pour envoyer | `60` |
 
-Secrets : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Le job se relance lui-même à la fin de sa durée maximale,
-avec un filet de sécurité toutes les 15 minutes.
+## ⚠️ Avertissement
 
-Données : bougies via l'API graphiques Yahoo Finance (gratuite, non officielle, retard possible) ; contexte via [OpenBB](https://github.com/OpenBB-finance/OpenBB) (fournisseurs gratuits yfinance et Nasdaq). Simulation statistique,
-pas une prévision ni un conseil financier.
+Outil **éducatif**. Il n'envoie **aucun ordre** et n'est **pas un conseil financier**. Les études citées
+portent sur le passé, avec leurs propres hypothèses (frais, glissement, exécution) ; un backtest et une
+simulation ne garantissent rien. Le trading avec effet de levier peut faire perdre plus que la mise.
+Utilise toujours un stop-loss et ne risque que ce que tu peux perdre.
+
+## 🌍 English summary
+
+Free, open-source **intraday signal bot** for US stocks, forex, gold and crypto, delivered to Telegram and
+running for free on GitHub Actions. It implements two of the best-documented intraday strategies from
+published research — **Stocks in Play** opening-range breakout (Zarattini, Barbon & Aziz, 2024) and
+**intraday momentum** with a noise boundary and VWAP trailing stop (Zarattini, Aziz & Barbon, 2024;
+Gao et al., 2018) — plus a **Bloomberg-style layer** (morning cross-asset briefing, risk-on/risk-off regime,
+sector rotation, news and economic calendar). Every signal gets a **confluence score /100**, a per-asset
+**backtest** and a **10,000-path Monte Carlo**. Educational only; not financial advice; no orders are sent.
+
+## 🤝 Contribuer
+
+Les idées, issues et pull requests sont les bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md).
+Licence [MIT](LICENSE).
