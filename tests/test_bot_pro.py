@@ -103,6 +103,7 @@ def test_message_is_valid_telegram_html(monkeypatch):
     monkeypatch.setattr(B, "chart", lambda s, r, i: bars)
     monkeypatch.setattr(B, "regime_update", lambda force=False: {"label": "RISK-ON <test>", "spy": 1, "vix": 15, "ts": 0})
     monkeypatch.setattr(B, "news", lambda s, n=2: ["Titre avec <balise> & esperluette"])
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: None)
     monkeypatch.setattr(B.time, "sleep", lambda x: None)
     monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC"])
     monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
@@ -126,6 +127,7 @@ def test_price_format():
 
 
 def _stub(monkeypatch, bars, sent):
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: None)
     monkeypatch.setattr(B, "telegram", lambda m, html=True: sent.append(m))
     monkeypatch.setattr(B, "chart", lambda s, r, i: bars)
     monkeypatch.setattr(B, "regime_update", lambda force=False: {"label": "neutre", "spy": 1, "vix": 15, "ts": 0})
@@ -172,3 +174,40 @@ def test_position_size(monkeypatch):
     assert html_ok(line)
     monkeypatch.setitem(B.CFG, "CAPITAL", 0.0)
     assert "capital" in B.size_line(1.10, 1.098, "fx")
+
+
+def test_last_half_hour_strategy():
+    days = B.by_day(synth_stock(), B.NY, B.hm(9, 30))
+    rs, mean_lh = B.lh_history(days, DAY)
+    assert mean_lh and mean_lh > 0 and all(-1.5 <= r for r in rs)
+    keys = sorted(days)
+    tr = B.lh_trade(days[keys[-1]], days[keys[-2]][-1][4], keys[-1], mean_lh)
+    if tr:
+        assert tr["dir"] in (1, -1) and (tr["stop"] - tr["entry"]) * tr["dir"] < 0
+
+
+def test_fomc_and_vol_targeting(monkeypatch):
+    note = B.fomc_note(B.at(datetime.date(2026, 10, 27), B.hm(10), B.NY))
+    assert note and "demain" in note and "19:00" in note          # Europe deja a l heure d hiver, pas New York
+    assert B.fomc_note(B.at(datetime.date(2026, 10, 21), B.hm(10), B.NY)) is None
+    monkeypatch.setitem(B.CFG, "CAPITAL", 1000.0)
+    monkeypatch.setitem(B.REGIME, "vix", 32.0)
+    line = B.size_line(100.0, 98.0, "stocks")
+    assert "÷ 2" in line and "risquer 5" in line
+
+
+def test_institutional_feeds(monkeypatch):
+    fake = {
+        "https://futures.kraken.com/derivatives/api/v3/tickers": {"tickers": [
+            {"symbol": "PF_XBTUSD", "relativeFundingRate": 8e-5, "markPrice": 100000, "openInterest": 2000},
+            {"symbol": "PF_ETHUSD", "relativeFundingRate": -1e-6, "markPrice": 4000, "openInterest": 10000},
+            {"symbol": "FI_XBTUSD_260925"}]},
+        "https://api.alternative.me/fng/?limit=1": {"data": [{"value": "23", "value_classification": "Extreme Fear"}]},
+    }
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: fake.get(url))
+    f = B.kraken_funding()
+    assert set(f) == {"BTC", "ETH"} and abs(f["BTC"]["oi_usd"] - 2e8) < 1
+    line = B.funding_line("BTC", -1)
+    assert "acheteuses" in line and "contrarien" in line
+    assert B.funding_line("ETH", 1).startswith("💸")
+    assert B.fear_greed() == {"crypto": (23, "Extreme Fear")}

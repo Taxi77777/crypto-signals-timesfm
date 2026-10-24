@@ -10,7 +10,7 @@
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
 ![Coût](https://img.shields.io/badge/co%C3%BBt-0%20%E2%82%AC-brightgreen)
 
-*Deux stratégies intraday parmi les mieux documentées par la recherche, un filtre de régime façon
+*Trois stratégies intraday parmi les mieux documentées par la recherche, un filtre de régime façon
 terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulations Monte Carlo.*
 
 **[English summary](#-english-summary)** · **[Stratégies](docs/STRATEGIES.md)** · **[Démarrage en 5 min](#-démarrage-en-5-minutes)**
@@ -47,9 +47,11 @@ terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulation
 | Message | Quand (heure de Paris) |
 |---|---|
 | 🏛 **Briefing marché** façon terminal : indices mondiaux, VIX, DXY, taux 10 ans, or, pétrole, BTC, rotation sectorielle, agenda économique, régime risk-on / risk-off | chaque matin à 8 h |
+| 🌅 **Pré-ouverture** : les plus gros gaps haussiers / baissiers avant l'ouverture de Wall Street | 15 h 15, jours de bourse |
 | 🇺🇸 **Stocks in Play** : les actions « en jeu » du jour, avec ordre stop, SL et TP | 15 h 36, jours de bourse |
 | 🔔 **Déclenché** : quand le prix touche un ordre Stocks in Play | jusqu'à 17 h |
 | ⚡ **Momentum intraday** : ETF et grandes actions, forex et or, crypto 7 j/7 | toutes les 30 min |
+| ⏱ **Dernière demi-heure** : SPY, QQQ, IWM, DIA | 21 h 30 (20 h 30 l'été US décalé) |
 | ✅🛑 **Résultat** : chaque signal est suivi jusqu'à sa sortie (TP, stop, fin de séance) et noté en R | dès la sortie |
 | 📊 **Résumé du jour** + 📒 bilan des trades (bilan de la semaine le dimanche) | 22 h 05 |
 
@@ -59,6 +61,12 @@ terminal Bloomberg, et chaque signal validé par un backtest + 10 000 simulation
 |---|---|---|---|
 | 1 | **Stocks in Play** : cassure de la 1re bougie 5 min sur les actions au plus fort volume relatif, stop à 10 % de l'ATR 14 j, sortie en fin de séance | Zarattini, Barbon & Aziz (2024), SSRN 4729284 | Sharpe 2,81 avec le filtre de volume contre 0,48 sans (2016-2023, frais inclus, sans glissement) |
 | 2 | **Momentum intraday** : sortie de la « zone de bruit » (déplacement moyen à la même heure sur 14 jours) du bon côté de la VWAP, décision toutes les 30 min, stop suiveur, sortie en fin de séance | Zarattini, Aziz & Barbon (2024) « Beat the Market » ; Gao, Han, Li & Zhou (2018) « Market intraday momentum » | momentum intraday documenté sur le SPY et sur 16 ETF internationaux |
+| 3 | **Dernière demi-heure** : à 15 h 30 New York, SPY / QQQ / IWM / DIA dans le sens du mouvement depuis la clôture de la veille, sortie à la clôture | Gao et al. (2018) ; Baltussen, Da, Lammers & Martens (2021) « Hedging demand and market intraday momentum » | Sharpe 0,87 à 1,73 selon les classes d'actifs (1974-2020), effet renforcé par la couverture gamma des dealers |
+
+**Couche desks institutionnels** (méthodes utilisées par les grandes maisons type BlackRock, JPMorgan, Man Group) :
+ciblage de volatilité (risque ÷ 2 si VIX ≥ 25, Harvey et al. 2018), alerte dérive pré-FOMC (Lucca & Moench, Fed de New York),
+courbe des taux 10 ans − 3 mois, Fear & Greed actions (CNN) et crypto, funding et open interest des perpétuels Kraken,
+pré-ouverture avec les plus gros gaps de Wall Street.
 
 **Couche Bloomberg** : régime de marché (S&P vs MM50, VIX), briefing multi-actifs, rotation sectorielle,
 actualités, résultats d'entreprise et calendrier économique (OpenBB / Yahoo).
@@ -103,6 +111,8 @@ En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `py
 | `MAX_SAME` | garde-fou de corrélation : max de signaux dans le même sens, par classe et par passage | `3` |
 | `CAPITAL` | capital pour afficher la taille de position (vide = formule seulement) | — |
 | `RISK_PCT` | risque par trade en % du capital | `1` |
+| `VOL_CUT` | ciblage de volatilité : risque ÷ 2 au-dessus de ce VIX | `25` |
+| `LH_STOCKS` / `LH_MIN` | ETF de la dernière demi-heure / mouvement mini depuis la veille | `SPY,QQQ,IWM,DIA` / `0.004` |
 
 ## ⚠️ Avertissement
 

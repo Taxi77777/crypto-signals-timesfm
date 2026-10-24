@@ -36,7 +36,29 @@ Journal of Financial Economics.
 - Adaptation : forex, or et crypto avec un jour qui commence à 0 h UTC ; décisions 7 h – 19 h 30 UTC
   (forex) et 6 h 30 – 20 h UTC (crypto, 7 j/7).
 
-## 3. Couche « Bloomberg »
+## 2 bis. Dernière demi-heure (ETF indiciels US)
+
+- **Règle** : à 15 h 30 New York (12 h 30 les jours de clôture anticipée), rendement depuis la clôture de la veille
+  (rROD). Si |rROD| ≥ `LH_MIN` (0,4 %), position dans ce sens jusqu'à la clôture.
+- **Stop** : 2 × le déplacement moyen de la dernière demi-heure sur l'historique (60 jours).
+- **Sources** : Gao, Han, Li & Zhou (2018, *Journal of Financial Economics*) ; Baltussen, Da, Lammers & Martens (2021,
+  *JFE*) : 1974-2020, plus de 60 contrats à terme, Sharpe 0,87 à 1,73 ; effet plus fort quand les dealers d'options
+  sont « short gamma » (marché volatil), et qui s'inverse dans les jours suivants.
+- **Limites** : l'étude ne publie pas de stop ; celui du bot est un choix de gestion du risque. Le filtre de 0,4 % est
+  un choix du bot pour éviter les journées sans direction.
+
+## 3. Couche desks institutionnels
+
+| Élément | Source | Utilisation dans le bot |
+|---|---|---|
+| Ciblage de volatilité | Harvey, Hoyle, Korgaonkar, Rattray, Sargaison & Van Hemert (2018), *JPM* (Man Group) : Sharpe des actions US 0,40 → 0,48-0,51 | risque par trade divisé par 2 si VIX ≥ `VOL_CUT` (25) |
+| Dérive pré-FOMC | Lucca & Moench (2015), *Journal of Finance* / Fed de New York : ~49 pb sur le S&P dans les 24 h avant l'annonce (1994-2011) | alerte la veille et le jour de la Fed (briefing, signaux actions) |
+| Courbe des taux 10 ans − 3 mois | indicateur de récession suivi par la Fed de New York | briefing du matin |
+| Fear & Greed | CNN (actions), alternative.me (crypto) | briefing du matin |
+| Funding / open interest | API publique Kraken Futures | briefing + chaque signal crypto (alerte si positions déjà très chargées) |
+| Pré-ouverture | Yahoo (pré-marché) | message 15 h 15 Paris : plus gros gaps avec volume |
+
+## 3 bis. Couche « Bloomberg »
 
 - **Régime** : S&P 500 au-dessus / en dessous de sa moyenne 50 jours, VIX < 20 / ≥ 30.
 - **Briefing** : indices (S&P 500, Nasdaq, Dow, DAX, CAC 40, Nikkei), VIX, DXY, taux 10 ans US, or, WTI, BTC,

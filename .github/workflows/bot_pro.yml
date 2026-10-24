@@ -59,6 +59,9 @@ jobs:
           MAX_SAME:           ${{ vars.MAX_SAME }}
           CAPITAL:            ${{ vars.CAPITAL }}
           RISK_PCT:           ${{ vars.RISK_PCT }}
+          VOL_CUT:            ${{ vars.VOL_CUT }}
+          LH_STOCKS:          ${{ vars.LH_STOCKS }}
+          LH_MIN:             ${{ vars.LH_MIN }}
           LOOP_MINUTES:       ${{ inputs.minutes || '320' }}
           STATE_DIR:          /tmp/etat_bot
           PYTHONUNBUFFERED:   '1'
