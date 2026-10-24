@@ -626,11 +626,11 @@
    "objectif": 79647.359375
   }
  ],
- "yahoo": "ok : 391 bougies SPY lues a 08:47 UTC",
+ "yahoo": "ok : 391 bougies SPY lues a 09:07 UTC",
  "stats": {
-  "requetes": 118,
+  "requetes": 34,
   "erreurs": 0,
-  "maj": "24/10 09:06 UTC"
+  "maj": "24/10 09:15 UTC"
  },
  "scans": {
   "fx_ny": {
@@ -664,10 +664,10 @@
    "jour": "2026-10-24",
    "envoyes": 1,
    "non_favorables": 0,
-   "heure": "24/10 10:05",
-   "lus": 76,
+   "heure": "24/10 10:15",
+   "lus": 75,
    "symboles": 88,
-   "candidats": 1
+   "candidats": 0
   }
  },
  "univers": {
@@ -682,8 +682,13 @@
  },
  "openbb": {
   "module": "ok",
-  "actus_SPY": 0,
+  "actus_SPY": 5,
   "resultats": 0,
-  "annonces_eco": 0
+  "annonces_eco": 0,
+  "erreurs": {
+   "news": "\n[Empty] -> No data was returned for the given symbol(s)",
+   "earn": "\n[Empty] -> The request was returned empty.",
+   "econ": "\n[Error] -> There was an error with the request and it was returned empty."
+  }
  }
 }
