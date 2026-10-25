@@ -110,7 +110,8 @@
   "mom|2026-10-25|STX|-1": 1792939812.8602436,
   "mom|2026-10-25|IMX|-1": 1792939814.2060616,
   "mom|2026-10-25|POL|-1": 1792939815.6488984,
-  "mom|2026-10-25|ENA|1": 1792951285.4554155
+  "mom|2026-10-25|ENA|1": 1792951285.4554155,
+  "mom|2026-10-25|PYTH|1": 1792958468.0888104
  },
  "done": {
   "recap": "2026-10-24",
@@ -194,8 +195,8 @@
  ],
  "day": {
   "date": "2026-10-25",
-  "mom_vus": 9,
-  "mom_rejetes": 4,
+  "mom_vus": 10,
+  "mom_rejetes": 5,
   "mom_envoyes": 5,
   "fermes": 5
  },
@@ -221,10 +222,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1710,
+  "requetes": 1837,
   "erreurs": 0,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "25/10 19:33 UTC",
+  "maj": "25/10 20:03 UTC",
   "symboles_ko": []
  },
  "open": [],
