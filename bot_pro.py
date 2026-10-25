@@ -993,8 +993,8 @@ def resolve_chat():
                 CHAT_RES.update(id=str(chat["id"]), how="retrouve (%s)" % chat.get("type", ""))
                 break
         else:
-            CHAT_RES["how"] = "pas encore : envoie /start a @%s depuis le compte %s" % (
-                os.environ.get("BOT_NAME", "ton bot"), c)
+            CHAT_RES["how"] = "pas encore : le canal / compte %s est introuvable pour Telegram" % (
+                c[:2] + "***" + c[-1:])            # nom masque : le depot est public
     except Exception as ex:
         CHAT_RES["how"] = "erreur : %s" % str(ex).replace(tok, "***")[:60]
     return CHAT_RES["id"]
