@@ -1455,7 +1455,8 @@ def mom_scan(st, kind, now_ts):
                  SEP,
                  "▶️ Entrée    <code>%s</code>" % fmt(px),
                  "🛑 SL        <code>%s</code>  (%+.2f %%)" % (fmt(s["stop"]), -dr * 100 * risk / px),
-                 "🎯 Objectif <code>%s</code>  (2R, indicatif : la règle étudiée sort au stop suiveur ou en fin de séance)" % fmt(tp),
+                 "🎯 TP (take profit) <code>%s</code>  (%+.2f %% · 2× le risque)" % (fmt(tp), dr * 200 * risk / px),
+                 "   <i>facultatif : la règle étudiée laisse courir avec le stop suiveur</i>",
                  "🔁 Stop suiveur : toutes les 30 min, SL = %s(borne de la zone, VWAP) ; il ne recule jamais (borne actuelle %s)" % (
                      "max" if dr > 0 else "min", fmt(s["upper"] if dr > 0 else s["lower"])),
                  "⏰ Sortie au plus tard %s · ⌛ valable jusqu'à %s (Paris)" % (
@@ -1578,7 +1579,7 @@ def sip_select(st, now_ts):
         risk = abs(a["entry"] - a["stop"])
         L.append("%s <b>%s %s</b> · score %d/100 %s" % ("🟢" if dr > 0 else "🔴", "ACHAT" if dr > 0 else "VENTE",
                                                        esc(a["sym"]), a["score"], bar10(a["score"])))
-        L.append("   ordre %s <code>%s</code> · SL <code>%s</code> · objectif 3R <code>%s</code> (indicatif)" % (
+        L.append("   ordre %s <code>%s</code> · SL <code>%s</code> · TP <code>%s</code> (3× le risque, facultatif)" % (
             "stop achat" if dr > 0 else "stop vente", fmt(a["entry"]), fmt(a["stop"]), fmt(a["entry"] + dr * 3 * risk)))
         sz = size_line(a["entry"], a["stop"], "stocks")
         if sz:

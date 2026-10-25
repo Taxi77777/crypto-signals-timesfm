@@ -29,7 +29,8 @@ institutionnels » et « terminal Bloomberg », un backtest frais inclus pour ch
 ━━━━━━━━━━━━━━━
 ▶️ Entrée    187.910
 🛑 SL        185.400  (-1.34 %)
-🎯 Objectif 192.930  (2R, indicatif : la règle étudiée sort au stop suiveur ou en fin de séance)
+🎯 TP (take profit) 192.930  (+2.67 % · 2× le risque)
+   facultatif : la règle étudiée laisse courir avec le stop suiveur
 🔁 Stop suiveur : toutes les 30 min, SL = max(borne de la zone, VWAP) ; il ne recule jamais
 ⏰ Sortie au plus tard 22:55 · ⌛ valable jusqu'à 10:10 (Paris)
 📦 Taille : 3.900 unités pour risquer 10 € (1.00 % du capital)
