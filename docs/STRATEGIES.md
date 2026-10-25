@@ -51,6 +51,8 @@ Si, à un point de contrôle, le nouveau stop suiveur est déjà au-delà du pri
 de la bougie (jamais à un prix que le marché n'a pas traité). Un stop trop serré pour que les frais restent
 sous 0,25 R est ignoré.
 
+**Crypto = perpétuels Kraken** : les bougies 5 min viennent de l'API publique Kraken Futures (contrats PF_…USD), pour que l'entrée, le stop et le TP correspondent au prix affiché chez Kraken ; seules les cryptos disponibles en perpétuel sont analysées (Yahoo en secours).
+
 **Adaptation forex / or / crypto** : jour à partir de 0 h UTC ; décisions 7 h – 19 h 30 UTC (forex, lundi-vendredi)
 et 6 h 30 – 20 h UTC (crypto, 7 j/7). Le forex n'a pas de volume sur Yahoo : la « VWAP » y est une moyenne
 simple des prix. L'or et l'argent utilisent les contrats à terme COMEX (GC=F, SI=F), dont le prix peut

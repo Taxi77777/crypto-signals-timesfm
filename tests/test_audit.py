@@ -159,3 +159,33 @@ def test_openinsider_parser():
             '<td>-500</td><td>-$60,500</td></tr></table>')
     assert B.parse_openinsider(html) == {"n": 1, "usd": 120000.0}
     assert B.parse_openinsider("<html>rien</html>") == {"n": 0, "usd": 0.0}
+
+
+def test_kraken_perp_candles_and_universe(monkeypatch):
+    class Resp:
+        def __init__(self, j):
+            self.j = j
+
+        def json(self):
+            return self.j
+
+        def raise_for_status(self):
+            pass
+    t0 = 1792900800
+    pages = [{"candles": [{"time": (t0 + k * 300) * 1000, "open": "100", "high": "101", "low": "99", "close": "100.5",
+                           "volume": "3"} for k in range(3)], "more_candles": True},
+             {"candles": [{"time": (t0 + k * 300) * 1000, "open": "100", "high": "101", "low": "99", "close": "100.5",
+                           "volume": "3"} for k in range(3, 5)], "more_candles": False}]
+    calls = []
+
+    def get(url, params=None, timeout=0, **k):
+        calls.append(params)
+        return Resp(pages[len(calls) - 1])
+    monkeypatch.setattr(B.SESSION, "get", get)
+    bars = B.kraken_candles("PF_SOLUSD", t0, t0 + 3600)
+    assert len(bars) == 5 and calls[1]["from"] == t0 + 3 * 300
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: {"tickers": [
+        {"symbol": "PF_XBTUSD"}, {"symbol": "PF_SOLUSD"}, {"symbol": "PF_XDGUSD"}, {"symbol": "FI_XBTUSD_261225"}]})
+    assert B.kraken_perps() == {"BTC": "PF_XBTUSD", "SOL": "PF_SOLUSD", "DOGE": "PF_XDGUSD"}
+    monkeypatch.setitem(B.KR_SYM, "SOL", "PF_SOLUSD")
+    assert "Kraken perp PF_SOLUSD" in B.label("SOL")

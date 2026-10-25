@@ -195,7 +195,12 @@ def ysym(sym, kind):
 
 
 def label(sym):
+    if sym in KR_SYM:
+        return "%s (Kraken perp %s)" % (sym, KR_SYM[sym])
     return {"XAUUSD": "XAUUSD (or)", "XAGUSD": "XAGUSD (argent)"}.get(sym, sym)
+
+
+KR_SYM = {}          # crypto -> contrat perpetuel Kraken (rempli au demarrage : PF_XBTUSD, PF_SOLUSD...)
 
 
 ETF_US = {"SPY", "QQQ", "IWM", "DIA", "SMH", "XLK", "XLF", "XLE", "XLV", "XLY", "XLP", "XLI", "XLU", "XLB", "XLRE", "XLC"}
@@ -1213,6 +1218,16 @@ def chat_shape():
     return ", ".join(bits)
 
 
+def kraken_check():
+    if "BTC" not in KR_SYM:
+        return "BTC absent"
+    try:
+        n = len(kraken_candles(KR_SYM["BTC"], time.time() - 86400, time.time()))
+        return "ok : %d bougies 5 min sur 24 h" % n
+    except Exception as ex:
+        return "ERREUR : %s" % str(ex)[:100]
+
+
 def telegram_check():
     """Diagnostic sans exposer le jeton ni l'identifiant : nom du bot et acces au chat."""
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), chat_id()
@@ -1492,9 +1507,65 @@ HIST = {}
 BAD = {}
 
 
+def kraken_perps():
+    """{crypto: contrat perpetuel Kraken} d'apres l'API publique Kraken Futures (cache 15 min)."""
+    j = _get_json("https://futures.kraken.com/derivatives/api/v3/tickers", 900)
+    out = {}
+    for t in ((j or {}).get("tickers") or []) if isinstance(j, dict) else []:
+        sym = str(t.get("symbol", "")).upper()
+        if sym.startswith("PF_") and sym.endswith("USD") and not t.get("suspended"):
+            out[{"XBT": "BTC", "XDG": "DOGE"}.get(sym[3:-3], sym[3:-3])] = sym
+    return out
+
+
+def kraken_candles(pf, start, end):
+    """Bougies 5 min du perpetuel Kraken (prix des transactions), pagine, horodatage en secondes."""
+    out, frm = {}, int(start)
+    for _ in range(14):
+        STATS["requetes"] += 1
+        r = SESSION.get("https://futures.kraken.com/api/charts/v1/trade/%s/5m" % pf,
+                        params={"from": frm, "to": int(end)}, timeout=20)
+        r.raise_for_status()
+        j = r.json()
+        cs = j.get("candles") or []
+        for c in cs:
+            ts = int(c["time"]) // 1000
+            o, h, l, cl = (float(c[k]) for k in ("open", "high", "low", "close"))
+            if ts % BAR == 0 and min(o, h, l, cl) > 0:
+                out[ts] = (ts, o, h, l, cl, float(c.get("volume") or 0))
+        if not j.get("more_candles") or not cs:
+            break
+        nxt = int(cs[-1]["time"]) // 1000 + BAR
+        if nxt <= frm:
+            break
+        frm = nxt
+    if not out:
+        raise RuntimeError("Kraken %s : aucune bougie" % pf)
+    return out
+
+
+def _hist_kraken(sym):
+    pf = KR_SYM[sym]
+    key = "KR:" + pf
+    c = HIST.get(key)
+    now = time.time()
+    if not c or now - c["full"] > 12 * 3600:
+        HIST[key] = {"bars": kraken_candles(pf, now - 60 * 86400, now), "full": now}
+    else:
+        c["bars"].update(kraken_candles(pf, now - 2 * 86400, now))
+    bars = HIST[key]["bars"]
+    return [bars[k] for k in sorted(bars)]
+
+
 def hist(kind, sym):
     """Bougies 5 min (60 jours) en cache, completees a chaque passage par la journee en cours.
+       Crypto : prix des PERPETUELS KRAKEN (ce que le trader voit chez Kraken), Yahoo en secours.
        Un symbole introuvable 3 fois de suite est ignore pour le reste du passage (liste dans diag)."""
+    if kind == "cr" and sym in KR_SYM:
+        try:
+            return _hist_kraken(sym)
+        except Exception as ex:
+            STATS["kraken_secours_yahoo"] = "%s : %s" % (sym, str(ex)[:80])
     y = ysym(sym, kind)
     if BAD.get(y, 0) >= 3 and y not in HIST:
         raise RuntimeError("symbole ignore (introuvable sur Yahoo)")
@@ -1535,6 +1606,8 @@ def mom_scan(st, kind, now_ts):
     if not mom_day_ok(kind, d) or not (at(d, first_t, tz) <= now_ts <= at(d, last_t, tz) + 240):
         return 0
     syms = {"stocks": CFG["MOM_STOCKS"], "fx": CFG["MOM_FX"], "cr": CFG["MOM_CRYPTO"]}[kind]
+    if kind == "cr" and KR_SYM:
+        syms = [x for x in syms if x in KR_SYM]   # seulement les cryptos tradables en perpetuel chez Kraken
     reg = regime_update()
     sent = 0
     pending = []
@@ -2219,6 +2292,10 @@ def main():
     # Les crons GitHub sont tres irreguliers (parfois 1 seul declenchement en 2 h) : le bot tourne donc
     # en CHAINE 24 h/24 (chaque job de 5 h 20 relance le suivant) et attend simplement la nuit.
     st = load_state()
+    try:
+        KR_SYM.update({k: v for k, v in kraken_perps().items() if k in CFG["MOM_CRYPTO"]})
+    except Exception as ex:
+        log.warning("perpetuels Kraken : %s", ex)
     if st.get("tg_pair") and os.environ.get("TELEGRAM_BOT_TOKEN"):
         cid = pair_decode(str(st["tg_pair"]))
         if cid:
@@ -2231,7 +2308,11 @@ def main():
                       "kraken_funding": "%d perpetuels" % len(kraken_funding()),
                       "fear_greed": fear_greed() or "indisponible",
                       "telegram": telegram_check(),
-                      "cot": "%d marches" % len(cot_data())}
+                      "cot": "%d marches" % len(cot_data()),
+                      "crypto_kraken_perp": "%d / %d cryptos en perpetuel Kraken (absentes : %s)" % (
+                          len(KR_SYM), len(CFG["MOM_CRYPTO"]),
+                          ",".join(x for x in CFG["MOM_CRYPTO"] if x not in KR_SYM)[:120] or "aucune"),
+                      "kraken_bougies_btc": kraken_check()}
     except Exception as ex:
         st["diag"] = {"yahoo": "ERREUR : %s" % str(ex)[:150]}
     log.info("diagnostic : %s", st["diag"])

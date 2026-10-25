@@ -2,7 +2,7 @@
 
 # 📈 Bot Pro — signaux intraday de niveau institutionnel
 
-**Actions US · Forex · Or · 56 cryptos 7 j/7 — sur Telegram, 100 % gratuit, 100 % open source**
+**Actions US · Forex · Or · cryptos en perpétuels Kraken 7 j/7 — sur Telegram, 100 % gratuit, 100 % open source**
 
 [![Tests](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml)
 [![Bot](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml)
