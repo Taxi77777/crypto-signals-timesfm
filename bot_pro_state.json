@@ -188,9 +188,10 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 186,
+  "requetes": 68,
   "erreurs": 0,
-  "maj": "25/10 13:18 UTC",
+  "appairage": "13:25 : 0 message(s) recu(s) ",
+  "maj": "25/10 13:25 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -209,7 +210,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.006786082176221673
+   "stop_now": 0.006786424758743417
   },
   {
    "strat": "momentum",
@@ -226,7 +227,7 @@
    "day": "2026-10-25",
    "sent": 1792927800,
    "score": 79,
-   "stop_now": 3.2435952654344398
+   "stop_now": 3.2419348581272946
   },
   {
    "strat": "momentum",
@@ -243,7 +244,7 @@
    "day": "2026-10-25",
    "sent": 1792931400,
    "score": 85,
-   "stop_now": 1576.8856557246424
+   "stop_now": 1576.8809603598647
   }
  ],
  "track": [
