@@ -133,3 +133,29 @@ def test_briefing_uses_two_decimals(monkeypatch):
     B.FMT[0] = 5
     m = B.briefing()
     assert "18.20000" not in m and "18.20" in m and html_ok(m)
+
+
+def test_cot_bias_and_summary(monkeypatch):
+    rows = []
+    for date, eur, jpy in (("2026-10-20T00:00:00.000", (200, 50), (40, 140)), ("2026-10-13T00:00:00.000", (180, 60), (50, 120))):
+        rows.append({"cftc_contract_market_code": "099741", "report_date_as_yyyy_mm_dd": date, "open_interest_all": "1000",
+                     "noncomm_positions_long_all": str(eur[0]), "noncomm_positions_short_all": str(eur[1])})
+        rows.append({"cftc_contract_market_code": "097741", "report_date_as_yyyy_mm_dd": date, "open_interest_all": "1000",
+                     "noncomm_positions_long_all": str(jpy[0]), "noncomm_positions_short_all": str(jpy[1])})
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: rows if "cftc" in url else None)
+    c = B.cot_data()
+    assert round(c["EUR"]["net"]) == 15 and round(c["JPY"]["net"]) == -10 and round(c["EUR"]["chg"]) == 3
+    assert B.cot_bias("EURUSD")[0] == 1 and B.cot_bias("USDJPY")[0] == 1 and B.cot_bias("EURJPY")[0] == 1
+    assert "CONTRE" in B.cot_line("EURUSD", -1) and "dans ton sens" in B.cot_line("EURUSD", 1)
+    assert "ils achètent euro" in B.cot_summary() and "ils vendent yen" in B.cot_summary()
+    assert B.cot_bias("GBPUSD") == (0, None)
+
+
+def test_openinsider_parser():
+    html = ('<table class="tinytable"><tr><th>X</th></tr>'
+            '<tr><td>M</td><td>2026-10-20</td><td>NVDA</td><td>CEO</td><td>P - Purchase</td><td>$120.00</td>'
+            '<td>+1,000</td><td>+$120,000</td></tr>'
+            '<tr><td>M</td><td>2026-10-21</td><td>NVDA</td><td>CFO</td><td>S - Sale</td><td>$121.00</td>'
+            '<td>-500</td><td>-$60,500</td></tr></table>')
+    assert B.parse_openinsider(html) == {"n": 1, "usd": 120000.0}
+    assert B.parse_openinsider("<html>rien</html>") == {"n": 0, "usd": 0.0}

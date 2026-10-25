@@ -84,6 +84,8 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
 | Fear & Greed | CNN (actions, point d'accès non officiel), alternative.me (crypto) | briefing |
 | Funding / open interest | API publique Kraken Futures | briefing + chaque signal crypto |
 | Pré-ouverture | Yahoo (pré-marché) | 9 h 15 NY : plus gros gaps (≥ 2 %) avec volume |
+| Positions des grands fonds | Rapport COT de la CFTC (API publique, hebdomadaire) : position nette des spéculateurs non commerciaux en % de l'open interest | briefing + chaque signal forex / or : +5 points dans le sens des fonds, −10 contre (écart > 5 points) |
+| Achats des dirigeants | Formulaires 4 de la SEC via OpenInsider (gratuit) | liste Stocks in Play : achats des 30 derniers jours, +5 points pour un achat |
 
 ## 5. Couche « terminal Bloomberg »
 

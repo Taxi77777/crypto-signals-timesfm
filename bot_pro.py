@@ -758,6 +758,108 @@ def kraken_funding():
     return out
 
 
+# ---- Rapport COT (CFTC) : positions des grands speculateurs (hedge funds, CTA) sur les contrats a terme
+COT_CODES = {"EUR": "099741", "JPY": "097741", "GBP": "096742", "CHF": "092741", "CAD": "090741",
+             "AUD": "232741", "NZD": "112741", "XAU": "088691", "XAG": "084691"}
+COT_NAMES = {"EUR": "euro", "JPY": "yen", "GBP": "livre", "CHF": "franc suisse", "CAD": "dollar canadien",
+             "AUD": "dollar australien", "NZD": "dollar néo-zélandais", "XAU": "or", "XAG": "argent"}
+
+
+def cot_data():
+    """{devise: {"net": % de l'open interest, "chg": variation sur 1 semaine (points), "date"}} (cache 6 h).
+       Source gratuite : API publique de la CFTC (rapport « Legacy », speculateurs non commerciaux)."""
+    codes = ",".join("'%s'" % c for c in COT_CODES.values())
+    j = _get_json("https://publicreporting.cftc.gov/resource/6dca-aqww.json?$where=cftc_contract_market_code%20in("
+                  + codes + ")&$order=report_date_as_yyyy_mm_dd%20DESC&$limit=60", 6 * 3600)
+    rows = j if isinstance(j, list) else []
+    by = {}
+    for r in rows:
+        try:
+            code = str(r.get("cftc_contract_market_code"))
+            ccy = next(k for k, v in COT_CODES.items() if v == code)
+            oi = float(r.get("open_interest_all") or 0)
+            net = float(r.get("noncomm_positions_long_all") or 0) - float(r.get("noncomm_positions_short_all") or 0)
+            if oi > 0:
+                by.setdefault(ccy, []).append((str(r.get("report_date_as_yyyy_mm_dd", ""))[:10], 100 * net / oi))
+        except (StopIteration, ValueError, TypeError):
+            continue
+    out = {}
+    for ccy, v in by.items():
+        v.sort(reverse=True)
+        out[ccy] = {"net": v[0][1], "chg": v[0][1] - v[1][1] if len(v) > 1 else 0.0, "date": v[0][0]}
+    return out
+
+
+def cot_bias(sym):
+    """Sens favorise par les grands fonds pour une paire : +1 achat, -1 vente, 0 neutre / inconnu."""
+    c = cot_data()
+    if sym in ("XAUUSD", "XAGUSD"):
+        x = c.get(sym[:3])
+        return (1 if x["net"] > 5 else -1 if x["net"] < -5 else 0, x) if x else (0, None)
+    if len(sym) != 6:
+        return 0, None
+    b, q = sym[:3], sym[3:]
+    sb = 0.0 if b == "USD" else (c.get(b) or {}).get("net")
+    sq = 0.0 if q == "USD" else (c.get(q) or {}).get("net")
+    if sb is None or sq is None:
+        return 0, None
+    d_ = sb - sq
+    return (1 if d_ > 5 else -1 if d_ < -5 else 0), {"net": d_}
+
+
+def cot_line(sym, dr):
+    bias, x = cot_bias(sym)
+    if not x:
+        return None
+    if bias == 0:
+        return "🏦 Grands fonds (rapport COT) : pas de sens net sur %s" % label(sym)
+    return "🏦 Grands fonds (rapport COT) : plutôt %s %s → %s" % (
+        "acheteurs" if bias > 0 else "vendeurs", label(sym), "dans ton sens ✅" if bias == dr else "CONTRE toi ⚠️")
+
+
+def cot_summary():
+    c = cot_data()
+    if not c:
+        return None
+    buy = [COT_NAMES[k] for k in COT_CODES if k in c and c[k]["net"] > 5]
+    sell = [COT_NAMES[k] for k in COT_CODES if k in c and c[k]["net"] < -5]
+    date = max(v["date"] for v in c.values())
+    return "🏦 Grands fonds (rapport COT du %s) : ils achètent %s · ils vendent %s" % (
+        date, ", ".join(buy) or "rien", ", ".join(sell) or "rien")
+
+
+# ---- Achats des dirigeants (formulaire 4 de la SEC), via OpenInsider (gratuit)
+def insider_buys(sym, days=30):
+    """Nombre d'achats d'actions par les dirigeants sur `days` jours et montant total ($). None si indisponible."""
+    def f():
+        r = SESSION.get("http://openinsider.com/screener", timeout=15, params={
+            "s": sym, "fd": days, "xp": 1, "cnt": 100, "sortcol": 0})
+        if not r.ok:
+            return None
+        return parse_openinsider(r.text)
+    return _cached("ins|%s|%d" % (sym, days), 6 * 3600, f)
+
+
+def parse_openinsider(html_text):
+    m = re.search(r'<table[^>]*class="tinytable"[^>]*>(.*?)</table>', html_text, re.S)
+    if not m:
+        return {"n": 0, "usd": 0.0}
+    n, usd = 0, 0.0
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", m.group(1), re.S)[1:]:
+        cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+        if not any("P - Purchase" in c for c in cells):
+            continue
+        n += 1
+        for c in cells:
+            if c.startswith("+$") or c.startswith("$") and "," in c:
+                try:
+                    usd += float(c.replace("+", "").replace("$", "").replace(",", ""))
+                    break
+                except ValueError:
+                    pass
+    return {"n": n, "usd": usd}
+
+
 def funding_line(coin, dr):
     f = kraken_funding().get(coin)
     if not f or f["rel"] is None:
@@ -873,6 +975,12 @@ def briefing():
     if fg:
         inst.append("😨 Fear &amp; Greed : " + " · ".join("%s <b>%d</b> (%s)" % (
             k, v[0], esc(FG_FR.get(v[1].lower(), v[1]))) for k, v in sorted(fg.items())))
+    try:
+        cs = cot_summary()
+    except Exception:
+        cs = None
+    if cs:
+        inst.append(esc(cs))
     fu = kraken_funding()
     fl = ["%s %+.4f %%/h" % (c, fu[c]["rel"] * 100) for c in ("BTC", "ETH", "SOL") if c in fu and fu[c]["rel"] is not None]
     if fl:
@@ -1500,8 +1608,19 @@ def mom_scan(st, kind, now_ts):
             p = bt_points(stt)
             pts += p
             why.append(("Backtest de l'actif", p, 20))
+            cot_l = None
+            if kind == "fx":
+                try:
+                    cb, _x = cot_bias(sym)
+                    cot_l = cot_line(sym, dr)
+                except Exception:
+                    cb = 0
+                if cb == dr:
+                    pts += 5
+                elif cb == -dr:
+                    pts -= 10                     # contre les grands fonds : on penalise
             nw = news(ysym(sym, kind))
-            score = min(100, pts)
+            score = max(0, min(100, pts))
             if score < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)):
                 count(st, "mom_rejetes")
                 log.info("%s %s : score %d, backtest %s -> non envoye", sym, dr, score, stt)
@@ -1538,6 +1657,8 @@ def mom_scan(st, kind, now_ts):
                     fl_ = None
                 if fl_:
                     L.append(esc(fl_))
+            if cot_l:
+                L.append(esc(cot_l))
             fn = fomc_note(now_ts) if kind != "cr" else None
             if fn:
                 L.append(esc(fn))
@@ -1553,6 +1674,8 @@ def mom_scan(st, kind, now_ts):
                             extra.append("⚠️ Beaucoup de traders sont déjà dans ce sens : risque de retournement")
                     except Exception:
                         pass
+                if cot_l:
+                    extra.append(cot_l)
                 fn_ = fomc_note(now_ts) if kind != "cr" else None
                 if fn_:
                     extra.append("🏦 Annonce de la banque centrale US (Fed) proche : mouvements violents possibles")
@@ -1628,7 +1751,13 @@ def sip_select(st, now_ts):
         pts += 10 if rank <= 5 else 5
         earn = earnings_soon(a["sym"], d)
         pts += 0 if earn else 10
-        a.update(score=min(100, pts), bt=stt, mc=mc, rank=rank, earn=earn)
+        try:
+            ins = insider_buys(a["sym"])
+        except Exception:
+            ins = None
+        if ins and ins["n"] and a["dir"] > 0:
+            pts += 5                              # les dirigeants achetent : signal de confiance
+        a.update(score=min(100, pts), bt=stt, mc=mc, rank=rank, earn=earn, ins=ins)
         if a["score"] < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)):
             count(st, "sip_rejetes")
             continue
@@ -1690,6 +1819,9 @@ def sip_select(st, now_ts):
                 L.append("   📊 60 derniers jours : %d essais, au total %s%s" % (
                     bt["n"], "en GAIN" if bt["avg"] > 0 else "en PERTE",
                     "" if a["mc"] and a["mc"]["m5"] > 0 else " (pas encore prouvé)"))
+            if a.get("ins") and a["ins"]["n"]:
+                L.append("   👔 Les dirigeants ont acheté des actions : %d achat(s) en 30 jours (%s $)" % (
+                    a["ins"]["n"], nb(a["ins"]["usd"])))
             if a["earn"]:
                 L.append("   ⚠️ l'entreprise publie ses résultats aujourd'hui ou demain : très risqué")
         L += [SEP, "⏰ Ordres à annuler s'ils ne sont pas déclenchés à %s · tout fermer à %s (Paris)" % (t_ord, flat),
@@ -2098,7 +2230,8 @@ def main():
                       "regime": regime_update(force=True)["label"],
                       "kraken_funding": "%d perpetuels" % len(kraken_funding()),
                       "fear_greed": fear_greed() or "indisponible",
-                      "telegram": telegram_check()}
+                      "telegram": telegram_check(),
+                      "cot": "%d marches" % len(cot_data())}
     except Exception as ex:
         st["diag"] = {"yahoo": "ERREUR : %s" % str(ex)[:150]}
     log.info("diagnostic : %s", st["diag"])
