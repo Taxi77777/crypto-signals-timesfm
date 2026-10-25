@@ -189,3 +189,19 @@ def test_kraken_perp_candles_and_universe(monkeypatch):
     assert B.kraken_perps() == {"BTC": "PF_XBTUSD", "SOL": "PF_SOLUSD", "DOGE": "PF_XDGUSD"}
     monkeypatch.setitem(B.KR_SYM, "SOL", "PF_SOLUSD")
     assert "Kraken perp PF_SOLUSD" in B.label("SOL")
+
+
+def test_economic_calendar_pause(monkeypatch):
+    ev = [{"title": "CPI m/m", "country": "USD", "date": "2026-10-28T08:30:00-04:00", "impact": "High",
+           "forecast": "0.3%", "previous": "0.4%"},
+          {"title": "German Ifo", "country": "EUR", "date": "2026-10-28T05:00:00-04:00", "impact": "Medium"},
+          {"title": "bad", "country": "USD", "date": "pas une date", "impact": "High"}]
+    monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: ev if "faireconomy" in url else None)
+    t_cpi = int(B.datetime.datetime.fromisoformat("2026-10-28T08:30:00-04:00").timestamp())
+    assert B.news_pause("fx", "EURUSD", t_cpi - 600) and B.news_pause("cr", "BTC", t_cpi + 900)
+    assert B.news_pause("fx", "EURJPY", t_cpi) is None          # pas de dollar dans la paire
+    assert B.news_pause("fx", "EURUSD", t_cpi - 3 * 3600) is None
+    assert "13:30" in B.next_event_line("stocks", "SPY", t_cpi - 3600)   # 8 h 30 New York = 13 h 30 Paris
+    monkeypatch.setattr(B.time, "time", lambda: t_cpi)
+    cal = B.econ_calendar_today()
+    assert len(cal) == 2 and cal[1].startswith("13:30 🔴 🇺🇸 CPI m/m")

@@ -998,9 +998,16 @@ def briefing():
         inst.append("🛡 VIX ≥ %.0f : risque par trade divisé par 2 (ciblage de volatilité)" % CFG["VOL_CUT"])
     if inst:
         L += [SEP, "🏦 <b>Vue desks institutionnels</b>"] + inst
-    ev = econ_today()
+    try:
+        ev = econ_calendar_today()
+    except Exception:
+        ev = []
     if ev:
-        L += [SEP, "🏦 <b>Agenda économique (Paris)</b>"] + [esc(x) for x in ev[:8]]
+        L += [SEP, "📅 <b>Annonces économiques du jour</b> (🔴 fort impact : pas de signal 30 min avant / après)"] + [esc(x) for x in ev[:10]]
+    else:
+        ev = econ_today()
+        if ev:
+            L += [SEP, "🏦 <b>Agenda économique (Paris)</b>"] + [esc(x) for x in ev[:8]]
     L += [SEP, "🧭 <b>Régime : %s</b>" % esc(reg["label"]),
           "<i>Achats favorisés en risk-on, ventes en risk-off. Pas un conseil.</i>"]
     return "\n".join(L)
@@ -1062,6 +1069,61 @@ def earnings_soon(sym, d):
         return {str(getattr(x, "symbol", "")).upper() for x in rows}
     s = _cached("earn|" + d.isoformat(), 6 * 3600, f) or set()
     return sym.upper() in s
+
+
+# ---- Calendrier economique (ForexFactory, gratuit) : annonces a fort impact + pause des signaux
+FLAGS = {"USD": "🇺🇸", "EUR": "🇪🇺", "GBP": "🇬🇧", "JPY": "🇯🇵", "CHF": "🇨🇭", "CAD": "🇨🇦", "AUD": "🇦🇺",
+         "NZD": "🇳🇿", "CNY": "🇨🇳"}
+
+
+def ff_events():
+    """Annonces de la semaine : [(ts, devise, titre, impact, prevu, precedent)] (cache 1 h)."""
+    j = _get_json("https://nfs.faireconomy.media/ff_calendar_thisweek.json", 3600)
+    out = []
+    for e in j if isinstance(j, list) else []:
+        try:
+            ts = int(datetime.datetime.fromisoformat(str(e["date"])).timestamp())
+            out.append((ts, str(e.get("country", "")).upper(), str(e.get("title", ""))[:60], str(e.get("impact", "")),
+                        str(e.get("forecast") or ""), str(e.get("previous") or "")))
+        except (KeyError, ValueError, TypeError):
+            continue
+    return sorted(out)
+
+
+def sym_ccys(kind, sym):
+    if kind == "fx" and len(sym) == 6 and not sym.startswith("XA"):
+        return {sym[:3], sym[3:]}
+    return {"USD"}                                # actions US, or, argent, crypto : surtout les annonces US
+
+
+def news_pause(kind, sym, ts, before=1800, after=1800):
+    """Annonce a FORT impact sur une devise concernee entre ts-30 min et ts+30 min -> pas de signal."""
+    cc = sym_ccys(kind, sym)
+    for t, c, title, imp, _f, _p in ff_events():
+        if imp == "High" and c in cc and ts - after <= t <= ts + before:
+            return "%s %s %s" % (local_dt(t, PARIS).strftime("%H:%M"), c, title)
+    return None
+
+
+def next_event_line(kind, sym, ts, horizon=3 * 3600):
+    cc = sym_ccys(kind, sym)
+    for t, c, title, imp, _f, _p in ff_events():
+        if imp == "High" and c in cc and ts < t <= ts + horizon:
+            return "📅 Annonce importante à %s : %s %s · prudence, le prix peut bouger fort" % (
+                local_dt(t, PARIS).strftime("%H:%M"), c, title)
+    return None
+
+
+def econ_calendar_today():
+    d = local_dt(time.time(), PARIS).date()
+    out = []
+    for t, c, title, imp, fc, pv in ff_events():
+        if local_dt(t, PARIS).date() != d or imp not in ("High", "Medium"):
+            continue
+        out.append("%s %s %s %s%s%s" % (local_dt(t, PARIS).strftime("%H:%M"), "🔴" if imp == "High" else "🟠",
+                                        FLAGS.get(c, c), title, " · prévu %s" % fc if fc else "",
+                                        " · avant %s" % pv if pv else ""))
+    return out
 
 
 def econ_today():
@@ -1639,6 +1701,14 @@ def mom_scan(st, kind, now_ts):
             if now_ts - s["ts"] > 600:
                 continue                          # decision deja ancienne : jamais en retard
             count(st, "mom_vus")
+            try:
+                pz = news_pause(kind, sym, s["ts"])
+            except Exception:
+                pz = None
+            if pz:
+                count(st, "pause_annonce")
+                log.info("%s : pas de signal, annonce economique %s", sym, pz)
+                continue
             dr, px = s["dir"], s["price"]
             rs = mom_backtest(days, kind, d, dr)
             stt, mc = bt_stats(rs), mc_trades(rs, sims=CFG["SIMS"])
@@ -1750,6 +1820,12 @@ def mom_scan(st, kind, now_ts):
                         pass
                 if cot_l:
                     extra.append(cot_l)
+                try:
+                    ne_ = next_event_line(kind, sym, now_ts)
+                except Exception:
+                    ne_ = None
+                if ne_:
+                    extra.append(ne_)
                 fn_ = fomc_note(now_ts) if kind != "cr" else None
                 if fn_:
                     extra.append("🏦 Annonce de la banque centrale US (Fed) proche : mouvements violents possibles")
@@ -2069,6 +2145,12 @@ def lh_scan(st, now_ts):
         if not tr or tr["last_ts"] != t_dec:
             continue
         count(st, "lh_vus")
+        try:
+            if news_pause("stocks", sym, t_dec + 900, before=900, after=1800):
+                count(st, "pause_annonce")
+                continue
+        except Exception:
+            pass
         stt, mc = bt_stats(rs), mc_trades(rs, sims=CFG["SIMS"])
         vix = reg.get("vix")
         why = [("Mouvement depuis hier %s" % pct(tr["rod"]), 30 if abs(tr["rod"]) >= 2 * CFG["LH_MIN"] else 18, 30),
@@ -2264,9 +2346,9 @@ def day_recap(st):
     day = st["day"] if st["day"].get("date") == d else {}
     weekly = local_dt(time.time(), PARIS).weekday() == 6
     telegram("📊 <b>RÉSUMÉ DU JOUR</b> · %s\n⚡ Momentum : %d cassures vues, %d envoyées, %d écartées (score / backtest), "
-             "%d écartées (corrélation)\n⏱ Dernière 1/2 h : %d envoyées\n🇺🇸 Stocks in Play : %s\n🧭 Régime : %s\n%s%s" % (
+             "%d écartées (corrélation), %d en pause (annonce économique)\n⏱ Dernière 1/2 h : %d envoyées\n🇺🇸 Stocks in Play : %s\n🧭 Régime : %s\n%s%s" % (
                  local_dt(time.time(), PARIS).strftime("%d/%m"), day.get("mom_vus", 0), day.get("mom_envoyes", 0),
-                 day.get("mom_rejetes", 0), day.get("mom_correles", 0), day.get("lh_envoyes", 0),
+                 day.get("mom_rejetes", 0), day.get("mom_correles", 0), day.get("pause_annonce", 0), day.get("lh_envoyes", 0),
                  "liste envoyée" if day.get("sip_envoyes") else "pas de séance / rien", esc(REGIME["label"]),
                  esc(scorecard(st, 7 if weekly else None)), "\n<i>(bilan de la semaine)</i>" if weekly else ""))
     save_state(st)
@@ -2310,6 +2392,7 @@ def main():
                       "fear_greed": fear_greed() or "indisponible",
                       "telegram": telegram_check(),
                       "cot": "%d marches" % len(cot_data()),
+                      "calendrier_eco": "%d annonces cette semaine" % len(ff_events()),
                       "crypto_kraken_perp": "%d / %d cryptos en perpetuel Kraken (absentes : %s)" % (
                           len(KR_SYM), len(CFG["MOM_CRYPTO"]),
                           ",".join(x for x in CFG["MOM_CRYPTO"] if x not in KR_SYM)[:120] or "aucune"),
