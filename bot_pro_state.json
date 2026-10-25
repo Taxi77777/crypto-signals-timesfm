@@ -163,12 +163,12 @@
     "Neutral"
    ]
   },
-  "telegram": "bot @Cryypto_signnal_bot \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
+  "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : envoie /start a @Cryypto_signnal_bot depuis le compte @cryptosignalsfrancais \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 65,
+  "requetes": 177,
   "erreurs": 0,
-  "maj": "25/10 10:27 UTC",
+  "maj": "25/10 10:35 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -187,7 +187,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.006818548770373556
+   "stop_now": 0.006817042843109061
   },
   {
    "strat": "momentum",
@@ -204,7 +204,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 77,
-   "stop_now": 0.1024839744444471
+   "stop_now": 0.10248267244526182
   }
  ],
  "track": [
