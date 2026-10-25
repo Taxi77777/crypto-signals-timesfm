@@ -90,7 +90,8 @@
   "mom|2026-10-25|CELO|-1": 1792920750.9049454,
   "mom|2026-10-25|QTUM|-1": 1792920751.817442,
   "mom|2026-10-25|KAS|-1": 1792927008.1291523,
-  "mom|2026-10-25|EGLD|-1": 1792927857.885082
+  "mom|2026-10-25|EGLD|-1": 1792927857.885082,
+  "mom|2026-10-25|MKR|-1": 1792931455.3707511
  },
  "done": {
   "recap": "2026-10-24",
@@ -151,13 +152,22 @@
    "entree": 3.226799964904785,
    "sl": 3.253604232041126,
    "score": 79
+  },
+  {
+   "t": "25/10 12:31",
+   "strat": "momentum",
+   "sym": "MKR",
+   "sens": "VENTE",
+   "entree": 1570.47607421875,
+   "sl": 1583.966126725432,
+   "score": 85
   }
  ],
  "day": {
   "date": "2026-10-25",
-  "mom_vus": 6,
+  "mom_vus": 7,
   "mom_rejetes": 3,
-  "mom_envoyes": 3,
+  "mom_envoyes": 4,
   "fermes": 1
  },
  "diag": {
@@ -178,12 +188,12 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 314,
+  "requetes": 435,
   "erreurs": 0,
   "telegram_html_refuse": "Bad Request: chat not found",
-  "telegram_erreurs": 6,
-  "telegram_derniere_erreur": "25/10 11:31 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE EGLD \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intra",
-  "maj": "25/10 12:25 UTC",
+  "telegram_erreurs": 9,
+  "telegram_derniere_erreur": "25/10 12:31 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE MKR \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intrad",
+  "maj": "25/10 12:35 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -202,7 +212,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.006799979555173435
+   "stop_now": 0.006799423819290728
   },
   {
    "strat": "momentum",
@@ -220,6 +230,23 @@
    "sent": 1792927800,
    "score": 79,
    "stop_now": 3.251327475288674
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "MKR",
+   "dir": -1,
+   "entry": 1570.47607421875,
+   "stop": 1583.966126725432,
+   "upper": 1615.7098986651927,
+   "lower": 1583.966126725432,
+   "hi0": 1599.8380126953125,
+   "lo0": 1599.8380126953125,
+   "t_flat": 1792961700,
+   "day": "2026-10-25",
+   "sent": 1792931400,
+   "score": 85,
+   "stop_now": 1583.966126725432
   }
  ],
  "track": [
