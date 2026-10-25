@@ -168,7 +168,7 @@
   "mom_vus": 7,
   "mom_rejetes": 3,
   "mom_envoyes": 4,
-  "fermes": 2
+  "fermes": 3
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -188,10 +188,10 @@
   "telegram": "destination : appaire par code (private )"
  },
  "stats": {
-  "requetes": 195,
+  "requetes": 310,
   "erreurs": 0,
   "appairage": "13:35 : 1 message(s) recu(s) private",
-  "maj": "25/10 13:55 UTC",
+  "maj": "25/10 14:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -211,23 +211,6 @@
    "sent": 1792927800,
    "score": 79,
    "stop_now": 3.224635935817688
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "MKR",
-   "dir": -1,
-   "entry": 1570.47607421875,
-   "stop": 1583.966126725432,
-   "upper": 1615.7098986651927,
-   "lower": 1583.966126725432,
-   "hi0": 1599.8380126953125,
-   "lo0": 1599.8380126953125,
-   "t_flat": 1792961700,
-   "day": "2026-10-25",
-   "sent": 1792931400,
-   "score": 85,
-   "stop_now": 1573.9799435350392
   }
  ],
  "track": [
@@ -278,6 +261,16 @@
    "sym": "ROSE",
    "dir": -1,
    "r": -0.423,
+   "why": "stop suiveur",
+   "score": 85
+  },
+  {
+   "day": "2026-10-25",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "MKR",
+   "dir": -1,
+   "r": -0.176,
    "why": "stop suiveur",
    "score": 85
   }
