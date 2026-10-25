@@ -926,17 +926,18 @@ def premarket_gaps(st, now_ts):
     up = [r for r in reversed(rows) if r[0] > 0][:6]
     dn = [r for r in rows if r[0] < 0][:6]
     FMT[0] = 2
-    L = ["🌅 <b>PRÉ-OUVERTURE WALL STREET</b> · %s" % local_dt(now_ts, PARIS).strftime("%d/%m %H:%M"), SEP]
+    L = ["📈 <b>ACTIONS US</b>", "🌅 <b>AVANT L'OUVERTURE DE WALL STREET</b> · %s" % local_dt(now_ts, PARIS).strftime("%d/%m %H:%M"),
+         "Les actions qui ont le plus bougé depuis hier soir (à surveiller, pas encore un signal)", SEP]
     if up:
-        L += ["🟢 <b>Gaps haussiers</b>"] + ["<code>%-5s</code> %s · <code>%s</code> · vol. pré-marché %s" % (
+        L += ["🟢 <b>En forte hausse</b>"] + ["<code>%-5s</code> %s · <code>%s</code> · vol. pré-marché %s" % (
             esc(s_), pct(g), fmt(px), "{:,}".format(int(v)).replace(",", " ")) for g, s_, px, v in up]
     if dn:
-        L += ["🔴 <b>Gaps baissiers</b>"] + ["<code>%-5s</code> %s · <code>%s</code> · vol. pré-marché %s" % (
+        L += ["🔴 <b>En forte baisse</b>"] + ["<code>%-5s</code> %s · <code>%s</code> · vol. pré-marché %s" % (
             esc(s_), pct(g), fmt(px), "{:,}".format(int(v)).replace(",", " ")) for g, s_, px, v in dn]
     fn = fomc_note(now_ts)
     if fn:
         L.append(esc(fn))
-    L += [SEP, "<i>Les actions en gap avec gros volume sont souvent les « Stocks in Play » de %s. Pas un conseil.</i>"
+    L += [SEP, "<i>Les plus actives seront souvent dans la liste « actions du jour » de %s. Pas un conseil.</i>"
           % local_dt(at(d, hm(9, 36), NY), PARIS).strftime("%H:%M")]
     telegram("\n".join(L))
     save_state(st)
@@ -1008,8 +1009,12 @@ def briefing():
         ev = econ_today()
         if ev:
             L += [SEP, "🏦 <b>Agenda économique (Paris)</b>"] + [esc(x) for x in ev[:8]]
-    L += [SEP, "🧭 <b>Régime : %s</b>" % esc(reg["label"]),
-          "<i>Achats favorisés en risk-on, ventes en risk-off. Pas un conseil.</i>"]
+    if CFG["SIMPLE"]:
+        L += [SEP, "🧭 <b>Aujourd'hui : %s</b>" % esc(market_simple(reg["label"])),
+              "<i>Marché en hausse : les achats sont favorisés. En baisse : les ventes. Pas un conseil.</i>"]
+    else:
+        L += [SEP, "🧭 <b>Régime : %s</b>" % esc(reg["label"]),
+              "<i>Achats favorisés en risk-on, ventes en risk-off. Pas un conseil.</i>"]
     return "\n".join(L)
 
 
@@ -2345,6 +2350,17 @@ def day_recap(st):
         track_update(st, time.time())             # resultats des sorties de fin de seance d'abord
     day = st["day"] if st["day"].get("date") == d else {}
     weekly = local_dt(time.time(), PARIS).weekday() == 6
+    if CFG["SIMPLE"]:
+        telegram("📊 <b>RÉSUMÉ DU JOUR</b> · %s\n📨 Signaux envoyés : %d · écartés car pas assez fiables : %d · "
+                 "en pause pour une annonce économique : %d\n📈 Liste des actions du jour : %s\n🧭 %s\n%s%s" % (
+                     local_dt(time.time(), PARIS).strftime("%d/%m"),
+                     day.get("mom_envoyes", 0) + day.get("lh_envoyes", 0),
+                     day.get("mom_rejetes", 0) + day.get("mom_correles", 0) + day.get("lh_rejetes", 0),
+                     day.get("pause_annonce", 0), "envoyée" if day.get("sip_envoyes") else "pas de bourse / rien",
+                     esc(market_simple(REGIME["label"])), esc(scorecard(st, 7 if weekly else None)),
+                     "\n<i>(bilan des 7 derniers jours)</i>" if weekly else ""))
+        save_state(st)
+        return
     telegram("📊 <b>RÉSUMÉ DU JOUR</b> · %s\n⚡ Momentum : %d cassures vues, %d envoyées, %d écartées (score / backtest), "
              "%d écartées (corrélation), %d en pause (annonce économique)\n⏱ Dernière 1/2 h : %d envoyées\n🇺🇸 Stocks in Play : %s\n🧭 Régime : %s\n%s%s" % (
                  local_dt(time.time(), PARIS).strftime("%d/%m"), day.get("mom_vus", 0), day.get("mom_envoyes", 0),

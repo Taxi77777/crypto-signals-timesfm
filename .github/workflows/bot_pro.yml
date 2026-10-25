@@ -57,6 +57,7 @@ jobs:
           MOM_FX:             ${{ vars.MOM_FX }}
           MOM_CRYPTO:         ${{ vars.MOM_CRYPTO }}
           MIN_SCORE:          ${{ vars.MIN_SCORE }}
+          SIMPLE:             ${{ vars.SIMPLE }}
           MAX_SAME:           ${{ vars.MAX_SAME }}
           CAPITAL:            ${{ secrets.CAPITAL }}
           RISK_PCT:           ${{ vars.RISK_PCT }}

@@ -88,6 +88,7 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
 | Pré-ouverture | Yahoo (pré-marché) | 9 h 15 NY : plus gros gaps (≥ 2 %) avec volume |
 | Positions des grands fonds | Rapport COT de la CFTC (API publique, hebdomadaire) : position nette des spéculateurs non commerciaux en % de l'open interest | briefing + chaque signal forex / or : +5 points dans le sens des fonds, −10 contre (écart > 5 points) |
 | Achats des dirigeants | Formulaires 4 de la SEC via OpenInsider (gratuit) | liste Stocks in Play : achats des 30 derniers jours, +5 points pour un achat |
+| Calendrier économique | ForexFactory (flux public de la semaine) | annonces du jour dans le briefing ; **aucun signal 30 min avant / après une annonce à fort impact** sur une devise concernée (USD pour les actions, l'or et la crypto) ; alerte dans le signal si une annonce forte arrive dans les 3 h |
 
 ## 5. Couche « terminal Bloomberg »
 
@@ -112,3 +113,12 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
   gardé dans `bot_pro_state.json` (`track`), repris dans le résumé du soir et le bilan du dimanche.
 - **Confidentialité** : le fichier d'état public ne contient ni capital, ni montants, ni tailles ; la ligne de
   taille est masquée dans les journaux GitHub publics, et `CAPITAL` est un secret.
+
+## 7. Messages
+
+- Par défaut (`SIMPLE=1`), messages en français simple pour débutant : catégorie en 1re ligne (🪙 CRYPTO, 💱 FOREX,
+  🥇 FOREX · MÉTAUX, 📈 ACTION US / ETF US), « ACHETER / VENDRE », prix d'entrée et heure limite, sortie de sécurité,
+  prendre le gain, heure de fermeture, fiabilité en étoiles, résultat de la règle sur 60 jours.
+- Pendant le trade, un message « remonte ta sortie de sécurité » à chaque déplacement du stop suiveur (≥ 0,25 × le risque).
+- Résultat de chaque signal en « fois le risque » et en € pour 10 € risqués ; bilan chaque soir, et sur 7 jours le dimanche.
+- `SIMPLE=0` : version détaillée (score par critère, R, intervalle de confiance, rejeux).

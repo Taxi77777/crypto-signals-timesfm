@@ -116,6 +116,7 @@ En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `py
 | `RISK_PCT` | variable | risque par trade en % du capital | `1` |
 | `MAX_LEV` | variable | exposition maxi par signal, en multiple du capital | `4` |
 | `VOL_CUT` | variable | ciblage de volatilité : risque ÷ 2 au-dessus de ce VIX (actions) | `25` |
+| `SIMPLE` | variable | `1` = messages en français simple, `0` = version détaillée | `1` |
 | `MIN_SCORE` | variable | score mini pour envoyer | `60` |
 | `NEED_BT` | variable | `1` = backtest de l'actif gagnant exigé | `1` |
 | `MAX_SAME` | variable | positions max dans le même sens par classe d'actifs | `3` |
