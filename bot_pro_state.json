@@ -91,7 +91,8 @@
   "mom|2026-10-25|QTUM|-1": 1792920751.817442,
   "mom|2026-10-25|KAS|-1": 1792927008.1291523,
   "mom|2026-10-25|EGLD|-1": 1792927857.885082,
-  "mom|2026-10-25|MKR|-1": 1792931455.3707511
+  "mom|2026-10-25|MKR|-1": 1792931455.3707511,
+  "mom|2026-10-25|ZIL|-1": 1792938659.1892612
  },
  "done": {
   "recap": "2026-10-24",
@@ -162,13 +163,22 @@
    "entree": 1570.47607421875,
    "sl": 1583.966126725432,
    "score": 85
+  },
+  {
+   "t": "25/10 14:31",
+   "strat": "momentum",
+   "sym": "ZIL",
+   "sens": "VENTE",
+   "entree": 0.0019092252478003502,
+   "sl": 0.0019184119031092353,
+   "score": 79
   }
  ],
  "day": {
   "date": "2026-10-25",
-  "mom_vus": 7,
+  "mom_vus": 8,
   "mom_rejetes": 3,
-  "mom_envoyes": 4,
+  "mom_envoyes": 5,
   "fermes": 3
  },
  "diag": {
@@ -186,12 +196,13 @@
     "Neutral"
    ]
   },
-  "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
+  "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
+  "cot": "9 marches"
  },
  "stats": {
-  "requetes": 61,
+  "requetes": 174,
   "erreurs": 0,
-  "maj": "25/10 14:28 UTC",
+  "maj": "25/10 14:35 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -210,7 +221,25 @@
    "day": "2026-10-25",
    "sent": 1792927800,
    "score": 79,
-   "stop_now": 3.226250429948672
+   "stop_now": 3.2199330213102053,
+   "told": 3.2199330213102053
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZIL",
+   "dir": -1,
+   "entry": 0.0019092252478003502,
+   "stop": 0.0019184119031092353,
+   "upper": 0.002089907386892653,
+   "lower": 0.0019184119031092353,
+   "hi0": 0.002004332607612014,
+   "lo0": 0.002003971254453063,
+   "t_flat": 1792961700,
+   "day": "2026-10-25",
+   "sent": 1792938600,
+   "score": 79,
+   "stop_now": 0.0019184119031092353
   }
  ],
  "track": [
