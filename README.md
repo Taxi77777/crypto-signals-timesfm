@@ -2,7 +2,7 @@
 
 # 📈 Bot Pro — signaux intraday de niveau institutionnel
 
-**Actions US · Forex · Or · 58 cryptos 7 j/7 — sur Telegram, 100 % gratuit, 100 % open source**
+**Actions US · Forex · Or · 56 cryptos 7 j/7 — sur Telegram, 100 % gratuit, 100 % open source**
 
 [![Tests](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/tests.yml)
 [![Bot](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml/badge.svg)](https://github.com/Taxi77777/crypto-signals-timesfm/actions/workflows/bot_pro.yml)
@@ -55,7 +55,7 @@ Le bot dit aussi quand il n'y a pas d'avantage démontré : c'est voulu.
 | 🌅 **Pré-ouverture** : plus gros gaps haussiers / baissiers de Wall Street avec volume | 15 h 15 (9 h 15 New York) |
 | 🇺🇸 **Stocks in Play** : actions « en jeu » du jour, ordre stop, SL, taille | 15 h 36 (9 h 36 NY) |
 | 🔔 **Déclenché** : un ordre Stocks in Play est touché | jusqu'à 21 h 30 (15 h 30 NY) |
-| ⚡ **Momentum intraday** : ETF et grandes actions US, 11 paires forex + or / argent, 58 cryptos 7 j/7 | toutes les 30 min |
+| ⚡ **Momentum intraday** : ETF et grandes actions US, 11 paires forex + or / argent, 56 cryptos 7 j/7 | toutes les 30 min |
 | ⏱ **Dernière demi-heure** : le meilleur de SPY, QQQ, IWM, DIA | 21 h 30 (15 h 30 NY) |
 | ✅🛑 **Résultat** : chaque signal suivi jusqu'à sa sortie (stop, stop suiveur, fin de séance), noté en R frais inclus | dès la sortie |
 | 📊 **Résumé du jour** + 📒 bilan (bilan de la semaine le dimanche) | 22 h 02 (23 h 02 l'été) |
@@ -129,7 +129,7 @@ En local : `pip install -r requirements.txt && python bot_pro.py` · tests : `py
 | `SIP_STOCKS` | variable | univers Stocks in Play | 177 actions US liquides |
 | `SIP_TOP` · `SIP_SEND` | variable | candidats retenus (volume relatif) · ordres envoyés (meilleurs scores) | `20` · `10` |
 | `SIP_RVOL` · `SIP_ATR_STOP` | variable | volume relatif mini · stop en fraction d'ATR | `1.0` · `0.10` |
-| `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | variable | univers momentum | 18 ETF / méga-caps · 11 paires + or/argent · 58 cryptos |
+| `MOM_STOCKS` · `MOM_FX` · `MOM_CRYPTO` | variable | univers momentum | 18 ETF / méga-caps · 11 paires + or/argent · 56 cryptos |
 | `LH_STOCKS` · `LH_MIN` · `LH_MAX` | variable | dernière demi-heure : ETF · mouvement mini depuis la veille · signaux par sens | `SPY,QQQ,IWM,DIA` · `0.004` · `1` |
 | `COST_BPS_STOCKS` · `_FX` · `_CR` | variable | frais + écart aller-retour estimés (points de base) | `3` · `1.5` · `10` |
 
@@ -142,7 +142,7 @@ avec Bloomberg, BlackRock, JPMorgan ni les auteurs cités. Données Yahoo / CNN 
 
 ## 🌍 English summary
 
-Free, open-source **intraday signal bot** for US stocks, forex, gold and 58 cryptocurrencies, delivered to Telegram
+Free, open-source **intraday signal bot** for US stocks, forex, gold and 56 cryptocurrencies, delivered to Telegram
 and running for free on GitHub Actions. Three published strategies: **Stocks in Play** opening-range breakout
 (Zarattini, Barbon & Aziz, 2024), **intraday momentum** with a noise boundary and VWAP trailing stop
 (Zarattini, Aziz & Barbon, 2024; Gao et al., 2018) and **last-half-hour momentum** (Baltussen et al., 2021).

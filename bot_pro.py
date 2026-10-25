@@ -104,7 +104,7 @@ SIP_STOCKS = (
 MOM_STOCKS = "SPY,QQQ,IWM,DIA,SMH,NVDA,TSLA,AAPL,MSFT,AMZN,META,GOOGL,AMD,AVGO,NFLX,COIN,MSTR,PLTR"
 MOM_FX = "EURUSD,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,EURJPY,GBPJPY,EURGBP,AUDJPY,XAUUSD,XAGUSD"
 MOM_CRYPTO = ("BTC,ETH,SOL,XRP,BNB,DOGE,ADA,AVAX,LINK,LTC,DOT,TRX,BCH,NEAR,XLM,HBAR,ICP,ATOM,ETC,FIL,XMR,ALGO,"
-              "VET,EOS,XTZ,AAVE,MKR,INJ,SAND,MANA,AXS,THETA,EGLD,CHZ,CRV,LDO,KAS,SHIB,QNT,GRT,SNX,COMP,ZEC,"
+              "VET,EOS,XTZ,AAVE,MKR,INJ,SAND,MANA,AXS,THETA,EGLD,CHZ,CRV,LDO,KAS,SHIB,QNT,SNX,ZEC,"
               "DASH,NEO,KSM,1INCH,BAT,ENJ,ZIL,FET,BSV,HNT,KAVA,ROSE,CELO,ONE,QTUM")
 
 
@@ -967,8 +967,30 @@ def strip_tags(t):
     return _html.unescape(re.sub(r"</?(b|i|code)>", "", t))
 
 
-def telegram(msg, html=True):
+def telegram_check():
+    """Diagnostic sans exposer le jeton ni l'identifiant : nom du bot et acces au chat."""
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    if not tok or not chat:
+        return "secret TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID absent"
+    out = []
+    try:
+        me = SESSION.get("https://api.telegram.org/bot%s/getMe" % tok, timeout=10).json()
+        out.append("bot @%s" % (me.get("result") or {}).get("username", "?") if me.get("ok")
+                   else "jeton refuse : %s" % str(me.get("description", ""))[:80])
+        ch = SESSION.get("https://api.telegram.org/bot%s/getChat" % tok, params={"chat_id": chat}, timeout=10).json()
+        out.append("chat ok (%s)" % (ch.get("result") or {}).get("type", "?") if ch.get("ok")
+                   else "chat refuse : %s" % str(ch.get("description", ""))[:80])
+        out.append("format de l'identifiant : %s" % ("groupe (commence par -)" if str(chat).strip().startswith("-")
+                                                      else "prive" if str(chat).strip().isdigit() else "INVALIDE (pas un nombre)"))
+        if str(chat) != str(chat).strip():
+            out.append("ATTENTION : espace ou retour a la ligne dans TELEGRAM_CHAT_ID")
+    except Exception as ex:
+        out.append("erreur : %s" % str(ex).replace(tok, "***")[:80])
+    return " · ".join(out)
+
+
+def telegram(msg, html=True):
+    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     log.info("\n" + re.sub(r"📦[^\n]*", "📦 taille : (masquée dans le journal public)", strip_tags(msg)))
     if not tok or not chat:
         return
@@ -1778,7 +1800,8 @@ def main():
                       "openbb": "ok" if openbb() else "absent : %s" % OBB["err"],
                       "regime": regime_update(force=True)["label"],
                       "kraken_funding": "%d perpetuels" % len(kraken_funding()),
-                      "fear_greed": fear_greed() or "indisponible"}
+                      "fear_greed": fear_greed() or "indisponible",
+                      "telegram": telegram_check()}
     except Exception as ex:
         st["diag"] = {"yahoo": "ERREUR : %s" % str(ex)[:150]}
     log.info("diagnostic : %s", st["diag"])
