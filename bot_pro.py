@@ -53,6 +53,7 @@ Donnees : Yahoo Finance (gratuit, non officiel, retard possible). Ce n'est pas u
 financier : les resultats passes et les etudes ne garantissent rien.
 """
 import datetime
+import hashlib
 import html as _html
 import json
 import logging
@@ -967,7 +968,54 @@ def strip_tags(t):
     return _html.unescape(re.sub(r"</?(b|i|code)>", "", t))
 
 
-CHAT_RES = {"id": None, "how": "", "ts": 0}
+CHAT_RES = {"id": None, "how": "", "ts": 0, "pair_ts": 0, "offset": 0}
+# Appairage : envoyer ce code (prive, groupe ou canal ou le bot est admin) fixe la destination des
+# messages. Seule l'empreinte SHA-256 du code est dans le depot public.
+PAIR_HASH = "421400dea6994bedd848d60bc1b10ef0794b39c306ad35ee34487422a8b35fe1"
+
+
+def _pair_key():
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN") or ""
+    return int(hashlib.sha256(("pair|" + tok).encode()).hexdigest()[:16], 16)
+
+
+def pair_encode(cid):
+    n = int(cid)
+    return ("-" if n < 0 else "") + "%x" % (abs(n) ^ _pair_key())
+
+
+def pair_decode(v):
+    try:
+        neg = v.startswith("-")
+        n = int(v.lstrip("-"), 16) ^ _pair_key()
+        return str(-n if neg else n)
+    except Exception:
+        return None
+
+
+def pair_check(st):
+    """Cherche le code d'appairage dans les derniers messages recus par le bot (toutes les minutes)."""
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if not tok or time.time() - CHAT_RES["pair_ts"] < 60:
+        return False
+    CHAT_RES["pair_ts"] = time.time()
+    try:
+        up = SESSION.get("https://api.telegram.org/bot%s/getUpdates" % tok,
+                         params={"limit": 100, "offset": CHAT_RES["offset"]}, timeout=15).json()
+    except Exception:
+        return False
+    for u in up.get("result") or []:
+        CHAT_RES["offset"] = max(CHAT_RES["offset"], int(u.get("update_id", 0)) + 1)
+        m = u.get("message") or u.get("channel_post") or u.get("edited_message") or u.get("edited_channel_post") or {}
+        txt = str(m.get("text") or "").upper()
+        for w in re.findall(r"PRO-[A-Z0-9]{8}", txt):
+            if hashlib.sha256(w.encode()).hexdigest() == PAIR_HASH and (m.get("chat") or {}).get("id"):
+                chat = m["chat"]
+                CHAT_RES.update(id=str(chat["id"]), how="appaire par code (%s %s)" % (
+                    chat.get("type", ""), str(chat.get("title") or "")[:30]))
+                st["tg_pair"] = pair_encode(chat["id"])
+                return True
+    return False
 
 
 def resolve_chat():
@@ -1867,6 +1915,10 @@ def main():
     # Les crons GitHub sont tres irreguliers (parfois 1 seul declenchement en 2 h) : le bot tourne donc
     # en CHAINE 24 h/24 (chaque job de 5 h 20 relance le suivant) et attend simplement la nuit.
     st = load_state()
+    if st.get("tg_pair") and os.environ.get("TELEGRAM_BOT_TOKEN"):
+        cid = pair_decode(str(st["tg_pair"]))
+        if cid:
+            CHAT_RES.update(id=cid, how="appaire")
     end = time.time() + CFG["LOOP_MINUTES"] * 60
     try:
         st["diag"] = {"yahoo": "ok : %d bougies SPY" % len(chart("SPY", "5d", "5m")),
@@ -1908,6 +1960,13 @@ def main():
                     and now % BAR >= 40:
                 done_5 = int(now // BAR)
                 sip_triggers(st, now)
+            if "chat ok" not in str(st["diag"].get("telegram")) and CHAT_RES["how"] != "appaire" \
+                    and not CHAT_RES["how"].startswith("appaire par code") and pair_check(st):
+                st["diag"]["telegram"] = "destination : %s" % CHAT_RES["how"]
+                telegram("✅ <b>Bot Pro connecté à ce chat</b> · %s\nTu recevras ici tous les signaux (actions, forex, crypto). "
+                         "Aucun ordre envoyé : tu trades toi-même.\n<i>Tu peux supprimer le message avec le code.</i>"
+                         % par.strftime("%d/%m %H:%M"))
+                save_state(st)
             if _raw_chat().startswith("@") and not CHAT_RES["id"] and resolve_chat():
                 st["diag"]["telegram"] = "chat retrouve : %s" % CHAT_RES["how"]
                 st["done"]["hello"] = par.date().isoformat()
