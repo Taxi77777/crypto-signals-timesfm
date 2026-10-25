@@ -197,6 +197,18 @@ def label(sym):
     return {"XAUUSD": "XAUUSD (or)", "XAGUSD": "XAGUSD (argent)"}.get(sym, sym)
 
 
+ETF_US = {"SPY", "QQQ", "IWM", "DIA", "SMH", "XLK", "XLF", "XLE", "XLV", "XLY", "XLP", "XLI", "XLU", "XLB", "XLRE", "XLC"}
+
+
+def cat_tag(kind, sym=""):
+    """Bandeau de categorie, toujours en 1re ligne : on voit tout de suite crypto / action / forex."""
+    if kind == "cr":
+        return "🪙 <b>CRYPTO</b>"
+    if kind == "fx":
+        return "🥇 <b>FOREX · MÉTAUX</b>" if sym in ("XAUUSD", "XAGUSD") else "💱 <b>FOREX</b>"
+    return "📈 <b>ETF US</b>" if sym.upper() in ETF_US else "📈 <b>ACTION US</b>"
+
+
 def esc(t):
     return _html.escape(str(t), quote=False)
 
@@ -1437,8 +1449,8 @@ def mom_scan(st, kind, now_ts):
             tp = px + dr * 2 * risk                   # objectif indicatif : la regle etudiee n'a pas de TP
             em, vt = verdict(score)
             flat_p = local_dt(s["t_flat"], PARIS).strftime("%H:%M")
-            L = ["%s <b>%s %s</b> · %s" % ("🟢" if dr > 0 else "🔴", "ACHAT" if dr > 0 else "VENTE", esc(label(sym)),
-                                          {"stocks": "🇺🇸 Actions/ETF", "fx": "💱 Forex", "cr": "🪙 Crypto"}[kind]),
+            L = [cat_tag(kind, sym),
+                 "%s <b>%s %s</b>" % ("🟢" if dr > 0 else "🔴", "ACHAT" if dr > 0 else "VENTE", esc(label(sym))),
                  "⚡ Momentum intraday (zone de bruit + VWAP)",
                  SEP,
                  "▶️ Entrée    <code>%s</code>" % fmt(px),
@@ -1557,7 +1569,7 @@ def sip_select(st, now_ts):
         return
     FMT[0] = 2
     flat = local_dt(at(d, hm(15, 55) if stock_close_t(d) == hm(16) else hm(12, 55), NY), PARIS).strftime("%H:%M")
-    L = ["🇺🇸 <b>STOCKS IN PLAY · ordres du jour</b> · %s" % d.strftime("%d/%m"),
+    L = ["📈 <b>ACTIONS US</b>", "🇺🇸 <b>STOCKS IN PLAY · ordres du jour</b> · %s" % d.strftime("%d/%m"),
          "Cassure de la 1re bougie 5 min sur les actions au plus fort volume relatif (étude Zarattini-Barbon-Aziz)",
          "🧭 Régime : %s" % esc(reg["label"]), SEP]
     for a in picks:
@@ -1628,7 +1640,7 @@ def sip_triggers(st, now_ts):
             extra = "\nℹ️ déclenché avant l'envoi de la liste : entrée manquée, non comptée au bilan"
         elif stopped:
             extra = "\n⚠️ le SL a déjà été touché après l'entrée : ne pas entrer maintenant (compté −1 R au bilan)"
-        telegram("🔔 <b>DÉCLENCHÉ · %s %s</b>\nentrée <code>%s</code> · SL <code>%s</code> · prix actuel <code>%s</code>%s"
+        telegram(cat_tag("stocks", p["sym"]) + "\n🔔 <b>DÉCLENCHÉ · %s %s</b>\nentrée <code>%s</code> · SL <code>%s</code> · prix actuel <code>%s</code>%s"
                  % ("ACHAT" if dr > 0 else "VENTE", esc(p["sym"]), fmt(p["entry"]), fmt(p["stop"]),
                     fmt(after[-1][4]), extra))
         save_state(st)
@@ -1758,7 +1770,7 @@ def lh_scan(st, now_ts):
             continue
         per_dir[dr] += 1
         em, vt = verdict(score)
-        L = ["⏱ <b>DERNIÈRE DEMI-HEURE · %s %s</b>" % ("🟢 ACHAT" if dr > 0 else "🔴 VENTE", esc(sym)), SEP,
+        L = [cat_tag("stocks", sym), "⏱ <b>DERNIÈRE DEMI-HEURE · %s %s</b>" % ("🟢 ACHAT" if dr > 0 else "🔴 VENTE", esc(sym)), SEP,
              "💵 Entrée  <code>%s</code>  (maintenant)" % fmt(e),
              "🛑 SL        <code>%s</code>" % fmt(tr["stop"]),
              "⏰ Sortie à la clôture : %s (Paris) · pas de TP" % local_dt(t_close, PARIS).strftime("%H:%M")]
@@ -1827,7 +1839,7 @@ def _track_one(st, o, now_ts):
     st["track"].append({"day": o["day"], "strat": o["strat"], "kind": kind, "sym": o["sym"], "dir": dr,
                         "r": round(res, 3), "why": why, "score": o.get("score", 0)})
     tot = [x["r"] for x in st["track"]]
-    telegram("%s <b>RÉSULTAT · %s %s</b> (%s)\n%s : <b>%+.2f R</b> (frais estimés inclus)\n📒 Bilan : %d trades · %.0f %% gagnants · total %+.1f R"
+    telegram(cat_tag(kind, o["sym"]) + "\n%s <b>RÉSULTAT · %s %s</b> (%s)\n%s : <b>%+.2f R</b> (frais estimés inclus)\n📒 Bilan : %d trades · %.0f %% gagnants · total %+.1f R"
              % (icon, "ACHAT" if dr > 0 else "VENTE", esc(label(o["sym"])), esc(o["strat"]), esc(why), res,
                 len(tot), 100 * sum(1 for x in tot if x > 0) / len(tot), sum(tot)))
     count(st, "fermes")

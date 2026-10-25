@@ -23,7 +23,8 @@ institutionnels » et « terminal Bloomberg », un backtest frais inclus pour ch
 ## ✨ Ce que tu reçois sur Telegram
 
 ```text
-🟢 ACHAT SOL · 🪙 Crypto
+🪙 CRYPTO
+🟢 ACHAT SOL
 ⚡ Momentum intraday (zone de bruit + VWAP)
 ━━━━━━━━━━━━━━━
 ▶️ Entrée    187.910
