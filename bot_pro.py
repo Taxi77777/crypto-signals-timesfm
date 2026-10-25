@@ -967,8 +967,50 @@ def strip_tags(t):
     return _html.unescape(re.sub(r"</?(b|i|code)>", "", t))
 
 
+CHAT_RES = {"id": None, "how": "", "ts": 0}
+
+
+def resolve_chat():
+    """Si TELEGRAM_CHAT_ID est un nom '@xxx' que Telegram refuse, retrouve le numero du chat dans les
+       derniers messages recus par le bot (getUpdates), UNIQUEMENT si le nom d'utilisateur ou de canal
+       correspond exactement au secret. Le numero reste en memoire, jamais dans l'etat public."""
+    tok, c = os.environ.get("TELEGRAM_BOT_TOKEN"), _raw_chat()
+    if not tok or not c.startswith("@") or CHAT_RES["id"] or time.time() - CHAT_RES["ts"] < 240:
+        return CHAT_RES["id"]
+    CHAT_RES["ts"] = time.time()
+    name = c[1:].lower()
+    try:
+        ch = SESSION.get("https://api.telegram.org/bot%s/getChat" % tok, params={"chat_id": c}, timeout=10).json()
+        if ch.get("ok"):
+            CHAT_RES.update(id=str(ch["result"]["id"]), how="canal %s" % ch["result"].get("type", ""))
+            return CHAT_RES["id"]
+        up = SESSION.get("https://api.telegram.org/bot%s/getUpdates" % tok, params={"limit": 100}, timeout=15).json()
+        for u in reversed(up.get("result") or []):
+            m = u.get("message") or u.get("channel_post") or u.get("my_chat_member") or {}
+            chat = m.get("chat") or {}
+            who = (m.get("from") or {}).get("username") or ""
+            if str(chat.get("username") or "").lower() == name or (chat.get("type") == "private" and who.lower() == name):
+                CHAT_RES.update(id=str(chat["id"]), how="retrouve (%s)" % chat.get("type", ""))
+                break
+        else:
+            CHAT_RES["how"] = "pas encore : envoie /start a @%s depuis le compte %s" % (
+                os.environ.get("BOT_NAME", "ton bot"), c)
+    except Exception as ex:
+        CHAT_RES["how"] = "erreur : %s" % str(ex).replace(tok, "***")[:60]
+    return CHAT_RES["id"]
+
+
+def _raw_chat():
+    raw = os.environ.get("TELEGRAM_CHAT_ID") or ""
+    c = raw.strip().strip("\"'`").strip()
+    return c.split()[0] if c.startswith("@") else c
+
+
 def chat_id():
-    """TELEGRAM_CHAT_ID nettoye : espaces, guillemets, texte autour (ex. 'chat_id: 123'). Garde '@canal'."""
+    """TELEGRAM_CHAT_ID nettoye : espaces, guillemets, texte autour (ex. 'chat_id: 123'). Un nom '@xxx'
+       est remplace par le numero retrouve (resolve_chat) des qu'il est connu."""
+    if CHAT_RES["id"]:
+        return CHAT_RES["id"]
     raw = os.environ.get("TELEGRAM_CHAT_ID") or ""
     c = raw.strip().strip("\"'`").strip()
     if c.startswith("@"):
@@ -1002,6 +1044,13 @@ def telegram_check():
         me = SESSION.get("https://api.telegram.org/bot%s/getMe" % tok, timeout=10).json()
         out.append("bot @%s" % (me.get("result") or {}).get("username", "?") if me.get("ok")
                    else "jeton refuse : %s" % str(me.get("description", ""))[:80])
+        if me.get("ok"):
+            os.environ["BOT_NAME"] = str((me.get("result") or {}).get("username", ""))
+        if chat.startswith("@") and resolve_chat():
+            chat = CHAT_RES["id"]
+            out.append("nom @ remplace par le numero : %s" % CHAT_RES["how"])
+        elif chat.startswith("@"):
+            out.append("resolution : %s" % CHAT_RES["how"])
         ch = SESSION.get("https://api.telegram.org/bot%s/getChat" % tok, params={"chat_id": chat}, timeout=10).json()
         out.append("chat ok (%s)" % (ch.get("result") or {}).get("type", "?") if ch.get("ok")
                    else "chat refuse : %s" % str(ch.get("description", ""))[:80])
@@ -1859,6 +1908,12 @@ def main():
                     and now % BAR >= 40:
                 done_5 = int(now // BAR)
                 sip_triggers(st, now)
+            if _raw_chat().startswith("@") and not CHAT_RES["id"] and resolve_chat():
+                st["diag"]["telegram"] = "chat retrouve : %s" % CHAT_RES["how"]
+                st["done"]["hello"] = par.date().isoformat()
+                telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux actions, forex et crypto actifs. Aucun ordre envoyé : tu trades toi-même."
+                         % par.strftime("%d/%m %H:%M"))
+                save_state(st)
             if st["open"] and int(now // BAR) != TRK[0] and now % BAR >= 50:
                 TRK[0] = int(now // BAR)
                 track_update(st, now)
