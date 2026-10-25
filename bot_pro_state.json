@@ -162,19 +162,14 @@
     54,
     "Neutral"
    ]
-  }
+  },
+  "telegram": "bot @Cryypto_signnal_bot \u00b7 chat refuse : Bad Request: chat not found \u00b7 format de l'identifiant : INVALIDE (pas un nombre)"
  },
  "stats": {
-  "requetes": 242,
-  "erreurs": 6,
-  "telegram_html_refuse": "Bad Request: chat not found",
-  "telegram_erreurs": 9,
-  "telegram_derniere_erreur": "25/10 09:33 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE ALGO \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intra",
-  "maj": "25/10 10:03 UTC",
-  "symboles_ko": [
-   "COMP-USD",
-   "GRT-USD"
-  ]
+  "requetes": 65,
+  "erreurs": 0,
+  "maj": "25/10 10:10 UTC",
+  "symboles_ko": []
  },
  "open": [
   {
