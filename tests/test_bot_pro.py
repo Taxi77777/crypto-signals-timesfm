@@ -106,6 +106,7 @@ def test_message_is_valid_telegram_html(monkeypatch):
     monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: None)
     monkeypatch.setattr(B.time, "sleep", lambda x: None)
     monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC"])
+    monkeypatch.setitem(B.CFG, "SIMPLE", 0)
     monkeypatch.setitem(B.CFG, "MIN_SCORE", 0)
     monkeypatch.setitem(B.CFG, "NEED_BT", 0)
     st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
@@ -126,6 +127,7 @@ def test_price_format():
 
 
 def _stub(monkeypatch, bars, sent):
+    monkeypatch.setitem(B.CFG, "SIMPLE", 0)
     monkeypatch.setattr(B, "_get_json", lambda url, ttl, headers=None: None)
     monkeypatch.setattr(B, "telegram", lambda m, html=True: sent.append(m))
     monkeypatch.setattr(B, "chart", lambda s, r, i: bars)
@@ -217,3 +219,24 @@ def test_institutional_feeds(monkeypatch):
     assert "acheteuses" in line and "contrarien" in line
     assert B.funding_line("ETH", 1).startswith("💸")
     assert B.fear_greed() == {"crypto": (23, "Extreme Fear")}
+
+
+def test_simple_messages_for_beginners(monkeypatch):
+    bars = synth_24h(drift_today=0.0012)
+    sent = []
+    _stub(monkeypatch, bars, sent)
+    monkeypatch.setitem(B.CFG, "SIMPLE", 1)
+    monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC"])
+    st = B.load_state()
+    for hh in range(6, 12):
+        for mm in (0, 30):
+            B.mom_scan(st, "cr", B.at(DAY, B.hm(hh, mm), B.UTC) + 60)
+    assert sent and all(html_ok(m) for m in sent)
+    m = sent[0]
+    assert m.startswith("🪙 <b>CRYPTO</b>") and "ACHETER BTC" in m and "Sortie de sécurité" in m
+    assert "Prendre le gain" in m and "Fiabilité" in m and "VWAP" not in m and " R " not in m
+    sent.clear()
+    for o in st["open"]:
+        o["t_flat"] = B.at(DAY, B.hm(11, 55), B.UTC)
+    B.track_update(st, B.at(DAY, B.hm(12), B.UTC) + 300)
+    assert any("terminé" in x and "fois le risque" in x for x in sent) and all(html_ok(x) for x in sent)

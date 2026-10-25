@@ -24,30 +24,21 @@ institutionnels » et « terminal Bloomberg », un backtest frais inclus pour ch
 
 ```text
 🪙 CRYPTO
-🟢 ACHAT SOL
-⚡ Momentum intraday (zone de bruit + VWAP)
+🟢 ACHETER SOL
 ━━━━━━━━━━━━━━━
-▶️ Entrée    187.910
-🛑 SL        185.400  (-1.34 %)
-🎯 TP (take profit) 192.930  (+2.67 % · 2× le risque)
-   facultatif : la règle étudiée laisse courir avec le stop suiveur
-🔁 Stop suiveur : toutes les 30 min, SL = max(borne de la zone, VWAP) ; il ne recule jamais
-⏰ Sortie au plus tard 22:55 · ⌛ valable jusqu'à 10:10 (Paris)
-📦 Taille : 3.900 unités pour risquer 10 € (1.00 % du capital)
+💵 Prix d'entrée : 187.910  ·  à faire avant 10:10
+🛑 Sortie de sécurité (stop) : 185.400  (perte max 1.34 %)
+🎯 Prendre le gain (TP) : 192.930  (gain +2.67 %)
+⏰ Fermer de toute façon à 22:55
+🔁 Je t'envoie un message quand il faut remonter ta sortie de sécurité
 ━━━━━━━━━━━━━━━
-🟢 SIGNAL FORT · score 77/100 ▰▰▰▰▰▰▰▰▱▱
-✅ Sortie de la zone de bruit
-✅ Tendance 1 h (EMA 20/50)
-✅ Force relative vs BTC
-➖ Volume relatif 30 min
-❌ Régime de marché
-✅ Backtest de l'actif
-📜 Backtest de la règle sur l'actif (frais inclus) : 23 trades · 30 % gagnants · moy. +0.28 R · PF 1.41
-📏 R moyen, intervalle 90 % : [-0.10 ; +0.69] → avantage NON démontré (échantillon court)
-🎲 10 000 rejeux de 20 trades passés : positif dans 70 % · médiane +5.4 R (rejeu du passé, pas une prévision)
-🧭 Régime : RISK-OFF (S&P sous sa MM50)
-💸 Funding Kraken +0.0010 %/h · open interest 412 M$
+Fiabilité : ⭐⭐⭐☆☆  (77/100)
+📊 Ces 60 derniers jours, la même règle sur SOL : 23 essais, 7 gagnés, au total en GAIN
+⚠️ Avantage pas encore prouvé (peu d'historique) : prudence, petite taille
+🧭 marché mondial plutôt en baisse
 ```
+
+Messages en **français simple** par défaut (variable `SIMPLE=0` pour la version détaillée avec score, R, intervalle de confiance).
 
 Le bot dit aussi quand il n'y a pas d'avantage démontré : c'est voulu.
 

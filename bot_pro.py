@@ -125,6 +125,7 @@ CFG = {
     "MIN_SCORE": envf("MIN_SCORE", 60),         # score de confluence mini pour envoyer
     "NEED_BT": envf("NEED_BT", 1),              # 1 = backtest de l'actif gagnant en moyenne exige
     "SIMS": max(1000, envf("SIMS", 10000)),
+    "SIMPLE": envf("SIMPLE", 1),                # 1 = messages en francais simple (debutant), 0 = version detaillee
     "MAX_SAME": envf("MAX_SAME", 3),            # garde-fou de correlation : max signaux meme sens / classe / passage
     "CAPITAL": envf("CAPITAL", 0.0),            # capital (devise du compte) pour la taille de position (0 = formule)
     "RISK_PCT": envf("RISK_PCT", 1.0),          # risque par trade en % du capital
@@ -1307,6 +1308,67 @@ def size_line(entry, stop, kind, sym=""):
         " · plafonné à %.0f× le capital" % CFG["MAX_LEV"] if capped else "")
 
 
+def stars(score):
+    n = 5 if score >= 90 else 4 if score >= 80 else 3 if score >= 70 else 2 if score >= 60 else 1
+    return "⭐" * n + "☆" * (5 - n)
+
+
+def market_simple(label_):
+    l_ = label_.upper()
+    if "PANIQUE" in l_:
+        return "marché mondial en panique (très risqué)"
+    if l_.startswith("RISK-ON"):
+        return "marché mondial plutôt en hausse"
+    if l_.startswith("RISK-OFF"):
+        return "marché mondial plutôt en baisse"
+    if l_.startswith("NEUTRE"):
+        return "marché mondial hésitant"
+    return "marché mondial : inconnu"
+
+
+def history_simple(sym, stt, mc):
+    if not stt.get("n"):
+        return ["📊 Pas assez d'historique pour juger cette règle sur %s" % esc(label(sym))]
+    won = int(round(stt["win"] * stt["n"]))
+    L = ["📊 Ces 60 derniers jours, la même règle sur %s : %d essais, %d gagnés, au total %s" % (
+        esc(label(sym)), stt["n"], won, "en GAIN" if stt["avg"] > 0 else "en PERTE")]
+    if mc and mc["m5"] > 0:
+        L.append("✅ Résultat solide sur l'historique")
+    else:
+        L.append("⚠️ Avantage pas encore prouvé (peu d'historique) : prudence, petite taille")
+    return L
+
+
+def simple_signal(kind, sym, dr, entry, stop, tp, valid_ts, flat_ts, score, stt, mc, reg, title=None,
+                  trailing=False, extra=()):
+    """Message pour debutant : que faire, a quel prix, quand sortir. Pas de jargon."""
+    risk = abs(entry - stop)
+    L = [cat_tag(kind, sym)]
+    if title:
+        L.append(title)
+    L.append("%s <b>%s %s</b>%s" % ("🟢" if dr > 0 else "🔴", "ACHETER" if dr > 0 else "VENDRE", esc(label(sym)),
+                                   "" if dr > 0 else "  <i>(tu gagnes si le prix baisse)</i>"))
+    L.append(SEP)
+    L.append("💵 Prix d'entrée : <code>%s</code>%s" % (
+        fmt(entry), "  ·  à faire avant %s" % local_dt(valid_ts, PARIS).strftime("%H:%M") if valid_ts else ""))
+    L.append("🛑 Sortie de sécurité (stop) : <code>%s</code>  (perte max %.2f %%)" % (fmt(stop), 100 * risk / entry))
+    if tp is not None:
+        L.append("🎯 Prendre le gain (TP) : <code>%s</code>  (gain %+.2f %%)" % (fmt(tp), 100 * abs(tp - entry) / entry))
+    L.append("⏰ Fermer de toute façon à %s" % local_dt(flat_ts, PARIS).strftime("%H:%M"))
+    if trailing:
+        L.append("🔁 Je t'envoie un message quand il faut %s ta sortie de sécurité" % ("remonter" if dr > 0 else "descendre"))
+    sz = size_line(entry, stop, kind, sym)
+    if sz and CFG["CAPITAL"] > 0:
+        L.append(sz.replace("📦 Taille :", "📦 Quantité à prendre :"))
+    L.append(SEP)
+    L.append("Fiabilité : %s  (%d/100)" % (stars(score), score))
+    L += history_simple(sym, stt, mc)
+    L.append("🧭 " + market_simple(reg.get("label", "")))
+    L += [esc(x) for x in extra if x]
+    L.append("<i>Signal seulement : c'est toi qui passes l'ordre. Pas un conseil.</i>")
+    return "\n".join(L)
+
+
 def verdict(score):
     if score >= 75:
         return "🟢", "SIGNAL FORT"
@@ -1482,6 +1544,20 @@ def mom_scan(st, kind, now_ts):
             for t in nw:
                 L.append("📰 " + esc(t[:110]))
             L.append("<i>Signal seulement, aucun ordre envoyé · pas un conseil</i>")
+            if CFG["SIMPLE"]:
+                extra = []
+                if kind == "cr":
+                    try:
+                        f_ = kraken_funding().get(sym.split("-")[0])
+                        if f_ and f_["rel"] is not None and abs(f_["rel"]) >= 5e-5 and (1 if f_["rel"] > 0 else -1) == dr:
+                            extra.append("⚠️ Beaucoup de traders sont déjà dans ce sens : risque de retournement")
+                    except Exception:
+                        pass
+                fn_ = fomc_note(now_ts) if kind != "cr" else None
+                if fn_:
+                    extra.append("🏦 Annonce de la banque centrale US (Fed) proche : mouvements violents possibles")
+                L = [simple_signal(kind, sym, dr, px, s["stop"], tp, s["ts"] + 600, s["t_flat"], score, stt, mc, reg,
+                                   trailing=True, extra=extra)]
             pending.append((score, dr, sym, "\n".join(L), {
                 "strat": "momentum", "kind": kind, "sym": sym, "dir": dr, "entry": px, "stop": s["stop"],
                 "upper": s["upper"], "lower": s["lower"], "hi0": s["hi0"], "lo0": s["lo0"], "t_flat": s["t_flat"],
@@ -1594,6 +1670,35 @@ def sip_select(st, now_ts):
         if a["earn"]:
             L.append("   📅 ⚠️ résultats de l'entreprise aujourd'hui/demain")
     t_ord = local_dt(at(d, SIP_ORDER_END if stock_close_t(d) == hm(16) else hm(12, 30), NY), PARIS).strftime("%H:%M")
+    if CFG["SIMPLE"]:
+        L = ["📈 <b>ACTIONS US</b>", "🇺🇸 <b>ACTIONS DU JOUR</b> · %s" % d.strftime("%d/%m"),
+             "Les actions qui bougent le plus ce matin à Wall Street.",
+             "Place un <b>ordre qui se déclenche seulement si le prix atteint le niveau</b> indiqué (ordre « stop »).",
+             "🧭 " + market_simple(reg["label"]), SEP]
+        for a in picks:
+            dr = a["dir"]
+            risk = abs(a["entry"] - a["stop"])
+            L.append("%s <b>%s %s</b>  %s" % ("🟢" if dr > 0 else "🔴", "ACHETER" if dr > 0 else "VENDRE", esc(a["sym"]),
+                                             stars(a["score"])))
+            L.append("   si le prix %s à <code>%s</code> · sortie de sécurité <code>%s</code> · prendre le gain <code>%s</code>" % (
+                "MONTE" if dr > 0 else "DESCEND", fmt(a["entry"]), fmt(a["stop"]), fmt(a["entry"] + dr * 3 * risk)))
+            sz = size_line(a["entry"], a["stop"], "stocks")
+            if sz and CFG["CAPITAL"] > 0:
+                L.append("   " + sz.replace("📦 Taille :", "📦 Quantité :"))
+            bt = a["bt"]
+            if bt.get("n"):
+                L.append("   📊 60 derniers jours : %d essais, au total %s%s" % (
+                    bt["n"], "en GAIN" if bt["avg"] > 0 else "en PERTE",
+                    "" if a["mc"] and a["mc"]["m5"] > 0 else " (pas encore prouvé)"))
+            if a["earn"]:
+                L.append("   ⚠️ l'entreprise publie ses résultats aujourd'hui ou demain : très risqué")
+        L += [SEP, "⏰ Ordres à annuler s'ils ne sont pas déclenchés à %s · tout fermer à %s (Paris)" % (t_ord, flat),
+              "🔔 Je t'envoie un message dès qu'un ordre se déclenche.",
+              "<i>Signaux seulement : c'est toi qui passes les ordres. Pas un conseil.</i>"]
+        telegram("\n".join(L))
+        count(st, "sip_envoyes")
+        save_state(st)
+        return
     L += [SEP, "⏰ Ordres valables jusqu'à %s · sortie de toutes les positions à %s (Paris) · pas de TP dans l'étude" % (t_ord, flat),
           "🔔 Tu reçois une alerte quand un ordre se déclenche.",
           "<i>Signaux seulement, aucun ordre envoyé · pas un conseil</i>"]
@@ -1641,6 +1746,18 @@ def sip_triggers(st, now_ts):
             extra = "\nℹ️ déclenché avant l'envoi de la liste : entrée manquée, non comptée au bilan"
         elif stopped:
             extra = "\n⚠️ le SL a déjà été touché après l'entrée : ne pas entrer maintenant (compté −1 R au bilan)"
+        if CFG["SIMPLE"]:
+            extra = ""
+            if missed:
+                extra = "\nℹ️ C'est arrivé avant ma liste : trop tard pour entrer, on ignore."
+            elif stopped:
+                extra = "\n⚠️ Le prix est déjà revenu toucher la sortie de sécurité : n'entre PAS maintenant."
+            telegram(cat_tag("stocks", p["sym"]) + "\n🔔 <b>%s : %s déclenché</b>\nLe prix a atteint <code>%s</code>. "
+                     "Sortie de sécurité : <code>%s</code>. Prix actuel : <code>%s</code>.%s"
+                     % (esc(p["sym"]), "achat" if dr > 0 else "vente", fmt(p["entry"]), fmt(p["stop"]),
+                        fmt(after[-1][4]), extra))
+            save_state(st)
+            continue
         telegram(cat_tag("stocks", p["sym"]) + "\n🔔 <b>DÉCLENCHÉ · %s %s</b>\nentrée <code>%s</code> · SL <code>%s</code> · prix actuel <code>%s</code>%s"
                  % ("ACHAT" if dr > 0 else "VENTE", esc(p["sym"]), fmt(p["entry"]), fmt(p["stop"]),
                     fmt(after[-1][4]), extra))
@@ -1771,6 +1888,16 @@ def lh_scan(st, now_ts):
             continue
         per_dir[dr] += 1
         em, vt = verdict(score)
+        if CFG["SIMPLE"]:
+            telegram(simple_signal("stocks", sym, dr, e, tr["stop"], None, None, t_close, score, stt, mc, reg,
+                                   title="⏱ <b>Dernière demi-heure de Wall Street</b> : entrer maintenant",
+                                   extra=["🏦 Annonce de la Fed proche : mouvements violents possibles"] if fomc_note(now_ts) else []))
+            sent += 1
+            count(st, "lh_envoyes")
+            st["open"].append({"strat": "dernière 1/2 h", "kind": "stocks", "sym": sym, "dir": dr, "entry": e,
+                               "stop": tr["stop"], "t_flat": t_close, "day": d.isoformat(), "sent": t_dec,
+                               "score": score})
+            continue
         L = [cat_tag("stocks", sym), "⏱ <b>DERNIÈRE DEMI-HEURE · %s %s</b>" % ("🟢 ACHAT" if dr > 0 else "🔴 VENTE", esc(sym)), SEP,
              "💵 Entrée  <code>%s</code>  (maintenant)" % fmt(e),
              "🛑 SL        <code>%s</code>" % fmt(tr["stop"]),
@@ -1828,6 +1955,14 @@ def _track_one(st, o, now_ts):
             if (b[4] - stop) * dr <= 0:
                 res, why = (b[4] - e) * dr / risk, "stop suiveur"
                 break
+            told = o.get("told", o["stop"])
+            if (stop - told) * dr >= 0.25 * risk and b[0] + BAR >= now_ts - 900:
+                o["told"] = stop                  # message seulement pour une bougie recente (pas de rattrapage)
+                FMT[0] = 2 if kind == "stocks" else 5
+                gain = (stop - e) * dr / e * 100
+                telegram(cat_tag(kind, o["sym"]) + "\n🔁 <b>%s : %s ta sortie de sécurité</b>\nNouvelle sortie de sécurité (stop) : <code>%s</code>%s"
+                         % (esc(label(o["sym"])), "remonte" if dr > 0 else "descends", fmt(stop),
+                            "\n🔒 Gain déjà protégé : %+.2f %%" % gain if gain > 0 else "\nPerte max réduite"))
     if res is None and now_ts >= o["t_flat"]:
         last = [b for b in bs if o["sent"] <= b[0] and b[0] + BAR <= o["t_flat"]]
         if last:
@@ -1840,6 +1975,16 @@ def _track_one(st, o, now_ts):
     st["track"].append({"day": o["day"], "strat": o["strat"], "kind": kind, "sym": o["sym"], "dir": dr,
                         "r": round(res, 3), "why": why, "score": o.get("score", 0)})
     tot = [x["r"] for x in st["track"]]
+    if CFG["SIMPLE"]:
+        verdict_ = "GAGNANT" if res > 0.05 else "PERDANT" if res < -0.05 else "à peu près nul"
+        why_s = {"SL": "sortie de sécurité touchée", "stop suiveur": "sortie de sécurité (remontée) touchée",
+                 "fin de séance": "fermé à l'heure prévue"}.get(why, why)
+        nw_ = sum(1 for x in tot if x > 0)
+        telegram(cat_tag(kind, o["sym"]) + "\n%s <b>%s terminé : %s</b>\nRésultat : <b>%+.1f fois le risque</b> "
+                 "(ex. %+.0f € si tu risquais 10 €)\nRaison : %s\n📒 Bilan du bot : %d trades · %d gagnants · total %+.0f € pour 10 € risqués par trade"
+                 % (icon, esc(label(o["sym"])), verdict_, res, 10 * res, esc(why_s), len(tot), nw_, 10 * sum(tot)))
+        count(st, "fermes")
+        return True
     telegram(cat_tag(kind, o["sym"]) + "\n%s <b>RÉSULTAT · %s %s</b> (%s)\n%s : <b>%+.2f R</b> (frais estimés inclus)\n📒 Bilan : %d trades · %.0f %% gagnants · total %+.1f R"
              % (icon, "ACHAT" if dr > 0 else "VENTE", esc(label(o["sym"])), esc(o["strat"]), esc(why), res,
                 len(tot), 100 * sum(1 for x in tot if x > 0) / len(tot), sum(tot)))
@@ -1889,6 +2034,10 @@ def scorecard(st, days=None):
     if not tr:
         return "📒 Bilan : aucun trade terminé pour l'instant"
     rs = [x["r"] for x in tr]
+    if CFG["SIMPLE"]:
+        return "📒 Bilan%s : %d trades · %d gagnants · %d perdants · total %+.0f € pour 10 € risqués par trade" % (
+            " des %d derniers jours" % days if days else "", len(rs), sum(1 for x in rs if x > 0),
+            sum(1 for x in rs if x < 0), 10 * sum(rs))
     out = "📒 Bilan%s : %d trades · %.0f %% gagnants · total %+.1f R · moy. %+.2f R" % (
         " %d j" % days if days else "", len(rs), 100 * sum(1 for x in rs if x > 0) / len(rs), sum(rs), sum(rs) / len(rs))
     by = {}
