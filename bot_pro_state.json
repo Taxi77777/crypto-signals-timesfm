@@ -92,7 +92,8 @@
   "mom|2026-10-25|KAS|-1": 1792927008.1291523,
   "mom|2026-10-25|EGLD|-1": 1792927857.885082,
   "mom|2026-10-25|MKR|-1": 1792931455.3707511,
-  "mom|2026-10-25|ZIL|-1": 1792938659.1892612
+  "mom|2026-10-25|ZIL|-1": 1792938659.1892612,
+  "mom|2026-10-25|ETH|-1": 1792938993.1496603
  },
  "done": {
   "recap": "2026-10-24",
@@ -197,12 +198,14 @@
    ]
   },
   "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
-  "cot": "9 marches"
+  "cot": "9 marches",
+  "crypto_kraken_perp": "44 / 56 cryptos en perpetuel Kraken (absentes : VET,EOS,MKR,THETA,NEO,KSM,ENJ,ZIL,BSV,HNT,CELO,ONE)",
+  "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 174,
+  "requetes": 406,
   "erreurs": 0,
-  "maj": "25/10 14:35 UTC",
+  "maj": "25/10 14:45 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -221,7 +224,7 @@
    "day": "2026-10-25",
    "sent": 1792927800,
    "score": 79,
-   "stop_now": 3.2199330213102053,
+   "stop_now": 3.218484674884345,
    "told": 3.2199330213102053
   },
   {
