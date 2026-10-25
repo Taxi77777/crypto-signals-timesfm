@@ -93,7 +93,23 @@
   "mom|2026-10-25|EGLD|-1": 1792927857.885082,
   "mom|2026-10-25|MKR|-1": 1792931455.3707511,
   "mom|2026-10-25|ZIL|-1": 1792938659.1892612,
-  "mom|2026-10-25|ETH|-1": 1792938993.1496603
+  "mom|2026-10-25|ETH|-1": 1792938993.1496603,
+  "mom|2026-10-25|SUI|-1": 1792939787.4336977,
+  "mom|2026-10-25|APT|-1": 1792939788.9642646,
+  "mom|2026-10-25|ARB|-1": 1792939790.502142,
+  "mom|2026-10-25|OP|-1": 1792939792.1631753,
+  "mom|2026-10-25|SEI|-1": 1792939795.1718018,
+  "mom|2026-10-25|PEPE|-1": 1792939796.811826,
+  "mom|2026-10-25|WIF|-1": 1792939798.2996767,
+  "mom|2026-10-25|BONK|-1": 1792939799.9668531,
+  "mom|2026-10-25|JUP|-1": 1792939801.435836,
+  "mom|2026-10-25|RENDER|-1": 1792939802.9538434,
+  "mom|2026-10-25|ENA|-1": 1792939804.50842,
+  "mom|2026-10-25|WLD|-1": 1792939806.218179,
+  "mom|2026-10-25|ONDO|-1": 1792939807.7107337,
+  "mom|2026-10-25|STX|-1": 1792939812.8602436,
+  "mom|2026-10-25|IMX|-1": 1792939814.2060616,
+  "mom|2026-10-25|POL|-1": 1792939815.6488984
  },
  "done": {
   "recap": "2026-10-24",
@@ -180,7 +196,7 @@
   "mom_vus": 8,
   "mom_rejetes": 3,
   "mom_envoyes": 5,
-  "fermes": 3
+  "fermes": 4
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -199,13 +215,13 @@
   },
   "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
   "cot": "9 marches",
-  "crypto_kraken_perp": "44 / 56 cryptos en perpetuel Kraken (absentes : VET,EOS,MKR,THETA,NEO,KSM,ENJ,ZIL,BSV,HNT,CELO,ONE)",
+  "crypto_kraken_perp": "63 / 76 cryptos en perpetuel Kraken (absentes : VET,EOS,MKR,THETA,NEO,KSM,ENJ,ZIL,BSV,HNT,CELO,ONE,TON)",
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 406,
+  "requetes": 576,
   "erreurs": 0,
-  "maj": "25/10 14:47 UTC",
+  "maj": "25/10 14:55 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -226,23 +242,6 @@
    "score": 79,
    "stop_now": 3.218484674884345,
    "told": 3.2199330213102053
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ZIL",
-   "dir": -1,
-   "entry": 0.0019092252478003502,
-   "stop": 0.0019184119031092353,
-   "upper": 0.002089907386892653,
-   "lower": 0.0019184119031092353,
-   "hi0": 0.002004332607612014,
-   "lo0": 0.002003971254453063,
-   "t_flat": 1792961700,
-   "day": "2026-10-25",
-   "sent": 1792938600,
-   "score": 79,
-   "stop_now": 0.0019184119031092353
   }
  ],
  "track": [
@@ -305,6 +304,16 @@
    "r": -0.176,
    "why": "stop suiveur",
    "score": 85
+  },
+  {
+   "day": "2026-10-25",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZIL",
+   "dir": -1,
+   "r": -1.208,
+   "why": "SL",
+   "score": 79
   }
  ],
  "tg_pair": "f4f90c1ae0859234"
