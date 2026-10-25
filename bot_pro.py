@@ -993,10 +993,20 @@ def telegram(msg, html=True):
                 time.sleep(min(60.0, wait + 1))
                 continue
             if html and r.status_code == 400:
+                try:
+                    STATS["telegram_html_refuse"] = str(r.json().get("description", ""))[:120]
+                except Exception:
+                    pass
                 html, msg = False, strip_tags(msg)
                 continue
             STATS["telegram_erreurs"] = STATS.get("telegram_erreurs", 0) + 1
-            log.warning("telegram : HTTP %d", r.status_code)
+            try:
+                desc = str(r.json().get("description", ""))[:120]
+            except Exception:
+                desc = ""
+            STATS["telegram_derniere_erreur"] = "%s HTTP %d %s · %s" % (
+                time.strftime("%d/%m %H:%M", time.gmtime()), r.status_code, desc, strip_tags(msg)[:40].replace("\n", " "))
+            log.warning("telegram : HTTP %d %s", r.status_code, desc)
             if r.status_code in (401, 403, 404):
                 return
         except Exception as ex:
@@ -1759,9 +1769,8 @@ def in_hours(now):
 def main():
     signal.signal(signal.SIGTERM, _stop)
     signal.signal(signal.SIGINT, _stop)
-    if not in_hours(time.time()):
-        log.info("hors des heures (6 h - 21 h 15 UTC)")
-        return
+    # Les crons GitHub sont tres irreguliers (parfois 1 seul declenchement en 2 h) : le bot tourne donc
+    # en CHAINE 24 h/24 (chaque job de 5 h 20 relance le suivant) et attend simplement la nuit.
     st = load_state()
     end = time.time() + CFG["LOOP_MINUTES"] * 60
     try:
@@ -1775,7 +1784,11 @@ def main():
     log.info("diagnostic : %s", st["diag"])
     save_state(st)
     done_mom = done_5 = 0
-    while not STOP[0] and time.time() < end and in_hours(time.time()):
+    while not STOP[0] and time.time() < end:
+        if not in_hours(time.time()):
+            st["stats"] = dict(STATS, veille=time.strftime("%d/%m %H:%M UTC", time.gmtime()))
+            time.sleep(30)                        # nuit : on attend 6 h UTC sans rien faire
+            continue
         now = time.time()
         ny = local_dt(now, NY)
         par = local_dt(now, PARIS)
@@ -1815,7 +1828,7 @@ def main():
         except Exception as ex:
             log.warning("boucle : %s", ex)
         time.sleep(5)
-    if STOP[0] is False and time.time() >= end and in_hours(time.time() + 600):
+    if STOP[0] is False and time.time() >= end:
         try:
             with open(os.path.join(CFG["STATE_DIR"], "relance"), "w") as f:
                 f.write("1")

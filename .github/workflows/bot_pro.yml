@@ -2,13 +2,13 @@ name: Bot Pro - signaux intraday (Telegram)
 
 # Stocks in Play + momentum intraday + derniere demi-heure + couches desks institutionnels / Bloomberg.
 # SIGNAUX UNIQUEMENT : aucun ordre n'est envoye.
-# Actif tous les jours de 6 h a 21 h 30 UTC (actions et forex en semaine, crypto 7 j/7).
+# Tourne en chaine 24 h/24 (chaque job de 5 h 20 relance le suivant), travaille de 6 h a 21 h 30 UTC.
+# Le cron n'est qu'un secours : GitHub le declenche de facon tres irreguliere.
 # CAPITAL se met dans les SECRETS (masques dans les journaux publics), jamais dans les variables.
 on:
   schedule:
-    # GitHub saute souvent des crons : un tick toutes les 15 min (un seul job en attente a la
-    # fois) + le job se relance lui-meme quand il atteint sa duree maximale
-    - cron: '*/15 6-21 * * *'
+    # secours seulement (un seul job en attente a la fois) : la chaine de relance fait le travail
+    - cron: '7,37 * * * *'
   workflow_dispatch:
     inputs:
       minutes:
