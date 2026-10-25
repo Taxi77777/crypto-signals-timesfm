@@ -1002,9 +1002,19 @@ def pair_check(st):
     try:
         up = SESSION.get("https://api.telegram.org/bot%s/getUpdates" % tok,
                          params={"limit": 100, "offset": CHAT_RES["offset"]}, timeout=15).json()
-    except Exception:
+    except Exception as ex:
+        STATS["appairage"] = "erreur : %s" % str(ex).replace(tok, "***")[:80]
         return False
-    for u in up.get("result") or []:
+    if not up.get("ok"):
+        STATS["appairage"] = "%s refuse : %s" % (time.strftime("%H:%M", time.gmtime()), str(up.get("description", ""))[:100])
+        if "webhook" in str(up.get("description", "")).lower():
+            SESSION.get("https://api.telegram.org/bot%s/deleteWebhook" % tok, timeout=10)   # webhook oublie : on le retire
+        return False
+    res = up.get("result") or []
+    kinds = sorted({(u.get("message") or u.get("channel_post") or u.get("my_chat_member") or {}).get("chat", {}).get("type", "?")
+                    for u in res})
+    STATS["appairage"] = "%s : %d message(s) recu(s) %s" % (time.strftime("%H:%M", time.gmtime()), len(res), ",".join(kinds))
+    for u in res:
         CHAT_RES["offset"] = max(CHAT_RES["offset"], int(u.get("update_id", 0)) + 1)
         m = u.get("message") or u.get("channel_post") or u.get("edited_message") or u.get("edited_channel_post") or {}
         txt = str(m.get("text") or "").upper()
