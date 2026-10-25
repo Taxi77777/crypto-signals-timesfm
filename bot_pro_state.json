@@ -188,12 +188,9 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 444,
+  "requetes": 180,
   "erreurs": 0,
-  "telegram_html_refuse": "Bad Request: chat not found",
-  "telegram_erreurs": 9,
-  "telegram_derniere_erreur": "25/10 12:31 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE MKR \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intrad",
-  "maj": "25/10 12:55 UTC",
+  "maj": "25/10 13:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -212,7 +209,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.006799423819290728
+   "stop_now": 0.006786082176221673
   },
   {
    "strat": "momentum",
@@ -229,7 +226,7 @@
    "day": "2026-10-25",
    "sent": 1792927800,
    "score": 79,
-   "stop_now": 3.251327475288674
+   "stop_now": 3.2435952654344398
   },
   {
    "strat": "momentum",
@@ -246,7 +243,7 @@
    "day": "2026-10-25",
    "sent": 1792931400,
    "score": 85,
-   "stop_now": 1583.966126725432
+   "stop_now": 1576.8856557246424
   }
  ],
  "track": [
