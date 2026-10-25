@@ -89,7 +89,8 @@
   "mom|2026-10-25|ROSE|-1": 1792920750.257535,
   "mom|2026-10-25|CELO|-1": 1792920750.9049454,
   "mom|2026-10-25|QTUM|-1": 1792920751.817442,
-  "mom|2026-10-25|KAS|-1": 1792927008.1291523
+  "mom|2026-10-25|KAS|-1": 1792927008.1291523,
+  "mom|2026-10-25|EGLD|-1": 1792927857.885082
  },
  "done": {
   "recap": "2026-10-24",
@@ -141,13 +142,23 @@
    "entree": 0.10188999772071838,
    "sl": 0.10252642064227079,
    "score": 77
+  },
+  {
+   "t": "25/10 11:31",
+   "strat": "momentum",
+   "sym": "EGLD",
+   "sens": "VENTE",
+   "entree": 3.226799964904785,
+   "sl": 3.253604232041126,
+   "score": 79
   }
  ],
  "day": {
   "date": "2026-10-25",
-  "mom_vus": 5,
+  "mom_vus": 6,
   "mom_rejetes": 3,
-  "mom_envoyes": 2
+  "mom_envoyes": 3,
+  "fermes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -167,9 +178,12 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 63,
+  "requetes": 182,
   "erreurs": 0,
-  "maj": "25/10 11:20 UTC",
+  "telegram_html_refuse": "Bad Request: chat not found",
+  "telegram_erreurs": 6,
+  "telegram_derniere_erreur": "25/10 11:31 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE EGLD \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intra",
+  "maj": "25/10 11:35 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -188,24 +202,24 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.0068117303661474875
+   "stop_now": 0.006804457048256343
   },
   {
    "strat": "momentum",
    "kind": "cr",
-   "sym": "ALGO",
+   "sym": "EGLD",
    "dir": -1,
-   "entry": 0.10188999772071838,
-   "stop": 0.10252642064227079,
-   "upper": 0.10596423506489751,
-   "lower": 0.10263639485818116,
-   "hi0": 0.1043199971318245,
-   "lo0": 0.1042800024151802,
+   "entry": 3.226799964904785,
+   "stop": 3.253604232041126,
+   "upper": 3.367819500481566,
+   "lower": 3.253604232041126,
+   "hi0": 3.3113999366760254,
+   "lo0": 3.309999942779541,
    "t_flat": 1792961700,
    "day": "2026-10-25",
-   "sent": 1792920600,
-   "score": 77,
-   "stop_now": 0.10252642064227079
+   "sent": 1792927800,
+   "score": 79,
+   "stop_now": 3.253604232041126
   }
  ],
  "track": [
@@ -238,6 +252,16 @@
    "r": -0.747,
    "why": "fin de s\u00e9ance",
    "score": 93
+  },
+  {
+   "day": "2026-10-25",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ALGO",
+   "dir": -1,
+   "r": -1.16,
+   "why": "SL",
+   "score": 77
   }
  ]
 }
