@@ -178,12 +178,12 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 190,
+  "requetes": 306,
   "erreurs": 0,
   "telegram_html_refuse": "Bad Request: chat not found",
   "telegram_erreurs": 6,
   "telegram_derniere_erreur": "25/10 11:31 HTTP 400 Bad Request: chat not found \u00b7 \ud83d\udd34 VENTE EGLD \u00b7 \ud83e\ude99 Crypto \u26a1 Momentum intra",
-  "maj": "25/10 11:55 UTC",
+  "maj": "25/10 12:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -202,7 +202,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.006804457048256343
+   "stop_now": 0.006799979555173435
   },
   {
    "strat": "momentum",
@@ -219,7 +219,7 @@
    "day": "2026-10-25",
    "sent": 1792927800,
    "score": 79,
-   "stop_now": 3.253604232041126
+   "stop_now": 3.251327475288674
   }
  ],
  "track": [
