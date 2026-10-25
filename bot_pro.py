@@ -967,9 +967,34 @@ def strip_tags(t):
     return _html.unescape(re.sub(r"</?(b|i|code)>", "", t))
 
 
+def chat_id():
+    """TELEGRAM_CHAT_ID nettoye : espaces, guillemets, texte autour (ex. 'chat_id: 123'). Garde '@canal'."""
+    raw = os.environ.get("TELEGRAM_CHAT_ID") or ""
+    c = raw.strip().strip("\"'`").strip()
+    if c.startswith("@"):
+        return c.split()[0]
+    m = re.search(r"-?\d{5,}", c)
+    return m.group(0) if m else c
+
+
+def chat_shape():
+    raw = os.environ.get("TELEGRAM_CHAT_ID") or ""
+    bits = ["%d caracteres" % len(raw)]
+    if raw != raw.strip():
+        bits.append("espaces / retour a la ligne")
+    if any(q in raw for q in "\"'`"):
+        bits.append("guillemets")
+    if raw.strip().startswith("@"):
+        bits.append("commence par @")
+    if re.search(r"[A-Za-z]", raw.strip().lstrip("@")):
+        bits.append("contient des lettres")
+    bits.append("nombre trouve" if re.search(r"-?\d{5,}", raw) else "aucun nombre")
+    return ", ".join(bits)
+
+
 def telegram_check():
     """Diagnostic sans exposer le jeton ni l'identifiant : nom du bot et acces au chat."""
-    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), chat_id()
     if not tok or not chat:
         return "secret TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID absent"
     out = []
@@ -980,17 +1005,16 @@ def telegram_check():
         ch = SESSION.get("https://api.telegram.org/bot%s/getChat" % tok, params={"chat_id": chat}, timeout=10).json()
         out.append("chat ok (%s)" % (ch.get("result") or {}).get("type", "?") if ch.get("ok")
                    else "chat refuse : %s" % str(ch.get("description", ""))[:80])
-        out.append("format de l'identifiant : %s" % ("groupe (commence par -)" if str(chat).strip().startswith("-")
-                                                      else "prive" if str(chat).strip().isdigit() else "INVALIDE (pas un nombre)"))
-        if str(chat) != str(chat).strip():
-            out.append("ATTENTION : espace ou retour a la ligne dans TELEGRAM_CHAT_ID")
+        out.append("identifiant nettoye : %s" % ("groupe/canal (-)" if chat.startswith("-") else "prive"
+                                                  if chat.isdigit() else "@canal" if chat.startswith("@") else "INVALIDE"))
+        out.append("secret brut : " + chat_shape())
     except Exception as ex:
         out.append("erreur : %s" % str(ex).replace(tok, "***")[:80])
     return " · ".join(out)
 
 
 def telegram(msg, html=True):
-    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), chat_id()
     log.info("\n" + re.sub(r"📦[^\n]*", "📦 taille : (masquée dans le journal public)", strip_tags(msg)))
     if not tok or not chat:
         return
@@ -1805,6 +1829,11 @@ def main():
     except Exception as ex:
         st["diag"] = {"yahoo": "ERREUR : %s" % str(ex)[:150]}
     log.info("diagnostic : %s", st["diag"])
+    today = local_dt(time.time(), PARIS).date().isoformat()
+    if "chat ok" in str(st["diag"].get("telegram")) and st["done"].get("hello") != today:
+        st["done"]["hello"] = today
+        telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux actions, forex et crypto actifs. Aucun ordre envoyé : tu trades toi-même."
+                 % local_dt(time.time(), PARIS).strftime("%d/%m %H:%M"))
     save_state(st)
     done_mom = done_5 = 0
     while not STOP[0] and time.time() < end:
