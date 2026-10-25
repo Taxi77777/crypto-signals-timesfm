@@ -1839,7 +1839,7 @@ def mom_scan(st, kind, now_ts):
             pending.append((score, dr, sym, "\n".join(L), {
                 "strat": "momentum", "kind": kind, "sym": sym, "dir": dr, "entry": px, "stop": s["stop"],
                 "upper": s["upper"], "lower": s["lower"], "hi0": s["hi0"], "lo0": s["lo0"], "t_flat": s["t_flat"],
-                "day": d.isoformat(), "sent": s["ts"], "score": score}))
+                "day": d.isoformat(), "sent": s["ts"], "score": score, "tp": tp}))
     # garde-fou de correlation : au plus MAX_SAME positions dans le meme sens par classe d'actifs,
     # positions encore ouvertes comprises (hors liste Stocks in Play)
     pending.sort(key=lambda x: -x[0])
@@ -1958,7 +1958,14 @@ def sip_select(st, now_ts):
         L = ["📈 <b>ACTIONS US</b>", "🇺🇸 <b>ACTIONS DU JOUR</b> · %s" % d.strftime("%d/%m"),
              "Les actions qui bougent le plus ce matin à Wall Street.",
              "Place un <b>ordre qui se déclenche seulement si le prix atteint le niveau</b> indiqué (ordre « stop »).",
-             "🧭 " + market_simple(reg["label"]), SEP]
+             "🧭 " + market_simple(reg["label"])]
+        try:
+            ne_ = next_event_line("stocks", "SPY", now_ts)
+        except Exception:
+            ne_ = None
+        if ne_:
+            L.append(esc(ne_))
+        L.append(SEP)
         for a in picks:
             dr = a["dir"]
             risk = abs(a["entry"] - a["stop"])
@@ -2025,6 +2032,7 @@ def sip_triggers(st, now_ts):
         if not missed:
             st["open"].append({"strat": "stocks in play", "kind": "stocks", "sym": p["sym"], "dir": dr,
                                "entry": p["entry"], "stop": p["stop"], "first_bar_stop": True,
+                               "tp": p["entry"] + dr * 3 * abs(p["entry"] - p["stop"]),
                                "t_flat": at(d, hm(15, 55) if stock_close_t(d) == hm(16) else hm(12, 55), NY),
                                "day": d.isoformat(), "sent": trig[0][0], "score": p.get("score", 0)})
         FMT[0] = 2
@@ -2243,6 +2251,15 @@ def _track_one(st, o, now_ts):
             res = max(-1.5, (fill - e) * dr / risk)
             why = "stop suiveur" if (stop - o["stop"]) * dr > 0 else "SL"
             break
+        tp = o.get("tp")
+        if tp and not o.get("tp_told") and ((dr > 0 and b[2] >= tp) or (dr < 0 and b[3] <= tp)):
+            o["tp_told"] = True
+            if b[0] + BAR >= now_ts - 900:        # seulement en direct, pas en rattrapage
+                FMT[0] = 2 if kind == "stocks" else 5
+                telegram(cat_tag(kind, o["sym"]) + "\n🎯 <b>%s a touché ton prix de gain (TP) <code>%s</code></b>\n"
+                         "Si tu avais placé le TP : gain encaissé (%+.2f %%, 2 à 3 fois le risque). "
+                         "Sinon, tu peux encaisser maintenant ou laisser courir avec la sortie de sécurité."
+                         % (esc(label(o["sym"])), fmt(tp), 100 * abs(tp - e) / e))
         if o["strat"] == "momentum" and local_dt(b[0] + BAR, tz).minute % 30 == 0:
             stop = trail_stop(days, d, kind, o, j, stop, dr)
             if (b[4] - stop) * dr <= 0:

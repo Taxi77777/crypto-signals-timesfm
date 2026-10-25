@@ -205,3 +205,20 @@ def test_economic_calendar_pause(monkeypatch):
     monkeypatch.setattr(B.time, "time", lambda: t_cpi)
     cal = B.econ_calendar_today()
     assert len(cal) == 2 and cal[1].startswith("13:30 🔴 🇺🇸 CPI m/m")
+
+
+def test_tp_reached_message(monkeypatch):
+    t = lambda h, m: B.at(DAY, B.hm(h, m), B.NY)  # noqa: E731
+    bars = [(t(10, 0) + k * 300, 100 + k * 0.5, 100.6 + k * 0.5, 99.9 + k * 0.5, 100.5 + k * 0.5, 1.0) for k in range(12)]
+    sent = []
+    monkeypatch.setattr(B, "telegram", lambda m, html=True: sent.append(m))
+    monkeypatch.setattr(B, "hist", lambda kind, sym: bars)
+    monkeypatch.setattr(B.time, "sleep", lambda x: None)
+    st = B.load_state()
+    st["open"] = [{"strat": "stocks in play", "kind": "stocks", "sym": "AAA", "dir": 1, "entry": 100.5, "stop": 99.0,
+                   "tp": 103.0, "t_flat": t(15, 55), "day": DAY.isoformat(), "sent": t(10, 0)}]
+    B.track_update(st, t(10, 35))
+    assert any("prix de gain" in m for m in sent) and st["open"][0]["tp_told"]
+    n = len(sent)
+    B.track_update(st, t(10, 35))
+    assert len(sent) == n                         # une seule fois
