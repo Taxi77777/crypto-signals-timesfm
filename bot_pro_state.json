@@ -88,7 +88,8 @@
   "mom|2026-10-25|HNT|-1": 1792920749.4869356,
   "mom|2026-10-25|ROSE|-1": 1792920750.257535,
   "mom|2026-10-25|CELO|-1": 1792920750.9049454,
-  "mom|2026-10-25|QTUM|-1": 1792920751.817442
+  "mom|2026-10-25|QTUM|-1": 1792920751.817442,
+  "mom|2026-10-25|KAS|-1": 1792927008.1291523
  },
  "done": {
   "recap": "2026-10-24",
@@ -163,12 +164,12 @@
     "Neutral"
    ]
   },
-  "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : envoie /start a @Cryypto_signnal_bot depuis le compte @cryptosignalsfrancais \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
+  "telegram": "bot @Cryypto_signnal_bot \u00b7 resolution : pas encore : le canal / compte @c***s est introuvable pour Telegram \u00b7 chat refuse : Bad Request: chat not found \u00b7 identifiant nettoye : @canal \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre"
  },
  "stats": {
-  "requetes": 303,
+  "requetes": 63,
   "erreurs": 0,
-  "maj": "25/10 11:15 UTC",
+  "maj": "25/10 11:20 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -187,7 +188,7 @@
    "day": "2026-10-25",
    "sent": 1792920600,
    "score": 85,
-   "stop_now": 0.00681207245644921
+   "stop_now": 0.0068117303661474875
   },
   {
    "strat": "momentum",
