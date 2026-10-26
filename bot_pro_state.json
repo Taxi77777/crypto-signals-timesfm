@@ -232,7 +232,8 @@
   "mom_vus": 7,
   "mom_rejetes": 2,
   "mom_envoyes": 3,
-  "mom_correles": 2
+  "mom_correles": 2,
+  "fermes": 2
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -256,10 +257,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 768,
+  "requetes": 849,
   "erreurs": 0,
-  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 07:01 UTC",
+  "kraken_secours_yahoo": "INJ : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "maj": "26/10 07:11 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -279,43 +280,7 @@
    "sent": 1792996200,
    "score": 100,
    "tp": 7.300471624073965,
-   "stop_now": 7.634081236716777
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "FIL",
-   "dir": -1,
-   "entry": 0.8996,
-   "stop": 0.9035133188348254,
-   "upper": 0.9432866811651744,
-   "lower": 0.9035133188348254,
-   "hi0": 0.9234,
-   "lo0": 0.9234,
-   "t_flat": 1793048100,
-   "day": "2026-10-26",
-   "sent": 1792996200,
-   "score": 92,
-   "tp": 0.891773362330349,
-   "stop_now": 0.9028097258262652
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "WLD",
-   "dir": -1,
-   "entry": 0.4381,
-   "stop": 0.4402878799665744,
-   "upper": 0.4599121200334255,
-   "lower": 0.4402878799665744,
-   "hi0": 0.4501,
-   "lo0": 0.4501,
-   "t_flat": 1793048100,
-   "day": "2026-10-26",
-   "sent": 1792996200,
-   "score": 86,
-   "tp": 0.4337242400668511,
-   "stop_now": 0.44023857571609054
+   "stop_now": 7.633396004015082
   }
  ],
  "track": [
@@ -398,6 +363,26 @@
    "r": 0.19,
    "why": "stop suiveur",
    "score": 79
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "FIL",
+   "dir": -1,
+   "r": -1.05,
+   "why": "stop suiveur",
+   "score": 92
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "WLD",
+   "dir": -1,
+   "r": -1.178,
+   "why": "stop suiveur",
+   "score": 86
   }
  ],
  "tg_pair": "f4f90c1ae0859234"
