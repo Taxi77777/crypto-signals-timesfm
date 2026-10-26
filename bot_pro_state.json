@@ -149,7 +149,7 @@
  "done": {
   "recap": "2026-10-26",
   "brief": "2026-10-26",
-  "hello": "2026-10-26",
+  "hello": "2026-10-27",
   "pre": "2026-10-26",
   "sip": "2026-10-26",
   "lh": "2026-10-26"
@@ -317,7 +317,7 @@
   "lh_rejetes": 3
  },
  "diag": {
-  "yahoo": "ok : 368 bougies SPY",
+  "yahoo": "ok : 391 bougies SPY",
   "openbb": "ok",
   "regime": "RISK-OFF (S&P sous sa MM50)",
   "kraken_funding": "209 perpetuels",
@@ -338,10 +338,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1320,
+  "requetes": 4,
   "erreurs": 0,
-  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 23:28 UTC",
+  "maj": "26/10 23:29 UTC",
   "symboles_ko": []
  },
  "open": [],
