@@ -247,7 +247,7 @@
   "mom_rejetes": 6,
   "mom_envoyes": 4,
   "mom_correles": 2,
-  "fermes": 3
+  "fermes": 4
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -271,31 +271,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1063,
+  "requetes": 1064,
   "erreurs": 0,
-  "maj": "26/10 08:33 UTC",
+  "maj": "26/10 08:35 UTC",
   "symboles_ko": []
  },
- "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "SNX",
-   "dir": -1,
-   "entry": 0.1927,
-   "stop": 0.19355411534670694,
-   "upper": 0.20104588465329307,
-   "lower": 0.19355411534670694,
-   "hi0": 0.1973,
-   "lo0": 0.1973,
-   "t_flat": 1793048100,
-   "day": "2026-10-26",
-   "sent": 1793003400,
-   "score": 71,
-   "tp": 0.19099176930658615,
-   "stop_now": 0.19355411534670694
-  }
- ],
+ "open": [],
  "track": [
   {
    "day": "2026-10-24",
@@ -406,6 +387,16 @@
    "r": -0.895,
    "why": "stop suiveur",
    "score": 100
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "SNX",
+   "dir": -1,
+   "r": -1.226,
+   "why": "SL",
+   "score": 71
   }
  ],
  "tg_pair": "f4f90c1ae0859234"
