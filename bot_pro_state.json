@@ -134,7 +134,9 @@
   "mom|2026-10-26|GOOGL|-1": 1793023251.0415368,
   "mom|2026-10-26|COIN|-1": 1793023252.8046627,
   "mom|2026-10-26|PLTR|-1": 1793023253.7918856,
-  "mom|2026-10-26|GBPUSD|-1": 1793023254.5985165
+  "mom|2026-10-26|GBPUSD|-1": 1793023254.5985165,
+  "mom|2026-10-26|SPY|1": 1793025049.9416847,
+  "mom|2026-10-26|IWM|1": 1793025050.693752
  },
  "done": {
   "recap": "2026-10-25",
@@ -295,8 +297,8 @@
  ],
  "day": {
   "date": "2026-10-26",
-  "mom_vus": 23,
-  "mom_rejetes": 15,
+  "mom_vus": 25,
+  "mom_rejetes": 17,
   "mom_envoyes": 6,
   "mom_correles": 2,
   "fermes": 7,
@@ -325,9 +327,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1454,
+  "requetes": 1650,
   "erreurs": 0,
-  "maj": "26/10 14:03 UTC",
+  "maj": "26/10 14:33 UTC",
   "symboles_ko": []
  },
  "open": [],
