@@ -128,7 +128,8 @@
   "mom|2026-10-26|EURGBP|1": 1793007049.965108,
   "mom|2026-10-26|USDCHF|1": 1793016051.0739977,
   "mom|2026-10-26|ZEC|1": 1793017882.290813,
-  "mom|2026-10-26|DASH|1": 1793017883.430402
+  "mom|2026-10-26|DASH|1": 1793017883.430402,
+  "mom|2026-10-26|NZDUSD|-1": 1793021447.2196088
  },
  "done": {
   "recap": "2026-10-25",
@@ -267,11 +268,11 @@
  ],
  "day": {
   "date": "2026-10-26",
-  "mom_vus": 17,
-  "mom_rejetes": 9,
+  "mom_vus": 18,
+  "mom_rejetes": 10,
   "mom_envoyes": 6,
   "mom_correles": 2,
-  "fermes": 5
+  "fermes": 6
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -295,31 +296,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 923,
+  "requetes": 1076,
   "erreurs": 0,
-  "maj": "26/10 13:25 UTC",
+  "maj": "26/10 13:33 UTC",
   "symboles_ko": []
  },
- "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "DASH",
-   "dir": 1,
-   "entry": 52.87,
-   "stop": 52.415666601139144,
-   "upper": 52.415666601139144,
-   "lower": 50.964333398860845,
-   "hi0": 51.69,
-   "lo0": 51.69,
-   "t_flat": 1793048100,
-   "day": "2026-10-26",
-   "sent": 1793017800,
-   "score": 78,
-   "tp": 53.778666797721705,
-   "stop_now": 52.49491088775955
-  }
- ],
+ "open": [],
  "track": [
   {
    "day": "2026-10-24",
@@ -450,6 +432,16 @@
    "r": -1.109,
    "why": "SL",
    "score": 83
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "DASH",
+   "dir": 1,
+   "r": -0.942,
+   "why": "stop suiveur",
+   "score": 78
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
