@@ -151,7 +151,8 @@
   "brief": "2026-10-26",
   "hello": "2026-10-26",
   "pre": "2026-10-26",
-  "sip": "2026-10-26"
+  "sip": "2026-10-26",
+  "lh": "2026-10-26"
  },
  "sip": {
   "date": "2026-10-26",
@@ -162,7 +163,7 @@
     "dir": -1,
     "entry": 106.95999908447266,
     "stop": 107.3492919921875,
-    "hit": false,
+    "hit": true,
     "score": 71
    },
    {
@@ -311,7 +312,9 @@
   "mom_correles": 2,
   "fermes": 7,
   "sip_rejetes": 18,
-  "sip_envoyes": 1
+  "sip_envoyes": 1,
+  "lh_vus": 3,
+  "lh_rejetes": 3
  },
  "diag": {
   "yahoo": "ok : 368 bougies SPY",
@@ -335,10 +338,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 992,
+  "requetes": 1193,
   "erreurs": 0,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 19:03 UTC",
+  "maj": "26/10 19:33 UTC",
   "symboles_ko": []
  },
  "open": [],
