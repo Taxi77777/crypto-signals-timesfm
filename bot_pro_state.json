@@ -124,7 +124,8 @@
   "mom|2026-10-26|ICP|-1": 1793003458.4809237,
   "mom|2026-10-26|QNT|1": 1793003479.7288258,
   "mom|2026-10-26|SNX|-1": 1793003480.4385242,
-  "mom|2026-10-26|USDJPY|1": 1793005248.586721
+  "mom|2026-10-26|USDJPY|1": 1793005248.586721,
+  "mom|2026-10-26|EURGBP|1": 1793007049.965108
  },
  "done": {
   "recap": "2026-10-25",
@@ -244,8 +245,8 @@
  ],
  "day": {
   "date": "2026-10-26",
-  "mom_vus": 13,
-  "mom_rejetes": 7,
+  "mom_vus": 14,
+  "mom_rejetes": 8,
   "mom_envoyes": 4,
   "mom_correles": 2,
   "fermes": 4
@@ -272,10 +273,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1217,
+  "requetes": 1372,
   "erreurs": 0,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 09:03 UTC",
+  "maj": "26/10 09:33 UTC",
   "symboles_ko": []
  },
  "open": [],
