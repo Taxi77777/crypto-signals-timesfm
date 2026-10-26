@@ -135,9 +135,31 @@
   "recap": "2026-10-25",
   "brief": "2026-10-26",
   "hello": "2026-10-26",
-  "pre": "2026-10-26"
+  "pre": "2026-10-26",
+  "sip": "2026-10-26"
  },
- "sip": {},
+ "sip": {
+  "date": "2026-10-26",
+  "sent": 1793021764.2105844,
+  "picks": [
+   {
+    "sym": "NEM",
+    "dir": -1,
+    "entry": 106.95999908447266,
+    "stop": 107.3492919921875,
+    "hit": false,
+    "score": 71
+   },
+   {
+    "sym": "PANW",
+    "dir": 1,
+    "entry": 389.3999938964844,
+    "stop": 387.39836055210657,
+    "hit": true,
+    "score": 67
+   }
+  ]
+ },
  "signals": [
   {
    "t": "24/10 15:32",
@@ -272,7 +294,9 @@
   "mom_rejetes": 10,
   "mom_envoyes": 6,
   "mom_correles": 2,
-  "fermes": 6
+  "fermes": 7,
+  "sip_rejetes": 18,
+  "sip_envoyes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -296,9 +320,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1076,
+  "requetes": 1256,
   "erreurs": 0,
-  "maj": "26/10 13:33 UTC",
+  "maj": "26/10 13:40 UTC",
   "symboles_ko": []
  },
  "open": [],
@@ -442,11 +466,26 @@
    "r": -0.942,
    "why": "stop suiveur",
    "score": 78
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "PANW",
+   "dir": 1,
+   "r": -1.058,
+   "why": "SL",
+   "score": 67
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
  "univers_pre": {
   "lus": 177,
   "gaps": 0
+ },
+ "univers_sip": {
+  "lus": 177,
+  "en_jeu": 37,
+  "envoyes": 2
  }
 }
