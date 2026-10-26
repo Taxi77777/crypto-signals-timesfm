@@ -314,14 +314,14 @@
   "sip_envoyes": 1
  },
  "diag": {
-  "yahoo": "ok : 391 bougies SPY",
+  "yahoo": "ok : 368 bougies SPY",
   "openbb": "ok",
   "regime": "RISK-OFF (S&P sous sa MM50)",
   "kraken_funding": "209 perpetuels",
   "fear_greed": {
    "actions": [
-    22,
-    "extreme fear"
+    27,
+    "fear"
    ],
    "crypto": [
     50,
@@ -330,14 +330,14 @@
   },
   "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
   "cot": "9 marches",
-  "calendrier_eco": "96 annonces cette semaine",
+  "calendrier_eco": "97 annonces cette semaine",
   "crypto_kraken_perp": "63 / 76 cryptos en perpetuel Kraken (absentes : VET,EOS,MKR,THETA,NEO,KSM,ENJ,ZIL,BSV,HNT,CELO,ONE,TON)",
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 3025,
+  "requetes": 603,
   "erreurs": 0,
-  "maj": "26/10 18:06 UTC",
+  "maj": "26/10 18:10 UTC",
   "symboles_ko": []
  },
  "open": [],
