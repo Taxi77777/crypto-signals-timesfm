@@ -270,7 +270,7 @@
   "mom_rejetes": 9,
   "mom_envoyes": 6,
   "mom_correles": 2,
-  "fermes": 4
+  "fermes": 5
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -279,7 +279,7 @@
   "kraken_funding": "209 perpetuels",
   "fear_greed": {
    "actions": [
-    21,
+    22,
     "extreme fear"
    ],
    "crypto": [
@@ -294,31 +294,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 2302,
+  "requetes": 588,
   "erreurs": 0,
-  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 12:44 UTC",
+  "maj": "26/10 12:55 UTC",
   "symboles_ko": []
  },
  "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ZEC",
-   "dir": 1,
-   "entry": 1245.78,
-   "stop": 1234.3764953457253,
-   "upper": 1234.3764953457253,
-   "lower": 1191.0035046542748,
-   "hi0": 1212.69,
-   "lo0": 1212.69,
-   "t_flat": 1793048100,
-   "day": "2026-10-26",
-   "sent": 1793017800,
-   "score": 83,
-   "tp": 1268.5870093085493,
-   "stop_now": 1234.3764953457253
-  },
   {
    "strat": "momentum",
    "kind": "cr",
@@ -458,6 +439,16 @@
    "r": -1.226,
    "why": "SL",
    "score": 71
+  },
+  {
+   "day": "2026-10-26",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZEC",
+   "dir": 1,
+   "r": -1.109,
+   "why": "SL",
+   "score": 83
   }
  ],
  "tg_pair": "f4f90c1ae0859234"
