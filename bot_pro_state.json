@@ -126,7 +126,9 @@
   "mom|2026-10-26|SNX|-1": 1793003480.4385242,
   "mom|2026-10-26|USDJPY|1": 1793005248.586721,
   "mom|2026-10-26|EURGBP|1": 1793007049.965108,
-  "mom|2026-10-26|USDCHF|1": 1793016051.0739977
+  "mom|2026-10-26|USDCHF|1": 1793016051.0739977,
+  "mom|2026-10-26|ZEC|1": 1793017882.290813,
+  "mom|2026-10-26|DASH|1": 1793017883.430402
  },
  "done": {
   "recap": "2026-10-25",
@@ -242,13 +244,31 @@
    "entree": 0.1927,
    "sl": 0.19355411534670694,
    "score": 71
+  },
+  {
+   "t": "26/10 12:31",
+   "strat": "momentum",
+   "sym": "ZEC",
+   "sens": "ACHAT",
+   "entree": 1245.78,
+   "sl": 1234.3764953457253,
+   "score": 83
+  },
+  {
+   "t": "26/10 12:31",
+   "strat": "momentum",
+   "sym": "DASH",
+   "sens": "ACHAT",
+   "entree": 52.87,
+   "sl": 52.415666601139144,
+   "score": 78
   }
  ],
  "day": {
   "date": "2026-10-26",
-  "mom_vus": 15,
+  "mom_vus": 17,
   "mom_rejetes": 9,
-  "mom_envoyes": 4,
+  "mom_envoyes": 6,
   "mom_correles": 2,
   "fermes": 4
  },
@@ -274,13 +294,50 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 2139,
+  "requetes": 2298,
   "erreurs": 0,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 12:03 UTC",
+  "maj": "26/10 12:33 UTC",
   "symboles_ko": []
  },
- "open": [],
+ "open": [
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZEC",
+   "dir": 1,
+   "entry": 1245.78,
+   "stop": 1234.3764953457253,
+   "upper": 1234.3764953457253,
+   "lower": 1191.0035046542748,
+   "hi0": 1212.69,
+   "lo0": 1212.69,
+   "t_flat": 1793048100,
+   "day": "2026-10-26",
+   "sent": 1793017800,
+   "score": 83,
+   "tp": 1268.5870093085493,
+   "stop_now": 1234.3764953457253
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "DASH",
+   "dir": 1,
+   "entry": 52.87,
+   "stop": 52.415666601139144,
+   "upper": 52.415666601139144,
+   "lower": 50.964333398860845,
+   "hi0": 51.69,
+   "lo0": 51.69,
+   "t_flat": 1793048100,
+   "day": "2026-10-26",
+   "sent": 1793017800,
+   "score": 78,
+   "tp": 53.778666797721705,
+   "stop_now": 52.415666601139144
+  }
+ ],
  "track": [
   {
    "day": "2026-10-24",
