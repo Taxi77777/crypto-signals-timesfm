@@ -133,7 +133,8 @@
  "done": {
   "recap": "2026-10-25",
   "brief": "2026-10-26",
-  "hello": "2026-10-26"
+  "hello": "2026-10-26",
+  "pre": "2026-10-26"
  },
  "sip": {},
  "signals": [
@@ -294,9 +295,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 742,
+  "requetes": 921,
   "erreurs": 0,
-  "maj": "26/10 13:05 UTC",
+  "maj": "26/10 13:15 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -451,5 +452,9 @@
    "score": 83
   }
  ],
- "tg_pair": "f4f90c1ae0859234"
+ "tg_pair": "f4f90c1ae0859234",
+ "univers_pre": {
+  "lus": 177,
+  "gaps": 0
+ }
 }
