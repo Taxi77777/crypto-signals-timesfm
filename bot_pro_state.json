@@ -256,10 +256,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 581,
+  "requetes": 653,
   "erreurs": 0,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "26/10 06:33 UTC",
+  "maj": "26/10 06:40 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -278,7 +278,8 @@
    "day": "2026-10-26",
    "sent": 1792996200,
    "score": 100,
-   "tp": 7.300471624073965
+   "tp": 7.300471624073965,
+   "stop_now": 7.644764187963018
   },
   {
    "strat": "momentum",
@@ -295,7 +296,8 @@
    "day": "2026-10-26",
    "sent": 1792996200,
    "score": 92,
-   "tp": 0.891773362330349
+   "tp": 0.891773362330349,
+   "stop_now": 0.9035133188348254
   },
   {
    "strat": "momentum",
@@ -312,7 +314,8 @@
    "day": "2026-10-26",
    "sent": 1792996200,
    "score": 86,
-   "tp": 0.4337242400668511
+   "tp": 0.4337242400668511,
+   "stop_now": 0.4402878799665744
   }
  ],
  "track": [
