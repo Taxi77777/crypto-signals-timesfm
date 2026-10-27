@@ -186,30 +186,13 @@
   "brief": "2026-10-27",
   "hello": "2026-10-27",
   "pre": "2026-10-27",
-  "sip": "2026-10-26",
+  "sip": "2026-10-27",
   "lh": "2026-10-26"
  },
  "sip": {
-  "date": "2026-10-26",
-  "sent": 1793021764.2105844,
-  "picks": [
-   {
-    "sym": "NEM",
-    "dir": -1,
-    "entry": 106.95999908447266,
-    "stop": 107.3492919921875,
-    "hit": true,
-    "score": 71
-   },
-   {
-    "sym": "PANW",
-    "dir": 1,
-    "entry": 389.3999938964844,
-    "stop": 387.39836055210657,
-    "hit": true,
-    "score": 67
-   }
-  ]
+  "date": "2026-10-27",
+  "sent": 1793108163.1218727,
+  "picks": []
  },
  "signals": [
   {
@@ -399,7 +382,8 @@
   "mom_rejetes": 21,
   "mom_envoyes": 6,
   "mom_correles": 7,
-  "fermes": 5
+  "fermes": 5,
+  "sip_rejetes": 20
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -423,9 +407,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1833,
+  "requetes": 2089,
   "erreurs": 0,
-  "maj": "27/10 13:31 UTC",
+  "maj": "27/10 13:40 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -657,7 +641,7 @@
  },
  "univers_sip": {
   "lus": 177,
-  "en_jeu": 37,
-  "envoyes": 2
+  "en_jeu": 36,
+  "envoyes": 0
  }
 }
