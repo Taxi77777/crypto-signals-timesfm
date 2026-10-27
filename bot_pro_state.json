@@ -198,7 +198,7 @@
   "mom|2026-10-27|SNX|1": 1793125871.8981934
  },
  "done": {
-  "recap": "2026-10-26",
+  "recap": "2026-10-27",
   "brief": "2026-10-27",
   "hello": "2026-10-27",
   "pre": "2026-10-27",
@@ -416,13 +416,13 @@
   "mom_rejetes": 34,
   "mom_envoyes": 8,
   "mom_correles": 7,
-  "fermes": 7,
+  "fermes": 8,
   "sip_rejetes": 20,
   "lh_vus": 3,
   "lh_rejetes": 3
  },
  "diag": {
-  "yahoo": "ok : 337 bougies SPY",
+  "yahoo": "ok : 391 bougies SPY",
   "openbb": "ok",
   "regime": "RISK-ON (S&P au-dessus de sa MM50, VIX calme)",
   "kraken_funding": "209 perpetuels",
@@ -443,33 +443,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 2334,
+  "requetes": 13,
   "erreurs": 0,
-  "maj": "27/10 20:54 UTC",
+  "maj": "27/10 21:03 UTC",
   "symboles_ko": []
  },
- "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ZEC",
-   "dir": 1,
-   "entry": 1262.19,
-   "stop": 1254.2009474595727,
-   "upper": 1254.2009474595727,
-   "lower": 1207.5990525404272,
-   "hi0": 1230.9,
-   "lo0": 1230.9,
-   "t_flat": 1793134500,
-   "day": "2026-10-27",
-   "sent": 1793104200,
-   "score": 82,
-   "tp": 1278.1681050808547,
-   "stop_now": 1283.215318879446,
-   "told": 1282.6111987114466,
-   "tp_told": true
-  }
- ],
+ "open": [],
  "track": [
   {
    "day": "2026-10-24",
@@ -690,6 +669,16 @@
    "r": -0.863,
    "why": "stop suiveur",
    "score": 80
+  },
+  {
+   "day": "2026-10-27",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZEC",
+   "dir": 1,
+   "r": 3.971,
+   "why": "fin de s\u00e9ance",
+   "score": 82
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
