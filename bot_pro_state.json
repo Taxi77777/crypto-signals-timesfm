@@ -203,7 +203,7 @@
   "hello": "2026-10-27",
   "pre": "2026-10-27",
   "sip": "2026-10-27",
-  "lh": "2026-10-26"
+  "lh": "2026-10-27"
  },
  "sip": {
   "date": "2026-10-27",
@@ -417,7 +417,9 @@
   "mom_envoyes": 8,
   "mom_correles": 7,
   "fermes": 6,
-  "sip_rejetes": 20
+  "sip_rejetes": 20,
+  "lh_vus": 3,
+  "lh_rejetes": 3
  },
  "diag": {
   "yahoo": "ok : 337 bougies SPY",
@@ -441,9 +443,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1986,
+  "requetes": 2180,
   "erreurs": 0,
-  "maj": "27/10 19:20 UTC",
+  "maj": "27/10 19:33 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -483,7 +485,7 @@
    "sent": 1793122200,
    "score": 80,
    "tp": 0.007014771900626746,
-   "stop_now": 0.006804703486093009
+   "stop_now": 0.006808563224866524
   }
  ],
  "track": [
