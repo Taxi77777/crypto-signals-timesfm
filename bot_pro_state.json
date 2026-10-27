@@ -380,9 +380,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 862,
+  "requetes": 865,
   "erreurs": 0,
-  "maj": "27/10 07:20 UTC",
+  "maj": "27/10 07:25 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -438,7 +438,8 @@
    "sent": 1793084400,
    "score": 75,
    "tp": 55.0401476064103,
-   "stop_now": 54.22992619679485
+   "stop_now": 54.22992619679485,
+   "tp_told": true
   }
  ],
  "track": [
