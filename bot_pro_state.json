@@ -381,9 +381,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1283,
+  "requetes": 1368,
   "erreurs": 0,
-  "maj": "27/10 08:31 UTC",
+  "maj": "27/10 08:40 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -421,7 +421,8 @@
    "sent": 1793082600,
    "score": 79,
    "tp": 129.1010840770204,
-   "stop_now": 132.81998573137824
+   "stop_now": 132.54068588604994,
+   "told": 132.54068588604994
   },
   {
    "strat": "momentum",
@@ -439,7 +440,7 @@
    "sent": 1793084400,
    "score": 75,
    "tp": 55.0401476064103,
-   "stop_now": 54.45347856179249,
+   "stop_now": 54.50556428497556,
    "tp_told": true,
    "told": 54.45347856179249
   }
