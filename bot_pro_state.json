@@ -509,7 +509,7 @@
   "rej_fx_historique": 3,
   "mom_envoyes": 8,
   "mom_correles": 1,
-  "fermes": 3
+  "fermes": 4
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -533,37 +533,18 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1238,
+  "requetes": 1247,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 50,
   "stop_trop_serre_cr": 157,
-  "kraken_secours_yahoo": "BTC : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 11:33 UTC",
+  "kraken_secours_yahoo": "PEPE : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "maj": "28/10 11:41 UTC",
   "symboles_ko": [
    "PEPE-USD"
   ]
  },
  "open": [
-  {
-   "strat": "momentum",
-   "kind": "fx",
-   "sym": "GBPJPY",
-   "dir": -1,
-   "entry": 209.70399475097656,
-   "stop": 209.9354572989886,
-   "upper": 210.51056313155235,
-   "lower": 209.9354572989886,
-   "hi0": 210.2310028076172,
-   "lo0": 210.21499633789062,
-   "t_flat": 1793220900,
-   "day": "2026-10-28",
-   "sent": 1793170800,
-   "score": 91,
-   "tp": 209.24106965495247,
-   "stop_now": 209.80469188602703,
-   "told": 209.85427201515535
-  },
   {
    "strat": "momentum",
    "kind": "cr",
@@ -905,6 +886,16 @@
    "r": -0.898,
    "why": "stop suiveur",
    "score": 57
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "momentum",
+   "kind": "fx",
+   "sym": "GBPJPY",
+   "dir": -1,
+   "r": -0.571,
+   "why": "stop suiveur",
+   "score": 91
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
