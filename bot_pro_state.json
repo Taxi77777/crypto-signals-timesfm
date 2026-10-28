@@ -533,13 +533,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1247,
+  "requetes": 1255,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 50,
   "stop_trop_serre_cr": 157,
   "kraken_secours_yahoo": "PEPE : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 11:41 UTC",
+  "maj": "28/10 11:50 UTC",
   "symboles_ko": [
    "PEPE-USD"
   ]
