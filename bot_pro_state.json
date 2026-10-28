@@ -195,7 +195,8 @@
   "mom|2026-10-27|AVGO|1": 1793118652.4198837,
   "mom|2026-10-27|PEPE|1": 1793120480.8911693,
   "mom|2026-10-27|ROSE|1": 1793122274.051063,
-  "mom|2026-10-27|SNX|1": 1793125871.8981934
+  "mom|2026-10-27|SNX|1": 1793125871.8981934,
+  "mom|2026-10-28|BAT|1": 1793169136.040191
  },
  "done": {
   "recap": "2026-10-27",
@@ -411,15 +412,9 @@
   }
  ],
  "day": {
-  "date": "2026-10-27",
-  "mom_vus": 49,
-  "mom_rejetes": 34,
-  "mom_envoyes": 8,
-  "mom_correles": 7,
-  "fermes": 8,
-  "sip_rejetes": 20,
-  "lh_vus": 3,
-  "lh_rejetes": 3
+  "date": "2026-10-28",
+  "mom_vus": 1,
+  "mom_rejetes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -443,9 +438,9 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 4,
+  "requetes": 637,
   "erreurs": 0,
-  "maj": "28/10 06:03 UTC",
+  "maj": "28/10 06:33 UTC",
   "symboles_ko": []
  },
  "open": [],
