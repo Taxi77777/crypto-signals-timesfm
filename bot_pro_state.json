@@ -215,7 +215,9 @@
   "mom|2026-10-28|SOL|1": 1793176265.782351,
   "mom|2026-10-28|LTC|1": 1793176268.2114387,
   "mom|2026-10-28|UNI|1": 1793176270.5861683,
-  "mom|2026-10-28|BNB|1": 1793181655.3012433
+  "mom|2026-10-28|BNB|1": 1793181655.3012433,
+  "mom|2026-10-28|USDCAD|-1": 1793190647.8141787,
+  "mom|2026-10-28|ENA|-1": 1793190657.8918605
  },
  "done": {
   "recap": "2026-10-27",
@@ -500,16 +502,26 @@
    "entree": 752.37,
    "sl": 748.379589984878,
    "score": 57
+  },
+  {
+   "t": "28/10 12:31",
+   "strat": "momentum",
+   "sym": "ENA",
+   "sens": "VENTE",
+   "entree": 0.20185,
+   "sl": 0.2076035947316859,
+   "score": 58
   }
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 13,
-  "mom_rejetes": 4,
+  "mom_vus": 15,
+  "mom_rejetes": 5,
   "rej_fx_historique": 3,
-  "mom_envoyes": 8,
+  "mom_envoyes": 9,
   "mom_correles": 1,
-  "fermes": 5
+  "fermes": 5,
+  "rej_fx_score": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -533,13 +545,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1366,
+  "requetes": 1460,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 58,
-  "stop_trop_serre_cr": 189,
+  "stop_trop_serre_fx": 66,
+  "stop_trop_serre_cr": 223,
   "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 12:20 UTC",
+  "maj": "28/10 12:33 UTC",
   "symboles_ko": [
    "PEPE-USD"
   ]
@@ -562,7 +574,7 @@
    "score": 94,
    "tp": 4.968885912301327e-06,
    "pad": 3.037147807533155e-08,
-   "stop_now": 4.841546986041761e-06,
+   "stop_now": 4.844115384309285e-06,
    "tp_told": true,
    "told": 4.838129777896242e-06
   },
@@ -602,8 +614,27 @@
    "score": 57,
    "tp": 760.3508200302441,
    "pad": 1.995205007561026,
-   "stop_now": 748.6608909129926,
+   "stop_now": 748.9302599897792,
    "tp_told": true
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ENA",
+   "dir": -1,
+   "entry": 0.20185,
+   "stop": 0.2076035947316859,
+   "upper": 0.21321320263415705,
+   "lower": 0.20472679736584296,
+   "hi0": 0.20897,
+   "lo0": 0.20897,
+   "t_flat": 1793231400,
+   "day": "2026-10-28",
+   "sent": 1793190600,
+   "score": 58,
+   "tp": 0.1903428105366282,
+   "pad": 0.0028767973658429535,
+   "stop_now": 0.2076035947316859
   }
  ],
  "track": [
