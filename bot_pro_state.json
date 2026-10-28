@@ -520,7 +520,7 @@
   "rej_fx_historique": 3,
   "mom_envoyes": 9,
   "mom_correles": 1,
-  "fermes": 5,
+  "fermes": 6,
   "rej_fx_score": 1
  },
  "diag": {
@@ -545,13 +545,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1460,
+  "requetes": 1467,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 66,
   "stop_trop_serre_cr": 223,
   "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 12:33 UTC",
+  "maj": "28/10 12:40 UTC",
   "symboles_ko": [
    "PEPE-USD"
   ]
@@ -577,25 +577,6 @@
    "stop_now": 4.844115384309285e-06,
    "tp_told": true,
    "told": 4.838129777896242e-06
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "SOL",
-   "dir": 1,
-   "entry": 102.9,
-   "stop": 101.54079365283792,
-   "upper": 102.22039682641896,
-   "lower": 100.23960317358103,
-   "hi0": 101.23,
-   "lo0": 101.23,
-   "t_flat": 1793231400,
-   "day": "2026-10-28",
-   "sent": 1793176200,
-   "score": 80,
-   "tp": 105.61841269432418,
-   "pad": 0.679603173581043,
-   "stop_now": 101.60894993046678
   },
   {
    "strat": "momentum",
@@ -917,6 +898,16 @@
    "r": -0.674,
    "why": "stop suiveur",
    "score": 72
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "SOL",
+   "dir": 1,
+   "r": -1.026,
+   "why": "stop suiveur",
+   "score": 80
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
