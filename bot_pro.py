@@ -127,7 +127,9 @@ CFG = {
     "NEED_BT": envf("NEED_BT", 1),              # 1 = backtest de l'actif gagnant en moyenne exige
     "SIMS": max(1000, envf("SIMS", 10000)),
     "SIMPLE": envf("SIMPLE", 1),                # 1 = messages en francais simple (debutant), 0 = version detaillee
-    "MAX_SAME": envf("MAX_SAME", 3),            # garde-fou de correlation : max signaux meme sens / classe / passage
+    "MAX_SAME": envf("MAX_SAME", 3),
+    "SIP_GATE": envf("SIP_GATE", 0),            # 0 = comme l'etude : les actions en jeu sans filtre de backtest par action
+    "LH_GATE": envf("LH_GATE", 0),              # 0 = comme l'etude : derniere demi-heure sans filtre de backtest            # garde-fou de correlation : max signaux meme sens / classe / passage
     "CAPITAL": envf("CAPITAL", 0.0),            # capital (devise du compte) pour la taille de position (0 = formule)
     "RISK_PCT": envf("RISK_PCT", 1.0),          # risque par trade en % du capital
     "LH_STOCKS": _lst("LH_STOCKS", "SPY,QQQ,IWM,DIA"),
@@ -494,6 +496,8 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
             if (dr > 0 and px > up and px > vw) or (dr < 0 and px < lo and px < vw):
                 stop = max(up, vw) if dr > 0 else min(lo, vw)
                 if (px - stop) * dr <= px * max(0.0003, 4 * cost_r(kind, 1.0, 1.0)):
+                    if upto_ts is not None:
+                        STATS["stop_trop_serre_" + kind] = STATS.get("stop_trop_serre_" + kind, 0) + 1
                     continue                      # stop trop serre : les frais depasseraient 0.25 R
                 seen.add(dr)
                 out.append({"dir": dr, "k": k, "ts": close_ts, "price": px, "upper": up, "lower": lo,
@@ -1770,7 +1774,10 @@ def mom_scan(st, kind, now_ts):
                     pts -= 10                     # contre les grands fonds : on penalise
             nw = news(ysym(sym, kind))
             score = max(0, min(100, pts))
-            if score < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)):
+            paper = kind == "stocks" and sym in ETF_US        # SPY, QQQ... : regle testee telle quelle par l'etude
+            low_bt = CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)
+            if not paper and (score < CFG["MIN_SCORE"] or low_bt):
+                count(st, "rej_%s_%s" % (kind, "score" if score < CFG["MIN_SCORE"] else "historique"))
                 count(st, "mom_rejetes")
                 log.info("%s %s : score %d, backtest %s -> non envoye", sym, dr, score, stt)
                 continue
@@ -1913,7 +1920,7 @@ def sip_select(st, now_ts):
         if ins and ins["n"] and a["dir"] > 0:
             pts += 5                              # les dirigeants achetent : signal de confiance
         a.update(score=min(100, pts), bt=stt, mc=mc, rank=rank, earn=earn, ins=ins)
-        if a["score"] < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)):
+        if CFG["SIP_GATE"] and (a["score"] < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0))):
             count(st, "sip_rejetes")
             continue
         picks.append(a)
@@ -2171,7 +2178,7 @@ def lh_scan(st, now_ts):
                ("Sens du régime de marché", 15 if reg.get("spy") == tr["dir"] else 0, 15),
                ("Backtest de l'actif", bt_points(stt) + (15 if stt.get("n", 0) >= 12 and stt["avg"] > 0 else 0), 35)]
         score = min(100, sum(p_ for _, p_, _ in why))
-        if score < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and not (stt.get("n", 0) >= 12 and stt["avg"] > 0)):
+        if CFG["LH_GATE"] and (score < CFG["MIN_SCORE"] or (CFG["NEED_BT"] and not (stt.get("n", 0) >= 12 and stt["avg"] > 0))):
             count(st, "lh_rejetes")
             continue
         cands.append((score, sym, tr, why, stt, mc))

@@ -122,3 +122,12 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
 - Pendant le trade, un message « remonte ta sortie de sécurité » à chaque déplacement du stop suiveur (≥ 0,25 × le risque).
 - Résultat de chaque signal en « fois le risque » et en € pour 10 € risqués ; bilan chaque soir, et sur 7 jours le dimanche.
 - `SIMPLE=0` : version détaillée (score par critère, R, intervalle de confiance, rejeux).
+
+## 8. Filtres d'envoi par stratégie
+
+- **Stocks in Play** et **dernière demi-heure** : envoyés comme dans les études (`SIP_GATE=0`, `LH_GATE=0`) ; le
+  backtest de l'actif sur 60 jours est affiché pour information, il ne bloque plus (60 jours d'une seule action est un
+  échantillon trop court : l'avantage publié est celui du portefeuille sur des années).
+- **Momentum sur les ETF indiciels** (SPY, QQQ, IWM, DIA, SMH) : envoyé comme dans l'étude « Beat the Market ».
+- **Momentum sur actions individuelles, forex, or, crypto** (adaptations non testées par les études) : score ≥ 60 et
+  backtest de l'actif gagnant exigés.
