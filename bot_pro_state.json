@@ -225,7 +225,7 @@
   "recap": "2026-10-27",
   "brief": "2026-10-28",
   "hello": "2026-10-28",
-  "pre": "2026-10-27",
+  "pre": "2026-10-28",
   "sip": "2026-10-27",
   "lh": "2026-10-27"
  },
@@ -548,13 +548,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 394,
-  "erreurs": 1,
+  "requetes": 581,
+  "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 12,
   "stop_trop_serre_cr": 51,
-  "kraken_secours_yahoo": "PEPE : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 13:11 UTC",
+  "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
+  "maj": "28/10 13:20 UTC",
   "symboles_ko": []
  },
  "open": [
