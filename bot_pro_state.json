@@ -603,7 +603,7 @@
   "rej_fx_historique": 3,
   "mom_envoyes": 9,
   "mom_correles": 1,
-  "fermes": 9,
+  "fermes": 15,
   "rej_fx_score": 1,
   "rej_cr_score": 2,
   "sip_envoyes": 1
@@ -630,36 +630,16 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 871,
+  "requetes": 890,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 20,
   "stop_trop_serre_cr": 85,
   "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 13:41 UTC",
+  "maj": "28/10 13:51 UTC",
   "symboles_ko": []
  },
  "open": [
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "BNB",
-   "dir": 1,
-   "entry": 752.37,
-   "stop": 748.379589984878,
-   "upper": 750.374794992439,
-   "lower": 739.405205007561,
-   "hi0": 744.89,
-   "lo0": 744.89,
-   "t_flat": 1793231400,
-   "day": "2026-10-28",
-   "sent": 1793181600,
-   "score": 57,
-   "tp": 760.3508200302441,
-   "pad": 1.995205007561026,
-   "stop_now": 749.322847085063,
-   "tp_told": true
-  },
   {
    "strat": "momentum",
    "kind": "cr",
@@ -682,51 +662,6 @@
   {
    "strat": "stocks in play",
    "kind": "stocks",
-   "sym": "CAT",
-   "dir": -1,
-   "entry": 720.5499877929688,
-   "stop": 723.2040928431919,
-   "first_bar_stop": true,
-   "tp": 712.5876726422993,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793194500,
-   "score": 72,
-   "stop_now": 723.2040928431919
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
-   "sym": "MU",
-   "dir": 1,
-   "entry": 978.3800048828125,
-   "stop": 973.6222551618304,
-   "first_bar_stop": true,
-   "tp": 992.6532540457589,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793194500,
-   "score": 57,
-   "stop_now": 973.6222551618304
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
-   "sym": "AI",
-   "dir": 1,
-   "entry": 12.319999694824219,
-   "stop": 12.247225400379726,
-   "first_bar_stop": true,
-   "tp": 12.538322578157697,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793194500,
-   "score": 57,
-   "stop_now": 12.247225400379726
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
    "sym": "HUT",
    "dir": -1,
    "entry": 66.63999938964844,
@@ -738,36 +673,6 @@
    "sent": 1793194500,
    "score": 47,
    "stop_now": 67.37609939575195
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
-   "sym": "NOW",
-   "dir": 1,
-   "entry": 152.9199981689453,
-   "stop": 152.28679319109236,
-   "first_bar_stop": true,
-   "tp": 154.81961310250418,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793194500,
-   "score": 47,
-   "stop_now": 152.28679319109236
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
-   "sym": "RBLX",
-   "dir": 1,
-   "entry": 55.18000030517578,
-   "stop": 54.94847957066127,
-   "first_bar_stop": true,
-   "tp": 55.874562508719315,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793194500,
-   "score": 47,
-   "stop_now": 54.94847957066127
   }
  ],
  "track": [
@@ -1090,6 +995,66 @@
    "r": -1.053,
    "why": "SL",
    "score": 60
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "MU",
+   "dir": 1,
+   "r": -1.062,
+   "why": "SL",
+   "score": 57
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "BNB",
+   "dir": 1,
+   "r": -0.952,
+   "why": "stop suiveur",
+   "score": 57
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "CAT",
+   "dir": -1,
+   "r": -1.081,
+   "why": "SL",
+   "score": 72
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "AI",
+   "dir": 1,
+   "r": -1.051,
+   "why": "SL",
+   "score": 57
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "NOW",
+   "dir": 1,
+   "r": -1.072,
+   "why": "SL",
+   "score": 47
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "RBLX",
+   "dir": 1,
+   "r": -1.072,
+   "why": "SL",
+   "score": 47
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
