@@ -206,7 +206,8 @@
   "mom|2026-10-28|LINK|1": 1793171457.014516,
   "mom|2026-10-28|XAUT|-1": 1793171458.7772353,
   "mom|2026-10-28|XAU|-1": 1793171491.6859117,
-  "mom|2026-10-28|XAG|-1": 1793171493.3745873
+  "mom|2026-10-28|XAG|-1": 1793171493.3745873,
+  "mom|2026-10-28|EURGBP|1": 1793171836.5169046
  },
  "done": {
   "recap": "2026-10-27",
@@ -459,12 +460,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 289,
+  "requetes": 72,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (open interest >= 5 M$)",
-  "stop_trop_serre_fx": 3,
-  "stop_trop_serre_cr": 1,
-  "maj": "28/10 07:16 UTC",
+  "stop_trop_serre_fx": 2,
+  "maj": "28/10 07:17 UTC",
   "symboles_ko": []
  },
  "open": [
