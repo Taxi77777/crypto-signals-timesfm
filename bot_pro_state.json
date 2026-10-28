@@ -173,7 +173,8 @@
   "mom|2026-10-28|HYPE|-1": 1793196075.5603173,
   "mom|2026-10-28|NEAR|-1": 1793197857.4560575,
   "mom|2026-10-28|XMR|-1": 1793197859.7006176,
-  "mom|2026-10-28|EURJPY|1": 1793203254.126913
+  "mom|2026-10-28|EURJPY|1": 1793203254.126913,
+  "mom|2026-10-28|ADA|-1": 1793208662.2656972
  },
  "done": {
   "recap": "2026-10-27",
@@ -548,14 +549,23 @@
    "entree": 0.20185,
    "sl": 0.2076035947316859,
    "score": 58
+  },
+  {
+   "t": "28/10 17:31",
+   "strat": "momentum",
+   "sym": "ADA",
+   "sens": "VENTE",
+   "entree": 0.2009,
+   "sl": 0.20229014155482725,
+   "score": 56
   }
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 23,
+  "mom_vus": 24,
   "mom_rejetes": 13,
   "rej_fx_historique": 3,
-  "mom_envoyes": 9,
+  "mom_envoyes": 10,
   "mom_correles": 1,
   "fermes": 17,
   "rej_fx_score": 2,
@@ -585,13 +595,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1870,
+  "requetes": 1996,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 69,
-  "stop_trop_serre_cr": 351,
+  "stop_trop_serre_fx": 73,
+  "stop_trop_serre_cr": 393,
   "kraken_secours_yahoo": "ENA : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 17:21 UTC",
+  "maj": "28/10 17:33 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -612,8 +622,27 @@
    "score": 58,
    "tp": 0.1903428105366282,
    "pad": 0.0028767973658429535,
-   "stop_now": 0.20281659383896775,
-   "told": 0.20392628821577694
+   "stop_now": 0.20190863484000807,
+   "told": 0.20190863484000807
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ADA",
+   "dir": -1,
+   "entry": 0.2009,
+   "stop": 0.20229014155482725,
+   "upper": 0.2100049292225864,
+   "lower": 0.20159507077741362,
+   "hi0": 0.2058,
+   "lo0": 0.2058,
+   "t_flat": 1793231400,
+   "day": "2026-10-28",
+   "sent": 1793208600,
+   "score": 56,
+   "tp": 0.1981197168903455,
+   "pad": 0.0006950707774136256,
+   "stop_now": 0.20229014155482725
   }
  ],
  "track": [
