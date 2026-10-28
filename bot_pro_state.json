@@ -1,22 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-24|BTC|-1": 1792849898.229991,
-  "mom|2026-10-24|ETH|-1": 1792849898.6895092,
-  "mom|2026-10-24|SOL|-1": 1792849899.0958877,
-  "mom|2026-10-24|XRP|-1": 1792849899.5309036,
-  "mom|2026-10-24|BNB|-1": 1792849899.9174988,
-  "mom|2026-10-24|DOGE|-1": 1792849900.3577096,
-  "mom|2026-10-24|ADA|-1": 1792849900.819983,
-  "mom|2026-10-24|AVAX|-1": 1792849901.2530675,
-  "mom|2026-10-24|LINK|-1": 1792849901.685678,
-  "mom|2026-10-24|LTC|-1": 1792849902.1903622,
-  "mom|2026-10-24|DOT|-1": 1792849902.61316,
-  "mom|2026-10-24|BCH|-1": 1792849903.5011423,
-  "mom|2026-10-24|NEAR|-1": 1792849903.9366474,
-  "mom|2026-10-24|XLM|-1": 1792849904.4432712,
-  "mom|2026-10-24|HBAR|-1": 1792849904.9236593,
-  "mom|2026-10-24|ICP|-1": 1792849905.345012,
-  "mom|2026-10-24|ATOM|-1": 1792849905.7613928,
   "mom|2026-10-24|ETC|-1": 1792854117.9213035,
   "mom|2026-10-24|XMR|1": 1792854118.9105542,
   "mom|2026-10-24|ALGO|-1": 1792854119.430534,
@@ -219,7 +202,10 @@
   "mom|2026-10-28|USDCAD|-1": 1793190647.8141787,
   "mom|2026-10-28|ENA|-1": 1793190657.8918605,
   "mom|2026-10-28|XRP|-1": 1793192453.2845814,
-  "mom|2026-10-28|ZEC|-1": 1793192454.5639458
+  "mom|2026-10-28|ZEC|-1": 1793192454.5639458,
+  "mom|2026-10-28|TSLA|-1": 1793196051.3151019,
+  "mom|2026-10-28|AAPL|-1": 1793196066.9930267,
+  "mom|2026-10-28|HYPE|-1": 1793196075.5603173
  },
  "done": {
   "recap": "2026-10-27",
@@ -262,7 +248,7 @@
     "dir": -1,
     "entry": 166.82069396972656,
     "stop": 167.3585568019322,
-    "hit": false,
+    "hit": true,
     "score": 70
    },
    {
@@ -598,15 +584,16 @@
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 17,
-  "mom_rejetes": 7,
+  "mom_vus": 20,
+  "mom_rejetes": 10,
   "rej_fx_historique": 3,
   "mom_envoyes": 9,
   "mom_correles": 1,
   "fermes": 15,
   "rej_fx_score": 1,
-  "rej_cr_score": 2,
-  "sip_envoyes": 1
+  "rej_cr_score": 3,
+  "sip_envoyes": 1,
+  "rej_stocks_score": 2
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -630,13 +617,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 890,
+  "requetes": 1026,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 20,
-  "stop_trop_serre_cr": 85,
+  "stop_trop_serre_fx": 28,
+  "stop_trop_serre_cr": 121,
   "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 13:51 UTC",
+  "maj": "28/10 14:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -657,7 +644,8 @@
    "score": 58,
    "tp": 0.1903428105366282,
    "pad": 0.0028767973658429535,
-   "stop_now": 0.20635179250742694
+   "stop_now": 0.20575750845311194,
+   "told": 0.20575750845311194
   },
   {
    "strat": "stocks in play",
@@ -673,6 +661,22 @@
    "sent": 1793194500,
    "score": 47,
    "stop_now": 67.37609939575195
+  },
+  {
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "BA",
+   "dir": -1,
+   "entry": 166.82069396972656,
+   "stop": 167.3585568019322,
+   "first_bar_stop": true,
+   "tp": 165.20710547310966,
+   "t_flat": 1793217300,
+   "day": "2026-10-28",
+   "sent": 1793195400,
+   "score": 70,
+   "stop_now": 167.3585568019322,
+   "tp_told": true
   }
  ],
  "track": [
