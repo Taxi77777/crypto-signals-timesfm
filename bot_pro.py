@@ -2431,15 +2431,20 @@ def main():
     st = load_state()
     try:
         perps = kraken_perps()
-        oi = {c: f["oi_usd"] for c, f in kraken_funding().items() if c in perps}
+        not_crypto = {"XAU", "XAG", "XAUT", "PAXG", "EUR", "GBP", "JPY", "AUD", "CHF", "CAD", "USDT", "USDC", "SPX",
+                      "NDX", "DJI", "WTI", "OIL", "NG", "SPY", "QQQ"}          # metaux / devises / indices : pas crypto
+        oi = {c: f["oi_usd"] for c, f in kraken_funding().items() if c in perps and c not in not_crypto}
         # liquidite d'abord : seulement les perpetuels Kraken avec assez de positions ouvertes (BTC / ETH toujours)
         liq = sorted(((v, c) for c, v in oi.items() if v >= CFG["CR_MIN_OI"] or c in ("BTC", "ETH")), reverse=True)
+        rule = "open interest >= %.0f M$" % (CFG["CR_MIN_OI"] / 1e6)
         if len(liq) < 15:
             liq = sorted(((v, c) for c, v in oi.items()), reverse=True)[:30]
+            rule = "les 30 plus liquides de Kraken"
         keep = [c for _v, c in liq][:int(CFG["CR_MAX_COINS"])]
         KR_SYM.update({c: perps[c] for c in keep})
         CFG["MOM_CRYPTO"] = keep
-        STATS["crypto_liquides"] = "%d perpetuels (open interest >= %.0f M$)" % (len(keep), CFG["CR_MIN_OI"] / 1e6)
+        STATS["crypto_liquides"] = "%d perpetuels (%s, plus petit : %.1f M$)" % (
+            len(keep), rule, min(oi[c] for c in keep) / 1e6 if keep else 0)
     except Exception as ex:
         log.warning("perpetuels Kraken : %s", ex)
     if st.get("tg_pair") and os.environ.get("TELEGRAM_BOT_TOKEN"):
