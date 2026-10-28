@@ -214,7 +214,8 @@
   "mom|2026-10-28|ETH|1": 1793176264.2316651,
   "mom|2026-10-28|SOL|1": 1793176265.782351,
   "mom|2026-10-28|LTC|1": 1793176268.2114387,
-  "mom|2026-10-28|UNI|1": 1793176270.5861683
+  "mom|2026-10-28|UNI|1": 1793176270.5861683,
+  "mom|2026-10-28|BNB|1": 1793181655.3012433
  },
  "done": {
   "recap": "2026-10-27",
@@ -490,14 +491,23 @@
    "entree": 57.83,
    "sl": 57.5073528797291,
    "score": 57
+  },
+  {
+   "t": "28/10 10:01",
+   "strat": "momentum",
+   "sym": "BNB",
+   "sens": "ACHAT",
+   "entree": 752.37,
+   "sl": 748.379589984878,
+   "score": 57
   }
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 12,
+  "mom_vus": 13,
   "mom_rejetes": 4,
   "rej_fx_historique": 3,
-  "mom_envoyes": 7,
+  "mom_envoyes": 8,
   "mom_correles": 1,
   "fermes": 3
  },
@@ -523,13 +533,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 780,
+  "requetes": 878,
   "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 26,
-  "stop_trop_serre_cr": 51,
+  "stop_trop_serre_fx": 32,
+  "stop_trop_serre_cr": 73,
   "kraken_secours_yahoo": "PEPE : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 09:50 UTC",
+  "maj": "28/10 10:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -549,7 +559,7 @@
    "sent": 1793170800,
    "score": 91,
    "tp": 209.24106965495247,
-   "stop_now": 209.85427201515535,
+   "stop_now": 209.8214480185082,
    "told": 209.85427201515535
   },
   {
@@ -569,9 +579,9 @@
    "score": 94,
    "tp": 4.968885912301327e-06,
    "pad": 3.037147807533155e-08,
-   "stop_now": 4.804634118098006e-06,
+   "stop_now": 4.8203665327368574e-06,
    "tp_told": true,
-   "told": 4.804634118098006e-06
+   "told": 4.8203665327368574e-06
   },
   {
    "strat": "momentum",
@@ -611,6 +621,25 @@
    "tp": 105.61841269432418,
    "pad": 0.679603173581043,
    "stop_now": 101.60894993046678
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "BNB",
+   "dir": 1,
+   "entry": 752.37,
+   "stop": 748.379589984878,
+   "upper": 750.374794992439,
+   "lower": 739.405205007561,
+   "hi0": 744.89,
+   "lo0": 744.89,
+   "t_flat": 1793231400,
+   "day": "2026-10-28",
+   "sent": 1793181600,
+   "score": 57,
+   "tp": 760.3508200302441,
+   "pad": 1.995205007561026,
+   "stop_now": 748.379589984878
   }
  ],
  "track": [
