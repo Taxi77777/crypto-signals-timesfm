@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import bot_pro as B  # noqa: E402
 from test_bot_pro import DAY, synth_24h, synth_stock, html_ok  # noqa: E402
 
-BANNERS = ("🪙 <b>CRYPTO</b>", "💱 <b>FOREX</b>", "🥇 <b>FOREX · MÉTAUX</b>", "📈 <b>ACTION US</b>",
+BANNERS = ("🪙 <b>CRYPTO</b>", "🥇 <b>MÉTAUX · Kraken perp</b>", "💱 <b>FOREX</b>", "🥇 <b>FOREX · MÉTAUX</b>", "📈 <b>ACTION US</b>",
            "📈 <b>ETF US</b>", "📈 <b>ACTIONS US</b>")
 
 

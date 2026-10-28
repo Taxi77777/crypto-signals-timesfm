@@ -219,7 +219,7 @@ ETF_US = {"SPY", "QQQ", "IWM", "DIA", "SMH", "XLK", "XLF", "XLE", "XLV", "XLY", 
 def cat_tag(kind, sym=""):
     """Bandeau de categorie, toujours en 1re ligne : on voit tout de suite crypto / action / forex."""
     if kind == "cr":
-        return "🪙 <b>CRYPTO</b>"
+        return "🥇 <b>MÉTAUX · Kraken perp</b>" if sym in ("XAU", "XAG", "XAUT", "PAXG") else "🪙 <b>CRYPTO</b>"
     if kind == "fx":
         return "🥇 <b>FOREX · MÉTAUX</b>" if sym in ("XAUUSD", "XAGUSD") else "💱 <b>FOREX</b>"
     return "📈 <b>ETF US</b>" if sym.upper() in ETF_US else "📈 <b>ACTION US</b>"
@@ -2431,8 +2431,8 @@ def main():
     st = load_state()
     try:
         perps = kraken_perps()
-        not_crypto = {"XAU", "XAG", "XAUT", "PAXG", "EUR", "GBP", "JPY", "AUD", "CHF", "CAD", "USDT", "USDC", "SPX",
-                      "NDX", "DJI", "WTI", "OIL", "NG", "SPY", "QQQ"}          # metaux / devises / indices : pas crypto
+        not_crypto = {"EUR", "GBP", "JPY", "AUD", "CHF", "CAD", "USDT", "USDC", "SPX",
+                      "NDX", "DJI", "WTI", "OIL", "NG", "SPY", "QQQ"}          # devises / indices : pas crypto (metaux gardes)
         oi = {c: f["oi_usd"] for c, f in kraken_funding().items() if c in perps and c not in not_crypto}
         # liquidite d'abord : seulement les perpetuels Kraken avec assez de positions ouvertes (BTC / ETH toujours)
         liq = sorted(((v, c) for c, v in oi.items() if v >= CFG["CR_MIN_OI"] or c in ("BTC", "ETH")), reverse=True)
