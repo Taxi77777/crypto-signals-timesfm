@@ -148,6 +148,7 @@ def test_correlation_guard_and_tracking(monkeypatch):
     monkeypatch.setattr(B, "chart", lambda s, r, i, prepost=False, meta=False: per[s.split("-")[0]])
     monkeypatch.setitem(B.CFG, "MOM_CRYPTO", ["BTC", "ETH", "SOL", "XRP", "ADA"])
     monkeypatch.setitem(B.CFG, "MAX_SAME", 3)
+    monkeypatch.setitem(B.CFG, "CR_MAX_SAME", 3)
     st = {"alerts": {}, "done": {}, "sip": {}, "signals": [], "day": {}, "open": [], "track": []}
     first = None
     for hh in range(6, 12):

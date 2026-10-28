@@ -222,3 +222,17 @@ def test_tp_reached_message(monkeypatch):
     n = len(sent)
     B.track_update(st, t(10, 35))
     assert len(sent) == n                         # une seule fois
+
+
+def test_crypto_wide_stop_is_consistent(monkeypatch):
+    from test_bot_pro import synth_24h
+    days = B.by_day(synth_24h(drift_today=0.0012), B.UTC, B.hm(0))
+    dk = sorted(days)
+    monkeypatch.setitem(B.CFG, "CR_STOP_MULT", 2.0)
+    b = B.mom_eval_day(days, DAY, "cr", None, days[dk[-2]][-1][4])[0]
+    rule = max(b["upper"], b["vwap"])                     # stop de l'etude pour un achat
+    assert abs((b["price"] - b["stop"]) - 2 * (b["price"] - rule)) < 1e-9 and b["pad"] > 0
+    j = b["k"] + 6
+    s1 = B.trail_stop(days, DAY, "cr", b, j, b["stop"], 1)
+    s0 = B.trail_stop(days, DAY, "cr", dict(b, pad=0.0), j, rule, 1)
+    assert s1 >= b["stop"] and (abs((s0 - s1) - b["pad"]) < 1e-9 or s1 == b["stop"])

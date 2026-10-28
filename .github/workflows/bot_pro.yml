@@ -58,6 +58,11 @@ jobs:
           MOM_CRYPTO:         ${{ vars.MOM_CRYPTO }}
           MIN_SCORE:          ${{ vars.MIN_SCORE }}
           SIMPLE:             ${{ vars.SIMPLE }}
+          CR_STOP_MULT:       ${{ vars.CR_STOP_MULT }}
+          CR_MIN_SCORE:       ${{ vars.CR_MIN_SCORE }}
+          CR_NEED_BT:         ${{ vars.CR_NEED_BT }}
+          CR_MAX_SAME:        ${{ vars.CR_MAX_SAME }}
+          CR_MIN_OI:          ${{ vars.CR_MIN_OI }}
           MAX_SAME:           ${{ vars.MAX_SAME }}
           CAPITAL:            ${{ secrets.CAPITAL }}
           RISK_PCT:           ${{ vars.RISK_PCT }}

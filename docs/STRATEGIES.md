@@ -131,3 +131,12 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
 - **Momentum sur les ETF indiciels** (SPY, QQQ, IWM, DIA, SMH) : envoyé comme dans l'étude « Beat the Market ».
 - **Momentum sur actions individuelles, forex, or, crypto** (adaptations non testées par les études) : score ≥ 60 et
   backtest de l'actif gagnant exigés.
+
+## 9. Réglages crypto (perpétuels Kraken)
+
+- **Liquidité** : seulement les perpétuels Kraken avec au moins `CR_MIN_OI` (5 M$) de positions ouvertes, BTC et ETH
+  toujours inclus, au plus `CR_MAX_COINS` (100).
+- **Stop plus large** : `CR_STOP_MULT` (2) × la distance de l'étude ; le stop suiveur garde le même écart. Le backtest, le
+  suivi et la taille de position utilisent ce même stop (risque constant en €, quantité plus petite).
+- **Plus de signaux** : note mini `CR_MIN_SCORE` (50), backtest affiché pour information (`CR_NEED_BT=0`), jusqu'à
+  `CR_MAX_SAME` (5) positions dans le même sens, signaux de 7 h 30 à 23 h (Paris), fermeture au plus tard 0 h 50.

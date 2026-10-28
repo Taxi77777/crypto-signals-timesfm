@@ -128,6 +128,12 @@ CFG = {
     "SIMS": max(1000, envf("SIMS", 10000)),
     "SIMPLE": envf("SIMPLE", 1),                # 1 = messages en francais simple (debutant), 0 = version detaillee
     "MAX_SAME": envf("MAX_SAME", 3),
+    "CR_STOP_MULT": envf("CR_STOP_MULT", 2.0),  # crypto : stop 2x plus large (le bruit crypto touchait les stops serres)
+    "CR_MIN_SCORE": envf("CR_MIN_SCORE", 50),   # crypto : note mini (plus de signaux)
+    "CR_NEED_BT": envf("CR_NEED_BT", 0),        # crypto : backtest 60 j affiche pour info, ne bloque pas
+    "CR_MAX_SAME": envf("CR_MAX_SAME", 5),      # crypto : positions max dans le meme sens
+    "CR_MIN_OI": envf("CR_MIN_OI", 5e6),        # crypto : + tous les perpetuels Kraken avec open interest >= 5 M$
+    "CR_MAX_COINS": envf("CR_MAX_COINS", 100),
     "SIP_GATE": envf("SIP_GATE", 0),            # 0 = comme l'etude : les actions en jeu sans filtre de backtest par action
     "LH_GATE": envf("LH_GATE", 0),              # 0 = comme l'etude : derniere demi-heure sans filtre de backtest            # garde-fou de correlation : max signaux meme sens / classe / passage
     "CAPITAL": envf("CAPITAL", 0.0),            # capital (devise du compte) pour la taille de position (0 = formule)
@@ -418,7 +424,7 @@ MOM_MARKETS = {
     # cle : (fuseau, debut du jour, premiere decision, derniere decision, sortie, jours ouvres ?)
     "stocks": (NY, hm(9, 30), hm(10, 0), hm(15, 30), hm(15, 55), True),
     "fx": (UTC, hm(0), hm(7, 0), hm(19, 30), hm(20, 55), True),
-    "cr": (UTC, hm(0), hm(6, 30), hm(20, 0), hm(20, 55), False),
+    "cr": (UTC, hm(0), hm(6, 30), hm(22, 0), hm(23, 50), False),
 }
 
 
@@ -495,6 +501,10 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
                 continue
             if (dr > 0 and px > up and px > vw) or (dr < 0 and px < lo and px < vw):
                 stop = max(up, vw) if dr > 0 else min(lo, vw)
+                pad = 0.0
+                if kind == "cr" and CFG["CR_STOP_MULT"] > 1:
+                    pad = (CFG["CR_STOP_MULT"] - 1) * abs(px - stop)
+                    stop -= dr * pad              # stop plus large : laisse respirer le bruit crypto
                 if (px - stop) * dr <= px * max(0.0003, 4 * cost_r(kind, 1.0, 1.0)):
                     if upto_ts is not None:
                         STATS["stop_trop_serre_" + kind] = STATS.get("stop_trop_serre_" + kind, 0) + 1
@@ -502,7 +512,7 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
                 seen.add(dr)
                 out.append({"dir": dr, "k": k, "ts": close_ts, "price": px, "upper": up, "lower": lo,
                             "vwap": vw, "stop": stop, "sigma": sig, "t_flat": t_flat, "kind": kind,
-                            "hi0": max(o, pc), "lo0": min(o, pc)})
+                            "hi0": max(o, pc), "lo0": min(o, pc), "pad": pad})
     return out
 
 
@@ -515,7 +525,7 @@ def trail_stop(days, d, kind, rec, j, stop, dr):
     up = rec["hi0"] * (1 + sig) if sig and rec.get("hi0") else rec["upper"]
     lo = rec["lo0"] * (1 - sig) if sig and rec.get("lo0") else rec["lower"]
     vw = vwap(bs[:j + 1])
-    new = max(up, vw) if dr > 0 else min(lo, vw)
+    new = (max(up, vw) if dr > 0 else min(lo, vw)) - dr * rec.get("pad", 0.0)   # meme ecart que le stop initial
     return max(stop, new) if dr > 0 else min(stop, new)
 
 
@@ -1775,9 +1785,11 @@ def mom_scan(st, kind, now_ts):
             nw = news(ysym(sym, kind))
             score = max(0, min(100, pts))
             paper = kind == "stocks" and sym in ETF_US        # SPY, QQQ... : regle testee telle quelle par l'etude
-            low_bt = CFG["NEED_BT"] and (stt.get("n", 0) < 12 or stt["avg"] <= 0)
-            if not paper and (score < CFG["MIN_SCORE"] or low_bt):
-                count(st, "rej_%s_%s" % (kind, "score" if score < CFG["MIN_SCORE"] else "historique"))
+            need_bt = CFG["CR_NEED_BT"] if kind == "cr" else CFG["NEED_BT"]
+            min_sc = CFG["CR_MIN_SCORE"] if kind == "cr" else CFG["MIN_SCORE"]
+            low_bt = need_bt and (stt.get("n", 0) < 12 or stt["avg"] <= 0)
+            if not paper and (score < min_sc or low_bt):
+                count(st, "rej_%s_%s" % (kind, "score" if score < min_sc else "historique"))
                 count(st, "mom_rejetes")
                 log.info("%s %s : score %d, backtest %s -> non envoye", sym, dr, score, stt)
                 continue
@@ -1846,14 +1858,14 @@ def mom_scan(st, kind, now_ts):
             pending.append((score, dr, sym, "\n".join(L), {
                 "strat": "momentum", "kind": kind, "sym": sym, "dir": dr, "entry": px, "stop": s["stop"],
                 "upper": s["upper"], "lower": s["lower"], "hi0": s["hi0"], "lo0": s["lo0"], "t_flat": s["t_flat"],
-                "day": d.isoformat(), "sent": s["ts"], "score": score, "tp": tp}))
+                "day": d.isoformat(), "sent": s["ts"], "score": score, "tp": tp, "pad": s.get("pad", 0.0)}))
     # garde-fou de correlation : au plus MAX_SAME positions dans le meme sens par classe d'actifs,
     # positions encore ouvertes comprises (hors liste Stocks in Play)
     pending.sort(key=lambda x: -x[0])
     per_dir = {dd: sum(1 for o in st["open"] if o.get("kind") == kind and o.get("dir") == dd
                        and o.get("strat") != "stocks in play") for dd in (1, -1)}
     for score, dr, sym, msg, rec in pending:
-        if per_dir[dr] >= CFG["MAX_SAME"]:
+        if per_dir[dr] >= (CFG["CR_MAX_SAME"] if kind == "cr" else CFG["MAX_SAME"]):
             count(st, "mom_correles")
             log.info("%s : ecarte (deja %d signaux %s correles sur %s)", sym, per_dir[dr], dr, kind)
             continue
@@ -2406,7 +2418,7 @@ def _stop(*_):
 
 def in_hours(now):
     g = time.gmtime(now)
-    return 6 <= g.tm_hour < 21 or (g.tm_hour == 21 and g.tm_min < 30)
+    return 6 <= g.tm_hour <= 23
 
 
 def main():
@@ -2416,7 +2428,16 @@ def main():
     # en CHAINE 24 h/24 (chaque job de 5 h 20 relance le suivant) et attend simplement la nuit.
     st = load_state()
     try:
-        KR_SYM.update({k: v for k, v in kraken_perps().items() if k in CFG["MOM_CRYPTO"]})
+        perps = kraken_perps()
+        oi = {c: f["oi_usd"] for c, f in kraken_funding().items() if c in perps}
+        # liquidite d'abord : seulement les perpetuels Kraken avec assez de positions ouvertes (BTC / ETH toujours)
+        liq = sorted(((v, c) for c, v in oi.items() if v >= CFG["CR_MIN_OI"] or c in ("BTC", "ETH")), reverse=True)
+        if len(liq) < 15:
+            liq = sorted(((v, c) for c, v in oi.items()), reverse=True)[:30]
+        keep = [c for _v, c in liq][:int(CFG["CR_MAX_COINS"])]
+        KR_SYM.update({c: perps[c] for c in keep})
+        CFG["MOM_CRYPTO"] = keep
+        STATS["crypto_liquides"] = "%d perpetuels (open interest >= %.0f M$)" % (len(keep), CFG["CR_MIN_OI"] / 1e6)
     except Exception as ex:
         log.warning("perpetuels Kraken : %s", ex)
     if st.get("tg_pair") and os.environ.get("TELEGRAM_BOT_TOKEN"):
@@ -2433,9 +2454,8 @@ def main():
                       "telegram": telegram_check(),
                       "cot": "%d marches" % len(cot_data()),
                       "calendrier_eco": "%d annonces cette semaine" % len(ff_events()),
-                      "crypto_kraken_perp": "%d / %d cryptos en perpetuel Kraken (absentes : %s)" % (
-                          len(KR_SYM), len(CFG["MOM_CRYPTO"]),
-                          ",".join(x for x in CFG["MOM_CRYPTO"] if x not in KR_SYM)[:120] or "aucune"),
+                      "crypto_kraken_perp": "%d cryptos liquides en perpetuel Kraken : %s" % (
+                          len(KR_SYM), ",".join(CFG["MOM_CRYPTO"])[:300]),
                       "kraken_bougies_btc": kraken_check()}
     except Exception as ex:
         st["diag"] = {"yahoo": "ERREUR : %s" % str(ex)[:150]}
