@@ -589,7 +589,7 @@
   "rej_fx_historique": 3,
   "mom_envoyes": 9,
   "mom_correles": 1,
-  "fermes": 15,
+  "fermes": 16,
   "rej_fx_score": 1,
   "rej_cr_score": 3,
   "sip_envoyes": 1,
@@ -617,13 +617,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1026,
+  "requetes": 1034,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 28,
   "stop_trop_serre_cr": 121,
-  "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 14:03 UTC",
+  "kraken_secours_yahoo": "ENA : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
+  "maj": "28/10 14:10 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -644,7 +644,7 @@
    "score": 58,
    "tp": 0.1903428105366282,
    "pad": 0.0028767973658429535,
-   "stop_now": 0.20575750845311194,
+   "stop_now": 0.20567246702323608,
    "told": 0.20575750845311194
   },
   {
@@ -661,22 +661,6 @@
    "sent": 1793194500,
    "score": 47,
    "stop_now": 67.37609939575195
-  },
-  {
-   "strat": "stocks in play",
-   "kind": "stocks",
-   "sym": "BA",
-   "dir": -1,
-   "entry": 166.82069396972656,
-   "stop": 167.3585568019322,
-   "first_bar_stop": true,
-   "tp": 165.20710547310966,
-   "t_flat": 1793217300,
-   "day": "2026-10-28",
-   "sent": 1793195400,
-   "score": 70,
-   "stop_now": 167.3585568019322,
-   "tp_told": true
   }
  ],
  "track": [
@@ -1059,6 +1043,16 @@
    "r": -1.072,
    "why": "SL",
    "score": 47
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "BA",
+   "dir": -1,
+   "r": -1.093,
+   "why": "SL",
+   "score": 70
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
