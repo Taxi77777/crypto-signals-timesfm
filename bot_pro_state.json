@@ -533,14 +533,16 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 892,
-  "erreurs": 2,
+  "requetes": 906,
+  "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
   "stop_trop_serre_fx": 32,
   "stop_trop_serre_cr": 73,
   "kraken_secours_yahoo": "PEPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "28/10 10:10 UTC",
-  "symboles_ko": []
+  "maj": "28/10 10:20 UTC",
+  "symboles_ko": [
+   "PEPE-USD"
+  ]
  },
  "open": [
   {
