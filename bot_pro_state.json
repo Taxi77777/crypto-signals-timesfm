@@ -178,7 +178,8 @@
   "mom|2026-10-28|WLD|-1": 1793211433.806149,
   "mom|2026-10-28|NVDA|-1": 1793215847.9598649,
   "mom|2026-10-28|EURUSD|1": 1793215852.4425578,
-  "mom|2026-10-28|AUDUSD|1": 1793215854.2003813
+  "mom|2026-10-28|AUDUSD|1": 1793215854.2003813,
+  "mom|2026-10-28|DOT|1": 1793217654.5423996
  },
  "done": {
   "recap": "2026-10-27",
@@ -571,16 +572,25 @@
    "entree": 215.10989379882812,
    "sl": 215.62547875099705,
    "score": 82
+  },
+  {
+   "t": "28/10 20:01",
+   "strat": "momentum",
+   "sym": "DOT",
+   "sens": "ACHAT",
+   "entree": 1.029,
+   "sl": 1.014372789709109,
+   "score": 60
   }
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 27,
+  "mom_vus": 28,
   "mom_rejetes": 15,
   "rej_fx_historique": 3,
-  "mom_envoyes": 11,
+  "mom_envoyes": 12,
   "mom_correles": 1,
-  "fermes": 19,
+  "fermes": 20,
   "rej_fx_score": 4,
   "rej_cr_score": 5,
   "sip_envoyes": 1,
@@ -608,34 +618,34 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 700,
+  "requetes": 763,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.1 M$)",
   "stop_trop_serre_fx": 22,
-  "stop_trop_serre_cr": 148,
+  "stop_trop_serre_cr": 200,
   "kraken_secours_yahoo": "ENA : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 19:50 UTC",
+  "maj": "28/10 20:03 UTC",
   "symboles_ko": []
  },
  "open": [
   {
    "strat": "momentum",
-   "kind": "stocks",
-   "sym": "NVDA",
-   "dir": -1,
-   "entry": 215.10989379882812,
-   "stop": 215.62547875099705,
-   "upper": 221.63986929144153,
-   "lower": 215.62547875099705,
-   "hi0": 219.36500549316406,
-   "lo0": 217.88499450683594,
-   "t_flat": 1793217300,
+   "kind": "cr",
+   "sym": "DOT",
+   "dir": 1,
+   "entry": 1.029,
+   "stop": 1.014372789709109,
+   "upper": 1.0216863948545545,
+   "lower": 0.9795136051454455,
+   "hi0": 1.0006,
+   "lo0": 1.0006,
+   "t_flat": 1793231400,
    "day": "2026-10-28",
-   "sent": 1793215800,
-   "score": 82,
-   "tp": 214.07872389449028,
-   "pad": 0.0,
-   "stop_now": 215.62547875099705
+   "sent": 1793217600,
+   "score": 60,
+   "tp": 1.0582544205817817,
+   "pad": 0.007313605145445434,
+   "stop_now": 1.014372789709109
   }
  ],
  "track": [
@@ -1058,6 +1068,16 @@
    "r": 0.028,
    "why": "stop suiveur",
    "score": 58
+  },
+  {
+   "day": "2026-10-28",
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "NVDA",
+   "dir": -1,
+   "r": 0.321,
+   "why": "fin de s\u00e9ance",
+   "score": 82
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
