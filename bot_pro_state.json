@@ -1,6 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-24|SAND|-1": 1792857655.5731559,
   "mom|2026-10-24|FIL|-1": 1792859452.1635444,
   "mom|2026-10-24|INJ|-1": 1792859455.421501,
   "mom|2026-10-25|SOL|-1": 1792920719.1327393,
@@ -175,7 +174,8 @@
   "mom|2026-10-28|AAPL|-1": 1793196066.9930267,
   "mom|2026-10-28|HYPE|-1": 1793196075.5603173,
   "mom|2026-10-28|NEAR|-1": 1793197857.4560575,
-  "mom|2026-10-28|XMR|-1": 1793197859.7006176
+  "mom|2026-10-28|XMR|-1": 1793197859.7006176,
+  "mom|2026-10-28|EURJPY|1": 1793203254.126913
  },
  "done": {
   "recap": "2026-10-27",
@@ -554,13 +554,13 @@
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 22,
-  "mom_rejetes": 12,
+  "mom_vus": 23,
+  "mom_rejetes": 13,
   "rej_fx_historique": 3,
   "mom_envoyes": 9,
   "mom_correles": 1,
   "fermes": 17,
-  "rej_fx_score": 1,
+  "rej_fx_score": 2,
   "rej_cr_score": 5,
   "sip_envoyes": 1,
   "rej_stocks_score": 2
@@ -587,13 +587,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1464,
+  "requetes": 1592,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 54,
-  "stop_trop_serre_cr": 235,
-  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 15:50 UTC",
+  "stop_trop_serre_fx": 61,
+  "stop_trop_serre_cr": 273,
+  "kraken_secours_yahoo": "ENA : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
+  "maj": "28/10 16:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -614,7 +614,7 @@
    "score": 58,
    "tp": 0.1903428105366282,
    "pad": 0.0028767973658429535,
-   "stop_now": 0.20392628821577694,
+   "stop_now": 0.20303824130409662,
    "told": 0.20392628821577694
   }
  ],
