@@ -2432,7 +2432,8 @@ def main():
     try:
         perps = kraken_perps()
         not_crypto = {"EUR", "GBP", "JPY", "AUD", "CHF", "CAD", "USDT", "USDC", "SPX",
-                      "NDX", "DJI", "WTI", "OIL", "NG", "SPY", "QQQ"}          # devises / indices : pas crypto (metaux gardes)
+                      "NDX", "DJI", "WTI", "OIL", "NG", "SPY", "QQQ", "SPYX", "QQQX", "AAPLX", "TSLAX", "NVDAX",
+                      "METAX", "GOOGLX", "AMZNX", "MSFTX", "COINX", "HOODX", "MSTRX", "CRCLX"}   # devises / indices / actions en jeton
         oi = {c: f["oi_usd"] for c, f in kraken_funding().items() if c in perps and c not in not_crypto}
         # liquidite d'abord : seulement les perpetuels Kraken avec assez de positions ouvertes (BTC / ETH toujours)
         liq = sorted(((v, c) for c, v in oi.items() if v >= CFG["CR_MIN_OI"] or c in ("BTC", "ETH")), reverse=True)
