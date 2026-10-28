@@ -207,7 +207,9 @@
   "mom|2026-10-28|XAUT|-1": 1793171458.7772353,
   "mom|2026-10-28|XAU|-1": 1793171491.6859117,
   "mom|2026-10-28|XAG|-1": 1793171493.3745873,
-  "mom|2026-10-28|EURGBP|1": 1793171836.5169046
+  "mom|2026-10-28|EURGBP|1": 1793171836.5169046,
+  "mom|2026-10-28|DOGE|1": 1793174457.932347,
+  "mom|2026-10-28|PEPE|1": 1793174462.1688643
  },
  "done": {
   "recap": "2026-10-27",
@@ -429,14 +431,32 @@
    "entree": 209.70399475097656,
    "sl": 209.9354572989886,
    "score": 91
+  },
+  {
+   "t": "28/10 08:01",
+   "strat": "momentum",
+   "sym": "PEPE",
+   "sens": "ACHAT",
+   "entree": 4.8474e-06,
+   "sl": 4.786657043849337e-06,
+   "score": 94
+  },
+  {
+   "t": "28/10 08:01",
+   "strat": "momentum",
+   "sym": "DOGE",
+   "sens": "ACHAT",
+   "entree": 0.07998,
+   "sl": 0.07945099912437578,
+   "score": 72
   }
  ],
  "day": {
   "date": "2026-10-28",
-  "mom_vus": 5,
+  "mom_vus": 7,
   "mom_rejetes": 4,
   "rej_fx_historique": 3,
-  "mom_envoyes": 1
+  "mom_envoyes": 3
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -460,12 +480,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 292,
+  "requetes": 341,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 2,
-  "stop_trop_serre_cr": 1,
-  "maj": "28/10 07:50 UTC",
+  "stop_trop_serre_fx": 5,
+  "stop_trop_serre_cr": 3,
+  "maj": "28/10 08:01 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -486,6 +506,44 @@
    "score": 91,
    "tp": 209.24106965495247,
    "stop_now": 209.9354572989886
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "PEPE",
+   "dir": 1,
+   "entry": 4.8474e-06,
+   "stop": 4.786657043849337e-06,
+   "upper": 4.682593699432941e-06,
+   "lower": 4.511406300567059e-06,
+   "hi0": 4.597e-06,
+   "lo0": 4.597e-06,
+   "t_flat": 1793231400,
+   "day": "2026-10-28",
+   "sent": 1793174400,
+   "score": 94,
+   "tp": 4.968885912301327e-06,
+   "pad": 3.037147807533155e-08,
+   "stop_now": 4.786657043849337e-06
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "DOGE",
+   "dir": 1,
+   "entry": 0.07998,
+   "stop": 0.07945099912437578,
+   "upper": 0.07971549956218789,
+   "lower": 0.0783045004378121,
+   "hi0": 0.07901,
+   "lo0": 0.07901,
+   "t_flat": 1793231400,
+   "day": "2026-10-28",
+   "sent": 1793174400,
+   "score": 72,
+   "tp": 0.08103800175124842,
+   "pad": 0.00026450043781210686,
+   "stop_now": 0.07945099912437578
   }
  ],
  "track": [
