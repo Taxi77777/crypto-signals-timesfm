@@ -140,3 +140,5 @@ suivants. Gao et al. (2018) utilisent, eux, la première demi-heure pour prédir
   suivi et la taille de position utilisent ce même stop (risque constant en €, quantité plus petite).
 - **Plus de signaux** : note mini `CR_MIN_SCORE` (50), backtest affiché pour information (`CR_NEED_BT=0`), jusqu'à
   `CR_MAX_SAME` (5) positions dans le même sens, signaux de 7 h 30 à 23 h (Paris), fermeture au plus tard 0 h 50.
+- **Forex / or** : même principe, stop `FX_STOP_MULT` (2) × la distance de l'étude, stop suiveur au même écart ; sans cela,
+  la plupart des cassures forex étaient refusées car les frais dépassaient 0,25 × le risque.

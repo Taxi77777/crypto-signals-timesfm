@@ -59,6 +59,7 @@ jobs:
           MIN_SCORE:          ${{ vars.MIN_SCORE }}
           SIMPLE:             ${{ vars.SIMPLE }}
           CR_STOP_MULT:       ${{ vars.CR_STOP_MULT }}
+          FX_STOP_MULT:       ${{ vars.FX_STOP_MULT }}
           CR_MIN_SCORE:       ${{ vars.CR_MIN_SCORE }}
           CR_NEED_BT:         ${{ vars.CR_NEED_BT }}
           CR_MAX_SAME:        ${{ vars.CR_MAX_SAME }}

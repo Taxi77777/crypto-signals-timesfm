@@ -236,3 +236,13 @@ def test_crypto_wide_stop_is_consistent(monkeypatch):
     s1 = B.trail_stop(days, DAY, "cr", b, j, b["stop"], 1)
     s0 = B.trail_stop(days, DAY, "cr", dict(b, pad=0.0), j, rule, 1)
     assert s1 >= b["stop"] and (abs((s0 - s1) - b["pad"]) < 1e-9 or s1 == b["stop"])
+
+
+def test_forex_wide_stop(monkeypatch):
+    from test_bot_pro import synth_24h
+    days = B.by_day(synth_24h(drift_today=0.0012), B.UTC, B.hm(0))
+    dk = sorted(days)
+    monkeypatch.setitem(B.CFG, "FX_STOP_MULT", 2.0)
+    sig = B.mom_eval_day(days, DAY, "fx", None, days[dk[-2]][-1][4])
+    assert sig and all(abs((s["price"] - s["stop"]) * s["dir"] - 2 * abs(s["price"] - (
+        max(s["upper"], s["vwap"]) if s["dir"] > 0 else min(s["lower"], s["vwap"])))) < 1e-9 for s in sig)

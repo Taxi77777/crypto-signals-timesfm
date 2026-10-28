@@ -128,7 +128,8 @@ CFG = {
     "SIMS": max(1000, envf("SIMS", 10000)),
     "SIMPLE": envf("SIMPLE", 1),                # 1 = messages en francais simple (debutant), 0 = version detaillee
     "MAX_SAME": envf("MAX_SAME", 3),
-    "CR_STOP_MULT": envf("CR_STOP_MULT", 2.0),  # crypto : stop 2x plus large (le bruit crypto touchait les stops serres)
+    "CR_STOP_MULT": envf("CR_STOP_MULT", 2.0),
+    "FX_STOP_MULT": envf("FX_STOP_MULT", 2.0),  # forex / or : stop 2x plus large (les frais ne mangent plus le gain)  # crypto : stop 2x plus large (le bruit crypto touchait les stops serres)
     "CR_MIN_SCORE": envf("CR_MIN_SCORE", 50),   # crypto : note mini (plus de signaux)
     "CR_NEED_BT": envf("CR_NEED_BT", 0),        # crypto : backtest 60 j affiche pour info, ne bloque pas
     "CR_MAX_SAME": envf("CR_MAX_SAME", 5),      # crypto : positions max dans le meme sens
@@ -502,8 +503,9 @@ def mom_eval_day(days, d, kind, upto_ts=None, prev_close=None):
             if (dr > 0 and px > up and px > vw) or (dr < 0 and px < lo and px < vw):
                 stop = max(up, vw) if dr > 0 else min(lo, vw)
                 pad = 0.0
-                if kind == "cr" and CFG["CR_STOP_MULT"] > 1:
-                    pad = (CFG["CR_STOP_MULT"] - 1) * abs(px - stop)
+                mult = {"cr": CFG["CR_STOP_MULT"], "fx": CFG["FX_STOP_MULT"]}.get(kind, 1.0)
+                if mult > 1:
+                    pad = (mult - 1) * abs(px - stop)
                     stop -= dr * pad              # stop plus large : laisse respirer le bruit crypto
                 if (px - stop) * dr <= px * max(0.0003, 4 * cost_r(kind, 1.0, 1.0)):
                     if upto_ts is not None:
