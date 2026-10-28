@@ -1,11 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-24|MANA|-1": 1792855859.434938,
-  "mom|2026-10-24|KAS|-1": 1792855877.1792142,
-  "mom|2026-10-24|QNT|-1": 1792855878.3904104,
-  "mom|2026-10-24|NEO|-1": 1792855889.5247693,
-  "mom|2026-10-24|KSM|-1": 1792855890.254881,
-  "mom|2026-10-24|HNT|-1": 1792855893.0607152,
   "mom|2026-10-24|SAND|-1": 1792857655.5731559,
   "mom|2026-10-24|FIL|-1": 1792859452.1635444,
   "mom|2026-10-24|INJ|-1": 1792859455.421501,
@@ -593,13 +587,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1329,
+  "requetes": 1456,
   "erreurs": 2,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 2.0 M$)",
-  "stop_trop_serre_fx": 44,
-  "stop_trop_serre_cr": 197,
-  "kraken_secours_yahoo": "ENA : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "28/10 15:21 UTC",
+  "stop_trop_serre_fx": 54,
+  "stop_trop_serre_cr": 235,
+  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "maj": "28/10 15:33 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -620,8 +614,8 @@
    "score": 58,
    "tp": 0.1903428105366282,
    "pad": 0.0028767973658429535,
-   "stop_now": 0.20488921344271732,
-   "told": 0.20575750845311194
+   "stop_now": 0.20392628821577694,
+   "told": 0.20392628821577694
   }
  ],
  "track": [
