@@ -1,21 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-25|SUI|-1": 1792939787.4336977,
-  "mom|2026-10-25|APT|-1": 1792939788.9642646,
-  "mom|2026-10-25|ARB|-1": 1792939790.502142,
-  "mom|2026-10-25|OP|-1": 1792939792.1631753,
-  "mom|2026-10-25|SEI|-1": 1792939795.1718018,
-  "mom|2026-10-25|PEPE|-1": 1792939796.811826,
-  "mom|2026-10-25|WIF|-1": 1792939798.2996767,
-  "mom|2026-10-25|BONK|-1": 1792939799.9668531,
-  "mom|2026-10-25|JUP|-1": 1792939801.435836,
-  "mom|2026-10-25|RENDER|-1": 1792939802.9538434,
-  "mom|2026-10-25|ENA|-1": 1792939804.50842,
-  "mom|2026-10-25|WLD|-1": 1792939806.218179,
-  "mom|2026-10-25|ONDO|-1": 1792939807.7107337,
-  "mom|2026-10-25|STX|-1": 1792939812.8602436,
-  "mom|2026-10-25|IMX|-1": 1792939814.2060616,
-  "mom|2026-10-25|POL|-1": 1792939815.6488984,
   "mom|2026-10-25|ENA|1": 1792951285.4554155,
   "mom|2026-10-25|PYTH|1": 1792958468.0888104,
   "mom|2026-10-26|DOT|-1": 1792996284.5755339,
@@ -687,14 +671,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1764,
+  "requetes": 1774,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_fx": 76,
   "stop_trop_serre_cr": 211,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
   "stop_trop_serre_stocks": 4,
-  "maj": "29/10 14:45 UTC",
+  "maj": "29/10 14:55 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
