@@ -201,7 +201,7 @@
     "dir": 1,
     "entry": 30.799999237060547,
     "stop": 30.69623280933925,
-    "hit": false,
+    "hit": true,
     "score": 83
    },
    {
@@ -650,7 +650,7 @@
   "mom_correles": 19,
   "rej_fx_historique": 1,
   "rej_fx_score": 2,
-  "fermes": 11,
+  "fermes": 12,
   "pause_annonce": 1,
   "sip_envoyes": 1
  },
@@ -676,13 +676,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1455,
+  "requetes": 1467,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_fx": 60,
   "stop_trop_serre_cr": 168,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 13:45 UTC",
+  "maj": "29/10 13:55 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -1314,6 +1314,16 @@
    "r": -1.068,
    "why": "SL",
    "score": 68
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "CMG",
+   "dir": 1,
+   "r": -1.089,
+   "why": "SL",
+   "score": 83
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
