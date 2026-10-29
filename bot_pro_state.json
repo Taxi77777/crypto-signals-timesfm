@@ -164,7 +164,8 @@
   "mom|2026-10-29|GBPJPY|1": 1793287870.949174,
   "mom|2026-10-29|ZEC|1": 1793289679.403142,
   "mom|2026-10-29|PEPE|1": 1793289683.8367503,
-  "mom|2026-10-29|AAVE|1": 1793289684.9883528
+  "mom|2026-10-29|AAVE|1": 1793289684.9883528,
+  "mom|2026-10-29|UNI|1": 1793291460.9235432
  },
  "done": {
   "recap": "2026-10-28",
@@ -656,18 +657,27 @@
    "entree": 1356.21,
    "sl": 1344.2053279629,
    "score": 66
+  },
+  {
+   "t": "29/10 16:31",
+   "strat": "momentum",
+   "sym": "UNI",
+   "sens": "ACHAT",
+   "entree": 7.419,
+   "sl": 7.381217188950903,
+   "score": 66
   }
  ],
  "day": {
   "date": "2026-10-29",
-  "mom_vus": 41,
+  "mom_vus": 42,
   "rej_cr_score": 4,
   "mom_rejetes": 11,
-  "mom_envoyes": 10,
+  "mom_envoyes": 11,
   "mom_correles": 19,
   "rej_fx_historique": 1,
   "rej_fx_score": 5,
-  "fermes": 13,
+  "fermes": 15,
   "pause_annonce": 1,
   "sip_envoyes": 1,
   "rej_stocks_historique": 1
@@ -694,14 +704,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 499,
+  "requetes": 629,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
-  "stop_trop_serre_stocks": 3,
-  "stop_trop_serre_fx": 12,
-  "stop_trop_serre_cr": 34,
+  "stop_trop_serre_stocks": 5,
+  "stop_trop_serre_fx": 20,
+  "stop_trop_serre_cr": 58,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 16:26 UTC",
+  "maj": "29/10 16:35 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -724,7 +734,7 @@
    "score": 90,
    "tp": 49.75077436159103,
    "pad": 0.7444814096022441,
-   "stop_now": 53.50177290635018,
+   "stop_now": 53.49394287374417,
    "told": 53.605727978989194
   },
   {
@@ -744,7 +754,7 @@
    "score": 80,
    "tp": 0.33421766665014285,
    "pad": 0.0008544166625357175,
-   "stop_now": 0.3296512835566855,
+   "stop_now": 0.3296726205457488,
    "told": 0.32952123045839576
   },
   {
@@ -764,7 +774,7 @@
    "score": 100,
    "tp": 99.7050427462388,
    "pad": 3.5705106865597003,
-   "stop_now": 84.2916423075369,
+   "stop_now": 85.12843025550816,
    "told": 84.2916423075369
   },
   {
@@ -800,26 +810,6 @@
    "tp": 6.523519524646963e-06,
    "pad": 2.590298811617408e-07,
    "stop_now": 4.969340237676519e-06
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ZEC",
-   "dir": 1,
-   "entry": 1356.21,
-   "stop": 1344.2053279629,
-   "upper": 1350.20766398145,
-   "lower": 1271.5723360185502,
-   "hi0": 1310.89,
-   "lo0": 1310.89,
-   "t_flat": 1793317800,
-   "day": "2026-10-29",
-   "sent": 1793289600,
-   "score": 66,
-   "tp": 1380.2193440742003,
-   "pad": 6.002336018550068,
-   "stop_now": 1344.2053279629,
-   "tp_told": true
   }
  ],
  "track": [
@@ -1392,6 +1382,26 @@
    "r": -1.189,
    "why": "SL",
    "score": 65
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ZEC",
+   "dir": 1,
+   "r": -1.02,
+   "why": "stop suiveur",
+   "score": 66
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "UNI",
+   "dir": 1,
+   "r": -1.196,
+   "why": "SL",
+   "score": 66
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
