@@ -1,0 +1,77 @@
+name: Armee des 20 - signaux en direct (labo institutionnel)
+
+# Fait tourner l'armee du depot Taxi77777/institutional-strategy-lab avec le jeton Telegram de ce depot
+# (aucun secret a recopier). Etat sauvegarde ici dans armee_state.json. Signaux uniquement, aucun ordre.
+on:
+  schedule:
+    - cron: '13,43 * * * *'      # secours seulement : la chaine de relance fait le travail
+  workflow_dispatch:
+
+concurrency:
+  group: armee
+  cancel-in-progress: false
+
+jobs:
+  armee:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 355
+    outputs:
+      relance: ${{ steps.run.outputs.relance }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/checkout@v5
+        with:
+          repository: Taxi77777/institutional-strategy-lab
+          path: labo
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -r labo/requirements.txt
+      - name: Armee
+        id: run
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CONSENSUS: ${{ vars.CONSENSUS }}
+          STATE_DIR: /tmp/etat_armee
+          PYTHONUNBUFFERED: '1'
+        run: |
+          mkdir -p /tmp/etat_armee
+          if [ -f armee_state.json ]; then cp armee_state.json /tmp/etat_armee/lab_state.json; fi
+          save() {
+            exec 9>/tmp/armee.lock; flock 9
+            ls /tmp/etat_armee/lab_state.json >/dev/null 2>&1 || { flock -u 9; return 0; }
+            git config user.name "GitHub Actions"; git config user.email "actions@github.com"
+            for i in 1 2 3 4 5; do
+              git fetch -q origin main && git reset -q --hard origin/main
+              cp /tmp/etat_armee/lab_state.json armee_state.json
+              git add armee_state.json
+              git diff --cached --quiet && break
+              git commit -qm "etat armee [skip ci]"
+              git push -q origin HEAD:main && break
+              sleep $((RANDOM % 5 + 2))
+            done
+            flock -u 9
+          }
+          ( cd labo && python -m lab.live ) &
+          PID=$!
+          trap 'kill -TERM $PID 2>/dev/null; wait $PID' INT TERM
+          ( while kill -0 $PID 2>/dev/null; do sleep 600; kill -0 $PID 2>/dev/null && save || true; done ) &
+          RC=0; wait $PID || RC=$?
+          save
+          if [ -f /tmp/etat_armee/relance ]; then echo "relance=1" >> "$GITHUB_OUTPUT"; fi
+          exit $RC
+
+  relance:
+    needs: armee
+    if: ${{ needs.armee.outputs.relance == '1' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run armee.yml --repo "${{ github.repository }}" --ref main
