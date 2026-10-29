@@ -1,7 +1,33 @@
 {
  "tg_pair": "f4f90c1ae0859234",
- "alerts": {},
- "open": [],
+ "alerts": {
+  "EURAUD|1H|-1|1793293200": 1793296876.355304
+ },
+ "open": [
+  {
+   "kind": "fx",
+   "tf": "1H",
+   "sym": "EURAUD",
+   "dir": -1,
+   "entry": 1.5879299640655518,
+   "sl": 1.592845604348316,
+   "tp": 1.5867010539948607,
+   "t_entry": 1793296800.0,
+   "t_exit": 1793383200.0,
+   "ids": [
+    "fx-1H-oscillateurs-e2--1-8",
+    "fx-1H-tradingview-e2--1-56",
+    "fx-1H-tendance-e2--1-1",
+    "fx-1H-statisticien-e2--1-35"
+   ],
+   "agents": [
+    "oscillateurs",
+    "tradingview",
+    "tendance",
+    "statisticien"
+   ]
+  }
+ ],
  "track": [],
  "live": {},
  "retired": [],
@@ -14,7 +40,7 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
