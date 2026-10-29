@@ -2,32 +2,10 @@
  "tg_pair": "f4f90c1ae0859234",
  "alerts": {
   "EURAUD|1H|-1|1793293200": 1793296876.355304,
-  "EURAUD|1H|-1|1793296800": 1793300505.6393652
+  "EURAUD|1H|-1|1793296800": 1793300505.6393652,
+  "EURAUD|1H|-1|1793300400": 1793304101.9501245
  },
  "open": [
-  {
-   "kind": "fx",
-   "tf": "1H",
-   "sym": "EURAUD",
-   "dir": -1,
-   "entry": 1.5879299640655518,
-   "sl": 1.592845604348316,
-   "tp": 1.5867010539948607,
-   "t_entry": 1793296800.0,
-   "t_exit": 1793383200.0,
-   "ids": [
-    "fx-1H-oscillateurs-e2--1-8",
-    "fx-1H-tradingview-e2--1-56",
-    "fx-1H-tendance-e2--1-1",
-    "fx-1H-statisticien-e2--1-35"
-   ],
-   "agents": [
-    "oscillateurs",
-    "tradingview",
-    "tendance",
-    "statisticien"
-   ]
-  },
   {
    "kind": "fx",
    "tf": "1H",
@@ -48,10 +26,59 @@
     "tendance",
     "statisticien"
    ]
+  },
+  {
+   "kind": "fx",
+   "tf": "1H",
+   "sym": "EURAUD",
+   "dir": -1,
+   "entry": 1.5869300365447998,
+   "sl": 1.5915135139827759,
+   "tp": 1.585784167185306,
+   "t_entry": 1793304000.0,
+   "t_exit": 1793390400.0,
+   "ids": [
+    "fx-1H-oscillateurs-e2--1-8",
+    "fx-1H-structure-e2--1-26",
+    "fx-1H-tendance-e2--1-1",
+    "fx-1H-statisticien-e2--1-35"
+   ],
+   "agents": [
+    "oscillateurs",
+    "structure",
+    "tendance",
+    "statisticien"
+   ]
   }
  ],
- "track": [],
- "live": {},
+ "track": [
+  {
+   "sym": "EURAUD",
+   "kind": "fx",
+   "dir": -1,
+   "win": true,
+   "pct": 0.077,
+   "day": "2026-10-29"
+  }
+ ],
+ "live": {
+  "fx-1H-oscillateurs-e2--1-8": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-tradingview-e2--1-56": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-tendance-e2--1-1": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-statisticien-e2--1-35": {
+   "n": 1,
+   "k": 1
+  }
+ },
  "retired": [],
  "done": {
   "brief": "2026-10-29-20"
@@ -62,7 +89,8 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 2,
-  "erreurs": 0
+  "envoyes": 4,
+  "erreurs": 0,
+  "derniere_erreur": "HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read ti"
  }
 }
