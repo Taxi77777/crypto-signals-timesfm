@@ -97,13 +97,12 @@
   "brief": "2026-10-29-20"
  },
  "diag": {
-  "strategies": 54,
-  "labo": "2026-10-29 18:00 UTC",
+  "strategies": 60,
+  "labo": "2026-10-29 23:29 UTC",
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 10,
-  "erreurs": 0,
-  "derniere_erreur": "HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read ti"
+  "envoyes": 0,
+  "erreurs": 0
  }
 }
