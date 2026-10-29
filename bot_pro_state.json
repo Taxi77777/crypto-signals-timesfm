@@ -181,92 +181,92 @@
   "brief": "2026-10-29",
   "hello": "2026-10-29",
   "pre": "2026-10-29",
-  "sip": "2026-10-28",
+  "sip": "2026-10-29",
   "lh": "2026-10-28"
  },
  "sip": {
-  "date": "2026-10-28",
-  "sent": 1793194562.8570542,
+  "date": "2026-10-29",
+  "sent": 1793280960.002583,
   "picks": [
    {
-    "sym": "NXPI",
+    "sym": "FTNT",
     "dir": 1,
-    "entry": 245.5399932861328,
-    "stop": 244.63388682774135,
-    "hit": true,
-    "score": 80
+    "entry": 132.9897003173828,
+    "stop": 132.23322634015764,
+    "hit": false,
+    "score": 88
+   },
+   {
+    "sym": "CMG",
+    "dir": 1,
+    "entry": 30.799999237060547,
+    "stop": 30.69623280933925,
+    "hit": false,
+    "score": 83
+   },
+   {
+    "sym": "NCLH",
+    "dir": 1,
+    "entry": 17.770000457763672,
+    "stop": 17.706750461033412,
+    "hit": false,
+    "score": 70
+   },
+   {
+    "sym": "DASH",
+    "dir": -1,
+    "entry": 175.77999877929688,
+    "stop": 176.68281675066268,
+    "hit": false,
+    "score": 70
+   },
+   {
+    "sym": "GOOGL",
+    "dir": -1,
+    "entry": 281.95001220703125,
+    "stop": 282.75379856654575,
+    "hit": false,
+    "score": 70
+   },
+   {
+    "sym": "CVNA",
+    "dir": 1,
+    "entry": 67.70999908447266,
+    "stop": 67.41019763946534,
+    "hit": false,
+    "score": 68
+   },
+   {
+    "sym": "ZS",
+    "dir": 1,
+    "entry": 239.125,
+    "stop": 237.82734146118165,
+    "hit": false,
+    "score": 67
+   },
+   {
+    "sym": "AAL",
+    "dir": 1,
+    "entry": 12.850000381469727,
+    "stop": 12.79217895099095,
+    "hit": false,
+    "score": 67
    },
    {
     "sym": "CAT",
+    "dir": 1,
+    "entry": 647.3599853515625,
+    "stop": 644.7624280657087,
+    "hit": false,
+    "score": 65
+   },
+   {
+    "sym": "EBAY",
     "dir": -1,
-    "entry": 720.5499877929688,
-    "stop": 723.2040928431919,
-    "hit": true,
-    "score": 72
-   },
-   {
-    "sym": "ETSY",
-    "dir": 1,
-    "entry": 94.48860168457031,
-    "stop": 94.10810159955706,
-    "hit": true,
-    "score": 70
-   },
-   {
-    "sym": "BA",
-    "dir": -1,
-    "entry": 166.82069396972656,
-    "stop": 167.3585568019322,
-    "hit": true,
-    "score": 70
-   },
-   {
-    "sym": "HOOD",
-    "dir": 1,
-    "entry": 91.63999938964844,
-    "stop": 91.12172230311802,
-    "hit": true,
-    "score": 60
-   },
-   {
-    "sym": "MU",
-    "dir": 1,
-    "entry": 978.3800048828125,
-    "stop": 973.6222551618304,
-    "hit": true,
-    "score": 57
-   },
-   {
-    "sym": "AI",
-    "dir": 1,
-    "entry": 12.319999694824219,
-    "stop": 12.247225400379726,
-    "hit": true,
-    "score": 57
-   },
-   {
-    "sym": "HUT",
-    "dir": -1,
-    "entry": 66.63999938964844,
-    "stop": 67.37609939575195,
-    "hit": true,
-    "score": 47
-   },
-   {
-    "sym": "NOW",
-    "dir": 1,
-    "entry": 152.9199981689453,
-    "stop": 152.28679319109236,
-    "hit": true,
-    "score": 47
-   },
-   {
-    "sym": "RBLX",
-    "dir": 1,
-    "entry": 55.18000030517578,
-    "stop": 54.94847957066127,
-    "hit": true,
-    "score": 47
+    "entry": 118.37000274658203,
+    "stop": 118.72360049656459,
+    "hit": false,
+    "score": 65
    }
   ]
  },
@@ -651,7 +651,8 @@
   "rej_fx_historique": 1,
   "rej_fx_score": 2,
   "fermes": 4,
-  "pause_annonce": 1
+  "pause_annonce": 1,
+  "sip_envoyes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -675,13 +676,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1157,
+  "requetes": 1426,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
-  "stop_trop_serre_fx": 52,
-  "stop_trop_serre_cr": 146,
+  "stop_trop_serre_fx": 60,
+  "stop_trop_serre_cr": 168,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 13:25 UTC",
+  "maj": "29/10 13:37 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -704,7 +705,7 @@
    "score": 90,
    "tp": 49.75077436159103,
    "pad": 0.7444814096022441,
-   "stop_now": 53.56890271426083,
+   "stop_now": 53.56140766482015,
    "told": 53.605727978989194
   },
   {
@@ -744,7 +745,7 @@
    "score": 100,
    "tp": 99.7050427462388,
    "pad": 3.5705106865597003,
-   "stop_now": 80.7386574476172,
+   "stop_now": 81.77905671922396,
    "told": 80.23167103138445
   }
  ],
@@ -1237,7 +1238,7 @@
  },
  "univers_sip": {
   "lus": 177,
-  "en_jeu": 33,
+  "en_jeu": 52,
   "envoyes": 10
  }
 }
