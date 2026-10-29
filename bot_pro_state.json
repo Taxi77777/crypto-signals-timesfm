@@ -159,7 +159,9 @@
   "mom|2026-10-29|XAUT|-1": 1793275256.8377461,
   "mom|2026-10-29|IWM|1": 1793282449.5767357,
   "mom|2026-10-29|MSFT|-1": 1793282452.2883525,
-  "mom|2026-10-29|AUDJPY|-1": 1793282459.6243162
+  "mom|2026-10-29|AUDJPY|-1": 1793282459.6243162,
+  "mom|2026-10-29|GBPUSD|1": 1793287853.5989964,
+  "mom|2026-10-29|GBPJPY|1": 1793287870.949174
  },
  "done": {
   "recap": "2026-10-28",
@@ -637,13 +639,13 @@
  ],
  "day": {
   "date": "2026-10-29",
-  "mom_vus": 36,
+  "mom_vus": 38,
   "rej_cr_score": 3,
-  "mom_rejetes": 8,
+  "mom_rejetes": 10,
   "mom_envoyes": 8,
   "mom_correles": 19,
   "rej_fx_historique": 1,
-  "rej_fx_score": 3,
+  "rej_fx_score": 5,
   "fermes": 13,
   "pause_annonce": 1,
   "sip_envoyes": 1,
@@ -671,14 +673,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1925,
+  "requetes": 2057,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
-  "stop_trop_serre_fx": 84,
-  "stop_trop_serre_cr": 232,
+  "stop_trop_serre_fx": 92,
+  "stop_trop_serre_cr": 254,
   "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "stop_trop_serre_stocks": 6,
-  "maj": "29/10 15:25 UTC",
+  "stop_trop_serre_stocks": 8,
+  "maj": "29/10 15:39 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -701,7 +703,7 @@
    "score": 90,
    "tp": 49.75077436159103,
    "pad": 0.7444814096022441,
-   "stop_now": 53.50761722928485,
+   "stop_now": 53.50474421053772,
    "told": 53.605727978989194
   },
   {
@@ -721,7 +723,7 @@
    "score": 80,
    "tp": 0.33421766665014285,
    "pad": 0.0008544166625357175,
-   "stop_now": 0.32962301173322517,
+   "stop_now": 0.3296351182270696,
    "told": 0.32952123045839576
   },
   {
@@ -741,7 +743,7 @@
    "score": 100,
    "tp": 99.7050427462388,
    "pad": 3.5705106865597003,
-   "stop_now": 82.87890712101837,
+   "stop_now": 83.65077476212346,
    "told": 82.47185987633182
   },
   {
