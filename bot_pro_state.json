@@ -193,7 +193,7 @@
     "dir": 1,
     "entry": 132.9897003173828,
     "stop": 132.23322634015764,
-    "hit": false,
+    "hit": true,
     "score": 88
    },
    {
@@ -209,7 +209,7 @@
     "dir": 1,
     "entry": 17.770000457763672,
     "stop": 17.706750461033412,
-    "hit": false,
+    "hit": true,
     "score": 70
    },
    {
@@ -217,7 +217,7 @@
     "dir": -1,
     "entry": 175.77999877929688,
     "stop": 176.68281675066268,
-    "hit": false,
+    "hit": true,
     "score": 70
    },
    {
@@ -225,7 +225,7 @@
     "dir": -1,
     "entry": 281.95001220703125,
     "stop": 282.75379856654575,
-    "hit": false,
+    "hit": true,
     "score": 70
    },
    {
@@ -233,7 +233,7 @@
     "dir": 1,
     "entry": 67.70999908447266,
     "stop": 67.41019763946534,
-    "hit": false,
+    "hit": true,
     "score": 68
    },
    {
@@ -241,7 +241,7 @@
     "dir": 1,
     "entry": 239.125,
     "stop": 237.82734146118165,
-    "hit": false,
+    "hit": true,
     "score": 67
    },
    {
@@ -249,7 +249,7 @@
     "dir": 1,
     "entry": 12.850000381469727,
     "stop": 12.79217895099095,
-    "hit": false,
+    "hit": true,
     "score": 67
    },
    {
@@ -257,7 +257,7 @@
     "dir": 1,
     "entry": 647.3599853515625,
     "stop": 644.7624280657087,
-    "hit": false,
+    "hit": true,
     "score": 65
    },
    {
@@ -650,7 +650,7 @@
   "mom_correles": 19,
   "rej_fx_historique": 1,
   "rej_fx_score": 2,
-  "fermes": 4,
+  "fermes": 11,
   "pause_annonce": 1,
   "sip_envoyes": 1
  },
@@ -676,13 +676,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1426,
+  "requetes": 1455,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_fx": 60,
   "stop_trop_serre_cr": 168,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 13:37 UTC",
+  "maj": "29/10 13:45 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -747,6 +747,21 @@
    "pad": 3.5705106865597003,
    "stop_now": 81.77905671922396,
    "told": 80.23167103138445
+  },
+  {
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "AAL",
+   "dir": 1,
+   "entry": 12.850000381469727,
+   "stop": 12.79217895099095,
+   "first_bar_stop": true,
+   "tp": 13.023464672906057,
+   "t_flat": 1793303700,
+   "day": "2026-10-29",
+   "sent": 1793280900,
+   "score": 67,
+   "stop_now": 12.79217895099095
   }
  ],
  "track": [
@@ -1229,6 +1244,76 @@
    "r": -0.96,
    "why": "stop suiveur",
    "score": 78
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "FTNT",
+   "dir": 1,
+   "r": -1.053,
+   "why": "SL",
+   "score": 88
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "NCLH",
+   "dir": 1,
+   "r": -1.084,
+   "why": "SL",
+   "score": 70
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "DASH",
+   "dir": -1,
+   "r": -1.058,
+   "why": "SL",
+   "score": 70
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "ZS",
+   "dir": 1,
+   "r": -1.055,
+   "why": "SL",
+   "score": 67
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "CAT",
+   "dir": 1,
+   "r": -1.075,
+   "why": "SL",
+   "score": 65
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "GOOGL",
+   "dir": -1,
+   "r": -1.105,
+   "why": "SL",
+   "score": 70
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "CVNA",
+   "dir": 1,
+   "r": -1.068,
+   "why": "SL",
+   "score": 68
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
