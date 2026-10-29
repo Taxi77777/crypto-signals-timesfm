@@ -205,7 +205,12 @@
   "mom|2026-10-29|BTC|-1": 1793257251.569656,
   "mom|2026-10-29|HYPE|-1": 1793257252.8132122,
   "mom|2026-10-29|DOGE|-1": 1793257257.7236154,
-  "mom|2026-10-29|HBAR|-1": 1793257264.6804907
+  "mom|2026-10-29|HBAR|-1": 1793257264.6804907,
+  "mom|2026-10-29|EURGBP|-1": 1793259049.1369758,
+  "mom|2026-10-29|XAUUSD|-1": 1793259050.089092,
+  "mom|2026-10-29|XAGUSD|-1": 1793259050.3779485,
+  "mom|2026-10-29|BNB|-1": 1793259055.1845903,
+  "mom|2026-10-29|AVAX|-1": 1793259060.9401734
  },
  "done": {
   "recap": "2026-10-28",
@@ -665,12 +670,13 @@
  ],
  "day": {
   "date": "2026-10-29",
-  "mom_vus": 26,
-  "rej_cr_score": 2,
-  "mom_rejetes": 3,
+  "mom_vus": 29,
+  "rej_cr_score": 3,
+  "mom_rejetes": 5,
   "mom_envoyes": 6,
-  "mom_correles": 17,
-  "rej_fx_historique": 1
+  "mom_correles": 18,
+  "rej_fx_historique": 1,
+  "rej_fx_score": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -694,12 +700,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 516,
+  "requetes": 616,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
-  "stop_trop_serre_cr": 24,
-  "stop_trop_serre_fx": 2,
-  "maj": "29/10 07:25 UTC",
+  "stop_trop_serre_cr": 40,
+  "stop_trop_serre_fx": 8,
+  "maj": "29/10 07:35 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -720,7 +726,7 @@
    "score": 90,
    "tp": 49.75077436159103,
    "pad": 0.7444814096022441,
-   "stop_now": 54.12895279158519
+   "stop_now": 54.11253422447252
   },
   {
    "strat": "momentum",
@@ -739,7 +745,7 @@
    "score": 80,
    "tp": 0.33421766665014285,
    "pad": 0.0008544166625357175,
-   "stop_now": 0.32915098760135025
+   "stop_now": 0.3291992803016517
   },
   {
    "strat": "momentum",
@@ -758,7 +764,7 @@
    "score": 78,
    "tp": 1182.5859706347305,
    "pad": 16.33850734131738,
-   "stop_now": 1280.3253438960046
+   "stop_now": 1279.8029579949805
   },
   {
    "strat": "momentum",
@@ -777,7 +783,7 @@
    "score": 77,
    "tp": 2284.4624394600464,
    "pad": 7.534390134988371,
-   "stop_now": 2329.417665548494
+   "stop_now": 2329.1553679387266
   },
   {
    "strat": "momentum",
@@ -796,7 +802,7 @@
    "score": 75,
    "tp": 4.404277346172677,
    "pad": 0.015905663456830865,
-   "stop_now": 4.441080086126897,
+   "stop_now": 4.435851608768154,
    "tp_told": true,
    "told": 4.441080086126897
   },
@@ -817,7 +823,7 @@
    "score": 70,
    "tp": 98.79576462162676,
    "pad": 0.3210588445933098,
-   "stop_now": 100.71416874329154
+   "stop_now": 100.64703588553012
   }
  ],
  "track": [
