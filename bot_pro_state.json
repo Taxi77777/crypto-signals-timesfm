@@ -1,6 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-25|KAS|-1": 1792927008.1291523,
   "mom|2026-10-25|EGLD|-1": 1792927857.885082,
   "mom|2026-10-25|MKR|-1": 1792931455.3707511,
   "mom|2026-10-25|ZIL|-1": 1792938659.1892612,
@@ -676,13 +675,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 532,
+  "requetes": 540,
   "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_fx": 20,
   "stop_trop_serre_cr": 58,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 11:15 UTC",
+  "maj": "29/10 11:25 UTC",
   "symboles_ko": []
  },
  "open": [
