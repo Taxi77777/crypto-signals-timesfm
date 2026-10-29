@@ -641,7 +641,8 @@
   "mom_envoyes": 6,
   "mom_correles": 19,
   "rej_fx_historique": 1,
-  "rej_fx_score": 2
+  "rej_fx_score": 2,
+  "fermes": 3
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -665,12 +666,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 415,
-  "erreurs": 0,
+  "requetes": 430,
+  "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_fx": 12,
   "stop_trop_serre_cr": 35,
-  "maj": "29/10 10:45 UTC",
+  "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "maj": "29/10 10:55 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -731,65 +733,6 @@
    "tp": 1182.5859706347305,
    "pad": 16.33850734131738,
    "stop_now": 1278.078203758349
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ETH",
-   "dir": -1,
-   "entry": 2314.6,
-   "stop": 2329.6687802699767,
-   "upper": 2371.063184477161,
-   "lower": 2339.536815522839,
-   "hi0": 2355.3,
-   "lo0": 2355.3,
-   "t_flat": 1793317800,
-   "day": "2026-10-29",
-   "sent": 1793255400,
-   "score": 77,
-   "tp": 2284.4624394600464,
-   "pad": 7.534390134988371,
-   "stop_now": 2327.8063493467125
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "NEAR",
-   "dir": -1,
-   "entry": 4.4679,
-   "stop": 4.499711326913662,
-   "upper": 4.834484124493014,
-   "lower": 4.633915875506987,
-   "hi0": 4.7342,
-   "lo0": 4.7342,
-   "t_flat": 1793317800,
-   "day": "2026-10-29",
-   "sent": 1793255400,
-   "score": 75,
-   "tp": 4.404277346172677,
-   "pad": 0.015905663456830865,
-   "stop_now": 4.425603678221859,
-   "tp_told": true,
-   "told": 4.433099111261112
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "SOL",
-   "dir": -1,
-   "entry": 100.08,
-   "stop": 100.72211768918662,
-   "upper": 103.19241916389957,
-   "lower": 101.42758083610043,
-   "hi0": 102.31,
-   "lo0": 102.31,
-   "t_flat": 1793317800,
-   "day": "2026-10-29",
-   "sent": 1793255400,
-   "score": 70,
-   "tp": 98.79576462162676,
-   "pad": 0.3210588445933098,
-   "stop_now": 100.56332101035704
   }
  ],
  "track": [
@@ -1232,6 +1175,36 @@
    "r": -1.07,
    "why": "SL",
    "score": 60
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "SOL",
+   "dir": -1,
+   "r": -0.909,
+   "why": "stop suiveur",
+   "score": 70
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ETH",
+   "dir": -1,
+   "r": -1.03,
+   "why": "stop suiveur",
+   "score": 77
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "NEAR",
+   "dir": -1,
+   "r": 1.189,
+   "why": "stop suiveur",
+   "score": 75
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
