@@ -701,12 +701,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 887,
+  "requetes": 987,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
-  "stop_trop_serre_cr": 76,
-  "stop_trop_serre_fx": 20,
-  "maj": "29/10 08:55 UTC",
+  "stop_trop_serre_cr": 96,
+  "stop_trop_serre_fx": 26,
+  "maj": "29/10 09:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -727,7 +727,8 @@
    "score": 90,
    "tp": 49.75077436159103,
    "pad": 0.7444814096022441,
-   "stop_now": 53.89654914506228
+   "stop_now": 53.605727978989194,
+   "told": 53.605727978989194
   },
   {
    "strat": "momentum",
@@ -746,7 +747,7 @@
    "score": 80,
    "tp": 0.33421766665014285,
    "pad": 0.0008544166625357175,
-   "stop_now": 0.32923982001537067
+   "stop_now": 0.32924022106419726
   },
   {
    "strat": "momentum",
@@ -765,7 +766,7 @@
    "score": 78,
    "tp": 1182.5859706347305,
    "pad": 16.33850734131738,
-   "stop_now": 1279.3044759953664
+   "stop_now": 1278.8615443039423
   },
   {
    "strat": "momentum",
@@ -784,7 +785,7 @@
    "score": 77,
    "tp": 2284.4624394600464,
    "pad": 7.534390134988371,
-   "stop_now": 2328.2356790388394
+   "stop_now": 2328.027769261308
   },
   {
    "strat": "momentum",
@@ -803,7 +804,7 @@
    "score": 75,
    "tp": 4.404277346172677,
    "pad": 0.015905663456830865,
-   "stop_now": 4.433099111261112,
+   "stop_now": 4.429079224475538,
    "tp_told": true,
    "told": 4.433099111261112
   },
@@ -824,7 +825,7 @@
    "score": 70,
    "tp": 98.79576462162676,
    "pad": 0.3210588445933098,
-   "stop_now": 100.62856578201958
+   "stop_now": 100.58428219457805
   }
  ],
  "track": [
