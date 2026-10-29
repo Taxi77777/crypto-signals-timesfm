@@ -1,7 +1,8 @@
 {
  "tg_pair": "f4f90c1ae0859234",
  "alerts": {
-  "EURAUD|1H|-1|1793293200": 1793296876.355304
+  "EURAUD|1H|-1|1793293200": 1793296876.355304,
+  "EURAUD|1H|-1|1793296800": 1793300505.6393652
  },
  "open": [
   {
@@ -26,13 +27,34 @@
     "tendance",
     "statisticien"
    ]
+  },
+  {
+   "kind": "fx",
+   "tf": "1H",
+   "sym": "EURAUD",
+   "dir": -1,
+   "entry": 1.5876599550247192,
+   "sl": 1.5923944705913282,
+   "tp": 1.586476326133067,
+   "t_entry": 1793300400.0,
+   "t_exit": 1793386800.0,
+   "ids": [
+    "fx-1H-oscillateurs-e2--1-8",
+    "fx-1H-tendance-e2--1-1",
+    "fx-1H-statisticien-e2--1-35"
+   ],
+   "agents": [
+    "oscillateurs",
+    "tendance",
+    "statisticien"
+   ]
   }
  ],
  "track": [],
  "live": {},
  "retired": [],
  "done": {
-  "brief": "2026-10-29-14"
+  "brief": "2026-10-29-20"
  },
  "diag": {
   "strategies": 54,
@@ -40,7 +62,7 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 2,
   "erreurs": 0
  }
 }
