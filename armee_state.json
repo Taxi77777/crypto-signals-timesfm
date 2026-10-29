@@ -3,30 +3,10 @@
  "alerts": {
   "EURAUD|1H|-1|1793293200": 1793296876.355304,
   "EURAUD|1H|-1|1793296800": 1793300505.6393652,
-  "EURAUD|1H|-1|1793300400": 1793304101.9501245
+  "EURAUD|1H|-1|1793300400": 1793304101.9501245,
+  "EURAUD|1H|-1|1793304000": 1793307837.057105
  },
  "open": [
-  {
-   "kind": "fx",
-   "tf": "1H",
-   "sym": "EURAUD",
-   "dir": -1,
-   "entry": 1.5876599550247192,
-   "sl": 1.5923944705913282,
-   "tp": 1.586476326133067,
-   "t_entry": 1793300400.0,
-   "t_exit": 1793386800.0,
-   "ids": [
-    "fx-1H-oscillateurs-e2--1-8",
-    "fx-1H-tendance-e2--1-1",
-    "fx-1H-statisticien-e2--1-35"
-   ],
-   "agents": [
-    "oscillateurs",
-    "tendance",
-    "statisticien"
-   ]
-  },
   {
    "kind": "fx",
    "tf": "1H",
@@ -49,6 +29,29 @@
     "tendance",
     "statisticien"
    ]
+  },
+  {
+   "kind": "fx",
+   "tf": "1H",
+   "sym": "EURAUD",
+   "dir": -1,
+   "entry": 1.5893100500106812,
+   "sl": 1.5942861262521772,
+   "tp": 1.5880660309503072,
+   "t_entry": 1793307600.0,
+   "t_exit": 1793394000.0,
+   "ids": [
+    "fx-1H-tradingview-e2--1-70",
+    "fx-1H-tendance-e2--1-0",
+    "fx-1H-structure-e2--1-26",
+    "fx-1H-momentum-e3--1-3"
+   ],
+   "agents": [
+    "tradingview",
+    "tendance",
+    "structure",
+    "momentum"
+   ]
   }
  ],
  "track": [
@@ -59,24 +62,32 @@
    "win": true,
    "pct": 0.077,
    "day": "2026-10-29"
+  },
+  {
+   "sym": "EURAUD",
+   "kind": "fx",
+   "dir": -1,
+   "win": true,
+   "pct": 0.075,
+   "day": "2026-10-29"
   }
  ],
  "live": {
   "fx-1H-oscillateurs-e2--1-8": {
-   "n": 1,
-   "k": 1
+   "n": 2,
+   "k": 2
   },
   "fx-1H-tradingview-e2--1-56": {
    "n": 1,
    "k": 1
   },
   "fx-1H-tendance-e2--1-1": {
-   "n": 1,
-   "k": 1
+   "n": 2,
+   "k": 2
   },
   "fx-1H-statisticien-e2--1-35": {
-   "n": 1,
-   "k": 1
+   "n": 2,
+   "k": 2
   }
  },
  "retired": [],
@@ -89,7 +100,7 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 4,
+  "envoyes": 6,
   "erreurs": 0,
   "derniere_erreur": "HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read ti"
  }
