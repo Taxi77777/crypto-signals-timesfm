@@ -688,7 +688,7 @@
   "mom_correles": 19,
   "rej_fx_historique": 1,
   "rej_fx_score": 5,
-  "fermes": 15,
+  "fermes": 16,
   "pause_annonce": 1,
   "sip_envoyes": 1,
   "rej_stocks_historique": 2,
@@ -716,14 +716,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1265,
+  "requetes": 1279,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.9 M$)",
   "stop_trop_serre_stocks": 13,
   "stop_trop_serre_fx": 52,
   "stop_trop_serre_cr": 151,
   "kraken_secours_yahoo": "XAG : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "29/10 18:46 UTC",
+  "maj": "29/10 18:56 UTC",
   "symboles_ko": [
    "XAG-USD"
   ]
@@ -822,25 +822,6 @@
    "tp": 6.523519524646963e-06,
    "pad": 2.590298811617408e-07,
    "stop_now": 4.989300966389269e-06
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "XMR",
-   "dir": 1,
-   "entry": 615.62,
-   "stop": 599.2052536272421,
-   "upper": 607.412626813621,
-   "lower": 589.007373186379,
-   "hi0": 598.21,
-   "lo0": 598.21,
-   "t_flat": 1793317800,
-   "day": "2026-10-29",
-   "sent": 1793293200,
-   "score": 80,
-   "tp": 648.4494927455158,
-   "pad": 8.207373186378959,
-   "stop_now": 599.924165035875
   }
  ],
  "track": [
@@ -1433,6 +1414,16 @@
    "r": -1.196,
    "why": "SL",
    "score": 66
+  },
+  {
+   "day": "2026-10-29",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "XMR",
+   "dir": 1,
+   "r": -0.994,
+   "why": "stop suiveur",
+   "score": 80
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
