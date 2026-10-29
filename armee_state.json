@@ -4,7 +4,8 @@
   "EURAUD|1H|-1|1793293200": 1793296876.355304,
   "EURAUD|1H|-1|1793296800": 1793300505.6393652,
   "EURAUD|1H|-1|1793300400": 1793304101.9501245,
-  "EURAUD|1H|-1|1793304000": 1793307837.057105
+  "EURAUD|1H|-1|1793304000": 1793307837.057105,
+  "EURAUD|1H|-1|1793307600": 1793311437.364543
  },
  "open": [
   {
@@ -35,19 +36,17 @@
    "tf": "1H",
    "sym": "EURAUD",
    "dir": -1,
-   "entry": 1.5893100500106812,
-   "sl": 1.5942861262521772,
-   "tp": 1.5880660309503072,
-   "t_entry": 1793307600.0,
-   "t_exit": 1793394000.0,
+   "entry": 1.5892499685287476,
+   "sl": 1.5943005986604035,
+   "tp": 1.5879873109958336,
+   "t_entry": 1793311200.0,
+   "t_exit": 1793397600.0,
    "ids": [
-    "fx-1H-tradingview-e2--1-70",
-    "fx-1H-tendance-e2--1-0",
-    "fx-1H-structure-e2--1-26",
-    "fx-1H-momentum-e3--1-3"
+    "fx-1H-tendance-e2--1-1",
+    "fx-1H-structure-e2--1-25",
+    "fx-1H-momentum-e3--1-5"
    ],
    "agents": [
-    "tradingview",
     "tendance",
     "structure",
     "momentum"
@@ -70,6 +69,14 @@
    "win": true,
    "pct": 0.075,
    "day": "2026-10-29"
+  },
+  {
+   "sym": "EURAUD",
+   "kind": "fx",
+   "dir": -1,
+   "win": true,
+   "pct": 0.078,
+   "day": "2026-10-29"
   }
  ],
  "live": {
@@ -88,6 +95,22 @@
   "fx-1H-statisticien-e2--1-35": {
    "n": 2,
    "k": 2
+  },
+  "fx-1H-tradingview-e2--1-70": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-tendance-e2--1-0": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-structure-e2--1-26": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-momentum-e3--1-3": {
+   "n": 1,
+   "k": 1
   }
  },
  "retired": [],
@@ -100,7 +123,7 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 6,
+  "envoyes": 8,
   "erreurs": 0,
   "derniere_erreur": "HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read ti"
  }
