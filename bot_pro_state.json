@@ -819,7 +819,7 @@
  ],
  "day": {
   "date": "2026-10-30",
-  "fermes": 6,
+  "fermes": 7,
   "mom_vus": 36,
   "rej_cr_score": 3,
   "mom_rejetes": 7,
@@ -850,12 +850,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 815,
+  "requetes": 875,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_fx": 24,
-  "stop_trop_serre_cr": 45,
-  "maj": "30/10 13:01 UTC",
+  "stop_trop_serre_fx": 27,
+  "stop_trop_serre_cr": 51,
+  "maj": "30/10 13:10 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -975,27 +975,6 @@
    "pad": 13.14887623790537,
    "stop_now": 4003.682865251197,
    "told": 4003.682865251197
-  },
-  {
-   "strat": "momentum",
-   "kind": "fx",
-   "sym": "USDCAD",
-   "dir": -1,
-   "entry": 1.3966100215911865,
-   "stop": 1.3974626470495153,
-   "upper": 1.400156516260963,
-   "lower": 1.3971635548875674,
-   "hi0": 1.3986899852752686,
-   "lo0": 1.3986300230026245,
-   "t_flat": 1793393700,
-   "day": "2026-10-30",
-   "sent": 1793345400,
-   "score": 62,
-   "tp": 1.394904770674529,
-   "pad": 0.0004263127291643798,
-   "stop_now": 1.3969906251973478,
-   "told": 1.3969906251973478,
-   "tp_told": true
   },
   {
    "strat": "momentum",
@@ -1746,6 +1725,16 @@
    "r": -0.92,
    "why": "stop suiveur",
    "score": 67
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "momentum",
+   "kind": "fx",
+   "sym": "USDCAD",
+   "dir": -1,
+   "r": -0.692,
+   "why": "stop suiveur",
+   "score": 62
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
