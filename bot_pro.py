@@ -1546,11 +1546,31 @@ def history_simple(sym, stt, mc):
     return L
 
 
+STRAT_NAMES = {"momentum": "⚡ Élan du jour (le prix sort de sa zone habituelle)",
+               "stocks in play": "🔥 Actions du jour (stocks in play)", "dernière 1/2 h": "⏱ Dernière demi-heure de Wall Street"}
+
+
+def strat_lines(st, strat, kind):
+    """En tete : quel bot, quelle strategie, et ses VRAIS resultats a ce jour (pour cette categorie)."""
+    name = STRAT_NAMES.get(strat, strat)
+    tr = [x for x in st.get("track", []) if x.get("strat") == strat and x.get("kind") == kind]
+    L = ["🤖 <b>BOT PRO</b> · stratégie : <b>%s</b>" % esc(name)]
+    if tr:
+        w, tot = sum(1 for x in tr if x["r"] > 0), sum(x["r"] for x in tr)
+        L.append("📒 Ses vrais résultats ici : <b>%d gagnants sur %d</b> (%.0f %%) · total %+.0f € pour 10 € risqués par trade"
+                 % (w, len(tr), 100.0 * w / len(tr), 10 * tot))
+        if tot < 0:
+            L.append("⚠️ <b>Stratégie perdante pour l'instant</b>, non validée par le labo : prudence, petite mise")
+    else:
+        L.append("📒 Pas encore de résultat réel pour cette stratégie ici")
+    return L
+
+
 def simple_signal(kind, sym, dr, entry, stop, tp, valid_ts, flat_ts, score, stt, mc, reg, title=None,
-                  trailing=False, extra=()):
+                  trailing=False, extra=(), head=None):
     """Message pour debutant : que faire, a quel prix, quand sortir. Pas de jargon."""
     risk = abs(entry - stop)
-    L = [cat_tag(kind, sym)]
+    L = [cat_tag(kind, sym)] + list(head or [])
     if title:
         L.append(title)
     L.append("%s <b>%s %s</b>%s" % ("🟢" if dr > 0 else "🔴", "ACHETER" if dr > 0 else "VENDRE", esc(label(sym)),
@@ -1856,7 +1876,7 @@ def mom_scan(st, kind, now_ts):
                 if fn_:
                     extra.append("🏦 Annonce de la banque centrale US (Fed) proche : mouvements violents possibles")
                 L = [simple_signal(kind, sym, dr, px, s["stop"], tp, s["ts"] + 600, s["t_flat"], score, stt, mc, reg,
-                                   trailing=True, extra=extra)]
+                                   trailing=True, extra=extra, head=strat_lines(st, "momentum", kind))]
             pending.append((score, dr, sym, "\n".join(L), {
                 "strat": "momentum", "kind": kind, "sym": sym, "dir": dr, "entry": px, "stop": s["stop"],
                 "upper": s["upper"], "lower": s["lower"], "hi0": s["hi0"], "lo0": s["lo0"], "t_flat": s["t_flat"],
@@ -2213,6 +2233,7 @@ def lh_scan(st, now_ts):
         if CFG["SIMPLE"]:
             telegram(simple_signal("stocks", sym, dr, e, tr["stop"], None, None, t_close, score, stt, mc, reg,
                                    title="⏱ <b>Dernière demi-heure de Wall Street</b> : entrer maintenant",
+                                   head=strat_lines(st, "dernière 1/2 h", "stocks"),
                                    extra=["🏦 Annonce de la Fed proche : mouvements violents possibles"] if fomc_note(now_ts) else []))
             sent += 1
             count(st, "lh_envoyes")
@@ -2311,7 +2332,7 @@ def _track_one(st, o, now_ts):
         why_s = {"SL": "sortie de sécurité touchée", "stop suiveur": "sortie de sécurité (remontée) touchée",
                  "fin de séance": "fermé à l'heure prévue"}.get(why, why)
         nw_ = sum(1 for x in tot if x > 0)
-        telegram(cat_tag(kind, o["sym"]) + "\n%s <b>%s terminé : %s</b>\nRésultat : <b>%+.1f fois le risque</b> "
+        telegram(cat_tag(kind, o["sym"]) + "\n🤖 BOT PRO · " + esc(STRAT_NAMES.get(o["strat"], o["strat"])) + "\n%s <b>%s terminé : %s</b>\nRésultat : <b>%+.1f fois le risque</b> "
                  "(ex. %+.0f € si tu risquais 10 €)\nRaison : %s\n📒 Bilan du bot : %d trades · %d gagnants · total %+.0f € pour 10 € risqués par trade"
                  % (icon, esc(label(o["sym"])), verdict_, res, 10 * res, esc(why_s), len(tot), nw_, 10 * sum(tot)))
         count(st, "fermes")
