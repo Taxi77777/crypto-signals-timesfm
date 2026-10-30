@@ -131,7 +131,7 @@
   "labo": "2026-10-30 09:24 UTC",
   "telegram": "ok",
   "truefx": {
-   "mode": "erreur de connexion au compte (identifiant ou mot de passe ?)",
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 10
   }
  },
