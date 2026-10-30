@@ -195,7 +195,7 @@
   "hello": "2026-10-30",
   "pre": "2026-10-30",
   "sip": "2026-10-30",
-  "lh": "2026-10-29"
+  "lh": "2026-10-30"
  },
  "sip": {
   "date": "2026-10-30",
@@ -892,7 +892,9 @@
   "sip_envoyes": 1,
   "rej_stocks_score": 2,
   "rej_stocks_historique": 3,
-  "lh_vus": 2
+  "lh_vus": 18,
+  "lh_envoyes": 1,
+  "lh_correles": 2
  },
  "diag": {
   "yahoo": "ok : 349 bougies SPY",
@@ -916,13 +918,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1517,
+  "requetes": 1625,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_stocks": 55,
-  "stop_trop_serre_fx": 39,
-  "stop_trop_serre_cr": 99,
-  "maj": "30/10 19:31 UTC",
+  "stop_trop_serre_stocks": 60,
+  "stop_trop_serre_fx": 42,
+  "stop_trop_serre_cr": 105,
+  "maj": "30/10 19:40 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1085,7 +1087,7 @@
    "score": 73,
    "tp": 277.66466627152545,
    "pad": 0.0,
-   "stop_now": 278.94186633147996,
+   "stop_now": 278.93872329534605,
    "told": 279.02442162286434,
    "tp_told": true
   },
@@ -1149,6 +1151,19 @@
    "tp": 92.51962433209698,
    "pad": 0.37759391697575495,
    "stop_now": 94.75901343098019
+  },
+  {
+   "strat": "derni\u00e8re 1/2 h",
+   "kind": "stocks",
+   "sym": "QQQ",
+   "dir": -1,
+   "entry": 687.7100219726562,
+   "stop": 689.1597670846704,
+   "t_flat": 1793390400,
+   "day": "2026-10-30",
+   "sent": 1793388600,
+   "score": 65,
+   "stop_now": 689.1597670846704
   }
  ],
  "track": [
