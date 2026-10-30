@@ -893,14 +893,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 2272,
+  "requetes": 2356,
   "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_fx": 60,
-  "stop_trop_serre_cr": 125,
-  "stop_trop_serre_stocks": 23,
+  "stop_trop_serre_fx": 63,
+  "stop_trop_serre_cr": 133,
+  "stop_trop_serre_stocks": 26,
   "kraken_secours_yahoo": "HYPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "30/10 16:01 UTC",
+  "maj": "30/10 16:10 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1081,7 +1081,7 @@
    "score": 73,
    "tp": 277.66466627152545,
    "pad": 0.0,
-   "stop_now": 280.37504502938845,
+   "stop_now": 280.37622657169885,
    "told": 280.37504502938845
   },
   {
@@ -1102,7 +1102,8 @@
    "tp": 205.4314210766969,
    "pad": 0.0,
    "stop_now": 206.43275037617232,
-   "told": 206.43275037617232
+   "told": 206.43275037617232,
+   "tp_told": true
   }
  ],
  "track": [
