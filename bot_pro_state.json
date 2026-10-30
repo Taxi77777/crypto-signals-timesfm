@@ -195,92 +195,92 @@
   "brief": "2026-10-30",
   "hello": "2026-10-30",
   "pre": "2026-10-30",
-  "sip": "2026-10-29",
+  "sip": "2026-10-30",
   "lh": "2026-10-29"
  },
  "sip": {
-  "date": "2026-10-29",
-  "sent": 1793280960.002583,
+  "date": "2026-10-30",
+  "sent": 1793367364.7641916,
   "picks": [
    {
-    "sym": "FTNT",
-    "dir": 1,
-    "entry": 132.9897003173828,
-    "stop": 132.23322634015764,
-    "hit": true,
-    "score": 88
-   },
-   {
-    "sym": "CMG",
-    "dir": 1,
-    "entry": 30.799999237060547,
-    "stop": 30.69623280933925,
-    "hit": true,
-    "score": 83
-   },
-   {
-    "sym": "NCLH",
-    "dir": 1,
-    "entry": 17.770000457763672,
-    "stop": 17.706750461033412,
-    "hit": true,
-    "score": 70
-   },
-   {
-    "sym": "DASH",
+    "sym": "PINS",
     "dir": -1,
-    "entry": 175.77999877929688,
-    "stop": 176.68281675066268,
-    "hit": true,
-    "score": 70
+    "entry": 18.18000030517578,
+    "stop": 18.276163864135743,
+    "hit": false,
+    "score": 80
    },
    {
-    "sym": "GOOGL",
-    "dir": -1,
-    "entry": 281.95001220703125,
-    "stop": 282.75379856654575,
-    "hit": true,
-    "score": 70
-   },
-   {
-    "sym": "CVNA",
+    "sym": "MCD",
     "dir": 1,
-    "entry": 67.70999908447266,
-    "stop": 67.41019763946534,
+    "entry": 262.7699890136719,
+    "stop": 262.30429120744975,
+    "hit": true,
+    "score": 77
+   },
+   {
+    "sym": "COIN",
+    "dir": -1,
+    "entry": 141.14010620117188,
+    "stop": 142.05611615862165,
+    "hit": true,
+    "score": 75
+   },
+   {
+    "sym": "MSTR",
+    "dir": -1,
+    "entry": 124.62000274658203,
+    "stop": 125.55748846871512,
+    "hit": true,
+    "score": 75
+   },
+   {
+    "sym": "APP",
+    "dir": -1,
+    "entry": 235.2100067138672,
+    "stop": 236.229880632673,
+    "hit": true,
+    "score": 75
+   },
+   {
+    "sym": "INTC",
+    "dir": -1,
+    "entry": 65.0,
+    "stop": 65.50773500714983,
     "hit": true,
     "score": 68
    },
    {
-    "sym": "ZS",
-    "dir": 1,
-    "entry": 239.125,
-    "stop": 237.82734146118165,
-    "hit": true,
-    "score": 67
-   },
-   {
-    "sym": "AAL",
-    "dir": 1,
-    "entry": 12.850000381469727,
-    "stop": 12.79217895099095,
-    "hit": true,
-    "score": 67
-   },
-   {
     "sym": "CAT",
     "dir": 1,
-    "entry": 647.3599853515625,
-    "stop": 644.7624280657087,
+    "entry": 629.6898803710938,
+    "stop": 626.5887874058315,
     "hit": true,
     "score": 65
    },
    {
-    "sym": "EBAY",
+    "sym": "MSFT",
     "dir": -1,
-    "entry": 118.37000274658203,
-    "stop": 118.72360049656459,
+    "entry": 518.7705078125,
+    "stop": 519.8756766183036,
     "hit": true,
-    "score": 65
+    "score": 63
+   },
+   {
+    "sym": "RBLX",
+    "dir": 1,
+    "entry": 47.75,
+    "stop": 47.50567569732666,
+    "hit": false,
+    "score": 58
+   },
+   {
+    "sym": "HPQ",
+    "dir": 1,
+    "entry": 28.81999969482422,
+    "stop": 28.69654256275722,
+    "hit": true,
+    "score": 58
    }
   ]
  },
@@ -828,14 +828,15 @@
  ],
  "day": {
   "date": "2026-10-30",
-  "fermes": 7,
+  "fermes": 14,
   "mom_vus": 37,
   "rej_cr_score": 3,
   "mom_rejetes": 7,
   "mom_envoyes": 14,
   "mom_correles": 16,
   "rej_fx_score": 3,
-  "rej_fx_historique": 1
+  "rej_fx_historique": 1,
+  "sip_envoyes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -859,12 +860,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1131,
+  "requetes": 1386,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_fx": 30,
-  "stop_trop_serre_cr": 57,
-  "maj": "30/10 13:31 UTC",
+  "stop_trop_serre_fx": 33,
+  "stop_trop_serre_cr": 61,
+  "maj": "30/10 13:41 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -983,7 +984,8 @@
    "tp": 3931.6644950483787,
    "pad": 13.14887623790537,
    "stop_now": 4001.7890271377614,
-   "told": 4003.682865251197
+   "told": 4003.682865251197,
+   "tp_told": true
   },
   {
    "strat": "momentum",
@@ -1042,6 +1044,21 @@
    "tp": 76449.05791956512,
    "pad": 179.98552010871936,
    "stop_now": 77528.97104021744
+  },
+  {
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "CAT",
+   "dir": 1,
+   "entry": 629.6898803710938,
+   "stop": 626.5887874058315,
+   "first_bar_stop": true,
+   "tp": 638.9931592668806,
+   "t_flat": 1793390100,
+   "day": "2026-10-30",
+   "sent": 1793367300,
+   "score": 65,
+   "stop_now": 626.5887874058315
   }
  ],
  "track": [
@@ -1764,6 +1781,76 @@
    "r": -0.692,
    "why": "stop suiveur",
    "score": 62
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "MCD",
+   "dir": 1,
+   "r": -1.169,
+   "why": "SL",
+   "score": 77
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "COIN",
+   "dir": -1,
+   "r": -1.046,
+   "why": "SL",
+   "score": 75
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "MSTR",
+   "dir": -1,
+   "r": -1.04,
+   "why": "SL",
+   "score": 75
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "APP",
+   "dir": -1,
+   "r": -1.069,
+   "why": "SL",
+   "score": 75
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "INTC",
+   "dir": -1,
+   "r": -1.038,
+   "why": "SL",
+   "score": 68
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "MSFT",
+   "dir": -1,
+   "r": -1.141,
+   "why": "SL",
+   "score": 63
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "stocks in play",
+   "kind": "stocks",
+   "sym": "HPQ",
+   "dir": 1,
+   "r": -1.07,
+   "why": "SL",
+   "score": 58
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
@@ -1773,7 +1860,7 @@
  },
  "univers_sip": {
   "lus": 177,
-  "en_jeu": 52,
+  "en_jeu": 85,
   "envoyes": 10
  }
 }
