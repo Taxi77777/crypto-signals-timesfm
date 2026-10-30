@@ -127,12 +127,16 @@
   "brief": "2026-10-30-8"
  },
  "diag": {
-  "strategies": 83,
-  "labo": "2026-10-30 08:58 UTC",
-  "telegram": "ok"
+  "strategies": 0,
+  "labo": "2026-10-30 09:24 UTC",
+  "telegram": "ok",
+  "truefx": {
+   "mode": "erreur de connexion au compte (identifiant ou mot de passe ?)",
+   "paires_temps_reel": 10
+  }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
