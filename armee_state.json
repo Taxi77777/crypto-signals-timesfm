@@ -9,27 +9,7 @@
   "EURAUD|1H|-1|1793325600": 1793329298.5656776,
   "GBPCHF|1H|-1|1793336400": 1793340093.787571
  },
- "open": [
-  {
-   "kind": "fx",
-   "tf": "1H",
-   "sym": "GBPCHF",
-   "dir": -1,
-   "entry": 1.1011899709701538,
-   "sl": 1.10350308191848,
-   "tp": 1.1004189339873784,
-   "t_entry": 1793340000.0,
-   "t_exit": 1793397600.0,
-   "ids": [
-    "fx-1H-oscillateurs-e1--1-9",
-    "fx-1H-fibonacci-e2--1-23"
-   ],
-   "agents": [
-    "oscillateurs",
-    "fibonacci"
-   ]
-  }
- ],
+ "open": [],
  "track": [
   {
    "sym": "EURAUD",
@@ -78,6 +58,14 @@
    "win": true,
    "pct": 0.088,
    "day": "2026-10-30"
+  },
+  {
+   "sym": "GBPCHF",
+   "kind": "fx",
+   "dir": -1,
+   "win": true,
+   "pct": 0.07,
+   "day": "2026-10-30"
   }
  ],
  "live": {
@@ -124,6 +112,14 @@
   "fx-1H-multi_unites-e1--1-74": {
    "n": 1,
    "k": 1
+  },
+  "fx-1H-oscillateurs-e1--1-9": {
+   "n": 1,
+   "k": 1
+  },
+  "fx-1H-fibonacci-e2--1-23": {
+   "n": 1,
+   "k": 1
   }
  },
  "retired": [],
@@ -136,7 +132,7 @@
   "telegram": "ok"
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
