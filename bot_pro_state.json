@@ -1,7 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-26|ZEC|1": 1793017882.290813,
-  "mom|2026-10-26|DASH|1": 1793017883.430402,
   "mom|2026-10-26|NZDUSD|-1": 1793021447.2196088,
   "mom|2026-10-26|TSLA|1": 1793023248.5311062,
   "mom|2026-10-26|GOOGL|-1": 1793023251.0415368,
@@ -821,7 +819,7 @@
  ],
  "day": {
   "date": "2026-10-30",
-  "fermes": 5,
+  "fermes": 6,
   "mom_vus": 36,
   "rej_cr_score": 3,
   "mom_rejetes": 7,
@@ -852,12 +850,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 674,
+  "requetes": 736,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_fx": 18,
-  "stop_trop_serre_cr": 33,
-  "maj": "30/10 12:31 UTC",
+  "stop_trop_serre_fx": 21,
+  "stop_trop_serre_cr": 39,
+  "maj": "30/10 12:40 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -938,25 +936,6 @@
    "tp": 5.022220355419704,
    "pad": 0.177555088854926,
    "stop_now": 4.008737273067528
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "AVAX",
-   "dir": 1,
-   "entry": 8.633,
-   "stop": 8.101885005733003,
-   "upper": 8.367442502866501,
-   "lower": 8.1705574971335,
-   "hi0": 8.269,
-   "lo0": 8.269,
-   "t_flat": 1793404200,
-   "day": "2026-10-30",
-   "sent": 1793341800,
-   "score": 67,
-   "tp": 9.695229988533992,
-   "pad": 0.2655574971334982,
-   "stop_now": 8.152856642276125
   },
   {
    "strat": "momentum",
@@ -1756,6 +1735,16 @@
    "r": -1.075,
    "why": "stop suiveur",
    "score": 73
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "AVAX",
+   "dir": 1,
+   "r": -0.92,
+   "why": "stop suiveur",
+   "score": 67
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
