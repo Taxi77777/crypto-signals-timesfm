@@ -807,7 +807,7 @@
  ],
  "day": {
   "date": "2026-10-30",
-  "fermes": 2,
+  "fermes": 3,
   "mom_vus": 32,
   "rej_cr_score": 3,
   "mom_rejetes": 5,
@@ -837,13 +837,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 616,
+  "requetes": 680,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 14,
-  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "stop_trop_serre_fx": 1,
-  "maj": "30/10 07:31 UTC",
+  "stop_trop_serre_cr": 18,
+  "kraken_secours_yahoo": "HYPE : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "stop_trop_serre_fx": 2,
+  "maj": "30/10 07:42 UTC",
   "symboles_ko": [
    "HYPE-USD"
   ]
@@ -943,25 +943,6 @@
    "tp": 79908.7701210528,
    "pad": 334.94253026320075,
    "stop_now": 77927.1397966918
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "CRV",
-   "dir": -1,
-   "entry": 0.2757,
-   "stop": 0.27925649268114977,
-   "upper": 0.31088988367219084,
-   "lower": 0.3005101163278092,
-   "hi0": 0.3057,
-   "lo0": 0.3057,
-   "t_flat": 1793404200,
-   "day": "2026-10-30",
-   "sent": 1793341800,
-   "score": 70,
-   "tp": 0.26858701463770046,
-   "pad": 0.001778246340574885,
-   "stop_now": 0.27915839980233464
   },
   {
    "strat": "momentum",
@@ -1729,6 +1710,16 @@
    "r": 0.563,
    "why": "fin de s\u00e9ance",
    "score": 100
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "CRV",
+   "dir": -1,
+   "r": -1.05,
+   "why": "stop suiveur",
+   "score": 70
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
