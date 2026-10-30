@@ -35,6 +35,8 @@ jobs:
         id: run
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TRUEFX_USER: ${{ secrets.TRUEFX_USER }}
+          TRUEFX_PASS: ${{ secrets.TRUEFX_PASS }}
           CONSENSUS: ${{ vars.CONSENSUS }}
           STATE_DIR: /tmp/etat_armee
           PYTHONUNBUFFERED: '1'
