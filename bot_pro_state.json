@@ -857,7 +857,7 @@
  ],
  "day": {
   "date": "2026-10-30",
-  "fermes": 16,
+  "fermes": 17,
   "mom_vus": 46,
   "rej_cr_score": 3,
   "mom_rejetes": 12,
@@ -891,14 +891,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1780,
+  "requetes": 1805,
   "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
   "stop_trop_serre_fx": 45,
   "stop_trop_serre_cr": 85,
   "stop_trop_serre_stocks": 8,
   "kraken_secours_yahoo": "HYPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "30/10 14:40 UTC",
+  "maj": "30/10 14:50 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1098,25 +1098,6 @@
    "tp": 277.66466627152545,
    "pad": 0.0,
    "stop_now": 281.1526522157998
-  },
-  {
-   "strat": "momentum",
-   "kind": "stocks",
-   "sym": "DIA",
-   "dir": -1,
-   "entry": 519.22998046875,
-   "stop": 520.2201866546209,
-   "upper": 524.4026818505298,
-   "lower": 520.2201866546209,
-   "hi0": 522.77001953125,
-   "lo0": 521.8499755859375,
-   "t_flat": 1793390100,
-   "day": "2026-10-30",
-   "sent": 1793370600,
-   "score": 53,
-   "tp": 517.2495680970083,
-   "pad": 0.0,
-   "stop_now": 520.2201866546209
   }
  ],
  "track": [
@@ -1929,6 +1910,16 @@
    "r": -1.133,
    "why": "SL",
    "score": 61
+  },
+  {
+   "day": "2026-10-30",
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "DIA",
+   "dir": -1,
+   "r": -1.157,
+   "why": "SL",
+   "score": 53
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
