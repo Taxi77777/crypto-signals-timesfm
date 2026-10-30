@@ -187,7 +187,8 @@
   "mom|2026-10-30|QQQ|-1": 1793379647.1190264,
   "mom|2026-10-30|AAPL|-1": 1793385052.2671227,
   "mom|2026-10-30|AMD|-1": 1793385054.7733557,
-  "mom|2026-10-30|SOL|-1": 1793385062.2184267
+  "mom|2026-10-30|SOL|-1": 1793385062.2184267,
+  "mom|2026-10-30|PAXG|-1": 1793397295.628251
  },
  "done": {
   "recap": "2026-10-30",
@@ -897,7 +898,7 @@
   "lh_correles": 2
  },
  "diag": {
-  "yahoo": "ok : 349 bougies SPY",
+  "yahoo": "ok : 391 bougies SPY",
   "openbb": "ok",
   "regime": "RISK-OFF (S&P sous sa MM50)",
   "kraken_funding": "209 perpetuels",
@@ -913,18 +914,16 @@
   },
   "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
   "cot": "9 marches",
-  "calendrier_eco": "97 annonces cette semaine",
-  "crypto_kraken_perp": "30 cryptos liquides en perpetuel Kraken : BTC,ETH,SOL,HYPE,XRP,ZEC,BNB,NEAR,XAUT,LINK,LTC,SUI,XMR,DOGE,PEPE,TRX,ADA,XLM,UNI,DOT,AAVE,TAO,CRV,AVAX,XAU,ENA,ONDO,ATOM,XAG,HBAR",
+  "calendrier_eco": "98 annonces cette semaine",
+  "crypto_kraken_perp": "30 cryptos liquides en perpetuel Kraken : BTC,ETH,SOL,HYPE,XRP,ZEC,BNB,NEAR,XAUT,LINK,SUI,XMR,LTC,DOGE,PEPE,TRX,ADA,UNI,DOT,XLM,AAVE,TAO,CRV,AVAX,XAU,ONDO,ENA,PAXG,XAG,HBAR",
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 2044,
+  "requetes": 330,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_stocks": 60,
-  "stop_trop_serre_fx": 42,
-  "stop_trop_serre_cr": 153,
-  "maj": "30/10 21:52 UTC",
+  "stop_trop_serre_cr": 24,
+  "maj": "30/10 22:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -945,7 +944,7 @@
    "score": 90,
    "tp": 49.272761786160366,
    "pad": 0.43315955345990886,
-   "stop_now": 50.72531359644957,
+   "stop_now": 50.72336792556352,
    "told": 50.788384524977644,
    "tp_told": true
   },
@@ -986,7 +985,7 @@
    "score": 80,
    "tp": 5.022220355419704,
    "pad": 0.177555088854926,
-   "stop_now": 4.058144301519745,
+   "stop_now": 4.058319852141208,
    "told": 4.048299356843094
   },
   {
@@ -1006,7 +1005,7 @@
    "score": 50,
    "tp": 0.29065708061446616,
    "pad": 0.012170729846383455,
-   "stop_now": 0.3568536483517395,
+   "stop_now": 0.3568390845105989,
    "told": 0.35750144168209064
   },
   {
@@ -1026,7 +1025,7 @@
    "score": 84,
    "tp": 3931.6644950483787,
    "pad": 13.14887623790537,
-   "stop_now": 3953.416422073326,
+   "stop_now": 3953.0332426943896,
    "told": 3953.416422073326,
    "tp_told": true
   },
@@ -1047,7 +1046,7 @@
    "score": 70,
    "tp": 3916.526303303591,
    "pad": 13.668424174102256,
-   "stop_now": 3952.7880292395726,
+   "stop_now": 3952.655379254447,
    "told": 3958.5234696525295,
    "tp_told": true
   }
