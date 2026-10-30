@@ -189,7 +189,12 @@
   "mom|2026-10-30|ONDO|1": 1793341930.1065085,
   "mom|2026-10-30|HBAR|1": 1793341932.8540628,
   "mom|2026-10-30|EURGBP|-1": 1793343652.607854,
-  "mom|2026-10-30|XAU|-1": 1793343664.8597891
+  "mom|2026-10-30|XAU|-1": 1793343664.8597891,
+  "mom|2026-10-30|GBPUSD|1": 1793345449.201935,
+  "mom|2026-10-30|USDCAD|-1": 1793345450.3474026,
+  "mom|2026-10-30|EURJPY|-1": 1793345451.464648,
+  "mom|2026-10-30|XAUUSD|-1": 1793345452.7867403,
+  "mom|2026-10-30|XAGUSD|-1": 1793345453.0344262
  },
  "done": {
   "recap": "2026-10-29",
@@ -780,17 +785,35 @@
    "entree": 3984.26,
    "sl": 4010.557752475811,
    "score": 84
+  },
+  {
+   "t": "30/10 07:30",
+   "strat": "momentum",
+   "sym": "EURJPY",
+   "sens": "VENTE",
+   "entree": 176.19000244140625,
+   "sl": 176.30938291196492,
+   "score": 63
+  },
+  {
+   "t": "30/10 07:30",
+   "strat": "momentum",
+   "sym": "USDCAD",
+   "sens": "VENTE",
+   "entree": 1.3966100215911865,
+   "sl": 1.3974626470495153,
+   "score": 62
   }
  ],
  "day": {
   "date": "2026-10-30",
   "fermes": 2,
-  "mom_vus": 29,
+  "mom_vus": 32,
   "rej_cr_score": 3,
-  "mom_rejetes": 4,
-  "mom_envoyes": 9,
+  "mom_rejetes": 5,
+  "mom_envoyes": 11,
   "mom_correles": 16,
-  "rej_fx_score": 1
+  "rej_fx_score": 2
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -814,12 +837,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 552,
+  "requetes": 616,
   "erreurs": 3,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 10,
-  "kraken_secours_yahoo": "HYPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "30/10 07:21 UTC",
+  "stop_trop_serre_cr": 14,
+  "kraken_secours_yahoo": "BTC : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
+  "stop_trop_serre_fx": 1,
+  "maj": "30/10 07:31 UTC",
   "symboles_ko": [
    "HYPE-USD"
   ]
@@ -842,7 +866,7 @@
    "score": 100,
    "tp": 104.22673303360254,
    "pad": 2.723933258400635,
-   "stop_now": 87.96062222481058
+   "stop_now": 88.06291462083952
   },
   {
    "strat": "momentum",
@@ -861,7 +885,7 @@
    "score": 90,
    "tp": 49.272761786160366,
    "pad": 0.43315955345990886,
-   "stop_now": 51.844613834161954
+   "stop_now": 51.77789895679104
   },
   {
    "strat": "momentum",
@@ -880,7 +904,7 @@
    "score": 87,
    "tp": 5.970456281125931e-06,
    "pad": 2.4321407028148267e-07,
-   "stop_now": 4.515081952932976e-06
+   "stop_now": 4.519721553249557e-06
   },
   {
    "strat": "momentum",
@@ -899,7 +923,7 @@
    "score": 80,
    "tp": 5.022220355419704,
    "pad": 0.177555088854926,
-   "stop_now": 3.967273022716734
+   "stop_now": 3.97604366064425
   },
   {
    "strat": "momentum",
@@ -918,7 +942,7 @@
    "score": 73,
    "tp": 79908.7701210528,
    "pad": 334.94253026320075,
-   "stop_now": 77920.61691013986
+   "stop_now": 77927.1397966918
   },
   {
    "strat": "momentum",
@@ -937,7 +961,7 @@
    "score": 70,
    "tp": 0.26858701463770046,
    "pad": 0.001778246340574885,
-   "stop_now": 0.279192624599897
+   "stop_now": 0.27915839980233464
   },
   {
    "strat": "momentum",
@@ -956,7 +980,7 @@
    "score": 67,
    "tp": 9.695229988533992,
    "pad": 0.2655574971334982,
-   "stop_now": 8.106860599294263
+   "stop_now": 8.10972780590217
   },
   {
    "strat": "momentum",
@@ -975,7 +999,7 @@
    "score": 50,
    "tp": 0.29065708061446616,
    "pad": 0.012170729846383455,
-   "stop_now": 0.36312222933018157
+   "stop_now": 0.3625352661707804
   },
   {
    "strat": "momentum",
@@ -994,7 +1018,45 @@
    "score": 84,
    "tp": 3931.6644950483787,
    "pad": 13.14887623790537,
-   "stop_now": 4010.557752475811
+   "stop_now": 4010.0407628201847
+  },
+  {
+   "strat": "momentum",
+   "kind": "fx",
+   "sym": "EURJPY",
+   "dir": -1,
+   "entry": 176.19000244140625,
+   "stop": 176.30938291196492,
+   "upper": 176.69296232493875,
+   "lower": 176.25604892655784,
+   "hi0": 176.4770050048828,
+   "lo0": 176.4720001220703,
+   "t_flat": 1793393700,
+   "day": "2026-10-30",
+   "sent": 1793345400,
+   "score": 63,
+   "tp": 175.95124150028892,
+   "pad": 0.05969023527933359,
+   "stop_now": 176.30938291196492
+  },
+  {
+   "strat": "momentum",
+   "kind": "fx",
+   "sym": "USDCAD",
+   "dir": -1,
+   "entry": 1.3966100215911865,
+   "stop": 1.3974626470495153,
+   "upper": 1.400156516260963,
+   "lower": 1.3971635548875674,
+   "hi0": 1.3986899852752686,
+   "lo0": 1.3986300230026245,
+   "t_flat": 1793393700,
+   "day": "2026-10-30",
+   "sent": 1793345400,
+   "score": 62,
+   "tp": 1.394904770674529,
+   "pad": 0.0004263127291643798,
+   "stop_now": 1.3974626470495153
   }
  ],
  "track": [
