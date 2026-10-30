@@ -853,13 +853,13 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 1196,
+  "requetes": 1304,
   "erreurs": 1,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_fx": 25,
-  "stop_trop_serre_cr": 54,
+  "stop_trop_serre_fx": 31,
+  "stop_trop_serre_cr": 64,
   "kraken_secours_yahoo": "HYPE : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "30/10 10:50 UTC",
+  "maj": "30/10 11:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -880,7 +880,7 @@
    "score": 100,
    "tp": 104.22673303360254,
    "pad": 2.723933258400635,
-   "stop_now": 88.16830155717803
+   "stop_now": 88.2598627948663
   },
   {
    "strat": "momentum",
@@ -899,7 +899,7 @@
    "score": 90,
    "tp": 49.272761786160366,
    "pad": 0.43315955345990886,
-   "stop_now": 51.53379505293044,
+   "stop_now": 51.51885917425686,
    "told": 51.64274326494337
   },
   {
@@ -919,7 +919,7 @@
    "score": 87,
    "tp": 5.970456281125931e-06,
    "pad": 2.4321407028148267e-07,
-   "stop_now": 4.544574394852498e-06
+   "stop_now": 4.56615874585494e-06
   },
   {
    "strat": "momentum",
@@ -938,7 +938,7 @@
    "score": 80,
    "tp": 5.022220355419704,
    "pad": 0.177555088854926,
-   "stop_now": 3.995171241828916
+   "stop_now": 4.0003559041495755
   },
   {
    "strat": "momentum",
@@ -976,7 +976,7 @@
    "score": 50,
    "tp": 0.29065708061446616,
    "pad": 0.012170729846383455,
-   "stop_now": 0.36055242645001195
+   "stop_now": 0.3603878427469492
   },
   {
    "strat": "momentum",
@@ -995,7 +995,7 @@
    "score": 84,
    "tp": 3931.6644950483787,
    "pad": 13.14887623790537,
-   "stop_now": 4007.2567757810957
+   "stop_now": 4006.613701877018
   },
   {
    "strat": "momentum",
@@ -1014,7 +1014,7 @@
    "score": 62,
    "tp": 1.394904770674529,
    "pad": 0.0004263127291643798,
-   "stop_now": 1.3972454955338167,
+   "stop_now": 1.3971916432533198,
    "told": 1.3972454955338167
   },
   {
@@ -1053,7 +1053,7 @@
    "score": 85,
    "tp": 155.94026253893492,
    "pad": 0.3099325342115833,
-   "stop_now": 157.76294341623094
+   "stop_now": 157.75541769742821
   }
  ],
  "track": [
