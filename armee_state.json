@@ -124,11 +124,13 @@
  },
  "retired": [],
  "done": {
-  "brief": "2026-10-30-8"
+  "brief": "2026-10-30-8",
+  "veille_essai": "2026-10-30",
+  "veille": "2026-10-30"
  },
  "diag": {
   "strategies": 0,
-  "labo": "2026-10-30 10:50 UTC",
+  "labo": "2026-10-30 11:20 UTC",
   "telegram": "ok",
   "truefx": {
    "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
@@ -136,7 +138,7 @@
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
