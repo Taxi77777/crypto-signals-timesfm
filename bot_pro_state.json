@@ -1,6 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-27|PEPE|1": 1793120480.8911693,
   "mom|2026-10-27|ROSE|1": 1793122274.051063,
   "mom|2026-10-27|SNX|1": 1793125871.8981934,
   "mom|2026-10-28|BAT|1": 1793169136.040191,
@@ -956,11 +955,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 743,
+  "requetes": 807,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 234,
-  "maj": "31/10 16:55 UTC",
+  "stop_trop_serre_cr": 270,
+  "maj": "31/10 17:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -981,7 +980,7 @@
    "score": 68,
    "tp": 85.2834152121827,
    "pad": 0.7096461969543242,
-   "stop_now": 87.92454723395552,
+   "stop_now": 87.7919850439859,
    "told": 87.92454723395552
   },
   {
@@ -1001,9 +1000,9 @@
    "score": 80,
    "tp": 0.31891419520715664,
    "pad": 0.0013439511982108465,
-   "stop_now": 0.320217939686328,
+   "stop_now": 0.3194635910276901,
    "tp_told": true,
-   "told": 0.320217939686328
+   "told": 0.3194635910276901
   }
  ],
  "track": [
