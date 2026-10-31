@@ -155,7 +155,7 @@
   "mom|2026-10-31|ATOM|-1": 1793474351.3635416
  },
  "done": {
-  "recap": "2026-10-30",
+  "recap": "2026-10-31",
   "brief": "2026-10-31",
   "hello": "2026-10-31",
   "pre": "2026-10-30",
@@ -964,11 +964,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 478,
+  "requetes": 541,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 133,
-  "maj": "31/10 20:55 UTC",
+  "stop_trop_serre_cr": 171,
+  "maj": "31/10 21:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -989,9 +989,9 @@
    "score": 56,
    "tp": 11.853969007077884,
    "pad": 0.04149225176947091,
-   "stop_now": 11.629433552762151,
+   "stop_now": 11.677135472241767,
    "tp_told": true,
-   "told": 11.629433552762151
+   "told": 11.677135472241767
   }
  ],
  "track": [
