@@ -954,11 +954,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 886,
+  "requetes": 948,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 306,
-  "maj": "31/10 17:55 UTC",
+  "stop_trop_serre_cr": 344,
+  "maj": "31/10 18:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -979,9 +979,9 @@
    "score": 80,
    "tp": 0.31891419520715664,
    "pad": 0.0013439511982108465,
-   "stop_now": 0.31886907503445105,
+   "stop_now": 0.3182788143931187,
    "tp_told": true,
-   "told": 0.3194635910276901
+   "told": 0.3182788143931187
   }
  ],
  "track": [
