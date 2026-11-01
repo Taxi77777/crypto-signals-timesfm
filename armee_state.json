@@ -131,7 +131,11 @@
  "diag": {
   "strategies": 83,
   "labo": "2026-10-30 08:58 UTC (restauree)",
-  "telegram": "ok"
+  "telegram": "ok",
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 0,
