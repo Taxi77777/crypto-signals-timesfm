@@ -132,6 +132,9 @@ CFG = {
     "FX_STOP_MULT": envf("FX_STOP_MULT", 2.0),  # forex / or : stop 2x plus large (les frais ne mangent plus le gain)  # crypto : stop 2x plus large (le bruit crypto touchait les stops serres)
     "CR_MIN_SCORE": envf("CR_MIN_SCORE", 50),   # crypto : note mini (plus de signaux)
     # strategies coupees car perdantes en reel (audit du 01/11) : remettre via la variable GitHub COUPEES
+    # messages d'information (briefing, gaps pre-marche, resume du jour, « connecte ») : coupes par defaut,
+    # seuls les signaux, les deplacements de stop et les resultats sont envoyes. INFOS=1 pour les remettre.
+    "INFOS": envf("INFOS", 0),
     "COUPEES": [x.strip() for x in os.environ.get("COUPEES", "momentum-cr,momentum-fx,stocks in play,derniere 1/2 h").split(",") if x.strip()],
     "CR_NEED_BT": envf("CR_NEED_BT", 0),        # crypto : backtest 60 j affiche pour info, ne bloque pas
     "CR_MAX_SAME": envf("CR_MAX_SAME", 5),      # crypto : positions max dans le meme sens
@@ -2494,7 +2497,7 @@ def main():
     today = local_dt(time.time(), PARIS).date().isoformat()
     if "chat ok" in str(st["diag"].get("telegram")) and st["done"].get("hello") != today:
         st["done"]["hello"] = today
-        telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
+        CFG["INFOS"] and telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
                  % local_dt(time.time(), PARIS).strftime("%d/%m %H:%M"))
     save_state(st)
     done_mom = done_5 = 0
@@ -2507,11 +2510,11 @@ def main():
         ny = local_dt(now, NY)
         par = local_dt(now, PARIS)
         try:                                      # briefing facon terminal, chaque matin 8 h (Paris)
-            if par.time() >= hm(8) and par.time() < hm(11) and st["done"].get("brief") != par.date().isoformat():
+            if CFG["INFOS"] and par.time() >= hm(8) and par.time() < hm(11) and st["done"].get("brief") != par.date().isoformat():
                 st["done"]["brief"] = par.date().isoformat()
                 telegram(briefing())
                 save_state(st)
-            if stock_open(ny.date()) and hm(9, 15) <= ny.time() < hm(9, 29):
+            if CFG["INFOS"] and stock_open(ny.date()) and hm(9, 15) <= ny.time() < hm(9, 29):
                 premarket_gaps(st, now)
             if stock_open(ny.date()) and "derniere 1/2 h" not in CFG["COUPEES"]:
                 lh_scan(st, now)
@@ -2531,7 +2534,7 @@ def main():
             if _raw_chat().startswith("@") and not CHAT_RES["id"] and resolve_chat():
                 st["diag"]["telegram"] = "chat retrouve : %s" % CHAT_RES["how"]
                 st["done"]["hello"] = par.date().isoformat()
-                telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
+                CFG["INFOS"] and telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
                          % par.strftime("%d/%m %H:%M"))
                 save_state(st)
             if st["open"] and int(now // BAR) != TRK[0] and now % BAR >= 50:
@@ -2552,7 +2555,7 @@ def main():
                         log.warning("momentum %s : %s", kind, ex)
                 save_state(st)
             g = time.gmtime(now)
-            if g.tm_hour == 21 and g.tm_min >= 2:      # 21 h 02 UTC = 22 h 02 / 23 h 02 Paris
+            if CFG["INFOS"] and g.tm_hour == 21 and g.tm_min >= 2:      # 21 h 02 UTC = 22 h 02 / 23 h 02 Paris
                 day_recap(st)
         except Exception as ex:
             log.warning("boucle : %s", ex)
