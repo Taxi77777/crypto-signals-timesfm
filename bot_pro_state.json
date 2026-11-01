@@ -1,9 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-28|LINK|1": 1793171457.014516,
-  "mom|2026-10-28|XAUT|-1": 1793171458.7772353,
-  "mom|2026-10-28|XAU|-1": 1793171491.6859117,
-  "mom|2026-10-28|XAG|-1": 1793171493.3745873,
   "mom|2026-10-28|EURGBP|1": 1793171836.5169046,
   "mom|2026-10-28|DOGE|1": 1793174457.932347,
   "mom|2026-10-28|PEPE|1": 1793174462.1688643,
@@ -995,11 +991,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 431,
+  "requetes": 435,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
   "stop_trop_serre_cr": 6,
-  "maj": "01/11 07:10 UTC",
+  "maj": "01/11 07:15 UTC",
   "symboles_ko": []
  },
  "open": [
