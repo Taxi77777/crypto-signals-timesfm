@@ -1,8 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-28|NVDA|-1": 1793215847.9598649,
-  "mom|2026-10-28|EURUSD|1": 1793215852.4425578,
-  "mom|2026-10-28|AUDUSD|1": 1793215854.2003813,
   "mom|2026-10-28|DOT|1": 1793217654.5423996,
   "mom|2026-10-29|ETH|-1": 1793255452.4137955,
   "mom|2026-10-29|SOL|-1": 1793255458.3068695,
@@ -129,7 +126,8 @@
   "mom|2026-11-01|BNB|1": 1793523649.2128296,
   "mom|2026-11-01|SOL|-1": 1793559649.5607812,
   "mom|2026-11-01|NEAR|-1": 1793559652.8574083,
-  "mom|2026-11-01|ENA|-1": 1793559658.3237994
+  "mom|2026-11-01|ENA|-1": 1793559658.3237994,
+  "mom|2026-11-01|TAO|-1": 1793561455.4260237
  },
  "done": {
   "recap": "2026-10-31",
@@ -226,15 +224,6 @@
   ]
  },
  "signals": [
-  {
-   "t": "25/10 09:33",
-   "strat": "momentum",
-   "sym": "ALGO",
-   "sens": "VENTE",
-   "entree": 0.10188999772071838,
-   "sl": 0.10252642064227079,
-   "score": 77
-  },
   {
    "t": "25/10 11:31",
    "strat": "momentum",
@@ -945,13 +934,22 @@
    "entree": 94.19,
    "sl": 94.59731034350145,
    "score": 57
+  },
+  {
+   "t": "01/11 19:30",
+   "strat": "momentum",
+   "sym": "TAO",
+   "sens": "VENTE",
+   "entree": 232.17,
+   "sl": 234.1738813314919,
+   "score": 72
   }
  ],
  "day": {
   "date": "2026-11-01",
   "fermes": 4,
-  "mom_vus": 9,
-  "mom_envoyes": 8,
+  "mom_vus": 10,
+  "mom_envoyes": 9,
   "rej_cr_score": 1,
   "mom_rejetes": 1
  },
@@ -977,12 +975,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 666,
+  "requetes": 738,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_cr": 48,
+  "stop_trop_serre_cr": 68,
   "kraken_secours_yahoo": "BTC : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without",
-  "maj": "01/11 19:20 UTC",
+  "maj": "01/11 19:33 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1003,7 +1001,7 @@
    "score": 50,
    "tp": 0.3269728107342276,
    "pad": 0.003950702683556906,
-   "stop_now": 0.3044066309052686
+   "stop_now": 0.30448324075828653
   },
   {
    "strat": "momentum",
@@ -1041,7 +1039,7 @@
    "score": 71,
    "tp": 4.207811798475016,
    "pad": 0.013097050381245978,
-   "stop_now": 4.286394100762492
+   "stop_now": 4.2827796185388545
   },
   {
    "strat": "momentum",
@@ -1079,7 +1077,26 @@
    "score": 57,
    "tp": 93.3753793129971,
    "pad": 0.20365517175072512,
-   "stop_now": 94.59731034350145
+   "stop_now": 94.59327025100086
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "TAO",
+   "dir": -1,
+   "entry": 232.17,
+   "stop": 234.1738813314919,
+   "upper": 240.68805933425404,
+   "lower": 233.17194066574595,
+   "hi0": 236.93,
+   "lo0": 236.93,
+   "t_flat": 1793577000,
+   "day": "2026-11-01",
+   "sent": 1793561400,
+   "score": 72,
+   "tp": 228.16223733701614,
+   "pad": 1.0019406657459626,
+   "stop_now": 234.1738813314919
   }
  ],
  "track": [
