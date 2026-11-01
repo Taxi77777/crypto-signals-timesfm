@@ -130,15 +130,15 @@
  },
  "diag": {
   "strategies": 0,
-  "labo": "2026-11-01 17:10 UTC",
+  "labo": "2026-11-01 20:19 UTC",
   "telegram": "ok",
   "truefx": {
-   "mode": "public",
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 0
   }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
