@@ -131,6 +131,8 @@ CFG = {
     "CR_STOP_MULT": envf("CR_STOP_MULT", 2.0),
     "FX_STOP_MULT": envf("FX_STOP_MULT", 2.0),  # forex / or : stop 2x plus large (les frais ne mangent plus le gain)  # crypto : stop 2x plus large (le bruit crypto touchait les stops serres)
     "CR_MIN_SCORE": envf("CR_MIN_SCORE", 50),   # crypto : note mini (plus de signaux)
+    # strategies coupees car perdantes en reel (audit du 01/11) : remettre via la variable GitHub COUPEES
+    "COUPEES": [x.strip() for x in os.environ.get("COUPEES", "momentum-cr,momentum-fx,stocks in play,derniere 1/2 h").split(",") if x.strip()],
     "CR_NEED_BT": envf("CR_NEED_BT", 0),        # crypto : backtest 60 j affiche pour info, ne bloque pas
     "CR_MAX_SAME": envf("CR_MAX_SAME", 5),      # crypto : positions max dans le meme sens
     "CR_MIN_OI": envf("CR_MIN_OI", 5e6),        # crypto : + tous les perpetuels Kraken avec open interest >= 5 M$
@@ -2492,7 +2494,7 @@ def main():
     today = local_dt(time.time(), PARIS).date().isoformat()
     if "chat ok" in str(st["diag"].get("telegram")) and st["done"].get("hello") != today:
         st["done"]["hello"] = today
-        telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux actions, forex et crypto actifs. Aucun ordre envoyé : tu trades toi-même."
+        telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
                  % local_dt(time.time(), PARIS).strftime("%d/%m %H:%M"))
     save_state(st)
     done_mom = done_5 = 0
@@ -2511,9 +2513,9 @@ def main():
                 save_state(st)
             if stock_open(ny.date()) and hm(9, 15) <= ny.time() < hm(9, 29):
                 premarket_gaps(st, now)
-            if stock_open(ny.date()):
+            if stock_open(ny.date()) and "derniere 1/2 h" not in CFG["COUPEES"]:
                 lh_scan(st, now)
-            if stock_open(ny.date()) and hm(9, 36) <= ny.time() < hm(10, 30):
+            if stock_open(ny.date()) and hm(9, 36) <= ny.time() < hm(10, 30) and "stocks in play" not in CFG["COUPEES"]:
                 sip_select(st, now)
             if stock_open(ny.date()) and hm(9, 40) <= ny.time() <= hm(15, 35) and int(now // BAR) != done_5 \
                     and now % BAR >= 40:
@@ -2529,7 +2531,7 @@ def main():
             if _raw_chat().startswith("@") and not CHAT_RES["id"] and resolve_chat():
                 st["diag"]["telegram"] = "chat retrouve : %s" % CHAT_RES["how"]
                 st["done"]["hello"] = par.date().isoformat()
-                telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux actions, forex et crypto actifs. Aucun ordre envoyé : tu trades toi-même."
+                telegram("✅ <b>Bot Pro connecté</b> · %s\nSignaux : ⚡ Élan du jour sur les actions (les stratégies perdantes en réel sont coupées). Forex et crypto : 🪖 armée du labo. Aucun ordre envoyé : tu trades toi-même."
                          % par.strftime("%d/%m %H:%M"))
                 save_state(st)
             if st["open"] and int(now // BAR) != TRK[0] and now % BAR >= 50:
@@ -2542,6 +2544,8 @@ def main():
                 for kind in ("stocks", "fx", "cr"):
                     if STOP[0]:
                         break
+                    if "momentum-" + kind in CFG["COUPEES"]:
+                        continue                          # coupee : perdante en reel
                     try:
                         mom_scan(st, kind, time.time())
                     except Exception as ex:
