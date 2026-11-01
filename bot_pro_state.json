@@ -946,7 +946,7 @@
  ],
  "day": {
   "date": "2026-11-01",
-  "fermes": 6,
+  "fermes": 8,
   "mom_vus": 10,
   "mom_envoyes": 9,
   "rej_cr_score": 1,
@@ -974,10 +974,10 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 77,
+  "requetes": 83,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "maj": "01/11 20:55 UTC",
+  "maj": "01/11 21:05 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -998,7 +998,7 @@
    "score": 50,
    "tp": 0.3269728107342276,
    "pad": 0.003950702683556906,
-   "stop_now": 0.3046241265906747
+   "stop_now": 0.3046506621811548
   },
   {
    "strat": "momentum",
@@ -1017,47 +1017,8 @@
    "score": 58,
    "tp": 736.4639314767112,
    "pad": 5.675982869177801,
-   "stop_now": 704.8311536050098
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "SOL",
-   "dir": -1,
-   "entry": 94.19,
-   "stop": 94.59731034350145,
-   "upper": 96.36634482824927,
-   "lower": 94.39365517175072,
-   "hi0": 95.38,
-   "lo0": 95.38,
-   "t_flat": 1793577000,
-   "day": "2026-11-01",
-   "sent": 1793559600,
-   "score": 57,
-   "tp": 93.3753793129971,
-   "pad": 0.20365517175072512,
-   "stop_now": 94.38832042342574,
-   "told": 94.38832042342574
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "TAO",
-   "dir": -1,
-   "entry": 232.17,
-   "stop": 234.1738813314919,
-   "upper": 240.68805933425404,
-   "lower": 233.17194066574595,
-   "hi0": 236.93,
-   "lo0": 236.93,
-   "t_flat": 1793577000,
-   "day": "2026-11-01",
-   "sent": 1793561400,
-   "score": 72,
-   "tp": 228.16223733701614,
-   "pad": 1.0019406657459626,
-   "stop_now": 233.6484013106039,
-   "told": 233.6484013106039
+   "stop_now": 706.694551244595,
+   "told": 706.694551244595
   }
  ],
  "track": [
@@ -2170,6 +2131,26 @@
    "r": -0.995,
    "why": "stop suiveur",
    "score": 59
+  },
+  {
+   "day": "2026-11-01",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "SOL",
+   "dir": -1,
+   "r": -0.28,
+   "why": "stop suiveur",
+   "score": 57
+  },
+  {
+   "day": "2026-11-01",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "TAO",
+   "dir": -1,
+   "r": -0.535,
+   "why": "stop suiveur",
+   "score": 72
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
