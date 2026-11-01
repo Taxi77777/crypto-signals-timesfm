@@ -1,6 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-28|EURGBP|1": 1793171836.5169046,
   "mom|2026-10-28|DOGE|1": 1793174457.932347,
   "mom|2026-10-28|PEPE|1": 1793174462.1688643,
   "mom|2026-10-28|EURJPY|-1": 1793176249.4547632,
@@ -991,11 +990,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 435,
+  "requetes": 443,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
   "stop_trop_serre_cr": 6,
-  "maj": "01/11 07:15 UTC",
+  "maj": "01/11 07:25 UTC",
   "symboles_ko": []
  },
  "open": [
