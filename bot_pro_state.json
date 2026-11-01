@@ -946,7 +946,7 @@
  ],
  "day": {
   "date": "2026-11-01",
-  "fermes": 4,
+  "fermes": 6,
   "mom_vus": 10,
   "mom_envoyes": 9,
   "rej_cr_score": 1,
@@ -970,14 +970,14 @@
   "telegram": "bot @Cryypto_signnal_bot \u00b7 chat ok (private) \u00b7 identifiant nettoye : prive \u00b7 secret brut : 22 caracteres, commence par @, contient des lettres, aucun nombre",
   "cot": "9 marches",
   "calendrier_eco": "116 annonces cette semaine",
-  "crypto_kraken_perp": "30 cryptos liquides en perpetuel Kraken : BTC,ETH,SOL,HYPE,XRP,ZEC,BNB,SUI,XAUT,LINK,NEAR,XMR,LTC,DOGE,UNI,ADA,XLM,PEPE,DOT,CRV,AAVE,TAO,AVAX,XAU,ENA,ONDO,PAXG,XAG,TRX,SPCXX",
+  "crypto_kraken_perp": "30 cryptos liquides en perpetuel Kraken : BTC,ETH,SOL,HYPE,XRP,ZEC,SUI,XAUT,LINK,NEAR,BNB,LTC,XMR,DOGE,UNI,ADA,XLM,PEPE,DOT,CRV,AAVE,TAO,AVAX,XAU,ENA,ONDO,PAXG,XAG,TRX,SPCXX",
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 76,
+  "requetes": 69,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "maj": "01/11 20:37 UTC",
+  "maj": "01/11 20:45 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1018,45 +1018,6 @@
    "tp": 736.4639314767112,
    "pad": 5.675982869177801,
    "stop_now": 704.8311536050098
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "NEAR",
-   "dir": -1,
-   "entry": 4.2602,
-   "stop": 4.286394100762492,
-   "upper": 4.588502949618754,
-   "lower": 4.273297050381246,
-   "hi0": 4.4309,
-   "lo0": 4.4309,
-   "t_flat": 1793577000,
-   "day": "2026-11-01",
-   "sent": 1793559600,
-   "score": 71,
-   "tp": 4.207811798475016,
-   "pad": 0.013097050381245978,
-   "stop_now": 4.268446065726085,
-   "told": 4.268446065726085
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "ENA",
-   "dir": -1,
-   "entry": 0.1805,
-   "stop": 0.18204932834185433,
-   "upper": 0.1955853358290728,
-   "lower": 0.18127466417092716,
-   "hi0": 0.18843,
-   "lo0": 0.18843,
-   "t_flat": 1793577000,
-   "day": "2026-11-01",
-   "sent": 1793559600,
-   "score": 59,
-   "tp": 0.17740134331629132,
-   "pad": 0.0007746641709271695,
-   "stop_now": 0.18186170993419215
   },
   {
    "strat": "momentum",
@@ -2189,6 +2150,26 @@
    "r": -0.846,
    "why": "stop suiveur",
    "score": 84
+  },
+  {
+   "day": "2026-11-01",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "NEAR",
+   "dir": -1,
+   "r": -0.477,
+   "why": "stop suiveur",
+   "score": 71
+  },
+  {
+   "day": "2026-11-01",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "ENA",
+   "dir": -1,
+   "r": -0.995,
+   "why": "stop suiveur",
+   "score": 59
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
