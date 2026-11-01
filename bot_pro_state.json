@@ -1,7 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-28|AAPL|-1": 1793196066.9930267,
-  "mom|2026-10-28|HYPE|-1": 1793196075.5603173,
   "mom|2026-10-28|NEAR|-1": 1793197857.4560575,
   "mom|2026-10-28|XMR|-1": 1793197859.7006176,
   "mom|2026-10-28|EURJPY|1": 1793203254.126913,
@@ -981,12 +979,12 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 692,
+  "requetes": 726,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.7 M$)",
-  "stop_trop_serre_cr": 36,
+  "stop_trop_serre_cr": 39,
   "kraken_secours_yahoo": "TRX : HTTPSConnectionPool(host='futures.kraken.com', port=443): Read timed out. (read ",
-  "maj": "01/11 14:01 UTC",
+  "maj": "01/11 14:10 UTC",
   "symboles_ko": []
  },
  "open": [
