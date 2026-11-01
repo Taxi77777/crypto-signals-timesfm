@@ -137,7 +137,9 @@
   "mom|2026-11-01|UNI|1": 1793514690.1969585,
   "mom|2026-11-01|AAVE|1": 1793514696.2096267,
   "mom|2026-11-01|AVAX|1": 1793514706.5936198,
-  "mom|2026-11-01|TRX|1": 1793514714.708338
+  "mom|2026-11-01|TRX|1": 1793514714.708338,
+  "mom|2026-11-01|BTC|1": 1793523646.2155635,
+  "mom|2026-11-01|BNB|1": 1793523649.2128296
  },
  "done": {
   "recap": "2026-10-31",
@@ -234,15 +236,6 @@
   ]
  },
  "signals": [
-  {
-   "t": "24/10 15:32",
-   "strat": "momentum",
-   "sym": "MANA",
-   "sens": "VENTE",
-   "entree": 0.0778999999165535,
-   "sl": 0.07927492350690689,
-   "score": 93
-  },
   {
    "t": "24/10 15:32",
    "strat": "momentum",
@@ -953,13 +946,24 @@
    "entree": 0.31117,
    "sl": 0.3032685946328862,
    "score": 50
+  },
+  {
+   "t": "01/11 09:01",
+   "strat": "momentum",
+   "sym": "BNB",
+   "sens": "ACHAT",
+   "entree": 713.76,
+   "sl": 702.4080342616444,
+   "score": 58
   }
  ],
  "day": {
   "date": "2026-11-01",
   "fermes": 1,
-  "mom_vus": 4,
-  "mom_envoyes": 4
+  "mom_vus": 6,
+  "mom_envoyes": 5,
+  "rej_cr_score": 1,
+  "mom_rejetes": 1
  },
  "diag": {
   "yahoo": "ok : 391 bougies SPY",
@@ -983,11 +987,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 693,
+  "requetes": 734,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 18,
-  "maj": "01/11 08:50 UTC",
+  "stop_trop_serre_cr": 21,
+  "maj": "01/11 09:01 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1046,7 +1050,7 @@
    "score": 62,
    "tp": 7.39721056197525,
    "pad": 0.035302640493812376,
-   "stop_now": 7.216627453620177,
+   "stop_now": 7.219695857469514,
    "told": 7.216627453620177
   },
   {
@@ -1066,7 +1070,26 @@
    "score": 50,
    "tp": 0.3269728107342276,
    "pad": 0.003950702683556906,
-   "stop_now": 0.30377415526270657
+   "stop_now": 0.3038419813170756
+  },
+  {
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "BNB",
+   "dir": 1,
+   "entry": 713.76,
+   "stop": 702.4080342616444,
+   "upper": 708.0840171308222,
+   "lower": 697.3759828691778,
+   "hi0": 702.73,
+   "lo0": 702.73,
+   "t_flat": 1793577000,
+   "day": "2026-11-01",
+   "sent": 1793523600,
+   "score": 58,
+   "tp": 736.4639314767112,
+   "pad": 5.675982869177801,
+   "stop_now": 702.4080342616444
   }
  ],
  "track": [
