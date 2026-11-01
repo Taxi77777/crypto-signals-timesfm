@@ -959,7 +959,7 @@
  ],
  "day": {
   "date": "2026-11-01",
-  "fermes": 1,
+  "fermes": 2,
   "mom_vus": 6,
   "mom_envoyes": 5,
   "rej_cr_score": 1,
@@ -987,11 +987,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 734,
+  "requetes": 775,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_cr": 21,
-  "maj": "01/11 09:01 UTC",
+  "stop_trop_serre_cr": 24,
+  "maj": "01/11 09:10 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -1013,25 +1013,6 @@
    "tp": 9.572743914467583,
    "pad": 0.154935978616896,
    "stop_now": 8.670292664184778
-  },
-  {
-   "strat": "momentum",
-   "kind": "cr",
-   "sym": "AAVE",
-   "dir": 1,
-   "entry": 139.3,
-   "stop": 136.35391105568544,
-   "upper": 135.98435525117216,
-   "lower": 131.11564474882786,
-   "hi0": 133.55,
-   "lo0": 133.55,
-   "t_flat": 1793577000,
-   "day": "2026-11-01",
-   "sent": 1793514600,
-   "score": 70,
-   "tp": 145.19217788862915,
-   "pad": 1.4730444721572837,
-   "stop_now": 136.45261002954018
   },
   {
    "strat": "momentum",
@@ -2152,6 +2133,16 @@
    "r": 0.038,
    "why": "stop suiveur",
    "score": 56
+  },
+  {
+   "day": "2026-11-01",
+   "strat": "momentum",
+   "kind": "cr",
+   "sym": "AAVE",
+   "dir": 1,
+   "r": -1.014,
+   "why": "stop suiveur",
+   "score": 70
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
