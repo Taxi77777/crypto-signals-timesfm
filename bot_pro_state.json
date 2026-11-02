@@ -1,8 +1,5 @@
 {
  "alerts": {
-  "mom|2026-10-29|ZEC|1": 1793289679.403142,
-  "mom|2026-10-29|PEPE|1": 1793289683.8367503,
-  "mom|2026-10-29|AAVE|1": 1793289684.9883528,
   "mom|2026-10-29|UNI|1": 1793291460.9235432,
   "mom|2026-10-29|META|1": 1793293253.1410513,
   "mom|2026-10-29|XMR|1": 1793293298.8201072,
@@ -95,7 +92,9 @@
   "mom|2026-11-02|NVDA|1": 1793633451.0881724,
   "mom|2026-11-02|MSFT|1": 1793633452.0836687,
   "mom|2026-11-02|AVGO|1": 1793633453.6115372,
-  "mom|2026-11-02|MSTR|1": 1793633454.674882
+  "mom|2026-11-02|MSTR|1": 1793633454.674882,
+  "mom|2026-11-02|TSLA|1": 1793635251.700205,
+  "mom|2026-11-02|AMD|-1": 1793635253.5561426
  },
  "done": {
   "recap": "2026-10-31",
@@ -915,10 +914,10 @@
  ],
  "day": {
   "date": "2026-11-02",
-  "fermes": 2,
-  "mom_vus": 9,
-  "rej_stocks_historique": 1,
-  "mom_rejetes": 5,
+  "fermes": 4,
+  "mom_vus": 11,
+  "rej_stocks_historique": 3,
+  "mom_rejetes": 7,
   "rej_stocks_score": 4,
   "mom_envoyes": 3,
   "mom_correles": 1
@@ -945,53 +944,14 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 100,
+  "requetes": 144,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_stocks": 18,
-  "maj": "02/11 15:50 UTC",
+  "stop_trop_serre_stocks": 30,
+  "maj": "02/11 16:03 UTC",
   "symboles_ko": []
  },
- "open": [
-  {
-   "strat": "momentum",
-   "kind": "stocks",
-   "sym": "MSTR",
-   "dir": 1,
-   "entry": 135.47999572753906,
-   "stop": 134.31396179496025,
-   "upper": 134.2541512159142,
-   "lower": 128.42152615397976,
-   "hi0": 132.1199951171875,
-   "lo0": 130.52999877929688,
-   "t_flat": 1793652900,
-   "day": "2026-11-02",
-   "sent": 1793633400,
-   "score": 63,
-   "tp": 137.8120635926967,
-   "pad": 0.0,
-   "stop_now": 134.31396179496025
-  },
-  {
-   "strat": "momentum",
-   "kind": "stocks",
-   "sym": "SPY",
-   "dir": 1,
-   "entry": 763.635009765625,
-   "stop": 761.2526970905044,
-   "upper": 761.2526970905044,
-   "lower": 753.9162145975793,
-   "hi0": 759.4500122070312,
-   "lo0": 755.7100219726562,
-   "t_flat": 1793652900,
-   "day": "2026-11-02",
-   "sent": 1793633400,
-   "score": 43,
-   "tp": 768.3996351158662,
-   "pad": 0.0,
-   "stop_now": 761.2526970905044
-  }
- ],
+ "open": [],
  "track": [
   {
    "day": "2026-10-24",
@@ -2152,6 +2112,26 @@
    "r": -1.146,
    "why": "SL",
    "score": 50
+  },
+  {
+   "day": "2026-11-02",
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "MSTR",
+   "dir": 1,
+   "r": -1.035,
+   "why": "SL",
+   "score": 63
+  },
+  {
+   "day": "2026-11-02",
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "SPY",
+   "dir": 1,
+   "r": -1.096,
+   "why": "SL",
+   "score": 43
   }
  ],
  "tg_pair": "f4f90c1ae0859234",
