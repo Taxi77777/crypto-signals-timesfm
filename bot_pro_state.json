@@ -92,7 +92,8 @@
   "mom|2026-11-02|TSLA|1": 1793635251.700205,
   "mom|2026-11-02|AMD|-1": 1793635253.5561426,
   "mom|2026-11-02|GOOGL|1": 1793642674.3293362,
-  "mom|2026-11-02|SMH|-1": 1793647850.2465196
+  "mom|2026-11-02|SMH|-1": 1793647850.2465196,
+  "mom|2026-11-02|MSFT|-1": 1793649650.593209
  },
  "done": {
   "recap": "2026-10-31",
@@ -913,9 +914,9 @@
  "day": {
   "date": "2026-11-02",
   "fermes": 4,
-  "mom_vus": 12,
-  "rej_stocks_historique": 3,
-  "mom_rejetes": 7,
+  "mom_vus": 13,
+  "rej_stocks_historique": 4,
+  "mom_rejetes": 8,
   "rej_stocks_score": 4,
   "mom_envoyes": 4,
   "mom_correles": 1
@@ -942,11 +943,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 138,
+  "requetes": 176,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_stocks": 46,
-  "maj": "02/11 19:50 UTC",
+  "stop_trop_serre_stocks": 60,
+  "maj": "02/11 20:03 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -967,7 +968,7 @@
    "score": 77,
    "tp": 508.8521561732623,
    "pad": 0.0,
-   "stop_now": 515.3889548723532,
+   "stop_now": 515.1833743331842,
    "tp_told": true
   }
  ],
