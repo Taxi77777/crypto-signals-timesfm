@@ -915,7 +915,7 @@
  ],
  "day": {
   "date": "2026-11-02",
-  "fermes": 1,
+  "fermes": 2,
   "mom_vus": 9,
   "rej_stocks_historique": 1,
   "mom_rejetes": 5,
@@ -945,11 +945,11 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 90,
+  "requetes": 96,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
   "stop_trop_serre_stocks": 18,
-  "maj": "02/11 15:33 UTC",
+  "maj": "02/11 15:41 UTC",
   "symboles_ko": []
  },
  "open": [
@@ -971,25 +971,6 @@
    "tp": 137.8120635926967,
    "pad": 0.0,
    "stop_now": 134.31396179496025
-  },
-  {
-   "strat": "momentum",
-   "kind": "stocks",
-   "sym": "QQQ",
-   "dir": 1,
-   "entry": 699.3150024414062,
-   "stop": 697.8800206863943,
-   "upper": 697.8800206863943,
-   "lower": 688.0125205348314,
-   "hi0": 695.3150024414062,
-   "lo0": 690.5599975585938,
-   "t_flat": 1793652900,
-   "day": "2026-11-02",
-   "sent": 1793633400,
-   "score": 50,
-   "tp": 702.1849659514301,
-   "pad": 0.0,
-   "stop_now": 697.8800206863943
   },
   {
    "strat": "momentum",
@@ -2160,6 +2141,16 @@
    "dir": 1,
    "r": 0.135,
    "why": "fin de s\u00e9ance",
+   "score": 50
+  },
+  {
+   "day": "2026-11-02",
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "QQQ",
+   "dir": 1,
+   "r": -1.146,
+   "why": "SL",
    "score": 50
   }
  ],
