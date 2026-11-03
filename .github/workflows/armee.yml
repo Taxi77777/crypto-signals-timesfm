@@ -43,6 +43,7 @@ jobs:
         run: |
           mkdir -p /tmp/etat_armee
           if [ -f armee_state.json ]; then cp armee_state.json /tmp/etat_armee/lab_state.json; fi
+          if [ -f heatmap_historique.jsonl ]; then cp heatmap_historique.jsonl /tmp/etat_armee/heatmap.jsonl; fi
           save() {
             exec 9>/tmp/armee.lock; flock 9
             ls /tmp/etat_armee/lab_state.json >/dev/null 2>&1 || { flock -u 9; return 0; }
@@ -50,6 +51,7 @@ jobs:
             for i in 1 2 3 4 5; do
               git fetch -q origin main && git reset -q --hard origin/main
               cp /tmp/etat_armee/lab_state.json armee_state.json
+              if [ -f /tmp/etat_armee/heatmap.jsonl ]; then cp /tmp/etat_armee/heatmap.jsonl heatmap_historique.jsonl; git add heatmap_historique.jsonl; fi
               git add armee_state.json
               git diff --cached --quiet && break
               git commit -qm "etat armee [skip ci]"
