@@ -49,7 +49,10 @@
   "mom|2026-11-03|COIN|1": 1793718055.213396,
   "mom|2026-11-03|MSTR|1": 1793718055.587359,
   "mom|2026-11-03|MSFT|1": 1793719847.7971408,
-  "mom|2026-11-03|AVGO|1": 1793719849.1774855
+  "mom|2026-11-03|AVGO|1": 1793719849.1774855,
+  "mom|2026-11-03|SPY|1": 1793721645.59921,
+  "mom|2026-11-03|IWM|1": 1793721646.6731746,
+  "mom|2026-11-03|META|1": 1793721649.121355
  },
  "done": {
   "recap": "2026-10-31",
@@ -146,24 +149,6 @@
   ]
  },
  "signals": [
-  {
-   "t": "26/10 06:33",
-   "strat": "momentum",
-   "sym": "FIL",
-   "sens": "VENTE",
-   "entree": 0.8996,
-   "sl": 0.9035133188348254,
-   "score": 92
-  },
-  {
-   "t": "26/10 06:33",
-   "strat": "momentum",
-   "sym": "WLD",
-   "sens": "VENTE",
-   "entree": 0.4381,
-   "sl": 0.4402878799665744,
-   "score": 86
-  },
   {
    "t": "26/10 08:31",
    "strat": "momentum",
@@ -865,12 +850,33 @@
    "entree": 513.2100219726562,
    "sl": 515.3889548723532,
    "score": 77
+  },
+  {
+   "t": "03/11 16:00",
+   "strat": "momentum",
+   "sym": "IWM",
+   "sens": "ACHAT",
+   "entree": 281.739990234375,
+   "sl": 281.22253399579597,
+   "score": 47
+  },
+  {
+   "t": "03/11 16:00",
+   "strat": "momentum",
+   "sym": "SPY",
+   "sens": "ACHAT",
+   "entree": 756.2000122070312,
+   "sl": 754.9174230692199,
+   "score": 28
   }
  ],
  "day": {
   "date": "2026-11-03",
-  "mom_vus": 5,
-  "pause_annonce": 5
+  "mom_vus": 8,
+  "pause_annonce": 5,
+  "rej_stocks_score": 1,
+  "mom_rejetes": 1,
+  "mom_envoyes": 2
  },
  "diag": {
   "yahoo": "ok : 324 bougies SPY",
@@ -894,14 +900,53 @@
   "kraken_bougies_btc": "ok : 288 bougies 5 min sur 24 h"
  },
  "stats": {
-  "requetes": 58,
+  "requetes": 81,
   "erreurs": 0,
   "crypto_liquides": "30 perpetuels (les 30 plus liquides de Kraken, plus petit : 1.6 M$)",
-  "stop_trop_serre_stocks": 6,
-  "maj": "03/11 15:33 UTC",
+  "stop_trop_serre_stocks": 9,
+  "maj": "03/11 16:02 UTC",
   "symboles_ko": []
  },
- "open": [],
+ "open": [
+  {
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "IWM",
+   "dir": 1,
+   "entry": 281.739990234375,
+   "stop": 281.22253399579597,
+   "upper": 281.22253399579597,
+   "lower": 277.770865166437,
+   "hi0": 279.8399963378906,
+   "lo0": 279.1499938964844,
+   "t_flat": 1793739300,
+   "day": "2026-11-03",
+   "sent": 1793721600,
+   "score": 47,
+   "tp": 282.77490271153306,
+   "pad": 0.0,
+   "stop_now": 281.22253399579597
+  },
+  {
+   "strat": "momentum",
+   "kind": "stocks",
+   "sym": "SPY",
+   "dir": 1,
+   "entry": 756.2000122070312,
+   "stop": 754.9174230692199,
+   "upper": 754.9174230692199,
+   "lower": 749.9343251416672,
+   "hi0": 752.72998046875,
+   "lo0": 752.1199951171875,
+   "t_flat": 1793739300,
+   "day": "2026-11-03",
+   "sent": 1793721600,
+   "score": 28,
+   "tp": 758.7651904826539,
+   "pad": 0.0,
+   "stop_now": 754.9174230692199
+  }
+ ],
  "track": [
   {
    "day": "2026-10-24",
