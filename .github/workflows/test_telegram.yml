@@ -1,0 +1,33 @@
+name: Test Telegram de l'armee
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: Taxi77777/institutional-strategy-lab
+          path: labo
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests numpy
+      - name: Envoi de test (aucun secret affiche)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          cd labo && python - <<'PY'
+          import json
+          from lab import telegram as TG
+          st = json.load(open("../armee_state.json"))
+          cid = TG.setup(st)
+          print("destination trouvee :", bool(cid), "| jeton present :", bool(__import__("os").environ.get("TELEGRAM_BOT_TOKEN")))
+          ok = TG.send("✅ <b>Test de l'armée du labo</b> : si tu lis ce message, les signaux peuvent t'arriver ici.")
+          print("envoi :", ok, TG.STATS)
+          PY
