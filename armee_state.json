@@ -141,14 +141,14 @@
   "telegram": "ok",
   "surveillance": {
    "fx": {
-    "dernier_controle": "04/11 23:48",
+    "dernier_controle": "05/11 00:01",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "04/11 22:00"
    },
    "cr": {
-    "dernier_controle": "04/11 23:57",
+    "dernier_controle": "05/11 00:01",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 20,
@@ -156,8 +156,8 @@
    }
   },
   "truefx": {
-   "mode": "public",
-   "paires_temps_reel": 0
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
