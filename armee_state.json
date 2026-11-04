@@ -138,7 +138,27 @@
  "diag": {
   "strategies": 0,
   "labo": "2026-11-04 21:33 UTC",
-  "telegram": "ok"
+  "telegram": "ok",
+  "surveillance": {
+   "fx": {
+    "dernier_controle": "04/11 23:48",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "04/11 22:00"
+   },
+   "cr": {
+    "dernier_controle": "04/11 23:57",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 20,
+    "derniere_bougie": "04/11 22:00"
+   }
+  },
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 0,
