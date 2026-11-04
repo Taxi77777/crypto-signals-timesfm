@@ -141,7 +141,7 @@
   "telegram": "ok",
   "surveillance": {
    "fx": {
-    "dernier_controle": "04/11 16:56",
+    "dernier_controle": "04/11 17:14",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 5,
@@ -153,16 +153,16 @@
     "AUDNZD": "Dukascopy direct AUDNZD : pas assez de donnees"
    },
    "cr": {
-    "dernier_controle": "04/11 17:03",
+    "dernier_controle": "04/11 17:18",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 4,
-    "derniere_bougie": "04/11 15:00"
+    "derniere_bougie": "04/11 16:00"
    }
   },
   "truefx": {
-   "mode": "public",
-   "paires_temps_reel": 0
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
