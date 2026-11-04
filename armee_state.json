@@ -3,35 +3,7 @@
  "alerts": {
   "act|NZDUSD|1H|1|1793739600": 1793743420.977261
  },
- "open": [
-  {
-   "kind": "fx",
-   "tf": "1H",
-   "sym": "NZDUSD",
-   "dir": 1,
-   "entry": 0.55849,
-   "sl": 0.55849,
-   "tp": 0.5589804185687703,
-   "t_entry": 1793743200.0,
-   "t_exit": 1794002400.0,
-   "ids": [
-    "activee-fx-d8b2a55d"
-   ],
-   "agents": [
-    "noyau_ichimoku"
-   ],
-   "activee": "Meilleure piste forex \u00b7 84 % (815 trades jamais vus)",
-   "trail": 1.5,
-   "atr": 0.0009808371375406239,
-   "sl0": 0.5570187442936891,
-   "sl_sent": 0.55849,
-   "tp1": 0.5589804185687703,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.00024520928438515055,
-   "half_sent": true
-  }
- ],
+ "open": [],
  "track": [
   {
    "sym": "EURAUD",
@@ -88,6 +60,15 @@
    "win": true,
    "pct": 0.07,
    "day": "2026-10-30"
+  },
+  {
+   "sym": "NZDUSD",
+   "kind": "fx",
+   "dir": 1,
+   "win": true,
+   "pct": 0.044,
+   "day": "2026-11-04",
+   "activee": "Meilleure piste forex \u00b7 84 % (815 trades jamais vus)"
   }
  ],
  "live": {
@@ -142,6 +123,10 @@
   "fx-1H-fibonacci-e2--1-23": {
    "n": 1,
    "k": 1
+  },
+  "activee-fx-d8b2a55d": {
+   "n": 1,
+   "k": 1
   }
  },
  "retired": [],
@@ -160,7 +145,7 @@
   }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 2,
   "erreurs": 0
  }
 }
