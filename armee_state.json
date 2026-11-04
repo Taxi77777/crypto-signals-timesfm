@@ -137,33 +137,8 @@
  },
  "diag": {
   "strategies": 0,
-  "labo": "2026-11-04 15:28 UTC",
-  "telegram": "ok",
-  "surveillance": {
-   "fx": {
-    "dernier_controle": "04/11 17:22",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 5,
-    "derniere_bougie": "04/11 16:00"
-   },
-   "erreurs": {
-    "GBPUSD": "Dukascopy direct GBPUSD : pas assez de donnees",
-    "USDJPY": "Dukascopy direct USDJPY : pas assez de donnees",
-    "AUDNZD": "Dukascopy direct AUDNZD : pas assez de donnees"
-   },
-   "cr": {
-    "dernier_controle": "04/11 17:23",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 4,
-    "derniere_bougie": "04/11 16:00"
-   }
-  },
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
-  }
+  "labo": "2026-11-04 16:01 UTC",
+  "telegram": "ok"
  },
  "telegram": {
   "envoyes": 0,
