@@ -158,6 +158,23 @@
     "actifs": 60,
     "pistes_actives": 9,
     "derniere_bougie": "05/11 09:00"
+   },
+   "fx 4H": {
+    "dernier_controle": "05/11 16:19",
+    "dernier_actif": "EURCAD",
+    "actifs": 21,
+    "pistes_actives": 10,
+    "derniere_bougie": "04/11 09:00"
+   },
+   "erreurs": {
+    "GBPJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour GBPJPY",
+    "EURGBP": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour EURGBP",
+    "AUDJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour AUDJPY",
+    "EURCHF": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour EURCHF",
+    "GBPCHF": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour GBPCHF",
+    "CADJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour CADJPY",
+    "CHFJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour CHFJPY",
+    "GBPAUD": "05/11 16:19 : fichiers mensuels Dukascopy indisponibles pour GBPAUD"
    }
   }
  },
