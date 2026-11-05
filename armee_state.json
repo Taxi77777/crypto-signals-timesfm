@@ -143,7 +143,209 @@
    "historiques": "201/201",
    "secondes": 1067,
    "repris_de_la_veille": 0
-  }
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "05/11 18:43",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "05/11 17:00"
+   },
+   "cr 15M": {
+    "dernier_controle": "05/11 18:47",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 1,
+    "derniere_bougie": "05/11 18:15"
+   },
+   "erreurs": {
+    "LRC": "05/11 18:47 : too many indices for array: array is 1-dimensional, but 2 were indexed",
+    "STORJ": "05/11 18:47 : too many indices for array: array is 1-dimensional, but 2 were indexed"
+   }
+  },
+  "plus_proches": [
+   {
+    "actif": "HBAR 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "SUI 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "ETC 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "SHIB 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "OP 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "APT 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "GRT 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "CRV 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "MANA 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "XTZ 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "AXS 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "1INCH 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "BAT 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "APE 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   },
+   {
+    "actif": "ZRX 15M 2aeac6a6",
+    "reunies": "0/2",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 1.25 a 3.75)",
+     "vs_milieu_nwog=? (zone -31.5 a -18.2)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "05/11 18:47",
+    "score": 0.0
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
