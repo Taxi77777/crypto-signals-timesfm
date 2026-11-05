@@ -33,7 +33,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: labo/requirements.txt
       - run: pip install -r labo/requirements.txt
-      - uses: actions/cache@v4               # fichiers Dukascopy / Binance deja telecharges : demarrage rapide
+      - uses: actions/cache/restore@v4       # fichiers Dukascopy / Binance + memoire de l'armee : demarrage rapide
         with:
           path: /tmp/duka
           key: armee-duka-${{ github.run_id }}
@@ -76,6 +76,11 @@ jobs:
           save
           if [ -f /tmp/etat_armee/relance ]; then echo "relance=1" >> "$GITHUB_OUTPUT"; fi
           exit $RC
+      - uses: actions/cache/save@v4          # enregistre meme si l'armee est arretee ou relancee
+        if: always()
+        with:
+          path: /tmp/duka
+          key: armee-duka-${{ github.run_id }}
 
   relance:
     needs: armee
