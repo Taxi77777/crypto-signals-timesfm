@@ -160,34 +160,46 @@
     "derniere_bougie": "05/11 19:30"
    },
    "erreurs": {
-    "GBPAUD 4H": "seulement 58 bougies",
-    "GBPCHF 1D": "seulement 174 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
+    "STORJ 15M": "seulement 0 bougies",
+    "GBPAUD 4H": "seulement 58 bougies",
+    "GBPCHF 1D": "seulement 174 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 19:52",
+    "dernier_controle": "05/11 20:10",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 16,
     "derniere_bougie": "05/11 13:00"
    },
    "fx 4H": {
-    "dernier_controle": "05/11 19:55",
+    "dernier_controle": "05/11 20:13",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 10,
     "derniere_bougie": "05/11 13:00"
    },
    "fx 1D": {
-    "dernier_controle": "05/11 19:56",
+    "dernier_controle": "05/11 20:15",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 18,
+    "pistes_actives": 17,
     "derniere_bougie": "04/11 01:00"
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 1D e11716b7",
+    "reunies": "2/3",
+    "manque": [
+     "ipda_60j_dist_bas=? (zone 32 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 84 % (50 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 20:15",
+    "score": 0.6666666666666666,
+    "t": 1793906113.0595224
+   },
    {
     "actif": "ROSE 1H 3cd933d4",
     "reunies": "2/3",
@@ -355,18 +367,6 @@
     "heure": "05/11 19:20",
     "score": 0.6666666666666666,
     "t": 1793902856.8751872
-   },
-   {
-    "actif": "ZEC 1H fa7c53b0",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
-    "sens": "achat",
-    "heure": "05/11 19:20",
-    "score": 0.6666666666666666,
-    "t": 1793902856.8750968
    }
   ],
   "truefx": {
