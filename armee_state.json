@@ -146,19 +146,23 @@
   },
   "surveillance": {
    "cr": {
-    "dernier_controle": "05/11 12:05",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "05/11 12:17",
+    "dernier_actif": "HBAR",
     "actifs": 60,
     "pistes_actives": 34,
     "derniere_bougie": "05/11 11:00"
    },
    "fx": {
-    "dernier_controle": "05/11 12:10",
-    "dernier_actif": "AUDUSD",
+    "dernier_controle": "05/11 12:16",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 60,
-    "derniere_bougie": null
+    "derniere_bougie": "05/11 11:45"
    }
+  },
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
