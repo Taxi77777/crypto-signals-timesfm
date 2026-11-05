@@ -1,9 +1,185 @@
 {
  "tg_pair": "f4f90c1ae0859234",
  "alerts": {
-  "act|NZDUSD|1H|1|1793739600": 1793743420.977261
+  "act|NZDUSD|1H|1|1793739600": 1793743420.977261,
+  "act|BTC|4H|1|1793894400": 1793909917.5278106,
+  "act|HBAR|4H|1|1793894400": 1793909924.5454986,
+  "act|SNX|4H|1|1793894400": 1793909935.7591014,
+  "act|DASH|4H|1|1793894400": 1793909938.4003482,
+  "act|CHZ|4H|1|1793894400": 1793909939.6286445,
+  "act|FLOW|4H|1|1793894400": 1793909944.2978084,
+  "act|ROSE|4H|1|1793894400": 1793909945.4572299
  },
- "open": [],
+ "open": [
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "BTC",
+   "dir": 1,
+   "entry": 76220.54,
+   "sl": 74380.70747793188,
+   "tp": 76833.81750735603,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-742a0ab9"
+   ],
+   "agents": [
+    "noyau_liquidite"
+   ],
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 1226.5550147120719,
+   "sl0": 74380.70747793188,
+   "sl_sent": 74380.70747793188,
+   "tp1": 76833.81750735603,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "HBAR",
+   "dir": 1,
+   "entry": 0.06834,
+   "sl": 0.06567539506435056,
+   "tp": 0.06922820164521648,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-cc389e3a"
+   ],
+   "agents": [
+    "flux"
+   ],
+   "activee": "Meilleure piste crypto 4 h \u00b7 88 % (58 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 0.0017764032904329541,
+   "sl0": 0.06567539506435056,
+   "sl_sent": 0.06567539506435056,
+   "tp1": 0.06922820164521648,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "SNX",
+   "dir": 1,
+   "entry": 0.16706,
+   "sl": 0.15779143909875462,
+   "tp": 0.170535710337967,
+   "t_entry": 1793908800.0,
+   "t_exit": 1797364800.0,
+   "ids": [
+    "activee-cr-4h-4c7e9b0d"
+   ],
+   "agents": [
+    "flux"
+   ],
+   "activee": "Meilleure piste crypto 4 h \u00b7 88 % (165 trades jamais vus)",
+   "trail": 3.0,
+   "atr": 0.0046342804506226834,
+   "sl0": 0.15779143909875462,
+   "sl_sent": 0.15779143909875462,
+   "tp1": 0.170535710337967,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "DASH",
+   "dir": 1,
+   "entry": 45.66,
+   "sl": 43.08085643452568,
+   "tp": 46.51971452182477,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-742a0ab9"
+   ],
+   "agents": [
+    "noyau_liquidite"
+   ],
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 1.7194290436495463,
+   "sl0": 43.08085643452568,
+   "sl_sent": 43.08085643452568,
+   "tp1": 46.51971452182477,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "CHZ",
+   "dir": 1,
+   "entry": 0.011526,
+   "sl": 0.011123041560687151,
+   "tp": 0.01166031947977095,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-742a0ab9"
+   ],
+   "agents": [
+    "noyau_liquidite"
+   ],
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 0.00026863895954189914,
+   "sl0": 0.011123041560687151,
+   "sl_sent": 0.011123041560687151,
+   "tp1": 0.01166031947977095,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "FLOW",
+   "dir": 1,
+   "entry": 0.02114,
+   "sl": 0.020125136238874665,
+   "tp": 0.02147828792037511,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-46f74118"
+   ],
+   "agents": [
+    "noyau_liquidite"
+   ],
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % (42 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 0.0006765758407502232,
+   "sl0": 0.020125136238874665,
+   "sl_sent": 0.020125136238874665,
+   "tp1": 0.02147828792037511,
+   "frac": 0.5
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "ROSE",
+   "dir": 1,
+   "entry": 0.005729,
+   "sl": 0.005473335175143421,
+   "tp": 0.005814221608285526,
+   "t_entry": 1793908800.0,
+   "t_exit": 1794945600.0,
+   "ids": [
+    "activee-cr-4h-cc389e3a"
+   ],
+   "agents": [
+    "flux"
+   ],
+   "activee": "Meilleure piste crypto 4 h \u00b7 88 % (58 trades jamais vus)",
+   "trail": 1.5,
+   "atr": 0.00017044321657105245,
+   "sl0": 0.005473335175143421,
+   "sl_sent": 0.005473335175143421,
+   "tp1": 0.005814221608285526,
+   "frac": 0.5
+  }
+ ],
  "track": [
   {
    "sym": "EURAUD",
@@ -153,24 +329,26 @@
     "derniere_bougie": "05/11 20:00"
    },
    "cr 15M": {
-    "dernier_controle": "05/11 20:56",
+    "dernier_controle": "05/11 21:16",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 1,
-    "derniere_bougie": "05/11 20:30"
+    "derniere_bougie": "05/11 20:45"
    },
    "erreurs": {
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
     "GBPAUD 4H": "seulement 58 bougies",
-    "GBPCHF 1D": "seulement 174 bougies"
+    "GBPCHF 1D": "seulement 174 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 20:57",
+    "dernier_controle": "05/11 21:19",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 16,
-    "derniere_bougie": "05/11 13:00"
+    "derniere_bougie": "05/11 17:00"
    },
    "fx 4H": {
     "dernier_controle": "05/11 20:57",
@@ -185,197 +363,215 @@
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "04/11 01:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "05/11 21:11",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 18,
+    "derniere_bougie": "05/11 20:30"
    }
   },
   "plus_proches": [
    {
-    "actif": "ROSE 1H 3cd933d4",
+    "actif": "ROSE 4H e90aaaf9",
     "reunies": "2/3",
     "manque": [
-     "heures_echeance_deribit=-13 (zone -36 a -24)"
+     "heures_echeance_deribit=-16 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 87 % ",
+    "sens": "achat",
+    "heure": "05/11 21:19",
+    "score": 0.6666666666666666,
+    "t": 1793909945.330588
+   },
+   {
+    "actif": "DASH 4H e90aaaf9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-16 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 87 % ",
+    "sens": "achat",
+    "heure": "05/11 21:18",
+    "score": 0.6666666666666666,
+    "t": 1793909938.1207128
+   },
+   {
+    "actif": "NEAR 4H e90aaaf9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-16 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 87 % ",
+    "sens": "achat",
+    "heure": "05/11 21:18",
+    "score": 0.6666666666666666,
+    "t": 1793909923.324161
+   },
+   {
+    "actif": "BTC 4H e90aaaf9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-16 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 87 % ",
+    "sens": "achat",
+    "heure": "05/11 21:18",
+    "score": 0.6666666666666666,
+    "t": 1793909916.7325675
+   },
+   {
+    "actif": "ROSE 30M a17ef7d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fomc=? (zone 5.5 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (156 trades jamais ",
     "sens": "vente",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909263.380534
+    "t": 1793909518.7787502
    },
    {
-    "actif": "FLOW 1H ce704013",
+    "actif": "ROSE 30M 09cc978f",
     "reunies": "2/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_nfp=? (zone 5 a 8.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 77 %",
     "sens": "achat",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909262.5183818
+    "t": 1793909518.778731
    },
    {
-    "actif": "FLOW 1H fa7c53b0",
+    "actif": "FLOW 30M 09cc978f",
     "reunies": "2/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_nfp=? (zone 5 a 8.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 77 %",
     "sens": "achat",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909262.5183368
+    "t": 1793909517.8934374
    },
    {
-    "actif": "MINA 1H 3cd933d4",
+    "actif": "MINA 30M a17ef7d9",
     "reunies": "2/3",
     "manque": [
-     "heures_echeance_deribit=-13 (zone -36 a -24)"
+     "heures_fomc=? (zone 5.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (156 trades jamais ",
     "sens": "vente",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909262.0880113
+    "t": 1793909517.4637406
    },
    {
-    "actif": "ANKR 1H ce704013",
+    "actif": "ZRX 30M d7950577",
     "reunies": "2/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fomc=? (zone 5.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909261.222282
-   },
-   {
-    "actif": "ANKR 1H fa7c53b0",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909261.2222295
-   },
-   {
-    "actif": "ZRX 1H ce704013",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909260.7887297
-   },
-   {
-    "actif": "SUSHI 1H 3cd933d4",
-    "reunies": "2/3",
-    "manque": [
-     "heures_echeance_deribit=-13 (zone -36 a -24)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 77 % (163 trades jamais ",
     "sens": "vente",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909260.3537729
+    "t": 1793909516.1675367
    },
    {
-    "actif": "APE 1H ce704013",
+    "actif": "ZRX 30M 8140d2ce",
     "reunies": "2/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fomc=? (zone 5.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909259.0703783
-   },
-   {
-    "actif": "CHZ 1H ce704013",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909258.2118902
-   },
-   {
-    "actif": "ZEC 1H fa7c53b0",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909256.928246
-   },
-   {
-    "actif": "1INCH 1H fa7c53b0",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909256.065143
-   },
-   {
-    "actif": "YFI 1H ce704013",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
-    "score": 0.6666666666666666,
-    "t": 1793909255.6316786
-   },
-   {
-    "actif": "SNX 1H 3cd933d4",
-    "reunies": "2/3",
-    "manque": [
-     "heures_echeance_deribit=-13 (zone -36 a -24)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 78 % (158 trades jama",
     "sens": "vente",
-    "heure": "05/11 21:07",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909255.1971197
+    "t": 1793909516.1674745
    },
    {
-    "actif": "COMP 1H ce704013",
+    "actif": "ZRX 30M a17ef7d9",
     "reunies": "2/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fomc=? (zone 5.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 21:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (156 trades jamais ",
+    "sens": "vente",
+    "heure": "05/11 21:11",
     "score": 0.6666666666666666,
-    "t": 1793909254.7623522
+    "t": 1793909516.167379
+   },
+   {
+    "actif": "ZRX 30M 74aa8a12",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fomc=? (zone 5.5 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (161 trades jamais ",
+    "sens": "vente",
+    "heure": "05/11 21:11",
+    "score": 0.6666666666666666,
+    "t": 1793909516.1673625
+   },
+   {
+    "actif": "ZRX 30M b8ad66af",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fomc=? (zone 5.5 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (163 trades jama",
+    "sens": "vente",
+    "heure": "05/11 21:11",
+    "score": 0.6666666666666666,
+    "t": 1793909516.16733
+   },
+   {
+    "actif": "ZRX 30M ed56f0f2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fomc=? (zone 5.5 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (163 trades jama",
+    "sens": "vente",
+    "heure": "05/11 21:11",
+    "score": 0.6666666666666666,
+    "t": 1793909516.16731
+   },
+   {
+    "actif": "APE 30M a17ef7d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fomc=? (zone 5.5 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 79 % (156 trades jamais ",
+    "sens": "vente",
+    "heure": "05/11 21:11",
+    "score": 0.6666666666666666,
+    "t": 1793909514.4273481
    }
   ],
   "truefx": {
    "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 10
-  }
+  },
+  "kronos_pas_d_accord": {
+   "TRX 4H": "05/11 21:18 TRX : piste achat, Kronos sans avis",
+   "XTZ 4H": "05/11 21:18 XTZ : piste achat, Kronos -0.03 ATR",
+   "BLUR 4H": "05/11 21:19 BLUR : piste achat, Kronos -0.99 ATR"
+  },
+  "murs_signales": [
+   "05/11 21:18 HBAR 4H",
+   "05/11 21:18 SNX 4H",
+   "05/11 21:18 DASH 4H",
+   "05/11 21:19 FLOW 4H"
+  ]
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 7,
   "erreurs": 0
  }
 }
