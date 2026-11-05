@@ -146,28 +146,28 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 14:58",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "05/11 15:13",
+    "dernier_actif": "SAND",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "05/11 13:00"
+    "derniere_bougie": "05/11 14:00"
    },
    "fx 1H": {
-    "dernier_controle": "05/11 14:58",
+    "dernier_controle": "05/11 15:11",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "05/11 13:00"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 14:59",
+    "dernier_controle": "05/11 15:12",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 16,
     "derniere_bougie": "05/11 09:00"
    },
    "fx 4H": {
-    "dernier_controle": "05/11 14:59",
+    "dernier_controle": "05/11 15:12",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 30,
@@ -177,7 +177,174 @@
   "truefx": {
    "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 10
-  }
+  },
+  "plus_proches": [
+   {
+    "actif": "ETH 1H cf806004",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-19 (zone -12 a 0)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 82 % (228 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "ETH 1H 223ec24a",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-19 (zone -12 a 0)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\udf19 Session du soir \u00b7 78 % (39",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H cf806004",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-19 (zone -12 a 0)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 82 % (228 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H 738ba88d",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-19 (zone -12 a 0)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 82 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H b4a45b0f",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 79 % (184 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H 7ccaf7f8",
+    "reunies": "2/3",
+    "manque": [
+     "pression_reequilibrage=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\udf0f Session Asie \u00b7 85 % (59 trade",
+    "sens": "vente",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H 896c3f6f",
+    "reunies": "2/3",
+    "manque": [
+     "pression_reequilibrage=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (55 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H caceb02e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 79 % (1",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H ed3f2a0c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 78 % (190 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H 81ea9769",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 78 % (169 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H 223ec24a",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-19 (zone -12 a 0)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\udf19 Session du soir \u00b7 78 % (39",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "XRP 1H e8b2735f",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 77 % (179 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "AAVE 1H c1116f79",
+    "reunies": "2/3",
+    "manque": [
+     "pression_reequilibrage=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (67 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "SHIB 1H caceb02e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 79 % (1",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   },
+   {
+    "actif": "SHIB 1H ed3f2a0c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 78 % (190 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:13",
+    "score": 0.6666666666666666
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
