@@ -138,7 +138,12 @@
  "diag": {
   "strategies": 1,
   "labo": "2026-11-05 17:45 UTC",
-  "telegram": "ok"
+  "telegram": "ok",
+  "demarrage": {
+   "historiques": "222/222",
+   "secondes": 1492,
+   "repris_de_la_veille": 201
+  }
  },
  "telegram": {
   "envoyes": 0,
