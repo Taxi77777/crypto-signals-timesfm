@@ -31,6 +31,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r labo/requirements.txt
+      - uses: actions/cache@v4               # fichiers Dukascopy / Binance deja telecharges : demarrage rapide
+        with:
+          path: /tmp/duka
+          key: armee-duka-${{ github.run_id }}
+          restore-keys: armee-duka-
       - name: Armee
         id: run
         env:
@@ -39,6 +44,7 @@ jobs:
           TRUEFX_PASS: ${{ secrets.TRUEFX_PASS }}
           CONSENSUS: ${{ vars.CONSENSUS }}
           STATE_DIR: /tmp/etat_armee
+          DUKA_CACHE: /tmp/duka
           PYTHONUNBUFFERED: '1'
         run: |
           mkdir -p /tmp/etat_armee
