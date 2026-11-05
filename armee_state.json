@@ -146,12 +146,47 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 12:36",
-    "dernier_actif": "MINA",
+    "dernier_controle": "05/11 12:46",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 20,
-    "derniere_bougie": "05/11 10:00"
+    "derniere_bougie": "05/11 11:00"
+   },
+   "fx 1H": {
+    "dernier_controle": "05/11 12:46",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "05/11 11:00"
+   },
+   "erreurs": {
+    "GBPCHF 1H": "seulement 155 bougies"
+   },
+   "cr 4H": {
+    "dernier_controle": "05/11 12:46",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 14,
+    "derniere_bougie": "05/11 05:00"
+   },
+   "fx 4H": {
+    "dernier_controle": "05/11 12:46",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "05/11 05:00"
+   },
+   "fx 15M": {
+    "dernier_controle": "05/11 12:46",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "05/11 11:45"
    }
+  },
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
