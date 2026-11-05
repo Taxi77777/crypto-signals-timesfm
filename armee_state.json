@@ -146,21 +146,21 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 14:13",
-    "dernier_actif": "SUI",
+    "dernier_controle": "05/11 14:21",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 12,
     "derniere_bougie": "05/11 13:00"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 14:06",
+    "dernier_controle": "05/11 14:21",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 16,
     "derniere_bougie": "05/11 09:00"
    },
    "fx 4H": {
-    "dernier_controle": "05/11 14:10",
+    "dernier_controle": "05/11 14:22",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 30,
@@ -168,8 +168,8 @@
    }
   },
   "truefx": {
-   "mode": "public",
-   "paires_temps_reel": 0
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
