@@ -146,12 +146,30 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 14:02",
-    "dernier_actif": "ZRX",
+    "dernier_controle": "05/11 14:13",
+    "dernier_actif": "SUI",
     "actifs": 60,
     "pistes_actives": 12,
-    "derniere_bougie": "05/11 12:00"
+    "derniere_bougie": "05/11 13:00"
+   },
+   "cr 4H": {
+    "dernier_controle": "05/11 14:06",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "05/11 09:00"
+   },
+   "fx 4H": {
+    "dernier_controle": "05/11 14:10",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 30,
+    "derniere_bougie": "05/11 09:00"
    }
+  },
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
   }
  },
  "telegram": {
