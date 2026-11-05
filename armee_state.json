@@ -144,7 +144,22 @@
    "secondes": 71,
    "repris_de_la_veille": 0
   },
-  "surveillance": {}
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "05/11 16:02",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 15,
+    "derniere_bougie": "05/11 14:00"
+   },
+   "cr 4H": {
+    "dernier_controle": "05/11 16:05",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 9,
+    "derniere_bougie": "05/11 09:00"
+   }
+  }
  },
  "telegram": {
   "envoyes": 0,
