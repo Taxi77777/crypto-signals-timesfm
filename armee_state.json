@@ -137,56 +137,28 @@
  },
  "diag": {
   "strategies": 0,
-  "labo": "2026-11-05 11:04 UTC",
+  "labo": "2026-11-05 11:50 UTC",
   "telegram": "ok",
   "demarrage": {
-   "historiques": "180/183",
-   "secondes": 853,
+   "historiques": "137/141",
+   "secondes": 149,
    "repris_de_la_veille": 0
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 12:46",
+    "dernier_controle": "05/11 12:56",
     "dernier_actif": "ROSE",
     "actifs": 60,
-    "pistes_actives": 20,
+    "pistes_actives": 13,
     "derniere_bougie": "05/11 11:00"
-   },
-   "fx 1H": {
-    "dernier_controle": "05/11 12:46",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 20,
-    "derniere_bougie": "05/11 11:00"
-   },
-   "erreurs": {
-    "GBPCHF 1H": "seulement 155 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 12:46",
+    "dernier_controle": "05/11 12:58",
     "dernier_actif": "ROSE",
     "actifs": 60,
-    "pistes_actives": 14,
+    "pistes_actives": 2,
     "derniere_bougie": "05/11 05:00"
-   },
-   "fx 4H": {
-    "dernier_controle": "05/11 12:46",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 20,
-    "derniere_bougie": "05/11 05:00"
-   },
-   "fx 15M": {
-    "dernier_controle": "05/11 12:46",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 20,
-    "derniere_bougie": "05/11 11:45"
    }
-  },
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
   }
  },
  "telegram": {
