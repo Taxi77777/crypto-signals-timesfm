@@ -137,40 +137,8 @@
  },
  "diag": {
   "strategies": 1,
-  "labo": "2026-11-05 12:32 UTC",
-  "telegram": "ok",
-  "demarrage": {
-   "historiques": "141/141",
-   "secondes": 133,
-   "repris_de_la_veille": 0
-  },
-  "surveillance": {
-   "cr 1H": {
-    "dernier_controle": "05/11 14:21",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 12,
-    "derniere_bougie": "05/11 13:00"
-   },
-   "cr 4H": {
-    "dernier_controle": "05/11 14:21",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 16,
-    "derniere_bougie": "05/11 09:00"
-   },
-   "fx 4H": {
-    "dernier_controle": "05/11 14:22",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 30,
-    "derniere_bougie": "05/11 09:00"
-   }
-  },
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
-  }
+  "labo": "2026-11-05 13:20 UTC",
+  "telegram": "ok"
  },
  "telegram": {
   "envoyes": 0,
