@@ -146,19 +146,37 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 14:48",
+    "dernier_controle": "05/11 14:58",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "05/11 13:00"
    },
    "fx 1H": {
-    "dernier_controle": "05/11 14:50",
-    "dernier_actif": "EURGBP",
+    "dernier_controle": "05/11 14:58",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "05/11 13:00"
+   },
+   "cr 4H": {
+    "dernier_controle": "05/11 14:59",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "05/11 09:00"
+   },
+   "fx 4H": {
+    "dernier_controle": "05/11 14:59",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 30,
+    "derniere_bougie": "05/11 09:00"
    }
+  },
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
