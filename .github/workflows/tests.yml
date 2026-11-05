@@ -1,10 +1,7 @@
 name: Tests
 
 on:
-  push:
-    paths-ignore: ['bot_pro_state.json', '**.md']
-  pull_request:
-  workflow_dispatch:
+  workflow_dispatch:      # a la demande : le Bot Pro est desactive, ces tests prenaient des places de calcul
 
 permissions:
   contents: read
