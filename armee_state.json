@@ -143,6 +143,22 @@
    "historiques": "183/183",
    "secondes": 1178,
    "repris_de_la_veille": 0
+  },
+  "surveillance": {
+   "cr": {
+    "dernier_controle": "05/11 12:05",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 34,
+    "derniere_bougie": "05/11 11:00"
+   },
+   "fx": {
+    "dernier_controle": "05/11 12:10",
+    "dernier_actif": "AUDUSD",
+    "actifs": 21,
+    "pistes_actives": 60,
+    "derniere_bougie": null
+   }
   }
  },
  "telegram": {
