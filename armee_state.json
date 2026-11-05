@@ -143,7 +143,216 @@
    "historiques": "222/222",
    "secondes": 1492,
    "repris_de_la_veille": 201
-  }
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "05/11 19:21",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "05/11 18:00"
+   },
+   "cr 15M": {
+    "dernier_controle": "05/11 19:25",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 1,
+    "derniere_bougie": "05/11 18:45"
+   },
+   "erreurs": {
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 4H": {
+    "dernier_controle": "05/11 19:28",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "05/11 13:00"
+   }
+  },
+  "plus_proches": [
+   {
+    "actif": "ROSE 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902863.7367568
+   },
+   {
+    "actif": "KAVA 1H ce704013",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902863.27759
+   },
+   {
+    "actif": "KAVA 1H fa7c53b0",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
+    "sens": "achat",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902863.277522
+   },
+   {
+    "actif": "MINA 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902862.3720088
+   },
+   {
+    "actif": "ANKR 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902861.4364033
+   },
+   {
+    "actif": "ZRX 1H ce704013",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902860.9645178
+   },
+   {
+    "actif": "ZRX 1H fa7c53b0",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
+    "sens": "achat",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902860.9644678
+   },
+   {
+    "actif": "ZRX 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902860.9644194
+   },
+   {
+    "actif": "SUSHI 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:21",
+    "score": 0.6666666666666666,
+    "t": 1793902860.5012634
+   },
+   {
+    "actif": "APE 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902859.1268826
+   },
+   {
+    "actif": "ENS 1H 3cd933d4",
+    "reunies": "2/3",
+    "manque": [
+     "heures_echeance_deribit=-15 (zone -36 a -24)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (194 trades jamais vus)",
+    "sens": "vente",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902858.6561198
+   },
+   {
+    "actif": "CHZ 1H ce704013",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902858.2074447
+   },
+   {
+    "actif": "CHZ 1H fa7c53b0",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
+    "sens": "achat",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902858.2074256
+   },
+   {
+    "actif": "ZEC 1H ce704013",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (236 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902856.8751872
+   },
+   {
+    "actif": "ZEC 1H fa7c53b0",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (298 ",
+    "sens": "achat",
+    "heure": "05/11 19:20",
+    "score": 0.6666666666666666,
+    "t": 1793902856.8750968
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
