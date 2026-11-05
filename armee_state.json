@@ -146,28 +146,28 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "05/11 15:31",
+    "dernier_controle": "05/11 15:41",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "05/11 14:00"
    },
    "fx 1H": {
-    "dernier_controle": "05/11 15:31",
+    "dernier_controle": "05/11 15:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "05/11 14:00"
    },
    "cr 4H": {
-    "dernier_controle": "05/11 15:31",
+    "dernier_controle": "05/11 15:41",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 16,
     "derniere_bougie": "05/11 09:00"
    },
    "fx 4H": {
-    "dernier_controle": "05/11 15:31",
+    "dernier_controle": "05/11 15:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 30,
@@ -187,7 +187,7 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (645 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -198,7 +198,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 83 % (558 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -209,7 +209,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (779 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -220,7 +220,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 83 % (558 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -231,7 +231,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (779 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -242,7 +242,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (543 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -253,7 +253,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (430 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -264,7 +264,7 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (555 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
@@ -275,79 +275,79 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 80 % (415 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.6666666666666666
    },
    {
-    "actif": "AUDUSD 1H 1c5ab96d",
+    "actif": "EURUSD 1H dcfcc11f",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=-3 (zone 4 a inf)",
-     "ict_baissier_ote=0.253 (zone -inf a 0.0879)"
+     "fvg_haussier_dist=0.388 (zone -inf a 0.294)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (398 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 83 % (558 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.3333333333333333
    },
    {
-    "actif": "AUDUSD 1H 4f7a2cf5",
+    "actif": "EURUSD 1H 09d9dc5c",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=-3 (zone 4 a inf)",
-     "stops_en_dessous_1atr=0 (zone 0 a inf)"
+     "fvg_haussier_dist=0.388 (zone -inf a 0.294)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (645 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (779 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.3333333333333333
    },
    {
-    "actif": "AUDUSD 1H 4de99d89",
+    "actif": "EURUSD 1H c0e03c65",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=-3 (zone 4 a inf)",
-     "ict_baissier_ote=0.253 (zone -inf a 0.0879)"
+     "fvg_haussier_dist=0.388 (zone -inf a 0.294)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (448 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (569 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
     "score": 0.3333333333333333
    },
    {
-    "actif": "AUDUSD 1H cd982d44",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)",
-     "ict_baissier_ote=0.253 (zone -inf a 0.0879)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (433 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 15:31",
-    "score": 0.3333333333333333
-   },
-   {
-    "actif": "AUDUSD 1H 6f992bcf",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)",
-     "ict_baissier_ote=0.253 (zone -inf a 0.0879)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (445 trades jamais vus)",
-    "sens": "achat",
-    "heure": "05/11 15:31",
-    "score": 0.3333333333333333
-   },
-   {
-    "actif": "AUDUSD 1H 4774fa68",
+    "actif": "EURUSD 1H 9b614c44",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=-3 (zone 4 a inf)",
      "dans_fvg_haussier=0 (zone 1 a 1)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (430 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (543 trades jamais vus)",
     "sens": "achat",
-    "heure": "05/11 15:31",
+    "heure": "05/11 15:36",
+    "score": 0.3333333333333333
+   },
+   {
+    "actif": "GBPUSD 1H c0e03c65",
+    "reunies": "1/3",
+    "manque": [
+     "heures_fixing_londres=-3 (zone 4 a inf)",
+     "fvg_haussier_dist=0.727 (zone -inf a 0.294)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (569 trades jamais vus)",
+    "sens": "achat",
+    "heure": "05/11 15:36",
+    "score": 0.3333333333333333
+   },
+   {
+    "actif": "GBPUSD 1H b832aa18",
+    "reunies": "1/3",
+    "manque": [
+     "heures_fixing_londres=-3 (zone 4 a inf)",
+     "ict_baissier_ote=? (zone -inf a 0.0879)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 \ud83c\udf19 Session du soir \u00b7 83 % (415 tr",
+    "sens": "achat",
+    "heure": "05/11 15:36",
     "score": 0.3333333333333333
    }
   ]
