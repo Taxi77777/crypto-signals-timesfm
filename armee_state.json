@@ -143,6 +143,22 @@
    "historiques": "157/162",
    "secondes": 878,
    "repris_de_la_veille": 0
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "05/11 14:48",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "05/11 13:00"
+   },
+   "fx 1H": {
+    "dernier_controle": "05/11 14:50",
+    "dernier_actif": "EURGBP",
+    "actifs": 21,
+    "pistes_actives": 27,
+    "derniere_bougie": "05/11 13:00"
+   }
   }
  },
  "telegram": {
