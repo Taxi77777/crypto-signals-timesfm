@@ -137,45 +137,12 @@
  },
  "diag": {
   "strategies": 1,
-  "labo": "2026-11-05 14:52 UTC",
+  "labo": "2026-11-05 15:21 UTC",
   "telegram": "ok",
   "demarrage": {
-   "historiques": "120/141",
-   "secondes": 71,
+   "historiques": "141/141",
+   "secondes": 421,
    "repris_de_la_veille": 0
-  },
-  "surveillance": {
-   "cr 1H": {
-    "dernier_controle": "05/11 16:02",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 15,
-    "derniere_bougie": "05/11 14:00"
-   },
-   "cr 4H": {
-    "dernier_controle": "05/11 16:05",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 9,
-    "derniere_bougie": "05/11 09:00"
-   },
-   "fx 4H": {
-    "dernier_controle": "05/11 16:19",
-    "dernier_actif": "EURCAD",
-    "actifs": 21,
-    "pistes_actives": 10,
-    "derniere_bougie": "04/11 09:00"
-   },
-   "erreurs": {
-    "GBPJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour GBPJPY",
-    "EURGBP": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour EURGBP",
-    "AUDJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour AUDJPY",
-    "EURCHF": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour EURCHF",
-    "GBPCHF": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour GBPCHF",
-    "CADJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour CADJPY",
-    "CHFJPY": "05/11 16:16 : fichiers mensuels Dukascopy indisponibles pour CHFJPY",
-    "GBPAUD": "05/11 16:19 : fichiers mensuels Dukascopy indisponibles pour GBPAUD"
-   }
   }
  },
  "telegram": {
