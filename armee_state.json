@@ -725,7 +725,7 @@
    "sym": "XTZ",
    "dir": 1,
    "entry": 0.2541,
-   "sl": 0.24258531884545867,
+   "sl": 0.2541,
    "tp": 0.258418005432953,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -742,8 +742,8 @@
    "sl_sent": 0.2541,
    "tp1": 0.258418005432953,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0,
+   "half": true,
+   "part": 0.00215900271647651,
    "half_sent": true
   },
   {
@@ -965,7 +965,7 @@
    "sym": "APE",
    "dir": 1,
    "entry": 0.10947,
-   "sl": 0.10646042489918124,
+   "sl": 0.10947,
    "tp": 0.11059859066280703,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -979,11 +979,12 @@
    "trail": 3.0,
    "atr": 0.0015047875504093802,
    "sl0": 0.10646042489918124,
-   "sl_sent": 0.10646042489918124,
+   "sl_sent": 0.10947,
    "tp1": 0.11059859066280703,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0005642953314035151,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1044,7 +1045,7 @@
    "sym": "FLOW",
    "dir": 1,
    "entry": 0.02109,
-   "sl": 0.020559676421466992,
+   "sl": 0.02109,
    "tp": 0.02128887134194988,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -1058,11 +1059,12 @@
    "trail": 3.0,
    "atr": 0.00026516178926650434,
    "sl0": 0.020559676421466992,
-   "sl_sent": 0.020559676421466992,
+   "sl_sent": 0.02109,
    "tp1": 0.02128887134194988,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 9.943567097493895e-05,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1086,7 +1088,9 @@
    "sl0": 2.384034400386572,
    "sl_sent": 2.384034400386572,
    "tp1": 2.4751495998550355,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   },
   {
    "kind": "cr",
@@ -1110,7 +1114,9 @@
    "sl0": 0.0779716966819105,
    "sl_sent": 0.0779716966819105,
    "tp1": 0.07970186374428356,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   },
   {
    "kind": "cr",
@@ -1134,7 +1140,9 @@
    "sl0": 0.06787763572740173,
    "sl_sent": 0.06787763572740173,
    "tp1": 0.06873338660222436,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   }
  ],
  "track": [
@@ -1331,14 +1339,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 13:31",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "06/11 13:50",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "06/11 12:00"
+    "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 13:34",
+    "dernier_controle": "06/11 13:50",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 28,
@@ -1351,18 +1359,18 @@
     "STORJ 15M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "06/11 13:37",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "06/11 13:50",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 2,
-    "derniere_bougie": "06/11 12:15"
+    "derniere_bougie": "06/11 13:00"
    },
    "cr 4H": {
-    "dernier_controle": "06/11 13:39",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "06/11 13:50",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 28,
-    "derniere_bougie": "06/11 09:00"
+    "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
     "dernier_controle": "06/11 13:40",
@@ -1372,14 +1380,14 @@
     "derniere_bougie": "06/11 12:00"
    },
    "fx 30M": {
-    "dernier_controle": "06/11 13:41",
+    "dernier_controle": "06/11 13:50",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 30,
     "derniere_bougie": "06/11 12:30"
    },
    "fx 15M": {
-    "dernier_controle": "06/11 13:42",
+    "dernier_controle": "06/11 13:50",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
@@ -1583,12 +1591,12 @@
    }
   ],
   "truefx": {
-   "mode": "public",
-   "paires_temps_reel": 0
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
-  "envoyes": 7,
+  "envoyes": 9,
   "erreurs": 0
  }
 }
