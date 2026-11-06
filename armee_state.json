@@ -1223,8 +1223,90 @@
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "06/11 17:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "06/11 19:03",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 29,
+    "derniere_bougie": "06/11 18:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 15M": {
+    "dernier_controle": "06/11 19:08",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 2,
+    "derniere_bougie": "06/11 18:30"
    }
-  }
+  },
+  "plus_proches": [
+   {
+    "actif": "SUI 15M 2aeac6a6",
+    "reunies": "1/2",
+    "manque": [
+     "vs_milieu_nwog=? (zone -31.7 a -18.3)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "06/11 19:07",
+    "score": 0.5,
+    "t": 1793988449.857332
+   },
+   {
+    "actif": "HBAR 15M 2aeac6a6",
+    "reunies": "1/2",
+    "manque": [
+     "vs_milieu_nwog=? (zone -31.7 a -18.3)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "06/11 19:07",
+    "score": 0.5,
+    "t": 1793988441.0561016
+   },
+   {
+    "actif": "LTC 15M 2aeac6a6",
+    "reunies": "1/2",
+    "manque": [
+     "vs_milieu_nwog=? (zone -31.7 a -18.3)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "06/11 19:07",
+    "score": 0.5,
+    "t": 1793988438.3432348
+   },
+   {
+    "actif": "ADA 15M 2aeac6a6",
+    "reunies": "1/2",
+    "manque": [
+     "vs_milieu_nwog=? (zone -31.7 a -18.3)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "06/11 19:07",
+    "score": 0.5,
+    "t": 1793988436.8642514
+   },
+   {
+    "actif": "DOGE 15M 2aeac6a6",
+    "reunies": "1/2",
+    "manque": [
+     "vs_milieu_nwog=? (zone -31.7 a -18.3)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 73",
+    "sens": "vente",
+    "heure": "06/11 19:07",
+    "score": 0.5,
+    "t": 1793988436.4014773
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
