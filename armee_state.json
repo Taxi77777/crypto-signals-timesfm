@@ -1094,6 +1094,215 @@
    "historiques": "345/345",
    "secondes": 267,
    "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "07/11 00:40",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "06/11 23:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "07/11 00:45",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "07/11 00:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
+   }
+  },
+  "plus_proches": [
+   {
+    "actif": "YFI 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008699.5693634
+   },
+   {
+    "actif": "YFI 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008699.5693307
+   },
+   {
+    "actif": "SNX 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008699.1320546
+   },
+   {
+    "actif": "SNX 30M 77598b2d",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 85 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008699.1319833
+   },
+   {
+    "actif": "SNX 30M 3ea23c5f",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008699.131966
+   },
+   {
+    "actif": "COMP 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008698.7034605
+   },
+   {
+    "actif": "COMP 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008698.7034404
+   },
+   {
+    "actif": "COMP 30M 77598b2d",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 85 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008698.7033703
+   },
+   {
+    "actif": "COMP 30M 3ea23c5f",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008698.7033503
+   },
+   {
+    "actif": "AXS 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008698.2737617
+   },
+   {
+    "actif": "IMX 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008697.4006195
+   },
+   {
+    "actif": "FET 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008696.9737835
+   },
+   {
+    "actif": "FET 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008696.973745
+   },
+   {
+    "actif": "FET 30M 77598b2d",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 85 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008696.9735098
+   },
+   {
+    "actif": "FET 30M 3ea23c5f",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=-1.82 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 %",
+    "sens": "achat",
+    "heure": "07/11 00:44",
+    "score": 0.6666666666666666,
+    "t": 1794008696.9734898
+   }
+  ],
+  "volume_trop_faible": {
+   "DOT": "0.8 M$ sur 24 h",
+   "ATOM": "1.2 M$ sur 24 h",
+   "ICP": "1.1 M$ sur 24 h",
+   "OP": "0.2 M$ sur 24 h",
+   "LDO": "0.1 M$ sur 24 h"
   }
  },
  "telegram": {
