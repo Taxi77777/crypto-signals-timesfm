@@ -342,7 +342,7 @@
    "sym": "SOL",
    "dir": 1,
    "entry": 89.45,
-   "sl": 87.46856858823178,
+   "sl": 89.45,
    "tp": 90.19303677941309,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -356,11 +356,12 @@
    "trail": 3.0,
    "atr": 0.9907157058841158,
    "sl0": 87.46856858823178,
-   "sl_sent": 87.46856858823178,
+   "sl_sent": 89.45,
    "tp1": 90.19303677941309,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.3715183897065444,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -368,7 +369,7 @@
    "sym": "XRP",
    "dir": 1,
    "entry": 1.1862,
-   "sl": 1.1603098431287389,
+   "sl": 1.1862,
    "tp": 1.1959088088267227,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -382,11 +383,12 @@
    "trail": 3.0,
    "atr": 0.012945078435630477,
    "sl0": 1.1603098431287389,
-   "sl_sent": 1.1603098431287389,
+   "sl_sent": 1.1862,
    "tp1": 1.1959088088267227,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0048544044133613795,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -394,7 +396,7 @@
    "sym": "BNB",
    "dir": 1,
    "entry": 690.84,
-   "sl": 682.4488304888096,
+   "sl": 690.84,
    "tp": 693.9866885666964,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -408,11 +410,12 @@
    "trail": 3.0,
    "atr": 4.1955847555952435,
    "sl0": 682.4488304888096,
-   "sl_sent": 682.4488304888096,
+   "sl_sent": 690.84,
    "tp1": 693.9866885666964,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 1.5733442833482059,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -420,7 +423,7 @@
    "sym": "DOGE",
    "dir": 1,
    "entry": 0.07177,
-   "sl": 0.07025870452010306,
+   "sl": 0.07177,
    "tp": 0.07233673580496135,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -434,11 +437,12 @@
    "trail": 3.0,
    "atr": 0.0007556477399484686,
    "sl0": 0.07025870452010306,
-   "sl_sent": 0.07025870452010306,
+   "sl_sent": 0.07177,
    "tp1": 0.07233673580496135,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.00028336790248067317,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -446,7 +450,7 @@
    "sym": "ADA",
    "dir": 1,
    "entry": 0.18311,
-   "sl": 0.1784663999900931,
+   "sl": 0.18311,
    "tp": 0.18485135000371508,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -460,11 +464,12 @@
    "trail": 3.0,
    "atr": 0.002321800004953448,
    "sl0": 0.1784663999900931,
-   "sl_sent": 0.1784663999900931,
+   "sl_sent": 0.18311,
    "tp1": 0.18485135000371508,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0008706750018575432,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -472,7 +477,7 @@
    "sym": "LTC",
    "dir": 1,
    "entry": 52.26,
-   "sl": 51.14909834097345,
+   "sl": 52.26,
    "tp": 52.67658812213495,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -486,11 +491,12 @@
    "trail": 3.0,
    "atr": 0.5554508295132736,
    "sl0": 51.14909834097345,
-   "sl_sent": 51.14909834097345,
+   "sl_sent": 52.26,
    "tp1": 52.67658812213495,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.20829406106747683,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -524,7 +530,7 @@
    "sym": "XLM",
    "dir": 1,
    "entry": 0.152361,
-   "sl": 0.148564675894583,
+   "sl": 0.152361,
    "tp": 0.15378462153953137,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -538,11 +544,12 @@
    "trail": 3.0,
    "atr": 0.0018981620527084963,
    "sl0": 0.148564675894583,
-   "sl_sent": 0.148564675894583,
+   "sl_sent": 0.152361,
    "tp1": 0.15378462153953137,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0007118107697656889,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -576,7 +583,7 @@
    "sym": "AAVE",
    "dir": 1,
    "entry": 129.39,
-   "sl": 125.39713049276668,
+   "sl": 129.39,
    "tp": 130.88732606521248,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -590,11 +597,12 @@
    "trail": 3.0,
    "atr": 1.9964347536166562,
    "sl0": 125.39713049276668,
-   "sl_sent": 125.39713049276668,
+   "sl_sent": 129.39,
    "tp1": 130.88732606521248,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.7486630326062453,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -602,7 +610,7 @@
    "sym": "ETC",
    "dir": 1,
    "entry": 6.972,
-   "sl": 6.8267684526344246,
+   "sl": 6.972,
    "tp": 7.026461830262091,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -616,11 +624,12 @@
    "trail": 3.0,
    "atr": 0.07261577368278799,
    "sl0": 6.8267684526344246,
-   "sl_sent": 6.8267684526344246,
+   "sl_sent": 6.972,
    "tp1": 7.026461830262091,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.027230915131045474,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -654,7 +663,7 @@
    "sym": "GRT",
    "dir": 1,
    "entry": 0.01938,
-   "sl": 0.01884439763588773,
+   "sl": 0.01938,
    "tp": 0.019580850886542104,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -668,11 +677,12 @@
    "trail": 3.0,
    "atr": 0.00026780118205613473,
    "sl0": 0.01884439763588773,
-   "sl_sent": 0.01884439763588773,
+   "sl_sent": 0.01938,
    "tp1": 0.019580850886542104,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.00010042544327105128,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -758,7 +768,7 @@
    "sym": "FET",
    "dir": 1,
    "entry": 0.14779,
-   "sl": 0.14297744557214592,
+   "sl": 0.14779,
    "tp": 0.1495947079104453,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -772,11 +782,12 @@
    "trail": 3.0,
    "atr": 0.0024062772139270406,
    "sl0": 0.14297744557214592,
-   "sl_sent": 0.14297744557214592,
+   "sl_sent": 0.14779,
    "tp1": 0.1495947079104453,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0009023539552226456,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -914,7 +925,7 @@
    "sym": "ZEC",
    "dir": 1,
    "entry": 1255.16,
-   "sl": 1198.018898954288,
+   "sl": 1255.16,
    "tp": 1276.5879128921422,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -928,11 +939,12 @@
    "trail": 3.0,
    "atr": 28.57055052285605,
    "sl0": 1198.018898954288,
-   "sl_sent": 1198.018898954288,
+   "sl_sent": 1255.16,
    "tp1": 1276.5879128921422,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 10.713956446071052,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -966,7 +978,7 @@
    "sym": "ENS",
    "dir": 1,
    "entry": 4.635,
-   "sl": 4.5236787577996385,
+   "sl": 4.635,
    "tp": 4.676745465825135,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -980,11 +992,12 @@
    "trail": 3.0,
    "atr": 0.05566062110018051,
    "sl0": 4.5236787577996385,
-   "sl_sent": 4.5236787577996385,
+   "sl_sent": 4.635,
    "tp1": 4.676745465825135,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.02087273291256775,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1044,7 +1057,7 @@
    "sym": "ANKR",
    "dir": 1,
    "entry": 0.0039021,
-   "sl": 0.0038040861208926647,
+   "sl": 0.0039021,
    "tp": 0.003938855204665251,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -1058,11 +1071,12 @@
    "trail": 3.0,
    "atr": 4.9006939553667694e-05,
    "sl0": 0.0038040861208926647,
-   "sl_sent": 0.0038040861208926647,
+   "sl_sent": 0.0039021,
    "tp1": 0.003938855204665251,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 1.8377602332625377e-05,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1259,16 +1273,236 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 11:16",
+    "dernier_controle": "06/11 11:27",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "28/09 19:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "06/11 11:27",
+    "dernier_actif": "FLOW",
+    "actifs": 60,
+    "pistes_actives": 28,
+    "derniere_bougie": "06/11 10:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 15M": {
+    "dernier_controle": "06/11 11:27",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 2,
+    "derniere_bougie": "06/11 10:45"
+   },
+   "cr 4H": {
+    "dernier_controle": "06/11 11:27",
+    "dernier_actif": "STORJ",
+    "actifs": 60,
+    "pistes_actives": 22,
+    "derniere_bougie": "28/09 18:00"
+   },
+   "fx 15M": {
+    "dernier_controle": "06/11 11:27",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 21,
+    "derniere_bougie": "06/11 10:45"
    }
+  },
+  "plus_proches": [
+   {
+    "actif": "GBPAUD 15M 42882796",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (228 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9225307
+   },
+   {
+    "actif": "GBPAUD 15M 85501dde",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (252 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9224896
+   },
+   {
+    "actif": "GBPAUD 15M c600fbf3",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (229 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9224594
+   },
+   {
+    "actif": "GBPAUD 15M 5495e1bd",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (245 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9224014
+   },
+   {
+    "actif": "GBPAUD 15M 3baf9d76",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (199 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9223802
+   },
+   {
+    "actif": "GBPAUD 15M f4f6186e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (179 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.9223125
+   },
+   {
+    "actif": "EURAUD 15M 42882796",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (228 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.608482
+   },
+   {
+    "actif": "EURAUD 15M 5495e1bd",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (245 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.6084569
+   },
+   {
+    "actif": "EURAUD 15M 3baf9d76",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (199 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.6084473
+   },
+   {
+    "actif": "EURAUD 15M dca0d10c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (159 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.608423
+   },
+   {
+    "actif": "EURAUD 15M f4f6186e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (179 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.6084118
+   },
+   {
+    "actif": "EURAUD 15M 7358b439",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 80 % (172 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.608395
+   },
+   {
+    "actif": "CADJPY 15M 42882796",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (228 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.2944522
+   },
+   {
+    "actif": "CADJPY 15M 85501dde",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (252 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.2944148
+   },
+   {
+    "actif": "CADJPY 15M c600fbf3",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (229 trades jamai",
+    "sens": "vente",
+    "heure": "06/11 11:27",
+    "score": 0.6666666666666666,
+    "t": 1793960843.2943857
+   }
+  ],
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 14,
   "erreurs": 0
  }
 }
