@@ -580,33 +580,6 @@
   {
    "kind": "cr",
    "tf": "1H",
-   "sym": "AAVE",
-   "dir": 1,
-   "entry": 129.39,
-   "sl": 129.39,
-   "tp": 130.88732606521248,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-1de90a1d"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (103 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 1.9964347536166562,
-   "sl0": 125.39713049276668,
-   "sl_sent": 129.39,
-   "tp1": 130.88732606521248,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.7486630326062453,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
    "sym": "ETC",
    "dir": 1,
    "entry": 6.972,
@@ -637,7 +610,7 @@
    "sym": "SHIB",
    "dir": 1,
    "entry": 4.58e-06,
-   "sl": 4.48539010757218e-06,
+   "sl": 4.58e-06,
    "tp": 4.615478709660432e-06,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -651,11 +624,12 @@
    "trail": 3.0,
    "atr": 4.730494621391002e-08,
    "sl0": 4.48539010757218e-06,
-   "sl_sent": 4.48539010757218e-06,
+   "sl_sent": 4.58e-06,
    "tp1": 4.615478709660432e-06,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 1.7739354830216046e-08,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -795,7 +769,7 @@
    "sym": "IMX",
    "dir": 1,
    "entry": 0.11932,
-   "sl": 0.11623632525694598,
+   "sl": 0.11932,
    "tp": 0.12047637802864525,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -809,11 +783,12 @@
    "trail": 3.0,
    "atr": 0.0015418373715270055,
    "sl0": 0.11623632525694598,
-   "sl_sent": 0.11623632525694598,
+   "sl_sent": 0.11932,
    "tp1": 0.12047637802864525,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0005781890143226262,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -821,7 +796,7 @@
    "sym": "AXS",
    "dir": 1,
    "entry": 0.8425,
-   "sl": 0.8207718693388991,
+   "sl": 0.8425,
    "tp": 0.8506480489979129,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -835,11 +810,12 @@
    "trail": 3.0,
    "atr": 0.010864065330550461,
    "sl0": 0.8207718693388991,
-   "sl_sent": 0.8207718693388991,
+   "sl_sent": 0.8425,
    "tp1": 0.8506480489979129,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.004074024498956441,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -873,7 +849,7 @@
    "sym": "YFI",
    "dir": 1,
    "entry": 1989.69,
-   "sl": 1945.9247735235758,
+   "sl": 1989.69,
    "tp": 2006.1019599286592,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -887,11 +863,12 @@
    "trail": 3.0,
    "atr": 21.882613238212127,
    "sl0": 1945.9247735235758,
-   "sl_sent": 1945.9247735235758,
+   "sl_sent": 1989.69,
    "tp1": 2006.1019599286592,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 8.205979964329572,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -971,33 +948,6 @@
    "frac": 0.5,
    "half": false,
    "part": 0.0
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
-   "sym": "ENS",
-   "dir": 1,
-   "entry": 4.635,
-   "sl": 4.635,
-   "tp": 4.676745465825135,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-cd6655c6"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (155 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.05566062110018051,
-   "sl0": 4.5236787577996385,
-   "sl_sent": 4.635,
-   "tp1": 4.676745465825135,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.02087273291256775,
-   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1188,6 +1138,24 @@
    "pct": -4.801,
    "day": "2026-11-06",
    "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % (42 trades jamais vus)"
+  },
+  {
+   "sym": "AAVE",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.579,
+   "day": "2026-11-06",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (103 trades jamais vus)"
+  },
+  {
+   "sym": "ENS",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.45,
+   "day": "2026-11-06",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (155 trades jamais vus)"
   }
  ],
  "live": {
@@ -1254,6 +1222,14 @@
   "activee-cr-4h-46f74118": {
    "n": 1,
    "k": 0
+  },
+  "activee-cr-1de90a1d": {
+   "n": 1,
+   "k": 1
+  },
+  "activee-cr-cd6655c6": {
+   "n": 1,
+   "k": 1
   }
  },
  "retired": [],
@@ -1273,18 +1249,18 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 11:54",
+    "dernier_controle": "06/11 12:10",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 11:56",
-    "dernier_actif": "MINA",
+    "dernier_controle": "06/11 12:10",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 28,
-    "derniere_bougie": "06/11 10:30"
+    "derniere_bougie": null
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
@@ -1293,14 +1269,14 @@
     "STORJ 15M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "06/11 11:58",
-    "dernier_actif": "FLOW",
+    "dernier_controle": "06/11 12:10",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 2,
-    "derniere_bougie": "06/11 11:00"
+    "derniere_bougie": "06/11 11:30"
    },
    "cr 4H": {
-    "dernier_controle": "06/11 11:59",
+    "dernier_controle": "06/11 12:10",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 22,
@@ -1308,12 +1284,12 @@
    }
   },
   "truefx": {
-   "mode": "public",
-   "paires_temps_reel": 0
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 6,
   "erreurs": 0
  }
 }
