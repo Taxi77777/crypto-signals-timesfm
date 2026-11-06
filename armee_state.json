@@ -881,7 +881,9 @@
    "sl0": 3.6209887041882602,
    "sl_sent": 3.6209887041882602,
    "tp1": 3.7512167359294026,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   }
  ],
  "track": [
@@ -1211,18 +1213,18 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 20:30",
+    "dernier_controle": "06/11 20:41",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 20:35",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "06/11 20:41",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 29,
-    "derniere_bougie": "06/11 20:00"
+    "derniere_bougie": "06/11 19:30"
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
@@ -1231,14 +1233,14 @@
     "STORJ 15M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "06/11 20:39",
+    "dernier_controle": "06/11 20:41",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 2,
     "derniere_bougie": "06/11 20:00"
    },
    "cr 4H": {
-    "dernier_controle": "06/11 20:39",
+    "dernier_controle": "06/11 20:41",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 27,
@@ -1252,14 +1254,14 @@
     "derniere_bougie": "06/11 19:00"
    },
    "fx 30M": {
-    "dernier_controle": "06/11 20:40",
+    "dernier_controle": "06/11 20:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 29,
     "derniere_bougie": "06/11 19:30"
    },
    "fx 15M": {
-    "dernier_controle": "06/11 20:25",
+    "dernier_controle": "06/11 20:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
