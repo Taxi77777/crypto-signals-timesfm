@@ -422,25 +422,24 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 05:46",
+    "dernier_controle": "06/11 06:00",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "06/11 04:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 05:46",
+    "dernier_controle": "06/11 06:03",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 18,
     "derniere_bougie": "06/11 05:00"
    },
    "erreurs": {
-    "GBPCHF 1D": "seulement 175 bougies",
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
+    "STORJ 15M": "seulement 0 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
    },
    "cr 15M": {
     "dernier_controle": "06/11 05:49",
@@ -471,8 +470,8 @@
     "derniere_bougie": "06/11 01:00"
    },
    "fx 1D": {
-    "dernier_controle": "06/11 05:51",
-    "dernier_actif": "AUDJPY",
+    "dernier_controle": "06/11 05:56",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 14,
     "derniere_bougie": "05/11 01:00"
@@ -487,9 +486,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 90 % (39 trades jamais vus)",
     "sens": "vente",
-    "heure": "06/11 05:43",
+    "heure": "06/11 05:54",
     "score": 0.6666666666666666,
-    "t": 1793940236.2684298
+    "t": 1793940898.2055373
    },
    {
     "actif": "APE 30M 9674f86b",
