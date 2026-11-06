@@ -677,7 +677,7 @@
    "sym": "NEAR",
    "dir": 1,
    "entry": 3.7157,
-   "sl": 3.6209887041882602,
+   "sl": 3.7157,
    "tp": 3.7512167359294026,
    "t_entry": 1793993400.0,
    "t_exit": 1794425400.0,
@@ -691,11 +691,12 @@
    "trail": 3.0,
    "atr": 0.04735564790586993,
    "sl0": 3.6209887041882602,
-   "sl_sent": 3.6209887041882602,
+   "sl_sent": 3.7157,
    "tp1": 3.7512167359294026,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.017758367964701316,
+   "half_sent": true
   }
  ],
  "track": [
@@ -1096,34 +1097,34 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "06/11 23:33",
+    "dernier_controle": "06/11 23:50",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 23:38",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "06/11 23:50",
+    "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "06/11 23:00"
+    "derniere_bougie": "06/11 22:00"
    },
    "erreurs": {
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "06/11 23:33",
+    "dernier_controle": "06/11 23:50",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 2,
-    "derniere_bougie": "06/11 23:00"
+    "derniere_bougie": "06/11 23:15"
    },
    "cr 4H": {
-    "dernier_controle": "06/11 23:33",
+    "dernier_controle": "06/11 23:50",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 25,
@@ -1137,14 +1138,14 @@
     "derniere_bougie": "06/11 22:00"
    },
    "fx 30M": {
-    "dernier_controle": "06/11 23:33",
+    "dernier_controle": "06/11 23:50",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "06/11 22:30"
    },
    "fx 15M": {
-    "dernier_controle": "06/11 23:33",
+    "dernier_controle": "06/11 23:51",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 15,
@@ -1375,7 +1376,7 @@
   }
  },
  "telegram": {
-  "envoyes": 12,
+  "envoyes": 13,
   "erreurs": 0
  }
 }
