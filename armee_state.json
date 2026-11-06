@@ -107,7 +107,7 @@
    "sym": "SNX",
    "dir": 1,
    "entry": 0.16706,
-   "sl": 0.15779143909875462,
+   "sl": 0.16706,
    "tp": 0.170535710337967,
    "t_entry": 1793908800.0,
    "t_exit": 1797364800.0,
@@ -121,11 +121,12 @@
    "trail": 3.0,
    "atr": 0.0046342804506226834,
    "sl0": 0.15779143909875462,
-   "sl_sent": 0.15779143909875462,
+   "sl_sent": 0.16706,
    "tp1": 0.170535710337967,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0017378551689835042,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -159,7 +160,7 @@
    "sym": "ROSE",
    "dir": 1,
    "entry": 0.005729,
-   "sl": 0.005473335175143421,
+   "sl": 0.005729,
    "tp": 0.005814221608285526,
    "t_entry": 1793908800.0,
    "t_exit": 1794945600.0,
@@ -173,11 +174,12 @@
    "trail": 1.5,
    "atr": 0.00017044321657105245,
    "sl0": 0.005473335175143421,
-   "sl_sent": 0.005473335175143421,
+   "sl_sent": 0.005729,
    "tp1": 0.005814221608285526,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 4.261080414276301e-05,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -266,7 +268,7 @@
    "sym": "CHZ",
    "dir": 1,
    "entry": 0.01116,
-   "sl": 0.01116,
+   "sl": 0.011181217163495212,
    "tp": 0.011298260945501596,
    "t_entry": 1793923200.0,
    "t_exit": 1794960000.0,
@@ -293,7 +295,7 @@
    "sym": "BCH",
    "dir": 1,
    "entry": 263.85,
-   "sl": 251.90578447514005,
+   "sl": 263.85,
    "tp": 267.8314051749534,
    "t_entry": 1793952000.0,
    "t_exit": 1794988800.0,
@@ -307,11 +309,12 @@
    "trail": 1.5,
    "atr": 7.962810349906654,
    "sl0": 251.90578447514005,
-   "sl_sent": 251.90578447514005,
+   "sl_sent": 263.85,
    "tp1": 267.8314051749534,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 1.990702587476676,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -507,7 +510,7 @@
    "sym": "DOT",
    "dir": 1,
    "entry": 0.9189,
-   "sl": 0.8950082314014213,
+   "sl": 0.9189,
    "tp": 0.9278594132244671,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -521,11 +524,12 @@
    "trail": 3.0,
    "atr": 0.011945884299289406,
    "sl0": 0.8950082314014213,
-   "sl_sent": 0.8950082314014213,
+   "sl_sent": 0.9189,
    "tp1": 0.9278594132244671,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.004479706612233514,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -667,7 +671,7 @@
    "sym": "CRV",
    "dir": 1,
    "entry": 0.257,
-   "sl": 0.24960101451957425,
+   "sl": 0.257,
    "tp": 0.2597746195551597,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -681,11 +685,12 @@
    "trail": 3.0,
    "atr": 0.003699492740212874,
    "sl0": 0.24960101451957425,
-   "sl_sent": 0.24960101451957425,
+   "sl_sent": 0.257,
    "tp1": 0.2597746195551597,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.001387309777579837,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -693,7 +698,7 @@
    "sym": "ALGO",
    "dir": 1,
    "entry": 0.09325,
-   "sl": 0.0905081382785676,
+   "sl": 0.09325,
    "tp": 0.09427819814553715,
    "t_entry": 1793955600.0,
    "t_exit": 1794819600.0,
@@ -707,11 +712,12 @@
    "trail": 3.0,
    "atr": 0.0013709308607161989,
    "sl0": 0.0905081382785676,
-   "sl_sent": 0.0905081382785676,
+   "sl_sent": 0.09325,
    "tp1": 0.09427819814553715,
    "frac": 0.5,
-   "half": false,
-   "part": 0.0
+   "half": true,
+   "part": 0.0005140990727685729,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -733,11 +739,12 @@
    "trail": 3.0,
    "atr": 0.005757340577270657,
    "sl0": 0.24258531884545867,
-   "sl_sent": 0.24258531884545867,
+   "sl_sent": 0.2541,
    "tp1": 0.258418005432953,
    "frac": 0.5,
    "half": false,
-   "part": 0.0
+   "part": 0.0,
+   "half_sent": true
   },
   {
    "kind": "cr",
@@ -1329,11 +1336,259 @@
     "actifs": 60,
     "pistes_actives": 30,
     "derniere_bougie": "06/11 12:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "06/11 13:34",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 28,
+    "derniere_bougie": "06/11 12:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 15M": {
+    "dernier_controle": "06/11 13:37",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 2,
+    "derniere_bougie": "06/11 12:15"
+   },
+   "cr 4H": {
+    "dernier_controle": "06/11 13:39",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 28,
+    "derniere_bougie": "06/11 09:00"
+   },
+   "fx 1H": {
+    "dernier_controle": "06/11 13:40",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 26,
+    "derniere_bougie": "06/11 12:00"
+   },
+   "fx 30M": {
+    "dernier_controle": "06/11 13:41",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 30,
+    "derniere_bougie": "06/11 12:30"
+   },
+   "fx 15M": {
+    "dernier_controle": "06/11 13:42",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 19,
+    "derniere_bougie": "06/11 12:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "06/11 13:42",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 21,
+    "derniere_bougie": "06/11 09:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "06/11 13:43",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 9,
+    "derniere_bougie": "05/11 01:00"
    }
+  },
+  "plus_proches": [
+   {
+    "actif": "CHFJPY 4H ab2b3fa0",
+    "reunies": "2/3",
+    "manque": [
+     "ict_baissier_ote=? (zone -inf a 0.0822)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 86 ",
+    "sens": "achat",
+    "heure": "06/11 13:42",
+    "score": 0.6666666666666666,
+    "t": 1793968968.66728
+   },
+   {
+    "actif": "GBPUSD 4H 993205b1",
+    "reunies": "2/3",
+    "manque": [
+     "divergence_k(structure.vs_bas_2j,chandel=-1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 4 h \u00b7 92 % (37 trades jamais vu",
+    "sens": "achat",
+    "heure": "06/11 13:42",
+    "score": 0.6666666666666666,
+    "t": 1793968966.6480362
+   },
+   {
+    "actif": "GBPUSD 4H 70d29f7b",
+    "reunies": "2/3",
+    "manque": [
+     "divergence_k(structure.vs_bas_2j,chandel=-1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 92 % (38 trades jamais vus)",
+    "sens": "achat",
+    "heure": "06/11 13:42",
+    "score": 0.6666666666666666,
+    "t": 1793968966.6479542
+   },
+   {
+    "actif": "GBPUSD 4H ad48de4e",
+    "reunies": "2/3",
+    "manque": [
+     "divergence_k(structure.vs_bas_2j,chandel=-1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 92 % (3",
+    "sens": "achat",
+    "heure": "06/11 13:42",
+    "score": 0.6666666666666666,
+    "t": 1793968966.647852
+   },
+   {
+    "actif": "GBPUSD 4H d78706e0",
+    "reunies": "2/3",
+    "manque": [
+     "divergence_k(structure.vs_bas_2j,chandel=-1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 92 % (3",
+    "sens": "achat",
+    "heure": "06/11 13:42",
+    "score": 0.6666666666666666,
+    "t": 1793968966.6478205
+   },
+   {
+    "actif": "KAVA 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968481.1493282
+   },
+   {
+    "actif": "FLOW 30M 88b7e58a",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(structure.vs_bas_2j,flux.mouv=-0.01 (zone 0.124 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 80 ",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968480.7200687
+   },
+   {
+    "actif": "FLOW 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968480.7200572
+   },
+   {
+    "actif": "FLOW 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968480.7200441
+   },
+   {
+    "actif": "FLOW 30M c4a24014",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968480.7200344
+   },
+   {
+    "actif": "ANKR 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968479.412712
+   },
+   {
+    "actif": "BLUR 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968477.6751642
+   },
+   {
+    "actif": "APE 30M d180faa0",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 8",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968477.2415204
+   },
+   {
+    "actif": "APE 30M 9674f86b",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968477.2415087
+   },
+   {
+    "actif": "APE 30M c4a24014",
+    "reunies": "2/3",
+    "manque": [
+     "produit(positionnement.cot_bitcoin_fonds=0.287 (zone -4.2 a -2.39)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 83 %",
+    "sens": "achat",
+    "heure": "06/11 13:34",
+    "score": 0.6666666666666666,
+    "t": 1793968477.2414992
+   }
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 7,
   "erreurs": 0
  }
 }
