@@ -425,35 +425,35 @@
     "derniere_bougie": "06/11 01:00"
    },
    "cr 30M": {
-    "dernier_controle": "06/11 02:46",
+    "dernier_controle": "06/11 02:57",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 20,
     "derniere_bougie": "06/11 02:00"
    },
    "erreurs": {
+    "GBPCHF 1D": "seulement 175 bougies",
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
-    "GBPCHF 1D": "seulement 175 bougies"
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "06/11 02:49",
+    "dernier_controle": "06/11 03:00",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 1,
     "derniere_bougie": "06/11 02:30"
    },
    "cr 4H": {
-    "dernier_controle": "06/11 02:49",
+    "dernier_controle": "06/11 03:02",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 17,
     "derniere_bougie": "05/11 21:00"
    },
    "fx 30M": {
-    "dernier_controle": "06/11 02:49",
+    "dernier_controle": "06/11 03:04",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 10,
@@ -475,6 +475,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "USDCAD 30M 7bbf3196",
+    "reunies": "2/3",
+    "manque": [
+     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 87 % (68 trades jamais vu",
+    "sens": "vente",
+    "heure": "06/11 03:04",
+    "score": 0.6666666666666666,
+    "t": 1793930648.3658955
+   },
+   {
+    "actif": "USDCAD 30M 4f3ddaef",
+    "reunies": "2/3",
+    "manque": [
+     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 89 ",
+    "sens": "vente",
+    "heure": "06/11 03:04",
+    "score": 0.6666666666666666,
+    "t": 1793930648.3658583
+   },
+   {
+    "actif": "USDCAD 30M 273f8327",
+    "reunies": "2/3",
+    "manque": [
+     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 92 ",
+    "sens": "vente",
+    "heure": "06/11 03:04",
+    "score": 0.6666666666666666,
+    "t": 1793930648.365842
+   },
    {
     "actif": "CADJPY 1D 28e3fa93",
     "reunies": "2/3",
@@ -498,42 +534,6 @@
     "heure": "06/11 02:49",
     "score": 0.6666666666666666,
     "t": 1793929797.627985
-   },
-   {
-    "actif": "USDCAD 30M 7bbf3196",
-    "reunies": "2/3",
-    "manque": [
-     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 87 % (68 trades jamais vu",
-    "sens": "vente",
-    "heure": "06/11 02:49",
-    "score": 0.6666666666666666,
-    "t": 1793929791.431958
-   },
-   {
-    "actif": "USDCAD 30M 4f3ddaef",
-    "reunies": "2/3",
-    "manque": [
-     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 89 ",
-    "sens": "vente",
-    "heure": "06/11 02:49",
-    "score": 0.6666666666666666,
-    "t": 1793929791.4319212
-   },
-   {
-    "actif": "USDCAD 30M 273f8327",
-    "reunies": "2/3",
-    "manque": [
-     "heures_depuis_17h_new_york=3 (zone 19 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 92 ",
-    "sens": "vente",
-    "heure": "06/11 02:49",
-    "score": 0.6666666666666666,
-    "t": 1793929791.4319055
    },
    {
     "actif": "ROSE 30M d180faa0",
