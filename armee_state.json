@@ -566,60 +566,6 @@
   {
    "kind": "cr",
    "tf": "1H",
-   "sym": "IMX",
-   "dir": 1,
-   "entry": 0.11932,
-   "sl": 0.11932,
-   "tp": 0.12047637802864525,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-21e8f399"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 83 % (317 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.0015418373715270055,
-   "sl0": 0.11623632525694598,
-   "sl_sent": 0.11932,
-   "tp1": 0.12047637802864525,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.0005781890143226262,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
-   "sym": "AXS",
-   "dir": 1,
-   "entry": 0.8425,
-   "sl": 0.8425,
-   "tp": 0.8506480489979129,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-af1ca4dd"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.010864065330550461,
-   "sl0": 0.8207718693388991,
-   "sl_sent": 0.8425,
-   "tp1": 0.8506480489979129,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.004074024498956441,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
    "sym": "COMP",
    "dir": 1,
    "entry": 19.94,
@@ -962,6 +908,24 @@
    "pct": 0.478,
    "day": "2026-11-07",
    "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (141 trades jamais vus)"
+  },
+  {
+   "sym": "IMX",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.485,
+   "day": "2026-11-07",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 83 % (317 trades jamais vus)"
+  },
+  {
+   "sym": "AXS",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.484,
+   "day": "2026-11-07",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)"
   }
  ],
  "live": {
@@ -1038,12 +1002,12 @@
    "k": 2
   },
   "activee-cr-af1ca4dd": {
-   "n": 12,
-   "k": 10
+   "n": 13,
+   "k": 11
   },
   "activee-cr-21e8f399": {
-   "n": 2,
-   "k": 2
+   "n": 3,
+   "k": 3
   },
   "activee-cr-30m-74116882": {
    "n": 1,
@@ -1079,18 +1043,18 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "07/11 01:32",
+    "dernier_controle": "07/11 01:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 28,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "07/11 01:37",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "07/11 01:45",
+    "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "07/11 01:00"
+    "derniere_bougie": "07/11 00:30"
    },
    "erreurs": {
     "LRC 15M": "seulement 0 bougies",
@@ -1099,18 +1063,18 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 15M": {
-    "dernier_controle": "07/11 01:16",
+    "dernier_controle": "07/11 01:42",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 1,
-    "derniere_bougie": "07/11 00:45"
+    "derniere_bougie": "07/11 01:00"
    },
    "cr 4H": {
-    "dernier_controle": "07/11 01:19",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "07/11 01:42",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 27,
-    "derniere_bougie": "06/11 21:00"
+    "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
     "dernier_controle": "07/11 01:26",
@@ -1120,14 +1084,14 @@
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 01:28",
+    "dernier_controle": "07/11 01:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 01:29",
+    "dernier_controle": "07/11 01:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -1350,7 +1314,7 @@
   }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 3,
   "erreurs": 0
  }
 }
