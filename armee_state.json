@@ -820,11 +820,11 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "07/11 23:35",
+    "dernier_controle": "08/11 00:34",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 26,
-    "derniere_bougie": "07/11 22:00"
+    "derniere_bougie": "07/11 23:00"
    },
    "cr 30M": {
     "dernier_controle": "07/11 23:38",
@@ -871,6 +871,13 @@
     "actifs": 21,
     "pistes_actives": 18,
     "derniere_bougie": "06/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "08/11 00:30",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 11,
+    "derniere_bougie": "06/11 01:00"
    }
   },
   "plus_proches": [
@@ -1059,7 +1066,11 @@
     "score": 0.3333333333333333,
     "t": 1794092570.1026938
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 0,
