@@ -887,14 +887,14 @@
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 15:44",
+    "dernier_controle": "07/11 16:09",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "07/11 15:47",
+    "dernier_controle": "07/11 16:12",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
@@ -917,21 +917,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (144 trades jamai",
     "sens": "vente",
-    "heure": "07/11 15:42",
+    "heure": "07/11 16:04",
     "score": 0.6666666666666666,
-    "t": 1794062521.772129
-   },
-   {
-    "actif": "GBPUSD 15M 354d182e",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (156 trades jamai",
-    "sens": "vente",
-    "heure": "07/11 15:42",
-    "score": 0.6666666666666666,
-    "t": 1794062521.772095
+    "t": 1794063851.5397522
    },
    {
     "actif": "GBPUSD 15M 8edb3f8e",
@@ -941,9 +929,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (157 trades jamai",
     "sens": "vente",
-    "heure": "07/11 15:42",
+    "heure": "07/11 16:04",
     "score": 0.6666666666666666,
-    "t": 1794062521.7720773
+    "t": 1794063851.5396981
    },
    {
     "actif": "AUDUSD 30M 438b7f5d",
@@ -1088,6 +1076,18 @@
     "heure": "07/11 15:15",
     "score": 0.6666666666666666,
     "t": 1794060934.4473066
+   },
+   {
+    "actif": "SUSHI 1H 4ac9dd8c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 82 % (3",
+    "sens": "achat",
+    "heure": "07/11 15:15",
+    "score": 0.6666666666666666,
+    "t": 1794060934.1530898
    }
   ],
   "truefx": {
