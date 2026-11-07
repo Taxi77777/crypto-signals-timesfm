@@ -952,10 +952,24 @@
    },
    "fx 15M": {
     "dernier_controle": "07/11 06:27",
-    "dernier_actif": "CADJPY",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
     "derniere_bougie": "07/11 00:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "07/11 06:33",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 21,
+    "derniere_bougie": "06/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "07/11 06:36",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 8,
+    "derniere_bougie": "06/11 01:00"
    }
   },
   "plus_proches": [
@@ -1139,7 +1153,11 @@
     "score": 0.6666666666666666,
     "t": 1794027967.7276893
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 0,
