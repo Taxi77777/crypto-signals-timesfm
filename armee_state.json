@@ -893,98 +893,35 @@
   "veille": "2026-10-31"
  },
  "diag": {
-  "strategies": 6,
-  "labo": "2026-11-06 23:22 UTC",
+  "strategies": 5,
+  "labo": "2026-11-07 04:53 UTC",
   "telegram": "ok",
   "demarrage": {
    "historiques": "345/345",
-   "secondes": 267,
+   "secondes": 104,
    "repris_de_la_veille": 345
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "07/11 05:40",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "07/11 06:03",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 27,
-    "derniere_bougie": "28/09 19:00"
+    "derniere_bougie": "07/11 04:00"
    },
    "cr 30M": {
-    "dernier_controle": "07/11 05:45",
+    "dernier_controle": "07/11 06:06",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "07/11 05:00"
+    "derniere_bougie": "07/11 05:30"
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
-   },
-   "cr 15M": {
-    "dernier_controle": "07/11 05:49",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 1,
-    "derniere_bougie": "07/11 05:30"
-   },
-   "cr 4H": {
-    "dernier_controle": "07/11 05:49",
-    "dernier_actif": "STORJ",
-    "actifs": 60,
-    "pistes_actives": 29,
-    "derniere_bougie": "28/09 18:00"
-   },
-   "fx 1H": {
-    "dernier_controle": "07/11 05:49",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 24,
-    "derniere_bougie": "07/11 00:00"
-   },
-   "fx 30M": {
-    "dernier_controle": "07/11 05:54",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 27,
-    "derniere_bougie": "07/11 00:30"
-   },
-   "fx 15M": {
-    "dernier_controle": "07/11 05:56",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 18,
-    "derniere_bougie": "07/11 00:45"
-   },
-   "fx 4H": {
-    "dernier_controle": "07/11 05:56",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 21,
-    "derniere_bougie": "06/11 21:00"
-   },
-   "fx 1D": {
-    "dernier_controle": "07/11 01:31",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 9,
-    "derniere_bougie": "06/11 01:00"
+    "STORJ 30M": "seulement 0 bougies"
    }
   },
   "plus_proches": [
-   {
-    "actif": "ANKR 30M f80a2004",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (251 trades jama",
-    "sens": "achat",
-    "heure": "07/11 05:44",
-    "score": 0.6666666666666666,
-    "t": 1794026699.7598243
-   },
    {
     "actif": "SUSHI 30M f80a2004",
     "reunies": "2/3",
@@ -993,21 +930,45 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (251 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026698.9120924
+    "t": 1794027976.2893965
    },
    {
-    "actif": "CHZ 30M af962192",
+    "actif": "ENS 30M a4ab8465",
     "reunies": "2/3",
     "manque": [
      "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (174 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (176 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026696.7881582
+    "t": 1794027974.5747974
+   },
+   {
+    "actif": "ENS 30M af962192",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (170 trades jama",
+    "sens": "achat",
+    "heure": "07/11 06:06",
+    "score": 0.6666666666666666,
+    "t": 1794027974.5747879
+   },
+   {
+    "actif": "ENS 30M d570b2ff",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (168 trades jama",
+    "sens": "achat",
+    "heure": "07/11 06:06",
+    "score": 0.6666666666666666,
+    "t": 1794027974.5747461
    },
    {
     "actif": "CHZ 30M a4ab8465",
@@ -1017,9 +978,21 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (176 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026696.7881427
+    "t": 1794027974.1451294
+   },
+   {
+    "actif": "CHZ 30M af962192",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (170 trades jama",
+    "sens": "achat",
+    "heure": "07/11 06:06",
+    "score": 0.6666666666666666,
+    "t": 1794027974.1451206
    },
    {
     "actif": "CHZ 30M 4f98f3e3",
@@ -1029,9 +1002,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (149 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026696.7881293
+    "t": 1794027974.1451108
    },
    {
     "actif": "CHZ 30M 548a5359",
@@ -1041,9 +1014,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (146 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026696.7881136
+    "t": 1794027974.1450992
    },
    {
     "actif": "CHZ 30M d570b2ff",
@@ -1051,11 +1024,11 @@
     "manque": [
      "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (170 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (168 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026696.7880945
+    "t": 1794027974.145079
    },
    {
     "actif": "ZEC 30M bc1aa123",
@@ -1065,9 +1038,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (202 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026695.475986
+    "t": 1794027972.858324
    },
    {
     "actif": "ZEC 30M f80a2004",
@@ -1077,9 +1050,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (251 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026695.475877
+    "t": 1794027972.858252
    },
    {
     "actif": "BAT 30M 7107015c",
@@ -1089,9 +1062,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (63 trades jamais v",
     "sens": "vente",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026695.046879
+    "t": 1794027972.427772
    },
    {
     "actif": "FET 30M f80a2004",
@@ -1101,9 +1074,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (251 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026691.6422834
+    "t": 1794027969.0114055
    },
    {
     "actif": "FET 30M 8cc10c33",
@@ -1113,70 +1086,26 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (137 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026691.642177
+    "t": 1794027969.0113218
    },
    {
-    "actif": "SAND 30M d585ed81",
-    "reunies": "2/3",
-    "manque": [
-     "ratio(liquidite.ipda_20j_dist_haut,flux.=? (zone -inf a 0.309)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 76 % (131 trades jamais ",
-    "sens": "vente",
-    "heure": "07/11 05:44",
-    "score": 0.6666666666666666,
-    "t": 1794026689.9443133
-   },
-   {
-    "actif": "INJ 30M bc1aa123",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (202 trades jama",
-    "sens": "achat",
-    "heure": "07/11 05:44",
-    "score": 0.6666666666666666,
-    "t": 1794026688.2403543
-   },
-   {
-    "actif": "INJ 30M f80a2004",
+    "actif": "MANA 30M f80a2004",
     "reunies": "2/3",
     "manque": [
      "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (251 trades jama",
     "sens": "achat",
-    "heure": "07/11 05:44",
+    "heure": "07/11 06:06",
     "score": 0.6666666666666666,
-    "t": 1794026688.2402515
+    "t": 1794027967.7276893
    }
-  ],
-  "volume_trop_faible": {
-   "DOT": "0.8 M$ sur 24 h",
-   "ATOM": "1.1 M$ sur 24 h",
-   "ICP": "1.1 M$ sur 24 h",
-   "OP": "0.2 M$ sur 24 h",
-   "LDO": "0.1 M$ sur 24 h",
-   "MANA": "0.0 M$ sur 24 h",
-   "APE": "0.2 M$ sur 24 h",
-   "ANKR": "0.0 M$ sur 24 h",
-   "FLOW": "0.0 M$ sur 24 h",
-   "BAT": "0.2 M$ sur 24 h",
-   "ENS": "0.2 M$ sur 24 h",
-   "ZRX": "0.1 M$ sur 24 h",
-   "AXS": "0.2 M$ sur 24 h",
-   "MINA": "0.1 M$ sur 24 h"
-  },
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 0
-  }
+  ]
  },
  "telegram": {
-  "envoyes": 11,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
