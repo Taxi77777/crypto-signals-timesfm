@@ -812,7 +812,21 @@
  "diag": {
   "strategies": 10,
   "labo": "2026-11-07 22:07 UTC",
-  "telegram": "ok"
+  "telegram": "ok",
+  "demarrage": {
+   "historiques": "285/285",
+   "secondes": 926,
+   "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "07/11 23:35",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 26,
+    "derniere_bougie": "07/11 22:00"
+   }
+  }
  },
  "telegram": {
   "envoyes": 0,
