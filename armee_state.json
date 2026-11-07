@@ -1077,21 +1077,21 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "07/11 02:39",
+    "dernier_controle": "07/11 03:02",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 25,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 02:40",
+    "dernier_controle": "07/11 03:04",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 02:41",
+    "dernier_controle": "07/11 03:05",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -1113,6 +1113,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M fc09eb38",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (146 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 03:05",
+    "score": 0.6666666666666666,
+    "t": 1794017142.9768128
+   },
    {
     "actif": "FLOW 30M d180faa0",
     "reunies": "2/3",
@@ -1280,18 +1292,6 @@
     "heure": "07/11 02:35",
     "score": 0.6666666666666666,
     "t": 1794015301.0258436
-   },
-   {
-    "actif": "APE 30M d570b2ff",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (171 trades jama",
-    "sens": "achat",
-    "heure": "07/11 02:35",
-    "score": 0.6666666666666666,
-    "t": 1794015301.0258288
    }
   ],
   "volume_trop_faible": {
