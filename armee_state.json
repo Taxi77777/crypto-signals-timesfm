@@ -215,33 +215,6 @@
   {
    "kind": "cr",
    "tf": "1H",
-   "sym": "SOL",
-   "dir": 1,
-   "entry": 89.45,
-   "sl": 89.45,
-   "tp": 90.19303677941309,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-af1ca4dd"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.9907157058841158,
-   "sl0": 87.46856858823178,
-   "sl_sent": 89.45,
-   "tp1": 90.19303677941309,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.3715183897065444,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
    "sym": "BNB",
    "dir": 1,
    "entry": 690.84,
@@ -710,6 +683,15 @@
    "pct": 1.895,
    "day": "2026-11-07",
    "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)"
+  },
+  {
+   "sym": "SOL",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.415,
+   "day": "2026-11-07",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)"
   }
  ],
  "live": {
@@ -786,8 +768,8 @@
    "k": 5
   },
   "activee-cr-af1ca4dd": {
-   "n": 17,
-   "k": 15
+   "n": 18,
+   "k": 16
   },
   "activee-cr-21e8f399": {
    "n": 4,
@@ -892,6 +874,20 @@
     "actifs": 21,
     "pistes_actives": 16,
     "derniere_bougie": "07/11 00:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "07/11 18:21",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 18,
+    "derniere_bougie": "06/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "07/11 18:27",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 10,
+    "derniere_bougie": "06/11 01:00"
    }
   },
   "plus_proches": [
@@ -1052,33 +1048,37 @@
     "t": 1794069717.8618746
    },
    {
-    "actif": "KAVA 30M c76d1187",
+    "actif": "CADJPY 1D 520df13b",
     "reunies": "1/2",
     "manque": [
-     "mouvement_fomc=? (zone 1.08 a inf)"
+     "ipda_60j_dist_bas=? (zone 31.7 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 78 % (45 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 90 % (40 trades jamais vus)",
     "sens": "vente",
-    "heure": "07/11 17:42",
+    "heure": "07/11 18:27",
     "score": 0.5,
-    "t": 1794069728.9821386
+    "t": 1794072423.6114151
    },
    {
-    "actif": "KAVA 30M 2964af71",
+    "actif": "AUDJPY 1D 520df13b",
     "reunies": "1/2",
     "manque": [
-     "heures_fomc=? (zone 5.5 a inf)"
+     "ipda_60j_dist_bas=? (zone 31.7 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 94 % (49 trades jamai",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 90 % (40 trades jamais vus)",
     "sens": "vente",
-    "heure": "07/11 17:42",
+    "heure": "07/11 18:26",
     "score": 0.5,
-    "t": 1794069728.9819365
+    "t": 1794072377.725766
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
