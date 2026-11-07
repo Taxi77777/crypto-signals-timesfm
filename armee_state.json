@@ -898,14 +898,14 @@
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 14:19",
+    "dernier_controle": "07/11 14:58",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 14:25",
+    "dernier_controle": "07/11 15:02",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
@@ -927,6 +927,90 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M 767c1bd5",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (146 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.965002
+   },
+   {
+    "actif": "GBPUSD 15M 138bd9d7",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (145 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.964986
+   },
+   {
+    "actif": "GBPUSD 15M 3d45597f",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (146 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.9649692
+   },
+   {
+    "actif": "GBPUSD 15M fc09eb38",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (144 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.964907
+   },
+   {
+    "actif": "GBPUSD 15M 57ab9087",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (215 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.9648354
+   },
+   {
+    "actif": "GBPUSD 15M 354d182e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (156 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.9648197
+   },
+   {
+    "actif": "GBPUSD 15M 8edb3f8e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (157 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 15:00",
+    "score": 0.6666666666666666,
+    "t": 1794060005.964803
+   },
    {
     "actif": "XTZ 30M 13150a1c",
     "reunies": "2/3",
@@ -1022,90 +1106,6 @@
     "heure": "07/11 14:43",
     "score": 0.6666666666666666,
     "t": 1794059031.5081847
-   },
-   {
-    "actif": "SAND 30M 548a5359",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (134 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059031.5081682
-   },
-   {
-    "actif": "SAND 30M a4ab8465",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (160 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059031.5081494
-   },
-   {
-    "actif": "APT 30M 64b1997c",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (183 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059030.0585668
-   },
-   {
-    "actif": "OP 30M 01a30bf6",
-    "reunies": "2/3",
-    "manque": [
-     "ratio(liquidite.ipda_20j_dist_haut,flux.=? (zone -inf a 0.309)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 78 % (127 trades jama",
-    "sens": "vente",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059029.7672305
-   },
-   {
-    "actif": "ICP 30M 64b1997c",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 80 % (183 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059028.8999846
-   },
-   {
-    "actif": "HBAR 30M af962192",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (155 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059026.8601813
-   },
-   {
-    "actif": "HBAR 30M 8cc10c33",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (137 trades jama",
-    "sens": "achat",
-    "heure": "07/11 14:43",
-    "score": 0.6666666666666666,
-    "t": 1794059026.8601344
    }
   ],
   "truefx": {
