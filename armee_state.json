@@ -956,6 +956,20 @@
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "07/11 00:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "07/11 12:28",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 19,
+    "derniere_bougie": "06/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "07/11 12:32",
+    "dernier_actif": "EURGBP",
+    "actifs": 21,
+    "pistes_actives": 8,
+    "derniere_bougie": "06/11 01:00"
    }
   },
   "plus_proches": [
@@ -970,6 +984,30 @@
     "heure": "07/11 12:15",
     "score": 0.6666666666666666,
     "t": 1794050124.0444162
+   },
+   {
+    "actif": "USDCAD 1D 7fb9bf7b",
+    "reunies": "1/2",
+    "manque": [
+     "ecart_rang(structure.vs_bas_2j,smc.ict_b=? (zone -inf a -0.29)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex jour \u00b7 92 % (48 trades jamais v",
+    "sens": "achat",
+    "heure": "07/11 12:31",
+    "score": 0.5,
+    "t": 1794051117.0397093
+   },
+   {
+    "actif": "USDCHF 1D 14a2e61c",
+    "reunies": "1/2",
+    "manque": [
+     "dans_fvg_haussier=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 91 % (34 trades jamais vus)",
+    "sens": "achat",
+    "heure": "07/11 12:31",
+    "score": 0.5,
+    "t": 1794051114.0448155
    },
    {
     "actif": "AUDUSD 15M fc23ec55",
@@ -1126,32 +1164,6 @@
     "heure": "07/11 12:15",
     "score": 0.3333333333333333,
     "t": 1794050127.207272
-   },
-   {
-    "actif": "USDCHF 15M 2ee82183",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "dans_ob_baissier=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (141 trades jamai",
-    "sens": "vente",
-    "heure": "07/11 12:15",
-    "score": 0.3333333333333333,
-    "t": 1794050127.2072327
-   },
-   {
-    "actif": "GBPUSD 15M 767c1bd5",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "croise_moyenne(structure.vs_bas_2j,liqui=10.8 (zone 1.31 a 4.48)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (146 trades jamai",
-    "sens": "vente",
-    "heure": "07/11 12:15",
-    "score": 0.3333333333333333,
-    "t": 1794050124.0444527
    }
   ]
  },
