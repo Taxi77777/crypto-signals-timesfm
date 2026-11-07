@@ -918,7 +918,23 @@
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 15M": {
+    "dernier_controle": "07/11 11:56",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 1,
+    "derniere_bougie": "07/11 11:30"
+   },
+   "cr 4H": {
+    "dernier_controle": "07/11 11:59",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 30,
+    "derniere_bougie": "07/11 05:00"
    }
   }
  },
