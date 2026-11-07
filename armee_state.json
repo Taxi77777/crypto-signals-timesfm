@@ -862,14 +862,14 @@
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 19:40",
-    "dernier_actif": "USDJPY",
+    "dernier_controle": "07/11 19:43",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
-    "derniere_bougie": "07/11 19:00"
+    "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 19:06",
+    "dernier_controle": "07/11 19:48",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 16,
@@ -891,6 +891,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M 354d182e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (156 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 19:45",
+    "score": 0.6666666666666666,
+    "t": 1794077158.9738986
+   },
+   {
+    "actif": "GBPUSD 15M 8edb3f8e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (157 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 19:45",
+    "score": 0.6666666666666666,
+    "t": 1794077158.9738824
+   },
+   {
+    "actif": "USDCHF 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 19:40",
+    "score": 0.6666666666666666,
+    "t": 1794076810.3171022
+   },
    {
     "actif": "GBPUSD 30M 02bcce6b",
     "reunies": "2/3",
@@ -1034,42 +1070,6 @@
     "heure": "07/11 19:25",
     "score": 0.6666666666666666,
     "t": 1794075924.154101
-   },
-   {
-    "actif": "ZRX 1H 4ac9dd8c",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 82 % (3",
-    "sens": "achat",
-    "heure": "07/11 19:25",
-    "score": 0.6666666666666666,
-    "t": 1794075924.1540258
-   },
-   {
-    "actif": "SUSHI 1H 73e0654a",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 79 % (381 trades jamais vus)",
-    "sens": "achat",
-    "heure": "07/11 19:25",
-    "score": 0.6666666666666666,
-    "t": 1794075923.8657632
-   },
-   {
-    "actif": "SUSHI 1H c6ac50b7",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 79 % (341 trades jamais vus)",
-    "sens": "achat",
-    "heure": "07/11 19:25",
-    "score": 0.6666666666666666,
-    "t": 1794075923.8657126
    }
   ],
   "truefx": {
