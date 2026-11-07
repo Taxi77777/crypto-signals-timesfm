@@ -919,17 +919,17 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "07/11 13:39",
+    "dernier_controle": "07/11 14:15",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 25,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 13:42",
+    "dernier_controle": "07/11 14:19",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 23,
+    "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
@@ -990,18 +990,6 @@
     "heure": "07/11 14:05",
     "score": 0.6666666666666666,
     "t": 1794056747.1654475
-   },
-   {
-    "actif": "USDCAD 1H c3378b2e",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (635 trades jamais vus)",
-    "sens": "achat",
-    "heure": "07/11 13:36",
-    "score": 0.6666666666666666,
-    "t": 1794055014.0046484
    },
    {
     "actif": "FLOW 1H 8fcc5e5f",
@@ -1134,6 +1122,18 @@
     "heure": "07/11 13:22",
     "score": 0.5,
     "t": 1794054140.3291461
+   },
+   {
+    "actif": "ZRX 1H 6dee28d4",
+    "reunies": "1/2",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 77 % (470 trades jamais vus)",
+    "sens": "achat",
+    "heure": "07/11 13:22",
+    "score": 0.5,
+    "t": 1794054140.040941
    }
   ],
   "truefx": {
