@@ -855,18 +855,18 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "07/11 21:25",
+    "dernier_controle": "07/11 22:04",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 21:35",
-    "dernier_actif": "XAGUSD",
+    "dernier_controle": "07/11 22:08",
+    "dernier_actif": "USDCHF",
     "actifs": 21,
     "pistes_actives": 16,
-    "derniere_bougie": "07/11 00:30"
+    "derniere_bougie": "07/11 21:30"
    },
    "fx 15M": {
     "dernier_controle": "07/11 21:40",
@@ -891,6 +891,30 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "USDCHF 30M 1292201a",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 79 % (253 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 22:08",
+    "score": 0.6666666666666666,
+    "t": 1794085716.3965638
+   },
+   {
+    "actif": "USDCHF 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 22:08",
+    "score": 0.6666666666666666,
+    "t": 1794085716.3964548
+   },
    {
     "actif": "GBPUSD 4H fdfef1d6",
     "reunies": "2/3",
@@ -1046,30 +1070,6 @@
     "heure": "07/11 21:17",
     "score": 0.5,
     "t": 1794082631.4911218
-   },
-   {
-    "actif": "SUSHI 4H 46f74118",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
-    "sens": "achat",
-    "heure": "07/11 21:17",
-    "score": 0.5,
-    "t": 1794082630.307782
-   },
-   {
-    "actif": "BLUR 4H 46f74118",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
-    "sens": "achat",
-    "heure": "07/11 21:17",
-    "score": 0.5,
-    "t": 1794082629.7263424
    }
   ],
   "truefx": {
