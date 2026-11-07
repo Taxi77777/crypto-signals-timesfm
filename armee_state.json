@@ -292,33 +292,6 @@
    "half": true,
    "part": 0.001387309777579837,
    "half_sent": true
-  },
-  {
-   "kind": "cr",
-   "tf": "1H",
-   "sym": "ZEC",
-   "dir": 1,
-   "entry": 1255.16,
-   "sl": 1281.3083484314318,
-   "tp": 1276.5879128921422,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-af1ca4dd"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 28.57055052285605,
-   "sl0": 1198.018898954288,
-   "sl_sent": 1281.3083484314318,
-   "tp1": 1276.5879128921422,
-   "frac": 0.5,
-   "half": true,
-   "part": 10.713956446071052,
-   "half_sent": true
   }
  ],
  "track": [
@@ -728,6 +701,15 @@
    "pct": 0.744,
    "day": "2026-11-07",
    "activee": "Meilleure piste crypto 4 h \u00b7 88 % (58 trades jamais vus)"
+  },
+  {
+   "sym": "ZEC",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 1.895,
+   "day": "2026-11-07",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 81 % (169 trades jamais vus)"
   }
  ],
  "live": {
@@ -804,8 +786,8 @@
    "k": 5
   },
   "activee-cr-af1ca4dd": {
-   "n": 16,
-   "k": 14
+   "n": 17,
+   "k": 15
   },
   "activee-cr-21e8f399": {
    "n": 4,
@@ -912,7 +894,7 @@
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "07/11 14:28",
+    "dernier_controle": "07/11 15:08",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
@@ -1114,7 +1096,7 @@
   }
  },
  "telegram": {
-  "envoyes": 3,
+  "envoyes": 4,
   "erreurs": 0
  }
 }
