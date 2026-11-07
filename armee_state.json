@@ -1025,7 +1025,7 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "07/11 03:30",
+    "dernier_controle": "07/11 03:49",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 28,
@@ -1059,21 +1059,21 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "07/11 03:26",
+    "dernier_controle": "07/11 03:39",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 25,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "07/11 03:27",
+    "dernier_controle": "07/11 03:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "07/11 03:30",
+    "dernier_controle": "07/11 03:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -1095,6 +1095,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M 2d5daf41",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (217 trades jamai",
+    "sens": "vente",
+    "heure": "07/11 03:42",
+    "score": 0.6666666666666666,
+    "t": 1794019325.7558424
+   },
    {
     "actif": "ROSE 30M d180faa0",
     "reunies": "2/3",
@@ -1262,18 +1274,6 @@
     "heure": "07/11 03:35",
     "score": 0.6666666666666666,
     "t": 1794018910.4069674
-   },
-   {
-    "actif": "APE 30M d570b2ff",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (171 trades jama",
-    "sens": "achat",
-    "heure": "07/11 03:35",
-    "score": 0.6666666666666666,
-    "t": 1794018910.4069533
    }
   ],
   "volume_trop_faible": {
