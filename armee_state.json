@@ -971,24 +971,24 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "07/11 04:33",
+    "dernier_controle": "07/11 04:52",
     "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 28,
+    "pistes_actives": 27,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "07/11 04:37",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "07/11 04:56",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 30,
-    "derniere_bougie": "07/11 04:00"
+    "derniere_bougie": null
    },
    "erreurs": {
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
+    "STORJ 15M": "seulement 0 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
    },
    "cr 15M": {
     "dernier_controle": "07/11 04:41",
