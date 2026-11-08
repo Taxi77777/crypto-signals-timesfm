@@ -48,7 +48,8 @@
   "act|KAVA|1H|1|1793962800": 1793967085.848521,
   "act|NEAR|30M|1|1793968200": 1793970430.648807,
   "act|UNI|30M|1|1793968200": 1793970432.5991514,
-  "act|NEAR|30M|1|1793991600": 1793993685.5699453
+  "act|NEAR|30M|1|1793991600": 1793993685.5699453,
+  "act|ZEC|4H|-1|1794110400": 1794126108.9975963
  },
  "open": [
   {
@@ -210,6 +211,30 @@
    "half": true,
    "part": 0.001387309777579837,
    "half_sent": true
+  },
+  {
+   "kind": "cr",
+   "tf": "4H",
+   "sym": "ZEC",
+   "dir": -1,
+   "entry": 1264.05,
+   "sl": 1352.8438309583294,
+   "tp": 1230.7523133906263,
+   "t_entry": 1794124800.0,
+   "t_exit": 1797580800.0,
+   "ids": [
+    "activee-cr-4h-625f1231"
+   ],
+   "agents": [
+    "inventeur"
+   ],
+   "activee": "Meilleure piste crypto 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 88 % (356 trades jamais vus)",
+   "trail": 3.0,
+   "atr": 44.39691547916473,
+   "sl0": 1352.8438309583294,
+   "sl_sent": 1352.8438309583294,
+   "tp1": 1230.7523133906263,
+   "frac": 0.5
   }
  ],
  "track": [
@@ -802,11 +827,11 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "08/11 08:59",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "08/11 09:21",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 20,
-    "derniere_bougie": "28/09 18:00"
+    "derniere_bougie": "08/11 05:00"
    },
    "fx 1H": {
     "dernier_controle": "08/11 09:01",
@@ -1027,47 +1052,48 @@
    }
   ],
   "kronos_pas_d_accord": {
-   "ETH 4H": "08/11 05:13 ETH : piste vente, Kronos +1.36 ATR",
-   "XRP 4H": "08/11 05:13 XRP : piste vente, Kronos +0.90 ATR",
+   "ETH 4H": "08/11 09:21 ETH : piste vente, Kronos +1.12 ATR",
+   "XRP 4H": "08/11 09:21 XRP : piste vente, Kronos +1.07 ATR",
    "ZEC 4H": "08/11 05:13 ZEC : piste vente, Kronos +0.08 ATR"
   },
   "volume_trop_faible": {
-   "DOGE": "2.8 M$ sur 24 h",
-   "ADA": "3.4 M$ sur 24 h",
-   "LINK": "3.0 M$ sur 24 h",
-   "LTC": "4.3 M$ sur 24 h",
-   "BCH": "3.0 M$ sur 24 h",
-   "XLM": "5.5 M$ sur 24 h",
+   "DOGE": "3.0 M$ sur 24 h",
+   "ADA": "3.5 M$ sur 24 h",
+   "LINK": "3.1 M$ sur 24 h",
+   "LTC": "4.2 M$ sur 24 h",
+   "BCH": "3.1 M$ sur 24 h",
+   "XLM": "5.4 M$ sur 24 h",
    "ATOM": "0.7 M$ sur 24 h",
-   "AAVE": "1.4 M$ sur 24 h",
+   "AAVE": "1.5 M$ sur 24 h",
    "ETC": "0.2 M$ sur 24 h",
-   "ICP": "0.6 M$ sur 24 h",
+   "ICP": "0.7 M$ sur 24 h",
    "SHIB": "0.1 M$ sur 24 h",
-   "ARB": "0.9 M$ sur 24 h",
-   "OP": "0.2 M$ sur 24 h",
+   "ARB": "1.1 M$ sur 24 h",
+   "OP": "0.3 M$ sur 24 h",
    "APT": "0.3 M$ sur 24 h",
-   "INJ": "1.8 M$ sur 24 h",
+   "INJ": "1.5 M$ sur 24 h",
    "GRT": "0.2 M$ sur 24 h",
    "LDO": "0.0 M$ sur 24 h",
    "MANA": "0.0 M$ sur 24 h",
    "ALGO": "0.3 M$ sur 24 h",
-   "XTZ": "0.2 M$ sur 24 h",
-   "FET": "1.2 M$ sur 24 h",
+   "XTZ": "0.1 M$ sur 24 h",
+   "FET": "1.3 M$ sur 24 h",
    "IMX": "0.0 M$ sur 24 h",
-   "STX": "0.3 M$ sur 24 h",
+   "STX": "0.4 M$ sur 24 h",
    "AXS": "0.1 M$ sur 24 h",
-   "BAT": "0.2 M$ sur 24 h",
-   "QNT": "4.8 M$ sur 24 h",
+   "BAT": "0.1 M$ sur 24 h",
+   "QNT": "3.9 M$ sur 24 h",
    "ENS": "0.1 M$ sur 24 h",
    "APE": "0.1 M$ sur 24 h",
    "BLUR": "0.0 M$ sur 24 h",
    "SUSHI": "0.1 M$ sur 24 h",
    "ZRX": "0.1 M$ sur 24 h",
-   "ANKR": "0.0 M$ sur 24 h",
+   "ANKR": "0.1 M$ sur 24 h",
    "MINA": "0.0 M$ sur 24 h",
    "FLOW": "0.0 M$ sur 24 h",
    "KAVA": "0.0 M$ sur 24 h",
-   "ROSE": "0.0 M$ sur 24 h"
+   "ROSE": "0.0 M$ sur 24 h",
+   "CHZ": "0.0 M$ sur 24 h"
   },
   "truefx": {
    "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
@@ -1075,7 +1101,7 @@
   }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 2,
   "erreurs": 0
  }
 }
