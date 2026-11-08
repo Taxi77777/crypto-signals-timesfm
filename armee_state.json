@@ -809,35 +809,35 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 07:49",
+    "dernier_controle": "08/11 08:01",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 07:51",
+    "dernier_controle": "08/11 08:03",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 07:56",
+    "dernier_controle": "08/11 08:05",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "08/11 07:57",
+    "dernier_controle": "08/11 08:06",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 07:58",
+    "dernier_controle": "08/11 08:07",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 12,
@@ -853,21 +853,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
     "sens": "vente",
-    "heure": "08/11 07:37",
+    "heure": "08/11 08:02",
     "score": 0.6666666666666666,
-    "t": 1794119843.323938
-   },
-   {
-    "actif": "USDCHF 30M 1292201a",
-    "reunies": "2/3",
-    "manque": [
-     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 79 % (253 trades jamai",
-    "sens": "vente",
-    "heure": "08/11 07:37",
-    "score": 0.6666666666666666,
-    "t": 1794119841.5029814
+    "t": 1794121365.3215396
    },
    {
     "actif": "APE 30M 548a5359",
@@ -1024,6 +1012,18 @@
     "heure": "08/11 07:33",
     "score": 0.6666666666666666,
     "t": 1794119585.5084374
+   },
+   {
+    "actif": "ZEC 30M a4ab8465",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
+    "sens": "achat",
+    "heure": "08/11 07:33",
+    "score": 0.6666666666666666,
+    "t": 1794119585.5084205
    }
   ],
   "kronos_pas_d_accord": {
