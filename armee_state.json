@@ -818,7 +818,7 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 18:41",
+    "dernier_controle": "08/11 19:28",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 24,
@@ -854,6 +854,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "AUDUSD 1H 4f7a2cf5",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (647 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 19:22",
+    "score": 0.6666666666666666,
+    "t": 1794162131.9765956
+   },
    {
     "actif": "ROSE 1H 6aa763ec",
     "reunies": "2/3",
@@ -1021,18 +1033,6 @@
     "heure": "08/11 19:16",
     "score": 0.6666666666666666,
     "t": 1794161793.7662833
-   },
-   {
-    "actif": "CHZ 1H d757d7b9",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 19:16",
-    "score": 0.6666666666666666,
-    "t": 1794161792.8683815
    }
   ],
   "truefx": {
