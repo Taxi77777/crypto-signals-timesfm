@@ -836,7 +836,7 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 14:49",
+    "dernier_controle": "08/11 15:37",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
@@ -872,6 +872,54 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 1H 08476828",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (553 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 15:33",
+    "score": 0.6666666666666666,
+    "t": 1794148380.823255
+   },
+   {
+    "actif": "GBPUSD 1H 4774fa68",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (429 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 15:33",
+    "score": 0.6666666666666666,
+    "t": 1794148380.8232436
+   },
+   {
+    "actif": "GBPUSD 1H 09d9dc5c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (780 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 15:33",
+    "score": 0.6666666666666666,
+    "t": 1794148380.823011
+   },
+   {
+    "actif": "GBPUSD 1H c0e03c65",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (570 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 15:33",
+    "score": 0.6666666666666666,
+    "t": 1794148380.8229945
+   },
    {
     "actif": "LRC 1H 6aa763ec",
     "reunies": "2/3",
@@ -1003,54 +1051,6 @@
     "heure": "08/11 15:19",
     "score": 0.6666666666666666,
     "t": 1794147559.255812
-   },
-   {
-    "actif": "ZEC 1H 1231c5fb",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 15:19",
-    "score": 0.6666666666666666,
-    "t": 1794147559.2557971
-   },
-   {
-    "actif": "ZEC 1H f88ef1d2",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 15:19",
-    "score": 0.6666666666666666,
-    "t": 1794147559.255783
-   },
-   {
-    "actif": "ZEC 1H a19d2701",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 15:19",
-    "score": 0.6666666666666666,
-    "t": 1794147559.2557678
-   },
-   {
-    "actif": "ZEC 1H 2b0341d9",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 15:19",
-    "score": 0.6666666666666666,
-    "t": 1794147559.2557318
    }
   ],
   "truefx": {
