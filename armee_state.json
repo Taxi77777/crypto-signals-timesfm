@@ -803,7 +803,221 @@
  "diag": {
   "strategies": 13,
   "labo": "2026-11-08 15:06 UTC",
-  "telegram": "ok"
+  "telegram": "ok",
+  "demarrage": {
+   "historiques": "285/285",
+   "secondes": 688,
+   "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "08/11 16:24",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 26,
+    "derniere_bougie": "08/11 15:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "08/11 16:26",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "08/11 15:30"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
+   },
+   "cr 4H": {
+    "dernier_controle": "08/11 16:27",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 20,
+    "derniere_bougie": "08/11 09:00"
+   }
+  },
+  "plus_proches": [
+   {
+    "actif": "ZEC 1H 6aa763ec",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.767342
+   },
+   {
+    "actif": "ZEC 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.767334
+   },
+   {
+    "actif": "ZEC 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.7673247
+   },
+   {
+    "actif": "ZEC 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.7673151
+   },
+   {
+    "actif": "ZEC 1H a19d2701",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.7673054
+   },
+   {
+    "actif": "ZEC 1H 2b0341d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.7672853
+   },
+   {
+    "actif": "ZEC 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.7672532
+   },
+   {
+    "actif": "ZEC 1H 2c51aaf8",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 83 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.767244
+   },
+   {
+    "actif": "BAT 1H a19d2701",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:24",
+    "score": 0.6666666666666666,
+    "t": 1794151440.4662678
+   },
+   {
+    "actif": "SNX 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151439.5579295
+   },
+   {
+    "actif": "SNX 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151439.557921
+   },
+   {
+    "actif": "SNX 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151439.557912
+   },
+   {
+    "actif": "SNX 1H 2b0341d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151439.5578923
+   },
+   {
+    "actif": "SNX 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151439.557882
+   },
+   {
+    "actif": "STX 1H a3f6a756",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 84 % (189 ",
+    "sens": "achat",
+    "heure": "08/11 16:23",
+    "score": 0.6666666666666666,
+    "t": 1794151438.6683514
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
