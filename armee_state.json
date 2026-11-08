@@ -784,7 +784,7 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 06:28",
+    "dernier_controle": "08/11 06:39",
     "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 25,
@@ -809,35 +809,35 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 06:25",
+    "dernier_controle": "08/11 06:30",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 06:26",
+    "dernier_controle": "08/11 06:33",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 06:26",
+    "dernier_controle": "08/11 06:36",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "08/11 06:28",
+    "dernier_controle": "08/11 06:38",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 06:28",
+    "dernier_controle": "08/11 06:39",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 12,
@@ -853,9 +853,45 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
     "sens": "vente",
-    "heure": "08/11 06:15",
+    "heure": "08/11 06:31",
     "score": 0.6666666666666666,
-    "t": 1794114913.297103
+    "t": 1794115865.081303
+   },
+   {
+    "actif": "USDCHF 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 06:31",
+    "score": 0.6666666666666666,
+    "t": 1794115862.3991897
+   },
+   {
+    "actif": "EURUSD 30M 02bcce6b",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (130 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 06:30",
+    "score": 0.6666666666666666,
+    "t": 1794115858.838611
+   },
+   {
+    "actif": "EURUSD 30M 4098bcb9",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (131 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 06:30",
+    "score": 0.6666666666666666,
+    "t": 1794115858.8385997
    },
    {
     "actif": "ZEC 30M 4f98f3e3",
@@ -978,54 +1014,16 @@
     "t": 1794114491.5869253
    },
    {
-    "actif": "KAVA 30M c76d1187",
+    "actif": "EURUSD 30M e0533329",
     "reunies": "1/2",
     "manque": [
-     "mouvement_fomc=? (zone 1.08 a inf)"
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 78 % (45 trades jamais v",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 81 % (133 trades jamai",
     "sens": "vente",
-    "heure": "08/11 06:08",
+    "heure": "08/11 06:30",
     "score": 0.5,
-    "t": 1794114496.233276
-   },
-   {
-    "actif": "KAVA 30M 2964af71",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fomc=? (zone 5.5 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 94 % (49 trades jamai",
-    "sens": "vente",
-    "heure": "08/11 06:08",
-    "score": 0.5,
-    "t": 1794114496.2331336
-   },
-   {
-    "actif": "AUDUSD 15M d32c054b",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "dans_ob_baissier=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (244 trades jamai",
-    "sens": "vente",
-    "heure": "08/11 06:19",
-    "score": 0.3333333333333333,
-    "t": 1794115195.0375729
-   },
-   {
-    "actif": "AUDUSD 15M d31cec30",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "dans_ob_baissier=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (211 trades jamai",
-    "sens": "vente",
-    "heure": "08/11 06:19",
-    "score": 0.3333333333333333,
-    "t": 1794115195.0375385
+    "t": 1794115858.838626
    }
   ],
   "kronos_pas_d_accord": {
