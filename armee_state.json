@@ -808,6 +808,26 @@
    "historiques": "285/285",
    "secondes": 412,
    "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "08/11 10:46",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 24,
+    "derniere_bougie": "08/11 09:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "08/11 10:50",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 17,
+    "derniere_bougie": "08/11 10:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
+   }
   }
  },
  "telegram": {
