@@ -784,14 +784,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 08:12",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "08/11 08:31",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 25,
-    "derniere_bougie": "08/11 07:00"
+    "derniere_bougie": "08/11 05:00"
    },
    "cr 30M": {
-    "dernier_controle": "08/11 08:14",
+    "dernier_controle": "08/11 08:33",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 17,
@@ -802,25 +802,25 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "08/11 08:16",
+    "dernier_controle": "08/11 08:33",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 20,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 08:19",
+    "dernier_controle": "08/11 08:34",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 08:22",
-    "dernier_actif": "XAGUSD",
+    "dernier_controle": "08/11 08:37",
+    "dernier_actif": "USDCHF",
     "actifs": 21,
     "pistes_actives": 19,
-    "derniere_bougie": "07/11 00:30"
+    "derniere_bougie": "08/11 08:00"
    },
    "fx 15M": {
     "dernier_controle": "08/11 08:24",
@@ -837,7 +837,7 @@
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 08:07",
+    "dernier_controle": "08/11 08:31",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 12,
@@ -846,16 +846,16 @@
   },
   "plus_proches": [
    {
-    "actif": "USDCHF 1H 9b614c44",
+    "actif": "ZEC 30M 7cfade0c",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=? (zone 4 a inf)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (542 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 \ud83c\udf0f Session Asie \u00b7 80 %",
     "sens": "achat",
-    "heure": "08/11 08:19",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122353.0778177
+    "t": 1794123228.375293
    },
    {
     "actif": "ZEC 30M af962192",
@@ -865,9 +865,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.9484844
+    "t": 1794123228.3752809
    },
    {
     "actif": "ZEC 30M 4f98f3e3",
@@ -877,9 +877,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (133 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.9484737
+    "t": 1794123228.375269
    },
    {
     "actif": "ZEC 30M d570b2ff",
@@ -889,9 +889,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (161 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.9484625
+    "t": 1794123228.3752575
    },
    {
     "actif": "ZEC 30M f853aba6",
@@ -901,9 +901,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.948451
+    "t": 1794123228.3752453
    },
    {
     "actif": "ZEC 30M 6b74e5c6",
@@ -913,9 +913,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.9484398
+    "t": 1794123228.3752344
    },
    {
     "actif": "ZEC 30M 548a5359",
@@ -925,9 +925,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (130 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.948426
+    "t": 1794123228.37522
    },
    {
     "actif": "ZEC 30M a4ab8465",
@@ -937,9 +937,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122084.9484103
+    "t": 1794123228.3752043
    },
    {
     "actif": "ALGO 30M d18de01e",
@@ -949,9 +949,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (72 trades jamai",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.7661355
+    "t": 1794123225.1926744
    },
    {
     "actif": "MANA 30M af962192",
@@ -961,9 +961,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.4774382
+    "t": 1794123224.9027698
    },
    {
     "actif": "MANA 30M 4f98f3e3",
@@ -973,9 +973,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (133 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.4774275
+    "t": 1794123224.9027581
    },
    {
     "actif": "MANA 30M d570b2ff",
@@ -985,9 +985,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (161 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.477416
+    "t": 1794123224.9027467
    },
    {
     "actif": "MANA 30M f853aba6",
@@ -997,9 +997,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.4774039
+    "t": 1794123224.9027355
    },
    {
     "actif": "MANA 30M 6b74e5c6",
@@ -1009,21 +1009,21 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (155 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.4773924
+    "t": 1794123224.9027236
    },
    {
-    "actif": "MANA 30M a4ab8465",
+    "actif": "MANA 30M 548a5359",
     "reunies": "2/3",
     "manque": [
      "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (130 trades jama",
     "sens": "achat",
-    "heure": "08/11 08:14",
+    "heure": "08/11 08:33",
     "score": 0.6666666666666666,
-    "t": 1794122081.4773579
+    "t": 1794123224.902709
    }
   ],
   "kronos_pas_d_accord": {
