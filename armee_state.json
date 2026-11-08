@@ -767,7 +767,221 @@
  "diag": {
   "strategies": 7,
   "labo": "2026-11-08 20:59 UTC",
-  "telegram": "ok"
+  "telegram": "ok",
+  "demarrage": {
+   "historiques": "285/285",
+   "secondes": 822,
+   "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "08/11 22:21",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 26,
+    "derniere_bougie": "08/11 21:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "08/11 22:23",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 18,
+    "derniere_bougie": "08/11 21:30"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
+   },
+   "cr 4H": {
+    "dernier_controle": "08/11 22:24",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 20,
+    "derniere_bougie": "08/11 17:00"
+   }
+  },
+  "plus_proches": [
+   {
+    "actif": "ROSE 1H 6aa763ec",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172863.8773117
+   },
+   {
+    "actif": "ROSE 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172863.8773038
+   },
+   {
+    "actif": "ROSE 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172863.8772957
+   },
+   {
+    "actif": "ROSE 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172863.877263
+   },
+   {
+    "actif": "SUSHI 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172861.7444646
+   },
+   {
+    "actif": "SUSHI 1H 2c51aaf8",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 83 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172861.74443
+   },
+   {
+    "actif": "BLUR 1H 6aa763ec",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172861.131525
+   },
+   {
+    "actif": "APE 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.8318517
+   },
+   {
+    "actif": "APE 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.8318448
+   },
+   {
+    "actif": "APE 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.8318374
+   },
+   {
+    "actif": "APE 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.8318129
+   },
+   {
+    "actif": "CHZ 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.210034
+   },
+   {
+    "actif": "CHZ 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.2100253
+   },
+   {
+    "actif": "CHZ 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.2100167
+   },
+   {
+    "actif": "CHZ 1H 2b0341d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:21",
+    "score": 0.6666666666666666,
+    "t": 1794172860.209996
+   }
+  ]
  },
  "telegram": {
   "envoyes": 0,
