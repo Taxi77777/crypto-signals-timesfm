@@ -802,60 +802,60 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 04:30",
+    "dernier_controle": "08/11 04:41",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 25,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "08/11 04:33",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "08/11 04:41",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 17,
-    "derniere_bougie": "08/11 04:00"
+    "derniere_bougie": null
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "08/11 04:33",
+    "dernier_controle": "08/11 04:41",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 21,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 04:36",
+    "dernier_controle": "08/11 04:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 04:28",
+    "dernier_controle": "08/11 04:45",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 04:29",
+    "dernier_controle": "08/11 04:46",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "08/11 04:29",
+    "dernier_controle": "08/11 04:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 04:30",
+    "dernier_controle": "08/11 04:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 11,
@@ -863,6 +863,30 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "AUDUSD 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 04:38",
+    "score": 0.6666666666666666,
+    "t": 1794109110.8141599
+   },
+   {
+    "actif": "USDCHF 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 04:38",
+    "score": 0.6666666666666666,
+    "t": 1794109089.260483
+   },
    {
     "actif": "ZEC 30M 4f98f3e3",
     "reunies": "2/3",
@@ -1018,30 +1042,6 @@
     "heure": "08/11 04:33",
     "score": 0.6666666666666666,
     "t": 1794108796.630668
-   },
-   {
-    "actif": "MANA 30M a4ab8465",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
-    "sens": "achat",
-    "heure": "08/11 04:33",
-    "score": 0.6666666666666666,
-    "t": 1794108796.6306334
-   },
-   {
-    "actif": "MANA 30M d570b2ff",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
-    "sens": "achat",
-    "heure": "08/11 04:33",
-    "score": 0.6666666666666666,
-    "t": 1794108796.6306174
    }
   ],
   "truefx": {
