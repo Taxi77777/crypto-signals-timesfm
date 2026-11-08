@@ -843,14 +843,14 @@
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 16:47",
+    "dernier_controle": "08/11 17:31",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 10,
+    "pistes_actives": 12,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 16:54",
+    "dernier_controle": "08/11 17:39",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
@@ -895,18 +895,6 @@
     "heure": "08/11 17:16",
     "score": 0.6666666666666666,
     "t": 1794154597.587748
-   },
-   {
-    "actif": "BLUR 1H 6aa763ec",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 17:13",
-    "score": 0.6666666666666666,
-    "t": 1794154411.7166886
    },
    {
     "actif": "ROSE 4H 46f74118",
@@ -1051,6 +1039,18 @@
     "heure": "08/11 17:16",
     "score": 0.5,
     "t": 1794154610.6265132
+   },
+   {
+    "actif": "BLUR 4H 46f74118",
+    "reunies": "1/2",
+    "manque": [
+     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
+    "sens": "achat",
+    "heure": "08/11 17:16",
+    "score": 0.5,
+    "t": 1794154610.02954
    }
   ],
   "truefx": {
