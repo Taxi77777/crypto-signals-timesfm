@@ -811,14 +811,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 13:43",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "08/11 14:14",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 24,
-    "derniere_bougie": "28/09 19:00"
+    "derniere_bougie": "08/11 13:00"
    },
    "cr 30M": {
-    "dernier_controle": "08/11 13:48",
+    "dernier_controle": "08/11 14:18",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 17,
@@ -829,7 +829,7 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "08/11 13:48",
+    "dernier_controle": "08/11 14:18",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 22,
@@ -873,184 +873,184 @@
   },
   "plus_proches": [
    {
-    "actif": "AUDUSD 30M 438b7f5d",
+    "actif": "KAVA 1H d757d7b9",
     "reunies": "2/3",
     "manque": [
-     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:14",
+    "score": 0.6666666666666666,
+    "t": 1794143641.2152822
+   },
+   {
+    "actif": "KAVA 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:14",
+    "score": 0.6666666666666666,
+    "t": 1794143641.2152238
+   },
+   {
+    "actif": "MINA 1H 1231c5fb",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:14",
+    "score": 0.6666666666666666,
+    "t": 1794143640.6263618
+   },
+   {
+    "actif": "MINA 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:14",
+    "score": 0.6666666666666666,
+    "t": 1794143640.6263027
+   },
+   {
+    "actif": "MINA 1H 2c51aaf8",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 83 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:14",
+    "score": 0.6666666666666666,
+    "t": 1794143640.626288
+   },
+   {
+    "actif": "CHZ 1H d757d7b9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143637.985696
+   },
+   {
+    "actif": "CHZ 1H f88ef1d2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143637.9856586
+   },
+   {
+    "actif": "CHZ 1H 2b0341d9",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143637.985642
+   },
+   {
+    "actif": "CHZ 1H b46e40b2",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143637.9856238
+   },
+   {
+    "actif": "ZEC 1H a19d2701",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143637.101856
+   },
+   {
+    "actif": "BAT 1H a19d2701",
+    "reunies": "2/3",
+    "manque": [
+     "heures_nfp=? (zone -inf a -2.5)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
+    "score": 0.6666666666666666,
+    "t": 1794143636.807636
+   },
+   {
+    "actif": "BAT 1H 9a6b1015",
+    "reunies": "2/3",
+    "manque": [
+     "dist_haut_new_york=-0.409 (zone -inf a -3.23)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 74 % (152 trades jamais vus)",
     "sens": "vente",
-    "heure": "08/11 13:52",
+    "heure": "08/11 14:13",
     "score": 0.6666666666666666,
-    "t": 1794142340.8546004
+    "t": 1794143636.807621
    },
    {
-    "actif": "USDCHF 30M 1292201a",
+    "actif": "YFI 1H a19d2701",
     "reunies": "2/3",
     "manque": [
-     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 79 % (253 trades jamai",
-    "sens": "vente",
-    "heure": "08/11 13:52",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 14:13",
     "score": 0.6666666666666666,
-    "t": 1794142334.0826178
+    "t": 1794143636.2183797
    },
    {
-    "actif": "GBPUSD 4H 945caebc",
+    "actif": "COMP 1H a19d2701",
     "reunies": "2/3",
     "manque": [
-     "accord(structure.vs_bas_2j,smc.breaker_h=1 (zone -1e-06 a 1e-06)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "Meilleure piste forex 4 h \u00b7 91 % (34 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (293 trades jamais vus)",
     "sens": "achat",
-    "heure": "08/11 13:39",
+    "heure": "08/11 14:13",
     "score": 0.6666666666666666,
-    "t": 1794141540.7443392
+    "t": 1794143635.6293921
    },
    {
-    "actif": "USDCAD 1H ef279ed6",
+    "actif": "STX 1H a3f6a756",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=? (zone 4 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (646 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 84 % (189 ",
     "sens": "achat",
-    "heure": "08/11 13:24",
+    "heure": "08/11 14:13",
     "score": 0.6666666666666666,
-    "t": 1794140653.6863482
-   },
-   {
-    "actif": "USDCAD 1H 9b614c44",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (542 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 13:24",
-    "score": 0.6666666666666666,
-    "t": 1794140653.6862075
-   },
-   {
-    "actif": "SHIB 4H 91bbc862",
-    "reunies": "2/3",
-    "manque": [
-     "produit(flux.momentum_premiere_heure,flu=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 80 % (",
-    "sens": "vente",
-    "heure": "08/11 13:18",
-    "score": 0.6666666666666666,
-    "t": 1794140313.327185
-   },
-   {
-    "actif": "EURUSD 4H e0a084ea",
-    "reunies": "1/2",
-    "manque": [
-     "accord(chiffres_ronds.dist_gros,smc.dist=1 (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 86 % (10",
-    "sens": "achat",
-    "heure": "08/11 13:38",
-    "score": 0.5,
-    "t": 1794141537.3460124
-   },
-   {
-    "actif": "ROSE 4H 46f74118",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.8202941
-   },
-   {
-    "actif": "ROSE 4H b1207553",
-    "reunies": "1/2",
-    "manque": [
-     "croise_moyenne(positionnement.cot_bitcoi=-1.45e-14 (zone 0 a 0.00488)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 92 % (127 trades jamais ",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.820257
-   },
-   {
-    "actif": "ROSE 4H e0c236cb",
-    "reunies": "1/2",
-    "manque": [
-     "produit(structure.vs_bas_2j,flux.heures_=? (zone 5.4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 75 %",
-    "sens": "vente",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.820236
-   },
-   {
-    "actif": "FLOW 4H 2ce3afa2",
-    "reunies": "1/2",
-    "manque": [
-     "heures_echeance_deribit=? (zone -inf a -36)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 71 % (",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.2382545
-   },
-   {
-    "actif": "FLOW 4H 46f74118",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.2382367
-   },
-   {
-    "actif": "FLOW 4H e0c236cb",
-    "reunies": "1/2",
-    "manque": [
-     "produit(structure.vs_bas_2j,flux.heures_=? (zone 5.4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 75 %",
-    "sens": "vente",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140323.2381797
-   },
-   {
-    "actif": "MINA 4H 46f74118",
-    "reunies": "1/2",
-    "manque": [
-     "heures_fixing_londres=? (zone -1e-06 a 1e-06)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 88 % ",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140322.9448617
-   },
-   {
-    "actif": "MINA 4H b1207553",
-    "reunies": "1/2",
-    "manque": [
-     "croise_moyenne(positionnement.cot_bitcoi=-1.45e-14 (zone 0 a 0.00488)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 92 % (127 trades jamais ",
-    "sens": "achat",
-    "heure": "08/11 13:18",
-    "score": 0.5,
-    "t": 1794140322.944846
+    "t": 1794143635.0429218
    }
   ],
   "truefx": {
