@@ -811,11 +811,11 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 11:31",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "08/11 12:00",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 24,
-    "derniere_bougie": "08/11 10:00"
+    "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
     "dernier_controle": "08/11 11:35",
@@ -864,7 +864,7 @@
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 11:24",
+    "dernier_controle": "08/11 11:53",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 11,
@@ -1054,7 +1054,7 @@
    }
   ],
   "truefx": {
-   "mode": "public",
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 0
   }
  },
