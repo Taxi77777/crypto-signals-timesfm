@@ -836,25 +836,25 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 13:49",
+    "dernier_controle": "08/11 14:23",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 13:54",
+    "dernier_controle": "08/11 14:28",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 14:00",
-    "dernier_actif": "XAGUSD",
+    "dernier_controle": "08/11 14:32",
+    "dernier_actif": "USDCAD",
     "actifs": 21,
     "pistes_actives": 18,
-    "derniere_bougie": "07/11 00:45"
+    "derniere_bougie": "08/11 14:00"
    },
    "fx 4H": {
     "dernier_controle": "08/11 14:04",
@@ -872,6 +872,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "AUDUSD 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 14:27",
+    "score": 0.6666666666666666,
+    "t": 1794144424.4402628
+   },
    {
     "actif": "KAVA 1H d757d7b9",
     "reunies": "2/3",
@@ -1039,18 +1051,6 @@
     "heure": "08/11 14:13",
     "score": 0.6666666666666666,
     "t": 1794143635.6293921
-   },
-   {
-    "actif": "STX 1H a3f6a756",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 \ud83c\uddec\ud83c\udde7 Session Londres \u00b7 84 % (189 ",
-    "sens": "achat",
-    "heure": "08/11 14:13",
-    "score": 0.6666666666666666,
-    "t": 1794143635.0429218
    }
   ],
   "truefx": {
