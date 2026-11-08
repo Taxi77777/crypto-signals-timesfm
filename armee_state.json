@@ -814,10 +814,10 @@
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 22:51",
+    "dernier_controle": "08/11 23:53",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 19,
+    "pistes_actives": 18,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
@@ -836,6 +836,54 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M d31cec30",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (211 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:45",
+    "score": 0.6666666666666666,
+    "t": 1794177912.194174
+   },
+   {
+    "actif": "GBPUSD 15M b53b372f",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (165 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:45",
+    "score": 0.6666666666666666,
+    "t": 1794177912.1941485
+   },
+   {
+    "actif": "GBPUSD 15M fc09eb38",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (144 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:45",
+    "score": 0.6666666666666666,
+    "t": 1794177912.1941185
+   },
+   {
+    "actif": "GBPUSD 15M cc3e5a1b",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (188 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:45",
+    "score": 0.6666666666666666,
+    "t": 1794177912.1940956
+   },
    {
     "actif": "BLUR 30M a62d21ae",
     "reunies": "2/3",
@@ -921,100 +969,54 @@
     "t": 1794175889.3833475
    },
    {
-    "actif": "ROSE 1H 6aa763ec",
-    "reunies": "2/3",
+    "actif": "KAVA 30M c76d1187",
+    "reunies": "1/2",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "mouvement_fomc=? (zone 1.08 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.9956884
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 78 % (45 trades jamais v",
+    "sens": "vente",
+    "heure": "08/11 23:11",
+    "score": 0.5,
+    "t": 1794175894.3997996
    },
    {
-    "actif": "ROSE 1H d757d7b9",
-    "reunies": "2/3",
+    "actif": "KAVA 30M 2964af71",
+    "reunies": "1/2",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fomc=? (zone 5.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.9956803
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 94 % (49 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:11",
+    "score": 0.5,
+    "t": 1794175894.3996685
    },
    {
-    "actif": "ROSE 1H f88ef1d2",
-    "reunies": "2/3",
+    "actif": "AUDUSD 15M fc23ec55",
+    "reunies": "1/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fixing_londres=? (zone 3.75 a inf)",
+     "dans_ob_baissier=0 (zone 1 a 1)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.995671
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (180 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:47",
+    "score": 0.3333333333333333,
+    "t": 1794178065.2295766
    },
    {
-    "actif": "ROSE 1H b46e40b2",
-    "reunies": "2/3",
+    "actif": "AUDUSD 15M b14dbdc6",
+    "reunies": "1/3",
     "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
+     "heures_fixing_londres=? (zone 3.75 a inf)",
+     "dans_ob_baissier=0 (zone 1 a 1)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.9956284
-   },
-   {
-    "actif": "KAVA 1H d757d7b9",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (231 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.6903648
-   },
-   {
-    "actif": "KAVA 1H b46e40b2",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 82 % (246 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.690322
-   },
-   {
-    "actif": "FLOW 1H 1231c5fb",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (253 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.3948426
-   },
-   {
-    "actif": "FLOW 1H 2c51aaf8",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 83 % (246 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 23:09",
-    "score": 0.6666666666666666,
-    "t": 1794175774.3948
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (185 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 23:47",
+    "score": 0.3333333333333333,
+    "t": 1794178065.229568
    }
   ],
   "truefx": {
