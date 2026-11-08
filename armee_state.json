@@ -798,9 +798,40 @@
     "actifs": 60,
     "pistes_actives": 20,
     "derniere_bougie": "08/11 17:00"
+   },
+   "fx 1H": {
+    "dernier_controle": "08/11 22:33",
+    "dernier_actif": "EURAUD",
+    "actifs": 21,
+    "pistes_actives": 26,
+    "derniere_bougie": "07/11 00:00"
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 1H 09d9dc5c",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (778 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:28",
+    "score": 0.6666666666666666,
+    "t": 1794173333.3771977
+   },
+   {
+    "actif": "GBPUSD 1H c0e03c65",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 4 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (571 trades jamais vus)",
+    "sens": "achat",
+    "heure": "08/11 22:28",
+    "score": 0.6666666666666666,
+    "t": 1794173333.3771853
+   },
    {
     "actif": "ROSE 1H 6aa763ec",
     "reunies": "2/3",
@@ -956,30 +987,6 @@
     "heure": "08/11 22:21",
     "score": 0.6666666666666666,
     "t": 1794172860.2100253
-   },
-   {
-    "actif": "CHZ 1H f88ef1d2",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (255 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 22:21",
-    "score": 0.6666666666666666,
-    "t": 1794172860.2100167
-   },
-   {
-    "actif": "CHZ 1H 2b0341d9",
-    "reunies": "2/3",
-    "manque": [
-     "heures_nfp=? (zone -inf a -2.5)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 81 % (259 trades jamais vus)",
-    "sens": "achat",
-    "heure": "08/11 22:21",
-    "score": 0.6666666666666666,
-    "t": 1794172860.209996
    }
   ]
  },
