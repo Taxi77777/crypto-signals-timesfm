@@ -133,33 +133,6 @@
   },
   {
    "kind": "cr",
-   "tf": "4H",
-   "sym": "SUI",
-   "dir": 1,
-   "entry": 0.8409,
-   "sl": 0.8409,
-   "tp": 0.8541173407768075,
-   "t_entry": 1793923200.0,
-   "t_exit": 1794960000.0,
-   "ids": [
-    "activee-cr-4h-742a0ab9"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)",
-   "trail": 1.5,
-   "atr": 0.026434681553615044,
-   "sl0": 0.8012479776695774,
-   "sl_sent": 0.8409,
-   "tp1": 0.8541173407768075,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.006608670388403737,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
    "tf": "1H",
    "sym": "BNB",
    "dir": 1,
@@ -664,6 +637,15 @@
    "pct": 0.54,
    "day": "2026-11-08",
    "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (155 trades jamais vus)"
+  },
+  {
+   "sym": "SUI",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.786,
+   "day": "2026-11-08",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)"
   }
  ],
  "live": {
@@ -724,8 +706,8 @@
    "k": 1
   },
   "activee-cr-4h-742a0ab9": {
-   "n": 5,
-   "k": 4
+   "n": 6,
+   "k": 5
   },
   "activee-cr-4h-46f74118": {
    "n": 1,
@@ -846,8 +828,8 @@
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 21:56",
-    "dernier_actif": "USDJPY",
+    "dernier_controle": "08/11 22:03",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 10,
     "derniere_bougie": "06/11 01:00"
@@ -1085,7 +1067,7 @@
   }
  },
  "telegram": {
-  "envoyes": 1,
+  "envoyes": 2,
   "erreurs": 0
  }
 }
