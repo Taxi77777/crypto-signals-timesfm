@@ -187,33 +187,6 @@
   },
   {
    "kind": "cr",
-   "tf": "1H",
-   "sym": "CRV",
-   "dir": 1,
-   "entry": 0.257,
-   "sl": 0.257,
-   "tp": 0.2597746195551597,
-   "t_entry": 1793955600.0,
-   "t_exit": 1794819600.0,
-   "ids": [
-    "activee-cr-cd6655c6"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (155 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.003699492740212874,
-   "sl0": 0.24960101451957425,
-   "sl_sent": 0.257,
-   "tp1": 0.2597746195551597,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.001387309777579837,
-   "half_sent": true
-  },
-  {
-   "kind": "cr",
    "tf": "4H",
    "sym": "ZEC",
    "dir": -1,
@@ -682,6 +655,15 @@
    "pct": 1.073,
    "day": "2026-11-08",
    "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 4 h \u00b7 96 % (56 trades jamais vus)"
+  },
+  {
+   "sym": "CRV",
+   "kind": "cr",
+   "dir": 1,
+   "win": true,
+   "pct": 0.54,
+   "day": "2026-11-08",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 81 % (155 trades jamais vus)"
   }
  ],
  "live": {
@@ -754,8 +736,8 @@
    "k": 1
   },
   "activee-cr-cd6655c6": {
-   "n": 5,
-   "k": 5
+   "n": 6,
+   "k": 6
   },
   "activee-cr-af1ca4dd": {
    "n": 18,
@@ -857,14 +839,14 @@
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "08/11 17:44",
+    "dernier_controle": "08/11 18:21",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 17:54",
+    "dernier_controle": "08/11 18:27",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 11,
@@ -1102,7 +1084,7 @@
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
