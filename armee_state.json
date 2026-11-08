@@ -809,17 +809,17 @@
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "08/11 05:58",
+    "dernier_controle": "08/11 06:14",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 27,
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 05:58",
+    "dernier_controle": "08/11 06:17",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 17,
+    "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
@@ -845,6 +845,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "AUDUSD 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 06:15",
+    "score": 0.6666666666666666,
+    "t": 1794114913.297103
+   },
    {
     "actif": "ZEC 30M 4f98f3e3",
     "reunies": "2/3",
@@ -1012,18 +1024,6 @@
     "heure": "08/11 06:08",
     "score": 0.6666666666666666,
     "t": 1794114480.2815638
-   },
-   {
-    "actif": "XRP 30M 548a5359",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (130 trades jama",
-    "sens": "achat",
-    "heure": "08/11 06:08",
-    "score": 0.6666666666666666,
-    "t": 1794114480.2815006
    }
   ],
   "kronos_pas_d_accord": {
