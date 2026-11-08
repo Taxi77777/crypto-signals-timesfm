@@ -843,21 +843,21 @@
     "derniere_bougie": "07/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "08/11 09:59",
+    "dernier_controle": "08/11 10:23",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "07/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "08/11 10:01",
+    "dernier_controle": "08/11 10:26",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
     "derniere_bougie": "07/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "08/11 10:03",
+    "dernier_controle": "08/11 10:28",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -872,6 +872,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "AUDUSD 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 10:22",
+    "score": 0.6666666666666666,
+    "t": 1794129761.0213563
+   },
+   {
+    "actif": "USDCHF 30M 1292201a",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 79 % (253 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 10:22",
+    "score": 0.6666666666666666,
+    "t": 1794129755.4920037
+   },
+   {
+    "actif": "USDCHF 30M 438b7f5d",
+    "reunies": "2/3",
+    "manque": [
+     "accord(chandeliers.shortline,flux.mouvem=? (zone -1 a -1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 82 % (231 trades jamai",
+    "sens": "vente",
+    "heure": "08/11 10:22",
+    "score": 0.6666666666666666,
+    "t": 1794129755.4919484
+   },
    {
     "actif": "GBPUSD 1H 08476828",
     "reunies": "2/3",
@@ -1015,42 +1051,6 @@
     "heure": "08/11 10:12",
     "score": 0.6666666666666666,
     "t": 1794129125.511304
-   },
-   {
-    "actif": "QNT 30M a4ab8465",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 89 % (152 trades jama",
-    "sens": "achat",
-    "heure": "08/11 10:12",
-    "score": 0.6666666666666666,
-    "t": 1794129125.5112917
-   },
-   {
-    "actif": "ZEC 30M af962192",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (155 trades jama",
-    "sens": "achat",
-    "heure": "08/11 10:12",
-    "score": 0.6666666666666666,
-    "t": 1794129124.9312763
-   },
-   {
-    "actif": "ZEC 30M 4f98f3e3",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 87 % (133 trades jama",
-    "sens": "achat",
-    "heure": "08/11 10:12",
-    "score": 0.6666666666666666,
-    "t": 1794129124.9312656
    }
   ],
   "kronos_pas_d_accord": {
