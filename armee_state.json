@@ -811,29 +811,29 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "08/11 17:13",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "08/11 17:54",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 26,
-    "derniere_bougie": "08/11 16:00"
+    "derniere_bougie": "08/11 15:00"
    },
    "cr 30M": {
-    "dernier_controle": "08/11 17:15",
+    "dernier_controle": "08/11 17:56",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 20,
-    "derniere_bougie": "08/11 16:30"
+    "derniere_bougie": "08/11 17:00"
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "08/11 17:16",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "08/11 17:56",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 20,
-    "derniere_bougie": "08/11 13:00"
+    "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
     "dernier_controle": "08/11 17:26",
@@ -864,10 +864,10 @@
     "derniere_bougie": "06/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "08/11 17:09",
+    "dernier_controle": "08/11 17:54",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 10,
+    "pistes_actives": 11,
     "derniere_bougie": "06/11 01:00"
    }
   },
@@ -1054,7 +1054,7 @@
    }
   ],
   "truefx": {
-   "mode": "public",
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 0
   },
   "kronos_pas_d_accord": {
