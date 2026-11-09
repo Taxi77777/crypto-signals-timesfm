@@ -706,14 +706,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 28,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:45",
     "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 16,
@@ -724,7 +724,7 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 16,
@@ -738,14 +738,14 @@
     "derniere_bougie": "09/11 07:00"
    },
    "fx 30M": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:45",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 15,
     "derniere_bougie": "09/11 07:30"
    },
    "fx 15M": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:46",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
@@ -759,7 +759,7 @@
     "derniere_bougie": "09/11 01:00"
    },
    "fx 1D": {
-    "dernier_controle": "09/11 08:35",
+    "dernier_controle": "09/11 08:46",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
@@ -767,6 +767,78 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPUSD 15M b14dbdc6",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (185 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.6465538
+   },
+   {
+    "actif": "GBPUSD 15M 259832f7",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (145 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.6465225
+   },
+   {
+    "actif": "GBPUSD 15M 367781e6",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (144 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.646497
+   },
+   {
+    "actif": "GBPUSD 15M e029b696",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (188 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.6464844
+   },
+   {
+    "actif": "GBPUSD 15M 8ef2fe83",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (139 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.6464722
+   },
+   {
+    "actif": "GBPUSD 15M c28a0397",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (155 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 08:46",
+    "score": 0.6666666666666666,
+    "t": 1794210386.6464357
+   },
    {
     "actif": "EURCAD 30M 08c8afb9",
     "reunies": "2/3",
@@ -864,66 +936,6 @@
     "t": 1794209748.781393
    },
    {
-    "actif": "GBPUSD 15M b14dbdc6",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (185 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209664.7878704
-   },
-   {
-    "actif": "GBPUSD 15M 367781e6",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (144 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209664.7878306
-   },
-   {
-    "actif": "GBPUSD 15M e029b696",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (188 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209664.787818
-   },
-   {
-    "actif": "GBPUSD 15M 8ef2fe83",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (139 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209664.7878058
-   },
-   {
-    "actif": "GBPUSD 15M c28a0397",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (155 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209664.78777
-   },
-   {
     "actif": "EURCHF 30M 40f8cf5f",
     "reunies": "2/3",
     "manque": [
@@ -934,18 +946,6 @@
     "heure": "09/11 08:34",
     "score": 0.6666666666666666,
     "t": 1794209642.749895
-   },
-   {
-    "actif": "EURCHF 30M 5fe32cae",
-    "reunies": "2/3",
-    "manque": [
-     "jour_tendance=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 81 ",
-    "sens": "vente",
-    "heure": "09/11 08:34",
-    "score": 0.6666666666666666,
-    "t": 1794209642.7498763
    }
   ],
   "truefx": {
