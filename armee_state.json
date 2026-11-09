@@ -703,6 +703,32 @@
    "historiques": "285/285",
    "secondes": 339,
    "repris_de_la_veille": 345
+  },
+  "surveillance": {
+   "cr 1H": {
+    "dernier_controle": "09/11 14:58",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 28,
+    "derniere_bougie": "09/11 13:00"
+   },
+   "cr 30M": {
+    "dernier_controle": "09/11 15:03",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "09/11 14:00"
+   },
+   "erreurs": {
+    "LRC 30M": "seulement 0 bougies"
+   },
+   "cr 4H": {
+    "dernier_controle": "09/11 15:05",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 16,
+    "derniere_bougie": "09/11 09:00"
+   }
   }
  },
  "telegram": {
