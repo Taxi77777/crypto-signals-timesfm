@@ -102,7 +102,9 @@
    "sl0": 1.4147583271050477,
    "sl_sent": 1.4147583271050477,
    "tp1": 1.4123131273356073,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   }
  ],
  "track": [
@@ -731,24 +733,24 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "09/11 18:02",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "09/11 18:25",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 25,
-    "derniere_bougie": "28/09 19:00"
+    "derniere_bougie": "09/11 16:00"
    },
    "cr 30M": {
-    "dernier_controle": "09/11 18:06",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "09/11 18:25",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 16,
-    "derniere_bougie": "09/11 17:30"
+    "derniere_bougie": "09/11 16:30"
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "09/11 18:08",
+    "dernier_controle": "09/11 18:25",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 15,
@@ -769,7 +771,7 @@
     "derniere_bougie": "09/11 17:30"
    },
    "fx 15M": {
-    "dernier_controle": "09/11 18:13",
+    "dernier_controle": "09/11 18:25",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
@@ -783,7 +785,7 @@
     "derniere_bougie": "09/11 13:00"
    },
    "fx 1D": {
-    "dernier_controle": "09/11 18:15",
+    "dernier_controle": "09/11 18:25",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 8,
@@ -799,9 +801,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 73 % (177 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8781824
+    "t": 1794245152.4948258
    },
    {
     "actif": "GBPJPY 15M 499a9eb8",
@@ -811,9 +813,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (156 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8781688
+    "t": 1794245152.4948132
    },
    {
     "actif": "GBPJPY 15M ec2ba55a",
@@ -823,9 +825,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (200 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8781483
+    "t": 1794245152.4948006
    },
    {
     "actif": "GBPJPY 15M 035282c5",
@@ -835,9 +837,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (157 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8781133
+    "t": 1794245152.4947717
    },
    {
     "actif": "GBPJPY 15M 745d8d74",
@@ -847,9 +849,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (219 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8780947
+    "t": 1794245152.4947584
    },
    {
     "actif": "GBPJPY 15M fc09eb38",
@@ -859,9 +861,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (143 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.878041
+    "t": 1794245152.4947443
    },
    {
     "actif": "GBPJPY 15M 24e1d2cf",
@@ -871,9 +873,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (155 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.8780236
+    "t": 1794245152.4947274
    },
    {
     "actif": "NZDUSD 15M 85501dde",
@@ -883,9 +885,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (247 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5617845
+    "t": 1794245152.177894
    },
    {
     "actif": "NZDUSD 15M ec2ba55a",
@@ -895,9 +897,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (200 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.56177
+    "t": 1794245152.1778786
    },
    {
     "actif": "NZDUSD 15M cc584a8f",
@@ -907,9 +909,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (179 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5617554
+    "t": 1794245152.177863
    },
    {
     "actif": "NZDUSD 15M 259832f7",
@@ -919,9 +921,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (145 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5616858
+    "t": 1794245152.1777866
    },
    {
     "actif": "NZDUSD 15M 367781e6",
@@ -931,9 +933,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (144 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.56167
+    "t": 1794245152.1777697
    },
    {
     "actif": "NZDUSD 15M 745d8d74",
@@ -943,9 +945,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (219 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5616555
+    "t": 1794245152.1777544
    },
    {
     "actif": "NZDUSD 15M 3d45597f",
@@ -955,9 +957,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (139 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5616019
+    "t": 1794245152.177699
    },
    {
     "actif": "NZDUSD 15M 24e1d2cf",
@@ -967,9 +969,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (155 trades jamai",
     "sens": "vente",
-    "heure": "09/11 18:13",
+    "heure": "09/11 18:25",
     "score": 0.6666666666666666,
-    "t": 1794244435.5615857
+    "t": 1794245152.177682
    }
   ],
   "truefx": {
