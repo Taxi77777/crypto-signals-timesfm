@@ -706,25 +706,25 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "09/11 01:30",
+    "dernier_controle": "09/11 01:40",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 26,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "09/11 01:32",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "09/11 01:40",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 19,
-    "derniere_bougie": "09/11 01:00"
+    "derniere_bougie": null
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "09/11 01:32",
+    "dernier_controle": "09/11 01:40",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 24,
@@ -738,14 +738,14 @@
     "derniere_bougie": "09/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "09/11 01:33",
+    "dernier_controle": "09/11 01:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 10,
     "derniere_bougie": "09/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "09/11 01:33",
+    "dernier_controle": "09/11 01:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -759,7 +759,7 @@
     "derniere_bougie": "08/11 21:00"
    },
    "fx 1D": {
-    "dernier_controle": "09/11 01:33",
+    "dernier_controle": "09/11 01:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
@@ -767,6 +767,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "NZDUSD 30M cb923ca8",
+    "reunies": "2/3",
+    "manque": [
+     "jour_tendance=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 80 ",
+    "sens": "vente",
+    "heure": "09/11 01:35",
+    "score": 0.6666666666666666,
+    "t": 1794184548.5050957
+   },
+   {
+    "actif": "NZDUSD 30M 8195b12d",
+    "reunies": "2/3",
+    "manque": [
+     "jour_tendance=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 81 % (32 trades jamais vu",
+    "sens": "vente",
+    "heure": "09/11 01:35",
+    "score": 0.6666666666666666,
+    "t": 1794184548.5050766
+   },
+   {
+    "actif": "NZDUSD 30M c8b4cb37",
+    "reunies": "2/3",
+    "manque": [
+     "jour_tendance=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 83 ",
+    "sens": "vente",
+    "heure": "09/11 01:35",
+    "score": 0.6666666666666666,
+    "t": 1794184548.5050218
+   },
    {
     "actif": "USDJPY 15M a19cfb33",
     "reunies": "2/3",
@@ -802,42 +838,6 @@
     "heure": "09/11 01:33",
     "score": 0.6666666666666666,
     "t": 1794184405.2940412
-   },
-   {
-    "actif": "NZDUSD 30M cb923ca8",
-    "reunies": "2/3",
-    "manque": [
-     "jour_tendance=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 80 ",
-    "sens": "vente",
-    "heure": "09/11 01:33",
-    "score": 0.6666666666666666,
-    "t": 1794184404.5235908
-   },
-   {
-    "actif": "NZDUSD 30M 8195b12d",
-    "reunies": "2/3",
-    "manque": [
-     "jour_tendance=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 81 % (32 trades jamais vu",
-    "sens": "vente",
-    "heure": "09/11 01:33",
-    "score": 0.6666666666666666,
-    "t": 1794184404.523571
-   },
-   {
-    "actif": "NZDUSD 30M c8b4cb37",
-    "reunies": "2/3",
-    "manque": [
-     "jour_tendance=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 83 ",
-    "sens": "vente",
-    "heure": "09/11 01:33",
-    "score": 0.6666666666666666,
-    "t": 1794184404.5235178
    },
    {
     "actif": "ROSE 30M 3d4e5f0c",
