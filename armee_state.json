@@ -706,24 +706,24 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "09/11 16:30",
+    "dernier_controle": "09/11 16:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 25,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "09/11 16:34",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "09/11 16:45",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 16,
-    "derniere_bougie": "09/11 16:00"
+    "derniere_bougie": "09/11 15:00"
    },
    "erreurs": {
     "LRC 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "09/11 16:34",
+    "dernier_controle": "09/11 16:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 16,
@@ -737,14 +737,14 @@
     "derniere_bougie": "09/11 15:00"
    },
    "fx 30M": {
-    "dernier_controle": "09/11 16:35",
+    "dernier_controle": "09/11 16:45",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 15,
     "derniere_bougie": "09/11 15:30"
    },
    "fx 15M": {
-    "dernier_controle": "09/11 16:36",
+    "dernier_controle": "09/11 16:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -758,7 +758,7 @@
     "derniere_bougie": "09/11 09:00"
    },
    "fx 1D": {
-    "dernier_controle": "09/11 16:25",
+    "dernier_controle": "09/11 16:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 8,
@@ -776,7 +776,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6378927
+    "t": 1794238607.909079
    },
    {
     "actif": "GBPCHF 15M cc584a8f",
@@ -788,7 +788,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6378484
+    "t": 1794238607.9090078
    },
    {
     "actif": "GBPCHF 15M a19cfb33",
@@ -800,7 +800,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6378343
+    "t": 1794238607.908993
    },
    {
     "actif": "GBPCHF 15M b14dbdc6",
@@ -812,7 +812,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6378205
+    "t": 1794238607.9089792
    },
    {
     "actif": "GBPCHF 15M 85501dde",
@@ -824,7 +824,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.637789
+    "t": 1794238607.9089475
    },
    {
     "actif": "GBPCHF 15M 259832f7",
@@ -836,7 +836,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6377757
+    "t": 1794238607.9089334
    },
    {
     "actif": "GBPCHF 15M b53b372f",
@@ -848,7 +848,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6377618
+    "t": 1794238607.908919
    },
    {
     "actif": "GBPCHF 15M 367781e6",
@@ -860,7 +860,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6377485
+    "t": 1794238607.9089057
    },
    {
     "actif": "GBPCHF 15M e029b696",
@@ -872,7 +872,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6377175
+    "t": 1794238607.908874
    },
    {
     "actif": "GBPCHF 15M 3d45597f",
@@ -884,7 +884,7 @@
     "sens": "vente",
     "heure": "09/11 16:36",
     "score": 0.6666666666666666,
-    "t": 1794238590.6377034
+    "t": 1794238607.9088588
    },
    {
     "actif": "GBPJPY 15M 035282c5",
@@ -952,7 +952,7 @@
    "paires_temps_reel": 10
   },
   "kronos_pas_d_accord": {
-   "NZDUSD 30M": "09/11 16:35 NZDUSD : piste vente, Kronos +1.38 ATR",
+   "NZDUSD 30M": "09/11 16:36 NZDUSD : piste vente, Kronos +1.38 ATR",
    "EURCHF 30M": "09/11 16:35 EURCHF : piste vente, Kronos +1.00 ATR"
   }
  },
