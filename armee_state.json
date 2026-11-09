@@ -706,14 +706,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "09/11 05:44",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 28,
     "derniere_bougie": "09/11 02:00"
    },
    "cr 30M": {
-    "dernier_controle": "09/11 05:46",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 16,
@@ -724,7 +724,7 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "09/11 05:48",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 20,
@@ -738,14 +738,14 @@
     "derniere_bougie": "09/11 04:00"
    },
    "fx 30M": {
-    "dernier_controle": "09/11 05:35",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 13,
+    "pistes_actives": 14,
     "derniere_bougie": "09/11 04:30"
    },
    "fx 15M": {
-    "dernier_controle": "09/11 05:35",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
@@ -759,7 +759,7 @@
     "derniere_bougie": "09/11 01:00"
    },
    "fx 1D": {
-    "dernier_controle": "09/11 05:35",
+    "dernier_controle": "09/11 05:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
@@ -900,7 +900,7 @@
     "t": 1794198802.3960917
    },
    {
-    "actif": "XAGUSD 15M cc584a8f",
+    "actif": "EURCHF 15M cc584a8f",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=? (zone 3.75 a inf)",
@@ -908,12 +908,38 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (179 trades jamai",
     "sens": "vente",
-    "heure": "09/11 05:35",
+    "heure": "09/11 05:51",
     "score": 0.3333333333333333,
-    "t": 1794198948.920879
+    "t": 1794199873.3936794
    },
    {
-    "actif": "XAGUSD 15M 85501dde",
+    "actif": "EURCHF 15M a19cfb33",
+    "reunies": "1/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)",
+     "dans_ob_baissier=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (216 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 05:51",
+    "score": 0.3333333333333333,
+    "t": 1794199873.3936677
+   },
+   {
+    "actif": "EURCHF 15M b14dbdc6",
+    "reunies": "1/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)",
+     "dans_ob_baissier=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (185 trades jamai",
+    "sens": "vente",
+    "heure": "09/11 05:51",
+    "score": 0.3333333333333333,
+    "t": 1794199873.393656
+   },
+   {
+    "actif": "EURCHF 15M 85501dde",
     "reunies": "1/3",
     "manque": [
      "heures_fixing_londres=? (zone 3.75 a inf)",
@@ -921,35 +947,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (250 trades jamai",
     "sens": "vente",
-    "heure": "09/11 05:35",
+    "heure": "09/11 05:51",
     "score": 0.3333333333333333,
-    "t": 1794198948.9208448
-   },
-   {
-    "actif": "XAGUSD 15M 726374a9",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "dans_ob_baissier=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (225 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 05:35",
-    "score": 0.3333333333333333,
-    "t": 1794198948.9207962
-   },
-   {
-    "actif": "XAGUSD 15M e029b696",
-    "reunies": "1/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)",
-     "dans_ob_baissier=0 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (188 trades jamai",
-    "sens": "vente",
-    "heure": "09/11 05:35",
-    "score": 0.3333333333333333,
-    "t": 1794198948.920785
+    "t": 1794199873.3936446
    }
   ],
   "truefx": {
