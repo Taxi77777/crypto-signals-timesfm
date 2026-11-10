@@ -1,9 +1,6 @@
 {
  "tg_pair": "f4f90c1ae0859234",
  "alerts": {
-  "act|ICP|1H|1|1793962800": 1793967056.728279,
-  "act|1INCH|1H|1|1793962800": 1793967077.8516424,
-  "act|KAVA|1H|1|1793962800": 1793967085.848521,
   "act|NEAR|30M|1|1793968200": 1793970430.648807,
   "act|UNI|30M|1|1793968200": 1793970432.5991514,
   "act|NEAR|30M|1|1793991600": 1793993685.5699453,
@@ -708,190 +705,222 @@
     "actifs": 21,
     "pistes_actives": 25,
     "derniere_bougie": "10/11 12:00"
+   },
+   "fx 30M": {
+    "dernier_controle": "10/11 13:09",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "10/11 12:30"
+   },
+   "fx 15M": {
+    "dernier_controle": "10/11 13:10",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 17,
+    "derniere_bougie": "10/11 12:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "10/11 13:11",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 28,
+    "derniere_bougie": "10/11 09:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "10/11 13:12",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 8,
+    "derniere_bougie": "09/11 01:00"
    }
   },
   "plus_proches": [
    {
-    "actif": "XAGUSD 1H 7fc20cc7",
+    "actif": "XAGUSD 4H 52c3d54d",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (536 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 78 % (177 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.092384
+    "t": 1794312692.3392746
    },
    {
-    "actif": "XAGUSD 1H 3148248d",
+    "actif": "XAGUSD 4H 8b371a65",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (536 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 78 % (179 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0923712
+    "t": 1794312692.3392627
    },
    {
-    "actif": "XAGUSD 1H 4774fa68",
+    "actif": "XAGUSD 4H 086dbd4e",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (428 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (191 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0923576
+    "t": 1794312692.339222
    },
    {
-    "actif": "XAGUSD 1H 84a62ad3",
+    "actif": "XAGUSD 4H feb7a459",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (638 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (169 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0923285
+    "t": 1794312692.3392107
    },
    {
-    "actif": "XAGUSD 1H 09d9dc5c",
+    "actif": "XAGUSD 4H d6b7b5e4",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (779 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (188 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0921938
+    "t": 1794312692.3391993
    },
    {
-    "actif": "XAGUSD 1H 1f9a1ef5",
+    "actif": "XAGUSD 4H 9ccf665c",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (474 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 80 % (173 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0920773
+    "t": 1794312692.3391726
    },
    {
-    "actif": "XAGUSD 1H c0e03c65",
+    "actif": "AUDNZD 4H 8b371a65",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (571 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 78 % (179 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0920622
+    "t": 1794312692.0271988
    },
    {
-    "actif": "XAGUSD 1H 84a6f4a9",
+    "actif": "AUDNZD 4H 086dbd4e",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 83 % (676 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (191 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.092046
+    "t": 1794312692.0271487
    },
    {
-    "actif": "XAGUSD 1H dcfcc11f",
+    "actif": "AUDNZD 4H feb7a459",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 83 % (555 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:08",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (169 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312482.0920255
+    "t": 1794312692.0271382
    },
    {
-    "actif": "AUDUSD 1H 4774fa68",
+    "actif": "AUDNZD 4H d6b7b5e4",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (428 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (188 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.2494018
+    "t": 1794312692.0271275
    },
    {
-    "actif": "AUDUSD 1H cd982d44",
+    "actif": "GBPAUD 4H 52c3d54d",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (436 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 78 % (177 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.24935
+    "t": 1794312691.8710463
    },
    {
-    "actif": "AUDUSD 1H 22395331",
+    "actif": "GBPAUD 4H 8b371a65",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (438 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 78 % (179 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.249315
+    "t": 1794312691.8710341
    },
    {
-    "actif": "AUDUSD 1H 4de99d89",
+    "actif": "GBPAUD 4H 086dbd4e",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (451 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (191 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.2492805
+    "t": 1794312691.870988
    },
    {
-    "actif": "AUDUSD 1H e31e881e",
+    "actif": "GBPAUD 4H feb7a459",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (424 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (169 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.2492652
+    "t": 1794312691.870976
    },
    {
-    "actif": "AUDUSD 1H 09d9dc5c",
+    "actif": "GBPAUD 4H d6b7b5e4",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-5 (zone 4 a inf)"
+     "croise_moyenne(flux.mouvement_nfp,smc.ob=? (zone 0.226 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 82 % (779 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 13:07",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 79 % (188 trades jamais vus)",
+    "sens": "vente",
+    "heure": "10/11 13:11",
     "score": 0.6666666666666666,
-    "t": 1794312462.249211
+    "t": 1794312691.870964
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 10
+  }
  },
  "telegram": {
   "envoyes": 0,
