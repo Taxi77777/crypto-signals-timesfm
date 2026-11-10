@@ -673,25 +673,25 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "10/11 15:25",
+    "dernier_controle": "10/11 15:36",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 27,
     "derniere_bougie": "28/09 19:00"
    },
    "cr 30M": {
-    "dernier_controle": "10/11 15:25",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "10/11 15:36",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 20,
-    "derniere_bougie": null
+    "derniere_bougie": "10/11 14:30"
    },
    "erreurs": {
     "LRC 30M": "seulement 219 bougies",
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "10/11 15:25",
+    "dernier_controle": "10/11 15:36",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 23,
@@ -705,14 +705,14 @@
     "derniere_bougie": "10/11 14:00"
    },
    "fx 30M": {
-    "dernier_controle": "10/11 15:16",
+    "dernier_controle": "10/11 15:36",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
     "derniere_bougie": "10/11 14:30"
    },
    "fx 15M": {
-    "dernier_controle": "10/11 15:25",
+    "dernier_controle": "10/11 15:36",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 17,
@@ -735,184 +735,184 @@
   },
   "plus_proches": [
    {
-    "actif": "NZDUSD 1H cd982d44",
+    "actif": "AUDNZD 30M a099b920",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
+     "stops_au_dessus_1atr=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (436 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8312008
-   },
-   {
-    "actif": "NZDUSD 1H dafabd9d",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (432 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311899
-   },
-   {
-    "actif": "NZDUSD 1H 22395331",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (438 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311784
-   },
-   {
-    "actif": "NZDUSD 1H b69a47f4",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (444 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.831168
-   },
-   {
-    "actif": "NZDUSD 1H 4de99d89",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (451 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.831157
-   },
-   {
-    "actif": "NZDUSD 1H e31e881e",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (424 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311458
-   },
-   {
-    "actif": "NZDUSD 1H bfd86d82",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (402 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311338
-   },
-   {
-    "actif": "NZDUSD 1H 25f2c1f3",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (442 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.831123
-   },
-   {
-    "actif": "NZDUSD 1H df7249c5",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (393 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311117
-   },
-   {
-    "actif": "NZDUSD 1H 6fabf590",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 83 % (424 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8311005
-   },
-   {
-    "actif": "NZDUSD 1H 1c5ab96d",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 83 % (402 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.831088
-   },
-   {
-    "actif": "NZDUSD 1H 25c4a17b",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 83 % (422 trades jamais vus)",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8310735
-   },
-   {
-    "actif": "NZDUSD 1H de006080",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 \ud83c\udf19 Session du soir \u00b7 83 % (390 tr",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8310585
-   },
-   {
-    "actif": "NZDUSD 1H b832aa18",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 \ud83c\udf19 Session du soir \u00b7 83 % (418 tr",
-    "sens": "achat",
-    "heure": "10/11 15:18",
-    "score": 0.6666666666666666,
-    "t": 1794320337.8310459
-   },
-   {
-    "actif": "EURCHF 15M 499a9eb8",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-2 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 74 % (156 trades jamai",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 % ",
     "sens": "vente",
-    "heure": "10/11 15:17",
+    "heure": "10/11 15:36",
     "score": 0.6666666666666666,
-    "t": 1794320261.0448866
+    "t": 1794321410.6691885
+   },
+   {
+    "actif": "GBPAUD 30M f913ee52",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 88 % (34 trades jamais vu",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321410.5123656
+   },
+   {
+    "actif": "GBPAUD 30M f0fb53f4",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 89 % (36 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321410.5123515
+   },
+   {
+    "actif": "GBPAUD 30M 7a6af4de",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 92 % (36 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321410.5123007
+   },
+   {
+    "actif": "EURAUD 30M a099b920",
+    "reunies": "2/3",
+    "manque": [
+     "accord(liquidite.dist_bas_veille,flux.he=-1 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 % ",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321410.1980903
+   },
+   {
+    "actif": "CHFJPY 30M f913ee52",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 88 % (34 trades jamais vu",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321410.0410142
+   },
+   {
+    "actif": "AUDJPY 30M 6746ba86",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 87 % (38 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.5608172
+   },
+   {
+    "actif": "NZDUSD 30M f0fb53f4",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 89 % (36 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.4036853
+   },
+   {
+    "actif": "NZDUSD 30M f622bfe3",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 89 % (37 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.4036727
+   },
+   {
+    "actif": "NZDUSD 30M 8ac5d6d5",
+    "reunies": "2/3",
+    "manque": [
+     "jour_tendance=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 84 ",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.403639
+   },
+   {
+    "actif": "NZDUSD 30M c19dde4f",
+    "reunies": "2/3",
+    "manque": [
+     "jour_tendance=0 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 84 ",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.4036252
+   },
+   {
+    "actif": "NZDUSD 30M 7a6af4de",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 92 % (36 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.4035785
+   },
+   {
+    "actif": "NZDUSD 30M 52ebf987",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 94 % (34 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:36",
+    "score": 0.6666666666666666,
+    "t": 1794321409.4035597
+   },
+   {
+    "actif": "EURCHF 30M a099b920",
+    "reunies": "2/3",
+    "manque": [
+     "accord(liquidite.dist_bas_veille,flux.he=-1 (zone 1 a 1)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 86 % ",
+    "sens": "vente",
+    "heure": "10/11 15:35",
+    "score": 0.6666666666666666,
+    "t": 1794321352.1646988
+   },
+   {
+    "actif": "GBPJPY 30M f622bfe3",
+    "reunies": "2/3",
+    "manque": [
+     "ratio(smc.dist_ob_haussier,flux.mouvemen=? (zone 0.99 a 1.96)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 89 % (37 trades jamais",
+    "sens": "vente",
+    "heure": "10/11 15:35",
+    "score": 0.6666666666666666,
+    "t": 1794321351.6931093
    }
   ],
   "truefx": {
