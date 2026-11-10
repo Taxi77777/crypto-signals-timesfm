@@ -755,14 +755,14 @@
     "derniere_bougie": "10/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "10/11 01:36",
+    "dernier_controle": "10/11 01:57",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 12,
+    "pistes_actives": 11,
     "derniere_bougie": "10/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "10/11 01:36",
+    "dernier_controle": "10/11 01:58",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 18,
@@ -784,6 +784,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "USDJPY 15M a19cfb33",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (216 trades jamai",
+    "sens": "vente",
+    "heure": "10/11 01:58",
+    "score": 0.6666666666666666,
+    "t": 1794272302.6896977
+   },
+   {
+    "actif": "USDJPY 15M 745d8d74",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (219 trades jamai",
+    "sens": "vente",
+    "heure": "10/11 01:58",
+    "score": 0.6666666666666666,
+    "t": 1794272302.6896493
+   },
+   {
+    "actif": "USDJPY 15M 7358b439",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=? (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 79 % (169 trades jamai",
+    "sens": "vente",
+    "heure": "10/11 01:58",
+    "score": 0.6666666666666666,
+    "t": 1794272302.6895685
+   },
    {
     "actif": "EURAUD 15M 858c886f",
     "reunies": "2/3",
@@ -927,42 +963,6 @@
     "heure": "10/11 01:36",
     "score": 0.6666666666666666,
     "t": 1794270996.2877128
-   },
-   {
-    "actif": "GBPCHF 15M 65c211ef",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (137 trades jamai",
-    "sens": "vente",
-    "heure": "10/11 01:36",
-    "score": 0.6666666666666666,
-    "t": 1794270996.2876794
-   },
-   {
-    "actif": "GBPCHF 15M fc09eb38",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (143 trades jamai",
-    "sens": "vente",
-    "heure": "10/11 01:36",
-    "score": 0.6666666666666666,
-    "t": 1794270996.287665
-   },
-   {
-    "actif": "GBPCHF 15M 3d45597f",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=? (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (139 trades jamai",
-    "sens": "vente",
-    "heure": "10/11 01:36",
-    "score": 0.6666666666666666,
-    "t": 1794270996.2876506
    }
   ],
   "kronos_pas_d_accord": {
