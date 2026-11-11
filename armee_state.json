@@ -700,14 +700,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "11/11 11:35",
+    "dernier_controle": "11/11 11:45",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 25,
     "derniere_bougie": "11/11 09:00"
    },
    "cr 30M": {
-    "dernier_controle": "11/11 11:35",
+    "dernier_controle": "11/11 11:45",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 21,
@@ -718,7 +718,7 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "11/11 11:35",
+    "dernier_controle": "11/11 11:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 11,
@@ -732,14 +732,14 @@
     "derniere_bougie": "11/11 10:00"
    },
    "fx 30M": {
-    "dernier_controle": "11/11 11:35",
+    "dernier_controle": "11/11 11:45",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 5,
     "derniere_bougie": "11/11 10:30"
    },
    "fx 15M": {
-    "dernier_controle": "11/11 11:35",
+    "dernier_controle": "11/11 11:46",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 13,
@@ -761,6 +761,42 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "EURUSD 15M 85501dde",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=-5.5 (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (250 trades jamai",
+    "sens": "vente",
+    "heure": "11/11 11:46",
+    "score": 0.6666666666666666,
+    "t": 1794393988.4599578
+   },
+   {
+    "actif": "EURUSD 15M f2b9442b",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=-5.5 (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (199 trades jamai",
+    "sens": "vente",
+    "heure": "11/11 11:46",
+    "score": 0.6666666666666666,
+    "t": 1794393988.4599206
+   },
+   {
+    "actif": "EURUSD 15M f4f6186e",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=-5.5 (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (176 trades jamai",
+    "sens": "vente",
+    "heure": "11/11 11:46",
+    "score": 0.6666666666666666,
+    "t": 1794393988.4598768
+   },
    {
     "actif": "AUDNZD 15M fc23ec55",
     "reunies": "2/3",
@@ -904,42 +940,6 @@
     "heure": "11/11 11:35",
     "score": 0.6666666666666666,
     "t": 1794393345.5449016
-   },
-   {
-    "actif": "EURUSD 15M 85501dde",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-5.75 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (250 trades jamai",
-    "sens": "vente",
-    "heure": "11/11 11:34",
-    "score": 0.6666666666666666,
-    "t": 1794393255.8982341
-   },
-   {
-    "actif": "EURUSD 15M f8a3aac9",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-5.75 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (197 trades jamai",
-    "sens": "vente",
-    "heure": "11/11 11:34",
-    "score": 0.6666666666666666,
-    "t": 1794393255.898212
-   },
-   {
-    "actif": "EURUSD 15M f2b9442b",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-5.75 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 76 % (199 trades jamai",
-    "sens": "vente",
-    "heure": "11/11 11:34",
-    "score": 0.6666666666666666,
-    "t": 1794393255.898202
    }
   ],
   "truefx": {
