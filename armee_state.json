@@ -700,14 +700,14 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "11/11 13:35",
+    "dernier_controle": "11/11 13:45",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 25,
     "derniere_bougie": "11/11 11:00"
    },
    "cr 30M": {
-    "dernier_controle": "11/11 13:35",
+    "dernier_controle": "11/11 13:45",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 23,
@@ -718,7 +718,7 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 4H": {
-    "dernier_controle": "11/11 13:35",
+    "dernier_controle": "11/11 13:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 11,
@@ -732,14 +732,14 @@
     "derniere_bougie": "11/11 12:00"
    },
    "fx 30M": {
-    "dernier_controle": "11/11 13:35",
+    "dernier_controle": "11/11 13:45",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 5,
     "derniere_bougie": "11/11 12:30"
    },
    "fx 15M": {
-    "dernier_controle": "11/11 13:35",
+    "dernier_controle": "11/11 13:46",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 13,
@@ -894,18 +894,6 @@
     "t": 1794400546.9771018
    },
    {
-    "actif": "EURGBP 15M 8677e89e",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-3.75 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (134 trades jamai",
-    "sens": "vente",
-    "heure": "11/11 13:34",
-    "score": 0.6666666666666666,
-    "t": 1794400458.789949
-   },
-   {
     "actif": "MINA 30M 81abb5b9",
     "reunies": "2/3",
     "manque": [
@@ -940,6 +928,18 @@
     "heure": "11/11 13:33",
     "score": 0.6666666666666666,
     "t": 1794400391.283687
+   },
+   {
+    "actif": "SUSHI 30M 47f43aa9",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (233 trades jamais ",
+    "sens": "achat",
+    "heure": "11/11 13:33",
+    "score": 0.6666666666666666,
+    "t": 1794400391.2836766
    }
   ],
   "truefx": {
