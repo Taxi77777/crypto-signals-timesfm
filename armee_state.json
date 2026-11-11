@@ -84,7 +84,9 @@
    "sl0": 177.57486326066834,
    "sl_sent": 177.57486326066834,
    "tp1": 177.21480127724936,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   }
  ],
  "track": [
@@ -739,7 +741,7 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "11/11 18:32",
+    "dernier_controle": "11/11 18:50",
     "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 24,
@@ -751,38 +753,38 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "11/11 18:36",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "11/11 18:50",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 15,
-    "derniere_bougie": "11/11 18:00"
+    "derniere_bougie": null
    },
    "cr 4H": {
-    "dernier_controle": "11/11 18:38",
+    "dernier_controle": "11/11 18:50",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 11,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "11/11 18:41",
+    "dernier_controle": "11/11 18:45",
     "dernier_actif": "NZDUSD",
     "actifs": 21,
     "pistes_actives": 25,
-    "derniere_bougie": "11/11 16:00"
+    "derniere_bougie": "11/11 17:00"
    },
    "fx 30M": {
-    "dernier_controle": "11/11 18:42",
+    "dernier_controle": "11/11 18:50",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 11,
     "derniere_bougie": "11/11 17:30"
    },
    "fx 15M": {
-    "dernier_controle": "11/11 18:21",
+    "dernier_controle": "11/11 18:51",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 13,
+    "pistes_actives": 12,
     "derniere_bougie": "11/11 17:45"
    },
    "fx 4H": {
@@ -801,6 +803,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "GBPJPY 15M c671b069",
+    "reunies": "2/3",
+    "manque": [
+     "heures_fixing_londres=1.25 (zone 3.75 a inf)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (156 trades jamai",
+    "sens": "vente",
+    "heure": "11/11 18:51",
+    "score": 0.6666666666666666,
+    "t": 1794419462.5911741
+   },
    {
     "actif": "EURCHF 30M 112402f5",
     "reunies": "2/3",
@@ -968,18 +982,6 @@
     "heure": "11/11 18:36",
     "score": 0.6666666666666666,
     "t": 1794418572.039881
-   },
-   {
-    "actif": "APE 30M 47f43aa9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (233 trades jamais ",
-    "sens": "achat",
-    "heure": "11/11 18:36",
-    "score": 0.6666666666666666,
-    "t": 1794418572.0397954
    }
   ],
   "truefx": {
