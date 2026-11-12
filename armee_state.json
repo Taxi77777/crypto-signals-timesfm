@@ -19,7 +19,8 @@
   "act|AUDJPY|30M|-1|1794508200": 1794511005.795519,
   "act|GBPCHF|30M|-1|1794508200": 1794511006.109403,
   "act|CADJPY|30M|-1|1794508200": 1794511006.266588,
-  "act|GBPAUD|15M|-1|1794509100": 1794511086.4356866
+  "act|GBPAUD|15M|-1|1794509100": 1794511086.4356866,
+  "act|USDCHF|30M|-1|1794510000": 1794512145.2984416
  },
  "open": [
   {
@@ -385,6 +386,32 @@
    "sl0": 1.9467879974078515,
    "sl_sent": 1.9467879974078515,
    "tp1": 1.9434760012960746,
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
+  },
+  {
+   "kind": "fx",
+   "tf": "30M",
+   "sym": "USDCHF",
+   "dir": -1,
+   "entry": 0.83547,
+   "sl": 0.8369786633107967,
+   "tp": 0.8347156683446018,
+   "t_entry": 1794511800.0,
+   "t_exit": 1794814200.0,
+   "ids": [
+    "activee-fx-30m-2e9a08e5"
+   ],
+   "agents": [
+    "inventeur"
+   ],
+   "activee": "Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 78 % (636 trades jamais vus)",
+   "trail": 2.0,
+   "atr": 0.0007543316553983342,
+   "sl0": 0.8369786633107967,
+   "sl_sent": 0.8369786633107967,
+   "tp1": 0.8347156683446018,
    "frac": 0.5,
    "half": false,
    "part": 0.0
@@ -1090,26 +1117,26 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "12/11 20:30",
+    "dernier_controle": "12/11 20:40",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 22,
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
+    "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies"
+    "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "12/11 20:25",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "12/11 20:40",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 23,
-    "derniere_bougie": null
+    "derniere_bougie": "12/11 19:30"
    },
    "cr 4H": {
-    "dernier_controle": "12/11 20:25",
+    "dernier_controle": "12/11 20:40",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 13,
@@ -1123,14 +1150,14 @@
     "derniere_bougie": "12/11 19:00"
    },
    "fx 30M": {
-    "dernier_controle": "12/11 20:16",
+    "dernier_controle": "12/11 20:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 2,
     "derniere_bougie": "12/11 19:30"
    },
    "fx 15M": {
-    "dernier_controle": "12/11 20:25",
+    "dernier_controle": "12/11 20:40",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
@@ -1160,9 +1187,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (106 trades jamai",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.6542354
+    "t": 1794512200.8737533
    },
    {
     "actif": "XAUUSD 15M 9e732c7b",
@@ -1172,9 +1199,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (384 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.6541126
+    "t": 1794512200.8736382
    },
    {
     "actif": "XAUUSD 15M e032ca4b",
@@ -1184,9 +1211,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (337 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.6540585
+    "t": 1794512200.8735883
    },
    {
     "actif": "GBPAUD 15M 2679a677",
@@ -1196,9 +1223,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (106 trades jamai",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.3325462
+    "t": 1794512200.5563433
    },
    {
     "actif": "GBPAUD 15M e032ca4b",
@@ -1208,9 +1235,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (337 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.3323495
+    "t": 1794512200.556227
    },
    {
     "actif": "GBPAUD 15M 055ca82e",
@@ -1220,9 +1247,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (133 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.3323019
+    "t": 1794512200.5561936
    },
    {
     "actif": "GBPAUD 15M b6ad2afb",
@@ -1232,9 +1259,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (308 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.3322809
+    "t": 1794512200.5561798
    },
    {
     "actif": "GBPAUD 15M 01c11452",
@@ -1244,9 +1271,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (230 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.33226
+    "t": 1794512200.5561655
    },
    {
     "actif": "GBPAUD 15M 7612ed76",
@@ -1256,9 +1283,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 \ud83c\udf19 Session du soir \u00b7 89 % ",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.332237
+    "t": 1794512200.55615
    },
    {
     "actif": "GBPAUD 15M b2320436",
@@ -1268,9 +1295,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 87 % (375 trades jamai",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511546.3321352
+    "t": 1794512200.556089
    },
    {
     "actif": "CHFJPY 15M 8dee8c8d",
@@ -1280,9 +1307,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (121 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511545.8569808
+    "t": 1794512200.0812583
    },
    {
     "actif": "CHFJPY 15M 9e732c7b",
@@ -1292,9 +1319,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (384 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511545.8569415
+    "t": 1794512200.08122
    },
    {
     "actif": "CHFJPY 15M e032ca4b",
@@ -1304,9 +1331,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (337 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511545.856829
+    "t": 1794512200.0811691
    },
    {
     "actif": "CHFJPY 15M 055ca82e",
@@ -1316,9 +1343,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (133 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511545.856799
+    "t": 1794512200.0811453
    },
    {
     "actif": "CHFJPY 15M 7f6a420e",
@@ -1328,9 +1355,9 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (102 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 20:25",
+    "heure": "12/11 20:36",
     "score": 0.6666666666666666,
-    "t": 1794511545.8567462
+    "t": 1794512200.0811026
    }
   ],
   "murs_signales": [
@@ -1343,7 +1370,7 @@
   }
  },
  "telegram": {
-  "envoyes": 12,
+  "envoyes": 13,
   "erreurs": 0
  }
 }
