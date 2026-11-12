@@ -756,21 +756,21 @@
   "veille": "2026-10-31"
  },
  "diag": {
-  "strategies": 4,
-  "labo": "2026-11-12 00:07 UTC",
+  "strategies": 0,
+  "labo": "2026-11-12 05:25 UTC",
   "telegram": "ok",
   "demarrage": {
    "historiques": "285/285",
-   "secondes": 194,
+   "secondes": 38,
    "repris_de_la_veille": 345
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "12/11 07:24",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "12/11 07:36",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 24,
-    "derniere_bougie": "28/09 19:00"
+    "derniere_bougie": "12/11 06:00"
    },
    "erreurs": {
     "LRC 1H": "seulement 204 bougies",
@@ -778,152 +778,49 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "12/11 07:26",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "12/11 07:38",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 21,
-    "derniere_bougie": null
+    "derniere_bougie": "12/11 06:30"
    },
    "cr 4H": {
-    "dernier_controle": "12/11 07:28",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "12/11 07:39",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 14,
-    "derniere_bougie": "28/09 18:00"
+    "derniere_bougie": "12/11 01:00"
    },
    "fx 1H": {
-    "dernier_controle": "12/11 07:15",
-    "dernier_actif": "NZDUSD",
+    "dernier_controle": "12/11 07:40",
+    "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 25,
     "derniere_bougie": "12/11 06:00"
    },
    "fx 30M": {
-    "dernier_controle": "12/11 07:13",
+    "dernier_controle": "12/11 07:41",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
     "derniere_bougie": "12/11 06:30"
    },
    "fx 15M": {
-    "dernier_controle": "12/11 07:31",
+    "dernier_controle": "12/11 07:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
     "derniere_bougie": "12/11 06:45"
    },
    "fx 4H": {
-    "dernier_controle": "12/11 05:13",
+    "dernier_controle": "12/11 07:42",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 17,
+    "pistes_actives": 19,
     "derniere_bougie": "12/11 01:00"
-   },
-   "fx 1D": {
-    "dernier_controle": "12/11 02:14",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 8,
-    "derniere_bougie": "11/11 01:00"
    }
   },
   "plus_proches": [
-   {
-    "actif": "AUDNZD 15M b0b4b3a6",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (354 trades jamai",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5531125
-   },
-   {
-    "actif": "AUDNZD 15M 90db3d08",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (627 trades jamai",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5531034
-   },
-   {
-    "actif": "AUDNZD 15M 9e732c7b",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (384 trades jamais v",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.553035
-   },
-   {
-    "actif": "AUDNZD 15M 658fb41f",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (340 trades jamais v",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5530133
-   },
-   {
-    "actif": "AUDNZD 15M 0089ab46",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (357 trades jamais v",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5530024
-   },
-   {
-    "actif": "AUDNZD 15M b6ad2afb",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (308 trades jamais v",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5529575
-   },
-   {
-    "actif": "AUDNZD 15M 7612ed76",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 \ud83c\udf19 Session du soir \u00b7 89 % ",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5529215
-   },
-   {
-    "actif": "AUDNZD 15M b2320436",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 87 % (375 trades jamai",
-    "sens": "vente",
-    "heure": "12/11 07:31",
-    "score": 0.6666666666666666,
-    "t": 1794465063.5528665
-   },
    {
     "actif": "GBPJPY 15M b0b4b3a6",
     "reunies": "2/3",
@@ -932,9 +829,21 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (354 trades jamai",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.989614
+    "t": 1794465718.735492
+   },
+   {
+    "actif": "USDCAD 15M b0b4b3a6",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (354 trades jamai",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465718.1211967
    },
    {
     "actif": "USDCAD 15M fff6971a",
@@ -944,21 +853,33 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (346 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.2562041
+    "t": 1794465718.121191
    },
    {
-    "actif": "USDCAD 15M e032ca4b",
+    "actif": "USDCAD 15M 0089ab46",
     "reunies": "2/3",
     "manque": [
      "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (337 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (357 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.2561424
+    "t": 1794465718.1211617
+   },
+   {
+    "actif": "USDCAD 15M b6ad2afb",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (308 trades jamais v",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465718.1211336
    },
    {
     "actif": "USDCAD 15M 01c11452",
@@ -968,9 +889,33 @@
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 89 % (230 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.256091
+    "t": 1794465718.121127
+   },
+   {
+    "actif": "USDCAD 15M 2249cde0",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 \ud83c\udf19 Session du soir \u00b7 90 % ",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465718.1211107
+   },
+   {
+    "actif": "USDCAD 15M b2320436",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 87 % (375 trades jamai",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465718.1210926
    },
    {
     "actif": "USDCHF 15M b0b4b3a6",
@@ -980,42 +925,86 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (354 trades jamai",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.099935
+    "t": 1794465717.7837768
    },
    {
-    "actif": "USDCHF 15M 9e732c7b",
+    "actif": "USDCHF 15M 7612ed76",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 \ud83c\udf19 Session du soir \u00b7 89 % ",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465717.7836285
+   },
+   {
+    "actif": "USDCHF 15M b2320436",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 87 % (375 trades jamai",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465717.7835941
+   },
+   {
+    "actif": "USDJPY 15M fff6971a",
+    "reunies": "2/3",
+    "manque": [
+     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (346 trades jamais v",
+    "sens": "vente",
+    "heure": "12/11 07:41",
+    "score": 0.6666666666666666,
+    "t": 1794465717.4292583
+   },
+   {
+    "actif": "USDJPY 15M 9e732c7b",
     "reunies": "2/3",
     "manque": [
      "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
     ],
     "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (384 trades jamais v",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.0998445
+    "t": 1794465717.42925
    },
    {
-    "actif": "USDCHF 15M 0089ab46",
+    "actif": "GBPUSD 30M 3f088f45",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "produit(structure.vs_bas_2j,flux.heures_=? (zone 12.5 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (357 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 93 % ",
     "sens": "vente",
-    "heure": "12/11 07:31",
+    "heure": "12/11 07:41",
     "score": 0.6666666666666666,
-    "t": 1794465061.09981
+    "t": 1794465684.969419
+   },
+   {
+    "actif": "FLOW 30M 4b3e9060",
+    "reunies": "2/3",
+    "manque": [
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (215 trades jamais ",
+    "sens": "achat",
+    "heure": "12/11 07:38",
+    "score": 0.6666666666666666,
+    "t": 1794465511.1082742
    }
-  ],
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
-  }
+  ]
  },
  "telegram": {
-  "envoyes": 7,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
