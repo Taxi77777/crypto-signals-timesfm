@@ -1065,11 +1065,11 @@
     "derniere_bougie": "13/11 03:45"
    },
    "fx 4H": {
-    "dernier_controle": "13/11 01:14",
+    "dernier_controle": "13/11 05:25",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 17,
-    "derniere_bougie": "12/11 21:00"
+    "pistes_actives": 18,
+    "derniere_bougie": "13/11 01:00"
    },
    "fx 1D": {
     "dernier_controle": "13/11 01:15",
@@ -1087,6 +1087,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "EURCAD 4H 91816c26",
+    "reunies": "2/3",
+    "manque": [
+     "accord(structure.vs_bas_2j,fibonacci.dis=1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 86 ",
+    "sens": "achat",
+    "heure": "13/11 05:25",
+    "score": 0.6666666666666666,
+    "t": 1794543915.1094403
+   },
    {
     "actif": "EURGBP 15M 90db3d08",
     "reunies": "2/3",
@@ -1254,18 +1266,6 @@
     "heure": "13/11 05:22",
     "score": 0.6666666666666666,
     "t": 1794543771.8846369
-   },
-   {
-    "actif": "EURUSD 15M 2679a677",
-    "reunies": "2/3",
-    "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (106 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 05:22",
-    "score": 0.6666666666666666,
-    "t": 1794543771.7261672
    }
   ],
   "volume_trop_faible": {
