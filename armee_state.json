@@ -1034,35 +1034,35 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 12:45",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 24,
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
     "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "13/11 12:45",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 17,
     "derniere_bougie": "13/11 11:30"
    },
    "cr 15M": {
-    "dernier_controle": "13/11 12:40",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 1,
     "derniere_bougie": "13/11 11:45"
    },
    "cr 4H": {
-    "dernier_controle": "13/11 12:40",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 11,
@@ -1076,14 +1076,14 @@
     "derniere_bougie": "13/11 11:00"
    },
    "fx 30M": {
-    "dernier_controle": "13/11 12:41",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 13,
     "derniere_bougie": "13/11 11:30"
    },
    "fx 15M": {
-    "dernier_controle": "13/11 12:41",
+    "dernier_controle": "13/11 12:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
@@ -1109,25 +1109,25 @@
     "actif": "GBPJPY 15M fc09eb38",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-4.75 (zone 3.75 a inf)"
+     "heures_fixing_londres=-4.5 (zone 3.75 a inf)"
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (143 trades jamai",
     "sens": "vente",
-    "heure": "13/11 12:40",
+    "heure": "13/11 12:50",
     "score": 0.6666666666666666,
-    "t": 1794570041.6793869
+    "t": 1794570642.750824
    },
    {
     "actif": "GBPJPY 15M f4f6186e",
     "reunies": "2/3",
     "manque": [
-     "heures_fixing_londres=-4.75 (zone 3.75 a inf)"
+     "heures_fixing_londres=-4.5 (zone 3.75 a inf)"
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 79 % (178 trades jamai",
     "sens": "vente",
-    "heure": "13/11 12:40",
+    "heure": "13/11 12:50",
     "score": 0.6666666666666666,
-    "t": 1794570041.6793725
+    "t": 1794570642.7508087
    },
    {
     "actif": "AUDUSD 30M c1a5e164",
