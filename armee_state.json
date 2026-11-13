@@ -1116,7 +1116,32 @@
     "derniere_bougie": "13/11 21:00"
    },
    "erreurs": {
-    "LRC 1H": "seulement 204 bougies"
+    "LRC 1H": "seulement 204 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
+   },
+   "cr 30M": {
+    "dernier_controle": "13/11 22:21",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 10,
+    "derniere_bougie": "13/11 21:30"
+   },
+   "cr 15M": {
+    "dernier_controle": "13/11 22:25",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 1,
+    "derniere_bougie": "13/11 22:00"
+   },
+   "cr 4H": {
+    "dernier_controle": "13/11 22:28",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 10,
+    "derniere_bougie": "13/11 17:00"
    }
   },
   "plus_proches": [
