@@ -216,33 +216,6 @@
    "frac": 0.5,
    "half": false,
    "part": 0.0
-  },
-  {
-   "kind": "fx",
-   "tf": "30M",
-   "sym": "AUDNZD",
-   "dir": -1,
-   "entry": 1.2265700000000002,
-   "sl": 1.2265700000000002,
-   "tp": 1.2260198635823214,
-   "t_entry": 1794596400.0,
-   "t_exit": 1795028400.0,
-   "ids": [
-    "activee-fx-30m-ce83fd83"
-   ],
-   "agents": [
-    "noyau_liquidite"
-   ],
-   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 91 % (154 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.0007335152235717238,
-   "sl0": 1.2280370304471435,
-   "sl_sent": 1.2265700000000002,
-   "tp1": 1.2260198635823214,
-   "frac": 0.5,
-   "half": true,
-   "part": 0.00027506820883937966,
-   "half_sent": true
   }
  ],
  "track": [
@@ -940,6 +913,15 @@
    "pct": 0.062,
    "day": "2026-11-13",
    "activee": "Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 78 % (636 trades jamais vus)"
+  },
+  {
+   "sym": "AUDNZD",
+   "kind": "fx",
+   "dir": -1,
+   "win": true,
+   "pct": 0.022,
+   "day": "2026-11-13",
+   "activee": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 91 % (154 trades jamais vus)"
   }
  ],
  "live": {
@@ -1090,6 +1072,10 @@
   "activee-cr-4h-b1207553": {
    "n": 2,
    "k": 0
+  },
+  "activee-fx-30m-ce83fd83": {
+   "n": 1,
+   "k": 1
   }
  },
  "retired": [],
@@ -1109,39 +1095,39 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 22:34",
+    "dernier_controle": "13/11 22:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 27,
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
     "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 15M": "seulement 0 bougies",
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "13/11 22:38",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "13/11 22:45",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 10,
-    "derniere_bougie": "13/11 22:00"
+    "derniere_bougie": null
    },
    "cr 15M": {
-    "dernier_controle": "13/11 22:25",
+    "dernier_controle": "13/11 22:49",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 1,
-    "derniere_bougie": "13/11 22:00"
+    "derniere_bougie": "13/11 22:30"
    },
    "cr 4H": {
-    "dernier_controle": "13/11 22:28",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "13/11 22:49",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 10,
-    "derniere_bougie": "13/11 17:00"
+    "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
     "dernier_controle": "13/11 22:30",
@@ -1151,14 +1137,14 @@
     "derniere_bougie": "13/11 21:00"
    },
    "fx 30M": {
-    "dernier_controle": "13/11 22:31",
+    "dernier_controle": "13/11 22:49",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 13,
     "derniere_bougie": "13/11 21:30"
    },
    "fx 15M": {
-    "dernier_controle": "13/11 22:33",
+    "dernier_controle": "13/11 22:43",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 15,
@@ -1367,7 +1353,7 @@
   }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
