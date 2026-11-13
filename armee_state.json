@@ -1016,35 +1016,35 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 14:45",
+    "dernier_controle": "13/11 14:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 24,
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
+    "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies"
+    "STORJ 15M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "13/11 14:32",
-    "dernier_actif": "KAVA",
+    "dernier_controle": "13/11 14:55",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 11,
-    "derniere_bougie": "13/11 13:00"
+    "derniere_bougie": null
    },
    "cr 15M": {
-    "dernier_controle": "13/11 14:37",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "13/11 14:55",
+    "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 1,
     "derniere_bougie": "13/11 14:15"
    },
    "cr 4H": {
-    "dernier_controle": "13/11 14:39",
+    "dernier_controle": "13/11 14:55",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 8,
@@ -1058,14 +1058,14 @@
     "derniere_bougie": "13/11 13:00"
    },
    "fx 30M": {
-    "dernier_controle": "13/11 14:43",
+    "dernier_controle": "13/11 14:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 13,
     "derniere_bougie": "13/11 13:30"
    },
    "fx 15M": {
-    "dernier_controle": "13/11 14:44",
+    "dernier_controle": "13/11 14:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 12,
@@ -1192,9 +1192,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (123 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577459.3412678
+    "t": 1794578149.3372574
    },
    {
     "actif": "EURCHF 15M cd58f871",
@@ -1205,9 +1205,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (243 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577459.3412519
+    "t": 1794578149.337243
    },
    {
     "actif": "EURCHF 15M 8a756f9a",
@@ -1218,9 +1218,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 78 % (138 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577459.3411686
+    "t": 1794578149.337169
    },
    {
     "actif": "EURCHF 15M f4f6186e",
@@ -1231,9 +1231,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 79 % (179 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577459.3411233
+    "t": 1794578149.3371313
    },
    {
     "actif": "EURJPY 15M 05b5e55a",
@@ -1244,9 +1244,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (123 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577458.7050858
+    "t": 1794578148.7011216
    },
    {
     "actif": "EURJPY 15M cd58f871",
@@ -1257,9 +1257,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 75 % (243 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577458.7050714
+    "t": 1794578148.701104
    },
    {
     "actif": "EURJPY 15M 23b04716",
@@ -1270,9 +1270,9 @@
     ],
     "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (156 trades jamai",
     "sens": "vente",
-    "heure": "13/11 14:44",
+    "heure": "13/11 14:55",
     "score": 0.3333333333333333,
-    "t": 1794577458.7049885
+    "t": 1794578148.7010067
    }
   ],
   "murs_signales": [
