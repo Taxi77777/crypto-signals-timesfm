@@ -182,7 +182,9 @@
    "sl0": 0.6731776836594175,
    "sl_sent": 0.6731776836594175,
    "tp1": 0.6831274387801942,
-   "frac": 0.5
+   "frac": 0.5,
+   "half": false,
+   "part": 0.0
   }
  ],
  "track": [
@@ -1031,18 +1033,18 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 11:06",
+    "dernier_controle": "13/11 11:34",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 24,
-    "derniere_bougie": "13/11 09:00"
+    "derniere_bougie": "13/11 10:00"
    },
    "erreurs": {
-    "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
     "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
+    "STORJ 15M": "seulement 0 bougies",
+    "LRC 1H": "seulement 204 bougies"
    },
    "cr 30M": {
     "dernier_controle": "13/11 11:10",
@@ -1291,7 +1293,11 @@
   ],
   "murs_signales": [
    "13/11 11:27 AUDUSD 1D"
-  ]
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 1,
