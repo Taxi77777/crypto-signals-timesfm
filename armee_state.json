@@ -988,281 +988,29 @@
   "veille": "2026-10-31"
  },
  "diag": {
-  "strategies": 2,
-  "labo": "2026-11-13 09:54 UTC",
+  "strategies": 3,
+  "labo": "2026-11-13 13:47 UTC",
   "telegram": "ok",
   "demarrage": {
    "historiques": "345/345",
-   "secondes": 139,
+   "secondes": 192,
    "repris_de_la_veille": 345
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 16:07",
+    "dernier_controle": "13/11 16:30",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 24,
     "derniere_bougie": "13/11 15:00"
    },
    "erreurs": {
-    "LRC 1H": "seulement 204 bougies",
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies"
-   },
-   "cr 30M": {
-    "dernier_controle": "13/11 16:11",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 11,
-    "derniere_bougie": "13/11 15:30"
-   },
-   "cr 15M": {
-    "dernier_controle": "13/11 16:15",
-    "dernier_actif": "ROSE",
-    "actifs": 60,
-    "pistes_actives": 1,
-    "derniere_bougie": "13/11 15:45"
-   },
-   "cr 4H": {
-    "dernier_controle": "13/11 16:15",
-    "dernier_actif": "STORJ",
-    "actifs": 60,
-    "pistes_actives": 8,
-    "derniere_bougie": "28/09 18:00"
-   },
-   "fx 1H": {
-    "dernier_controle": "13/11 16:18",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 26,
-    "derniere_bougie": "13/11 14:00"
-   },
-   "fx 30M": {
-    "dernier_controle": "13/11 16:20",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 13,
-    "derniere_bougie": "13/11 14:30"
-   },
-   "fx 15M": {
-    "dernier_controle": "13/11 16:21",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 12,
-    "derniere_bougie": "13/11 15:45"
-   },
-   "fx 4H": {
-    "dernier_controle": "13/11 13:26",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 20,
-    "derniere_bougie": "13/11 09:00"
-   },
-   "fx 1D": {
-    "dernier_controle": "13/11 11:27",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 8,
-    "derniere_bougie": "12/11 01:00"
+    "LRC 1H": "seulement 204 bougies"
    }
-  },
-  "plus_proches": [
-   {
-    "actif": "GBPJPY 15M fc23ec55",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-1 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 73 % (179 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:21",
-    "score": 0.6666666666666666,
-    "t": 1794583285.476139
-   },
-   {
-    "actif": "GBPJPY 15M fc09eb38",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-1 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 77 % (144 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:21",
-    "score": 0.6666666666666666,
-    "t": 1794583285.4761188
-   },
-   {
-    "actif": "GBPJPY 15M f4f6186e",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-1 (zone 3.75 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 79 % (179 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:21",
-    "score": 0.6666666666666666,
-    "t": 1794583285.4760768
-   },
-   {
-    "actif": "GBPJPY 30M d65fc632",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 83 % (211 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:20",
-    "score": 0.6666666666666666,
-    "t": 1794583202.003188
-   },
-   {
-    "actif": "GBPJPY 30M c1a5e164",
-    "reunies": "2/3",
-    "manque": [
-     "accord(structure.vs_bas_2j,flux.heures_f=-1 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 87 % ",
-    "sens": "vente",
-    "heure": "13/11 16:20",
-    "score": 0.6666666666666666,
-    "t": 1794583202.0031037
-   },
-   {
-    "actif": "GBPJPY 30M b4deeed7",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\uddfa\ud83c\uddf8 Session New York \u00b7 86 ",
-    "sens": "vente",
-    "heure": "13/11 16:20",
-    "score": 0.6666666666666666,
-    "t": 1794583202.0030673
-   },
-   {
-    "actif": "NZDUSD 30M 102bbd79",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 84 % (136 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583181.2987814
-   },
-   {
-    "actif": "NZDUSD 30M 45f726e9",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 84 % (165 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583181.2987542
-   },
-   {
-    "actif": "NZDUSD 30M e454b827",
-    "reunies": "2/3",
-    "manque": [
-     "accord(structure.vs_bas_2j,flux.heures_f=-1 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 85 % (183 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583181.2987406
-   },
-   {
-    "actif": "NZDUSD 30M c1a5e164",
-    "reunies": "2/3",
-    "manque": [
-     "accord(structure.vs_bas_2j,flux.heures_f=-1 (zone 1 a 1)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 87 % ",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583181.2987266
-   },
-   {
-    "actif": "NZDUSD 30M 670d4bf0",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 86 % (160 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583181.2986896
-   },
-   {
-    "actif": "EURUSD 30M ce83fd83",
-    "reunies": "2/3",
-    "manque": [
-     "divergence_k(liquidite.dist_bas_veille,s=0 (zone 2 a 2)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 \ud83c\udf19 Session du soir \u00b7 91 % ",
-    "sens": "vente",
-    "heure": "13/11 16:19",
-    "score": 0.6666666666666666,
-    "t": 1794583180.1761794
-   },
-   {
-    "actif": "EURCHF 1H a1bce9a5",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-2 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (542 trades jamais vus)",
-    "sens": "achat",
-    "heure": "13/11 16:18",
-    "score": 0.6666666666666666,
-    "t": 1794583100.4555974
-   },
-   {
-    "actif": "EURCHF 1H 9b614c44",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-2 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (545 trades jamais vus)",
-    "sens": "achat",
-    "heure": "13/11 16:18",
-    "score": 0.6666666666666666,
-    "t": 1794583100.4555833
-   },
-   {
-    "actif": "EURCHF 1H ea305036",
-    "reunies": "2/3",
-    "manque": [
-     "heures_fixing_londres=-2 (zone 4 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (540 trades jamais vus)",
-    "sens": "achat",
-    "heure": "13/11 16:18",
-    "score": 0.6666666666666666,
-    "t": 1794583100.4555693
-   }
-  ],
-  "murs_signales": [
-   "13/11 11:27 AUDUSD 1D"
-  ],
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
-  },
-  "volume_trop_faible": {
-   "SNX": "0.2 M$ sur 24 h"
   }
  },
  "telegram": {
-  "envoyes": 4,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
