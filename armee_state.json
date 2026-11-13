@@ -1102,18 +1102,18 @@
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
     "STORJ 15M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies"
+    "LRC 1H": "seulement 204 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "14/11 00:11",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "14/11 00:30",
+    "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 10,
-    "derniere_bougie": "13/11 23:30"
+    "pistes_actives": 9,
+    "derniere_bougie": null
    },
    "cr 15M": {
     "dernier_controle": "14/11 00:15",
@@ -1123,28 +1123,28 @@
     "derniere_bougie": "13/11 23:45"
    },
    "cr 4H": {
-    "dernier_controle": "14/11 00:15",
+    "dernier_controle": "14/11 00:33",
     "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 10,
+    "pistes_actives": 11,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "14/11 00:17",
+    "dernier_controle": "14/11 00:36",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
     "derniere_bougie": "13/11 22:00"
    },
    "fx 30M": {
-    "dernier_controle": "14/11 00:18",
+    "dernier_controle": "14/11 00:37",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 13,
+    "pistes_actives": 10,
     "derniere_bougie": "13/11 22:30"
    },
    "fx 15M": {
-    "dernier_controle": "14/11 00:19",
+    "dernier_controle": "14/11 00:38",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 15,
