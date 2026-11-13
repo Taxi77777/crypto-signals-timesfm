@@ -1108,7 +1108,7 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 20:30",
+    "dernier_controle": "13/11 20:43",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 27,
@@ -1122,24 +1122,24 @@
     "STORJ 15M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "13/11 20:33",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "13/11 20:46",
+    "dernier_actif": "FLOW",
     "actifs": 60,
     "pistes_actives": 10,
-    "derniere_bougie": "13/11 20:00"
+    "derniere_bougie": "13/11 19:30"
    },
    "cr 15M": {
-    "dernier_controle": "13/11 20:36",
+    "dernier_controle": "13/11 20:49",
     "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 1,
     "derniere_bougie": "13/11 20:15"
    },
    "cr 4H": {
-    "dernier_controle": "13/11 20:36",
+    "dernier_controle": "13/11 20:51",
     "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 8,
+    "pistes_actives": 10,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
@@ -1179,6 +1179,18 @@
    }
   },
   "plus_proches": [
+   {
+    "actif": "XTZ 15M 8dcba85d",
+    "reunies": "2/3",
+    "manque": [
+     "divergence_k(positionnement.cot_bitcoin_=1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 15 min \u00b7 80 % (128 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 20:49",
+    "score": 0.6666666666666666,
+    "t": 1794599353.6129045
+   },
    {
     "actif": "AUDNZD 30M 4806673d",
     "reunies": "2/3",
@@ -1346,18 +1358,6 @@
     "heure": "13/11 20:37",
     "score": 0.6666666666666666,
     "t": 1794598678.7418075
-   },
-   {
-    "actif": "USDCHF 30M 1d919f24",
-    "reunies": "2/3",
-    "manque": [
-     "stops_au_dessus_1atr=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 85 % (213 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 20:37",
-    "score": 0.6666666666666666,
-    "t": 1794598677.9511764
    }
   ],
   "truefx": {
