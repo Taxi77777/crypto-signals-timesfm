@@ -987,38 +987,38 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "13/11 07:34",
+    "dernier_controle": "13/11 07:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 22,
     "derniere_bougie": "28/09 19:00"
    },
    "erreurs": {
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies",
     "LRC 15M": "seulement 0 bougies",
     "STORJ 15M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies"
+    "LRC 1H": "seulement 204 bougies",
+    "LRC 30M": "seulement 0 bougies",
+    "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "13/11 07:25",
-    "dernier_actif": "KAVA",
-    "actifs": 60,
-    "pistes_actives": 18,
-    "derniere_bougie": "13/11 06:00"
-   },
-   "cr 15M": {
-    "dernier_controle": "13/11 07:25",
+    "dernier_controle": "13/11 07:45",
     "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 1,
+    "pistes_actives": 16,
     "derniere_bougie": null
    },
+   "cr 15M": {
+    "dernier_controle": "13/11 07:39",
+    "dernier_actif": "ROSE",
+    "actifs": 60,
+    "pistes_actives": 1,
+    "derniere_bougie": "13/11 07:15"
+   },
    "cr 4H": {
-    "dernier_controle": "13/11 07:25",
+    "dernier_controle": "13/11 07:41",
     "dernier_actif": "STORJ",
     "actifs": 60,
-    "pistes_actives": 12,
+    "pistes_actives": 9,
     "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
@@ -1029,17 +1029,17 @@
     "derniere_bougie": "13/11 06:00"
    },
    "fx 30M": {
-    "dernier_controle": "13/11 07:19",
+    "dernier_controle": "13/11 07:43",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
     "derniere_bougie": "13/11 06:30"
    },
    "fx 15M": {
-    "dernier_controle": "13/11 07:25",
+    "dernier_controle": "13/11 07:44",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
-    "pistes_actives": 26,
+    "pistes_actives": 8,
     "derniere_bougie": "13/11 06:45"
    },
    "fx 4H": {
@@ -1059,184 +1059,184 @@
   },
   "plus_proches": [
    {
-    "actif": "GBPAUD 15M 56867a10",
+    "actif": "USDCAD 30M d66eb099",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "accord(structure.vs_bas_2j,flux.heures_f=? (zone 1 a 1)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (272 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 82 % (245 trades jamais v",
     "sens": "vente",
-    "heure": "13/11 07:25",
+    "heure": "13/11 07:43",
     "score": 0.6666666666666666,
-    "t": 1794551150.3460846
+    "t": 1794552205.6914752
    },
    {
-    "actif": "GBPAUD 15M 2abf1e49",
+    "actif": "USDCAD 30M a8ffbb57",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "accord(structure.vs_bas_2j,flux.heures_f=? (zone 1 a 1)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (261 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 82 % (297 trades jamais v",
     "sens": "vente",
-    "heure": "13/11 07:25",
+    "heure": "13/11 07:43",
     "score": 0.6666666666666666,
-    "t": 1794551150.3460732
+    "t": 1794552205.6914628
    },
    {
-    "actif": "GBPAUD 15M 5a4cb6d0",
+    "actif": "USDCHF 30M d66eb099",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "accord(structure.vs_bas_2j,flux.heures_f=? (zone 1 a 1)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (203 trades jamais v",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 30 min \u00b7 82 % (245 trades jamais v",
     "sens": "vente",
-    "heure": "13/11 07:25",
+    "heure": "13/11 07:43",
     "score": 0.6666666666666666,
-    "t": 1794551150.3460245
+    "t": 1794552205.5357597
    },
    {
-    "actif": "GBPAUD 15M 7612ed76",
+    "actif": "FLOW 30M da488045",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 \ud83c\udf19 Session du soir \u00b7 89 % ",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (117 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.3459663
+    "t": 1794551830.1559896
    },
    {
-    "actif": "EURCAD 15M a6166ba9",
+    "actif": "FLOW 30M 82f56e27",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (444 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (131 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.188878
+    "t": 1794551830.1559305
    },
    {
-    "actif": "EURCAD 15M cc334147",
+    "actif": "FLOW 30M 81abb5b9",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (369 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (215 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.1888685
+    "t": 1794551830.1559176
    },
    {
-    "actif": "EURCAD 15M 90db3d08",
+    "actif": "FLOW 30M 7935b41e",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 84 % (627 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (147 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.1888466
+    "t": 1794551830.1558762
    },
    {
-    "actif": "EURAUD 15M a6166ba9",
+    "actif": "SUSHI 30M da488045",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 15 min \u00b7 83 % (444 trades jamai",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (117 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0315034
+    "t": 1794551827.906053
    },
    {
-    "actif": "EURAUD 15M 74715e9d",
+    "actif": "APE 30M 81abb5b9",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (271 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (215 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314777
+    "t": 1794551826.5613098
    },
    {
-    "actif": "EURAUD 15M 56867a10",
+    "actif": "ENS 30M da488045",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (272 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (117 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314677
+    "t": 1794551826.0836186
    },
    {
-    "actif": "EURAUD 15M 8dee8c8d",
+    "actif": "ENS 30M af709486",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (121 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (166 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314572
+    "t": 1794551826.0835938
    },
    {
-    "actif": "EURAUD 15M f8d05d05",
+    "actif": "ENS 30M 0994e993",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (337 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (139 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314462
+    "t": 1794551826.0835545
    },
    {
-    "actif": "EURAUD 15M 2abf1e49",
+    "actif": "ZEC 30M af709486",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (261 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (166 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314355
+    "t": 1794551824.279634
    },
    {
-    "actif": "EURAUD 15M 658fb41f",
+    "actif": "ZEC 30M 940ae385",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 87 % (340 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (193 trades jamais ",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.0314012
+    "t": 1794551824.2796233
    },
    {
-    "actif": "EURAUD 15M e032ca4b",
+    "actif": "ZEC 30M af962192",
     "reunies": "2/3",
     "manque": [
-     "ecart_rang(smc.dans_ob_haussier,flux.heu=? (zone 0 a 0.168)"
+     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 15 min \u00b7 88 % (337 trades jamais v",
-    "sens": "vente",
-    "heure": "13/11 07:25",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (153 trades jama",
+    "sens": "achat",
+    "heure": "13/11 07:37",
     "score": 0.6666666666666666,
-    "t": 1794551150.031374
+    "t": 1794551824.2796102
    }
   ],
   "truefx": {
