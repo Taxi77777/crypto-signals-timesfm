@@ -1086,14 +1086,14 @@
     "derniere_bougie": "14/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "14/11 08:53",
+    "dernier_controle": "14/11 09:15",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 16,
     "derniere_bougie": "14/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "14/11 08:55",
+    "dernier_controle": "14/11 09:21",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
@@ -1205,6 +1205,18 @@
     "t": 1794643585.8858442
    },
    {
+    "actif": "GBPUSD 4H f2ad6bd0",
+    "reunies": "1/2",
+    "manque": [
+     "accord(structure.vs_bas_2j,flux.heures_d=-1 (zone -1e-06 a 1e-06)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 84 % (49",
+    "sens": "achat",
+    "heure": "14/11 09:18",
+    "score": 0.5,
+    "t": 1794644304.4882684
+   },
+   {
     "actif": "ROSE 4H 99c8624a",
     "reunies": "1/2",
     "manque": [
@@ -1275,18 +1287,6 @@
     "heure": "14/11 09:03",
     "score": 0.5,
     "t": 1794643399.4151957
-   },
-   {
-    "actif": "BLUR 4H 99c8624a",
-    "reunies": "1/2",
-    "manque": [
-     "croise_moyenne(positionnement.cot_bitcoi=0.00484 (zone -0.000513 a 0.000396)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\udf19 Session du soir \u00b7 78 %",
-    "sens": "vente",
-    "heure": "14/11 09:03",
-    "score": 0.5,
-    "t": 1794643398.8415456
    }
   ],
   "truefx": {
