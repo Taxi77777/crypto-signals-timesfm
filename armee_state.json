@@ -136,32 +136,6 @@
    "half": true,
    "part": 0.0005657030337227198,
    "half_sent": true
-  },
-  {
-   "kind": "fx",
-   "tf": "30M",
-   "sym": "USDCHF",
-   "dir": -1,
-   "entry": 0.83894,
-   "sl": 0.8405925218864962,
-   "tp": 0.838320304292564,
-   "t_entry": 1794594600.0,
-   "t_exit": 1795026600.0,
-   "ids": [
-    "activee-fx-30m-f29a78c9"
-   ],
-   "agents": [
-    "noyau_continuation"
-   ],
-   "activee": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 86 % (184 trades jamais vus)",
-   "trail": 3.0,
-   "atr": 0.0008262609432481091,
-   "sl0": 0.8405925218864962,
-   "sl_sent": 0.8405925218864962,
-   "tp1": 0.838320304292564,
-   "frac": 0.5,
-   "half": false,
-   "part": 0.0
   }
  ],
  "track": [
@@ -886,6 +860,15 @@
    "pct": 0.909,
    "day": "2026-11-14",
    "activee": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 4 h \u00b7 \ud83c\udf0f Session Asie \u00b7 92 % (130 trades jamais vus)"
+  },
+  {
+   "sym": "USDCHF",
+   "kind": "fx",
+   "dir": -1,
+   "win": false,
+   "pct": -0.197,
+   "day": "2026-11-14",
+   "activee": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex 30 min \u00b7 86 % (184 trades jamais vus)"
   }
  ],
  "live": {
@@ -1040,6 +1023,10 @@
   "activee-fx-30m-ce83fd83": {
    "n": 1,
    "k": 1
+  },
+  "activee-fx-30m-f29a78c9": {
+   "n": 1,
+   "k": 0
   }
  },
  "retired": [],
@@ -1059,11 +1046,11 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "14/11 03:41",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "14/11 03:55",
+    "dernier_actif": "KAVA",
     "actifs": 60,
     "pistes_actives": 26,
-    "derniere_bougie": "14/11 02:00"
+    "derniere_bougie": "14/11 01:00"
    },
    "erreurs": {
     "LRC 1H": "seulement 204 bougies",
@@ -1071,35 +1058,35 @@
     "STORJ 30M": "seulement 0 bougies"
    },
    "cr 30M": {
-    "dernier_controle": "14/11 03:43",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "14/11 03:55",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 10,
-    "derniere_bougie": "14/11 03:00"
+    "derniere_bougie": null
    },
    "cr 4H": {
-    "dernier_controle": "14/11 03:45",
-    "dernier_actif": "ROSE",
+    "dernier_controle": "14/11 03:55",
+    "dernier_actif": "STORJ",
     "actifs": 60,
     "pistes_actives": 14,
-    "derniere_bougie": "13/11 21:00"
+    "derniere_bougie": "28/09 18:00"
    },
    "fx 1H": {
-    "dernier_controle": "14/11 03:47",
+    "dernier_controle": "14/11 03:55",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 26,
     "derniere_bougie": "14/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "14/11 03:50",
+    "dernier_controle": "14/11 03:57",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
     "derniere_bougie": "14/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "14/11 03:51",
+    "dernier_controle": "14/11 03:57",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 16,
@@ -1111,9 +1098,28 @@
     "actifs": 21,
     "pistes_actives": 19,
     "derniere_bougie": "13/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "14/11 03:53",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 8,
+    "derniere_bougie": "13/11 01:00"
    }
   },
   "plus_proches": [
+   {
+    "actif": "CADJPY 1D b1384cae",
+    "reunies": "2/3",
+    "manque": [
+     "ipda_60j_dist_bas=? (zone 31.7 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 92 % (39 trades jamais vus)",
+    "sens": "vente",
+    "heure": "14/11 03:53",
+    "score": 0.6666666666666666,
+    "t": 1794624811.2852008
+   },
    {
     "actif": "USDCHF 30M f29a78c9",
     "reunies": "2/3",
@@ -1281,23 +1287,15 @@
     "heure": "14/11 03:43",
     "score": 0.6666666666666666,
     "t": 1794624229.225856
-   },
-   {
-    "actif": "FET 30M af709486",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (169 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:43",
-    "score": 0.6666666666666666,
-    "t": 1794624227.7838645
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
-  "envoyes": 0,
+  "envoyes": 1,
   "erreurs": 0
  }
 }
