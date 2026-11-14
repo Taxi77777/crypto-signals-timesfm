@@ -1091,9 +1091,35 @@
     "actifs": 21,
     "pistes_actives": 16,
     "derniere_bougie": "14/11 00:45"
+   },
+   "fx 4H": {
+    "dernier_controle": "14/11 10:05",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 20,
+    "derniere_bougie": "13/11 21:00"
+   },
+   "fx 1D": {
+    "dernier_controle": "14/11 10:09",
+    "dernier_actif": "XAGUSD",
+    "actifs": 21,
+    "pistes_actives": 8,
+    "derniere_bougie": "13/11 01:00"
    }
   },
   "plus_proches": [
+   {
+    "actif": "CADJPY 1D b1384cae",
+    "reunies": "2/3",
+    "manque": [
+     "ipda_60j_dist_bas=? (zone 31.7 a inf)"
+    ],
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex jour \u00b7 92 % (39 trades jamais vus)",
+    "sens": "vente",
+    "heure": "14/11 10:08",
+    "score": 0.6666666666666666,
+    "t": 1794647306.5379958
+   },
    {
     "actif": "KAVA 30M 52190a89",
     "reunies": "2/3",
@@ -1261,20 +1287,12 @@
     "heure": "14/11 09:41",
     "score": 0.6666666666666666,
     "t": 1794645694.0923562
-   },
-   {
-    "actif": "FET 30M 52190a89",
-    "reunies": "2/3",
-    "manque": [
-     "produit(flux.heures_fomc,vwap.vwap_gliss=? (zone -inf a -0.0219)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (163 trades jamais ",
-    "sens": "vente",
-    "heure": "14/11 09:41",
-    "score": 0.6666666666666666,
-    "t": 1794645693.513615
    }
-  ]
+  ],
+  "truefx": {
+   "mode": "public",
+   "paires_temps_reel": 0
+  }
  },
  "telegram": {
   "envoyes": 0,
