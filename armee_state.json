@@ -1049,275 +1049,29 @@
   "veille": "2026-10-31"
  },
  "diag": {
-  "strategies": 7,
-  "labo": "2026-11-13 20:52 UTC",
+  "strategies": 9,
+  "labo": "2026-11-14 02:10 UTC",
   "telegram": "ok",
   "demarrage": {
-   "historiques": "345/345",
-   "secondes": 637,
+   "historiques": "285/285",
+   "secondes": 308,
    "repris_de_la_veille": 345
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "14/11 03:25",
-    "dernier_actif": "KAVA",
-    "actifs": 60,
-    "pistes_actives": 26,
-    "derniere_bougie": "14/11 01:00"
-   },
-   "erreurs": {
-    "LRC 15M": "seulement 0 bougies",
-    "STORJ 15M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies",
-    "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
-   },
-   "cr 30M": {
-    "dernier_controle": "14/11 03:25",
-    "dernier_actif": "KAVA",
-    "actifs": 60,
-    "pistes_actives": 10,
-    "derniere_bougie": "14/11 01:30"
-   },
-   "cr 15M": {
-    "dernier_controle": "14/11 00:15",
+    "dernier_controle": "14/11 03:41",
     "dernier_actif": "ROSE",
     "actifs": 60,
-    "pistes_actives": 1,
-    "derniere_bougie": "13/11 23:45"
-   },
-   "cr 4H": {
-    "dernier_controle": "14/11 03:25",
-    "dernier_actif": "STORJ",
-    "actifs": 60,
-    "pistes_actives": 14,
-    "derniere_bougie": "28/09 18:00"
-   },
-   "fx 1H": {
-    "dernier_controle": "14/11 03:26",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
     "pistes_actives": 26,
-    "derniere_bougie": "14/11 00:00"
+    "derniere_bougie": "14/11 02:00"
    },
-   "fx 30M": {
-    "dernier_controle": "14/11 03:26",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 9,
-    "derniere_bougie": "14/11 00:30"
-   },
-   "fx 15M": {
-    "dernier_controle": "14/11 03:27",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 16,
-    "derniere_bougie": "14/11 00:45"
-   },
-   "fx 4H": {
-    "dernier_controle": "14/11 01:21",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 20,
-    "derniere_bougie": "13/11 21:00"
-   },
-   "fx 1D": {
-    "dernier_controle": "14/11 01:22",
-    "dernier_actif": "XAGUSD",
-    "actifs": 21,
-    "pistes_actives": 8,
-    "derniere_bougie": "13/11 01:00"
+   "erreurs": {
+    "LRC 1H": "seulement 204 bougies"
    }
-  },
-  "plus_proches": [
-   {
-    "actif": "ROSE 30M 7935b41e",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (147 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622277.4462523
-   },
-   {
-    "actif": "FLOW 30M a26bd632",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (288 trades jama",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622276.8503413
-   },
-   {
-    "actif": "FLOW 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622276.850308
-   },
-   {
-    "actif": "MINA 30M a26bd632",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (288 trades jama",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622276.540795
-   },
-   {
-    "actif": "MINA 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622276.540776
-   },
-   {
-    "actif": "SUSHI 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622275.3459406
-   },
-   {
-    "actif": "ENS 30M af709486",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (169 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622274.1600344
-   },
-   {
-    "actif": "ENS 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622274.159986
-   },
-   {
-    "actif": "QNT 30M af962192",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (154 trades jama",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622273.5615363
-   },
-   {
-    "actif": "DASH 30M 7935b41e",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (147 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622273.264951
-   },
-   {
-    "actif": "ZEC 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622272.9662328
-   },
-   {
-    "actif": "COMP 30M af962192",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (154 trades jama",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622271.4569087
-   },
-   {
-    "actif": "COMP 30M d570b2ff",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (162 trades jama",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622271.4568503
-   },
-   {
-    "actif": "XTZ 30M af709486",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (169 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622269.9371123
-   },
-   {
-    "actif": "XTZ 30M 81abb5b9",
-    "reunies": "2/3",
-    "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
-    ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 85 % (216 trades jamais ",
-    "sens": "achat",
-    "heure": "14/11 03:11",
-    "score": 0.6666666666666666,
-    "t": 1794622269.9370775
-   }
-  ],
-  "truefx": {
-   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
-   "paires_temps_reel": 10
   }
  },
  "telegram": {
-  "envoyes": 3,
+  "envoyes": 0,
   "erreurs": 0
  }
 }
