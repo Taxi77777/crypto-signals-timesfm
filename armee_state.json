@@ -1095,18 +1095,18 @@
   },
   "surveillance": {
    "cr 1H": {
-    "dernier_controle": "14/11 00:55",
-    "dernier_actif": "STORJ",
+    "dernier_controle": "14/11 01:07",
+    "dernier_actif": "ROSE",
     "actifs": 60,
     "pistes_actives": 27,
-    "derniere_bougie": "28/09 19:00"
+    "derniere_bougie": "14/11 00:00"
    },
    "erreurs": {
     "LRC 15M": "seulement 0 bougies",
     "STORJ 15M": "seulement 0 bougies",
-    "LRC 1H": "seulement 204 bougies",
     "LRC 30M": "seulement 0 bougies",
-    "STORJ 30M": "seulement 0 bougies"
+    "STORJ 30M": "seulement 0 bougies",
+    "LRC 1H": "seulement 204 bougies"
    },
    "cr 30M": {
     "dernier_controle": "14/11 00:55",
@@ -1167,184 +1167,184 @@
   },
   "plus_proches": [
    {
-    "actif": "MINA 30M a26bd632",
+    "actif": "ROSE 1H 81ea9769",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (288 trades jama",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (187 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613477.9370139
+    "t": 1794614832.2172523
    },
    {
-    "actif": "APE 30M af709486",
+    "actif": "ROSE 1H ed3f2a0c",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (169 trades jamais ",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 80 % (210 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613475.8272445
+    "t": 1794614832.2172394
    },
    {
-    "actif": "APE 30M 81abb5b9",
+    "actif": "ROSE 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (215 trades jamais ",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613475.82721
+    "t": 1794614832.2170086
    },
    {
-    "actif": "XTZ 30M 81abb5b9",
+    "actif": "ZRX 1H 81ea9769",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (215 trades jamais ",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (187 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613471.3379602
+    "t": 1794614830.3959858
    },
    {
-    "actif": "SAND 30M da488045",
+    "actif": "ZRX 1H ed3f2a0c",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 82 % (117 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 80 % (210 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613470.4368596
+    "t": 1794614830.3959718
    },
    {
-    "actif": "GRT 30M 81abb5b9",
+    "actif": "ZRX 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 86 % (215 trades jamais ",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613469.53189
+    "t": 1794614830.3957484
    },
    {
-    "actif": "INJ 30M a26bd632",
+    "actif": "CHZ 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (288 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613469.2293086
+    "t": 1794614828.5882704
    },
    {
-    "actif": "XLM 30M a26bd632",
+    "actif": "QNT 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (288 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613465.2937772
+    "t": 1794614828.2860332
    },
    {
-    "actif": "NEAR 30M af709486",
+    "actif": "ZEC 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto 30 min \u00b7 83 % (169 trades jamais ",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613464.9870677
+    "t": 1794614827.6888
    },
    {
-    "actif": "NEAR 30M af962192",
+    "actif": "YFI 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 84 % (154 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613464.987052
+    "t": 1794614826.773189
    },
    {
-    "actif": "NEAR 30M d570b2ff",
+    "actif": "SNX 1H ed3f2a0c",
     "reunies": "2/3",
     "manque": [
-     "acceleration(positionnement.cot_bitcoin_=0 (zone 0 a inf)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto 30 min \u00b7 88 % (162 trades jama",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 80 % (210 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:44",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794613464.986961
+    "t": 1794614826.4707994
    },
    {
-    "actif": "AUDUSD 1H a1bce9a5",
+    "actif": "COMP 1H f0257092",
     "reunies": "2/3",
     "manque": [
-     "fvg_haussier_dist=? (zone -inf a 0.293)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (542 trades jamais vus)",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 85 % (247 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:17",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794611839.42453
+    "t": 1794614826.1671016
    },
    {
-    "actif": "AUDUSD 1H ea305036",
+    "actif": "STX 1H 81ea9769",
     "reunies": "2/3",
     "manque": [
-     "fvg_haussier_dist=? (zone -inf a 0.293)"
+     "heures_nfp=? (zone -inf a -2.5)"
     ],
-    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste forex \u00b7 81 % (540 trades jamais vus)",
+    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste crypto \u00b7 80 % (187 trades jamais vus)",
     "sens": "achat",
-    "heure": "14/11 00:17",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794611839.424517
+    "t": 1794614825.5609457
    },
    {
-    "actif": "AUDUSD 1H cd982d44",
+    "actif": "STX 1H 1d414c6f",
     "reunies": "2/3",
     "manque": [
-     "ict_baissier_ote=? (zone -inf a 0.0879)"
+     "croise_moyenne(structure.vs_bas_2j,struc=1.08 (zone 2.47 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (436 trades jamais vus)",
-    "sens": "achat",
-    "heure": "14/11 00:17",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 86 % (125 trades jamais vus)",
+    "sens": "vente",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794611839.424457
+    "t": 1794614825.5608158
    },
    {
-    "actif": "AUDUSD 1H dafabd9d",
+    "actif": "FET 1H 1d414c6f",
     "reunies": "2/3",
     "manque": [
-     "ict_baissier_ote=? (zone -inf a 0.0879)"
+     "croise_moyenne(structure.vs_bas_2j,struc=0.375 (zone 2.47 a inf)"
     ],
-    "piste": "\ud83d\udca7 Liquidit\u00e9 \u00b7 Meilleure piste forex \u00b7 82 % (433 trades jamais vus)",
-    "sens": "achat",
-    "heure": "14/11 00:17",
+    "piste": "\ud83d\ude80 Continuation \u00b7 Meilleure piste crypto \u00b7 86 % (125 trades jamais vus)",
+    "sens": "vente",
+    "heure": "14/11 01:07",
     "score": 0.6666666666666666,
-    "t": 1794611839.4244277
+    "t": 1794614824.9578447
    }
   ],
   "truefx": {
