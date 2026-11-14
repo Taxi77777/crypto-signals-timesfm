@@ -1079,21 +1079,21 @@
     "derniere_bougie": "14/11 00:00"
    },
    "fx 30M": {
-    "dernier_controle": "14/11 09:58",
+    "dernier_controle": "14/11 10:26",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 9,
     "derniere_bougie": "14/11 00:30"
    },
    "fx 15M": {
-    "dernier_controle": "14/11 10:03",
+    "dernier_controle": "14/11 10:29",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 16,
     "derniere_bougie": "14/11 00:45"
    },
    "fx 4H": {
-    "dernier_controle": "14/11 10:05",
+    "dernier_controle": "14/11 10:32",
     "dernier_actif": "XAGUSD",
     "actifs": 21,
     "pistes_actives": 20,
@@ -1290,7 +1290,7 @@
    }
   ],
   "truefx": {
-   "mode": "public",
+   "mode": "erreur compte : HTTP 200, reponse 14 caracteres, 0 ':', mot-cle : not authorized",
    "paires_temps_reel": 0
   }
  },
